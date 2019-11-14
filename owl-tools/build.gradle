@@ -1,0 +1,44 @@
+buildscript {
+	repositories {
+	    mavenLocal()
+  		mavenCentral()
+		jcenter()
+	}
+	dependencies {
+		classpath 'org.xtext:xtext-gradle-plugin:1.0.21'
+		classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.+'
+	}
+}
+
+subprojects {
+	group = 'io.opencaesar.owl'
+	version = '0.1.0'
+	
+	ext.versions = [
+	    xtext: '2.16.0',
+		owl: '5.1.+'
+	]
+
+	repositories {
+    	mavenLocal()
+		maven { url 'https://dl.bintray.com/opencaesar/oml-server' }
+  		mavenCentral()
+		jcenter()
+	}
+	
+	apply plugin: 'com.jfrog.bintray'
+	apply plugin: 'java'
+	apply plugin: 'org.xtext.xtend'
+	apply plugin: 'eclipse'
+	apply plugin: 'idea'
+	
+	apply from: "${rootDir}/gradle/source-layout.gradle"
+	apply from: "${rootDir}/gradle/maven-deployment.gradle"
+	
+	sourceCompatibility = '1.8'
+	targetCompatibility = '1.8'
+	
+	configurations.all {
+		exclude group: 'asm'
+	}
+}
