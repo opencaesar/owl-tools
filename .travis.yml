@@ -5,7 +5,7 @@ jdk:
 - openjdk8
 
 before_script:
-- cd owl-adapter
+- cd owl-tools
 
 script:
   - ./gradlew build
@@ -17,5 +17,5 @@ deploy:
     dry-run: false
     on:
       tags: true
-      repo: opencaesar/owl-adapter
+      repo: opencaesar/owl-tools
       branch: master
