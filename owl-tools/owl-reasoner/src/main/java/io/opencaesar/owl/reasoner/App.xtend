@@ -9,6 +9,8 @@ import org.apache.log4j.AppenderSkeleton
 import org.apache.log4j.Level
 import org.apache.log4j.LogManager
 import io.opencaesar.owl.reasoner.OwlValidator
+import java.util.List
+import java.util.ArrayList
 
 class App {
 
@@ -17,7 +19,7 @@ class App {
 		description="validate satisfiability of all classes",
 		order=1
 	)
-	package boolean validateSatifiability = false
+	package boolean validateSatisfiability = false
 	
 	@Parameter(
 		names=#["--indicate-status"], 
@@ -30,14 +32,14 @@ class App {
 		names=#["--location-mapping"], 
 		description="location mapping file",
 		validateWith = FilePath,
-		order=4
+		order=3
 	)
 	package String locationMapping
 
 	@Parameter(
 		names=#["-d", "--debug"], 
 		description="Shows debug logging statements", 
-		order=3
+		order=4
 	)
 	package boolean debug
 
@@ -45,8 +47,13 @@ class App {
 		names=#["--help", "-h"], 
 		description="Displays summary of options", 
 		help=true, 
-		order=4) package boolean help
+		order=4
+	)
+	package boolean help
 
+	@Parameter(description = "IRIs")
+	package List<String> iris = new ArrayList<String>();
+	
 	val LOGGER = LogManager.getLogger(App)
 
 	def static void main(String ... args) {
@@ -69,9 +76,14 @@ class App {
 		LOGGER.info("                        S T A R T")
 		LOGGER.info("=================================================================")
 		
-		val validator = new OwlValidator
+		val validator = new OwlValidator(
+			validateSatisfiability,
+			indicateStatus,
+			locationMapping,
+			iris
+		)
 		
-		validator.run
+		validator.run()
 		
 		LOGGER.info("=================================================================")
 		LOGGER.info("                          E N D")
