@@ -14,7 +14,6 @@ import org.apache.log4j.LogManager
 import org.semanticweb.owlapi.model.OWLOntologyIRIMapper
 import org.semanticweb.owlapi.util.AutoIRIMapper
 import uk.ac.manchester.cs.owl.owlapi.OWLDataFactoryImpl
-import uk.ac.manchester.cs.owl.owlapi.OWLOntologyIRIMapperImpl
 import uk.ac.manchester.cs.owl.owlapi.OWLOntologyManagerImpl
 
 class App {
