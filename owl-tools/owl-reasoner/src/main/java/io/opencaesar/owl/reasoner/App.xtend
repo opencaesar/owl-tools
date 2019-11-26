@@ -68,6 +68,9 @@ class App {
 	)
 	package List<String> iris = new ArrayList<String>();
 
+	@Parameter(description = "IRIs")
+	package List<String> iris = new ArrayList<String>();
+	
 	val LOGGER = LogManager.getLogger(App)
 
 	def static void main(String ... args) {
