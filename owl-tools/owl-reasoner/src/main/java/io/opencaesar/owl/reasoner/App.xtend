@@ -67,9 +67,6 @@ class App {
 	)
 	package List<String> iris = new ArrayList<String>();
 
-	@Parameter(description = "IRIs")
-	package List<String> iris = new ArrayList<String>();
-	
 	val LOGGER = LogManager.getLogger(App)
 
 	def static void main(String ... args) {
@@ -101,6 +98,8 @@ class App {
 			}
 			else
 				throw new RuntimeException("no location mapping specified and no root directory specified")
+		
+		ontologyManager.addIRIMapper(ontologyIRIMapper)
 		
 		val validator = new OwlValidator(iris, ontologyManager)
 		
