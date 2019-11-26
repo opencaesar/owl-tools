@@ -1,12 +1,15 @@
 package io.opencaesar.owl.reasoner
 
+import java.util.List
+import org.semanticweb.owlapi.model.OWLOntologyManager
+
 class OwlValidator {
 	
-	new() {
+	new(List<String> iris, OWLOntologyManager manager ) {
 		
 	}
 	
-	def run() {
+	def run(boolean validateSatisfiability) {
 		
 	}
 }

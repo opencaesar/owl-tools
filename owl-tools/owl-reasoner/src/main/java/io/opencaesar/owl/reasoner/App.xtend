@@ -5,10 +5,17 @@ import com.beust.jcommander.JCommander
 import com.beust.jcommander.Parameter
 import com.beust.jcommander.ParameterException
 import java.io.File
+import java.util.ArrayList
+import java.util.List
+import java.util.concurrent.locks.ReentrantReadWriteLock
 import org.apache.log4j.AppenderSkeleton
 import org.apache.log4j.Level
 import org.apache.log4j.LogManager
-import io.opencaesar.owl.reasoner.OwlValidator
+import org.semanticweb.owlapi.model.OWLOntologyIRIMapper
+import org.semanticweb.owlapi.util.AutoIRIMapper
+import uk.ac.manchester.cs.owl.owlapi.OWLDataFactoryImpl
+import uk.ac.manchester.cs.owl.owlapi.OWLOntologyIRIMapperImpl
+import uk.ac.manchester.cs.owl.owlapi.OWLOntologyManagerImpl
 
 class App {
 
@@ -17,7 +24,7 @@ class App {
 		description="validate satisfiability of all classes",
 		order=1
 	)
-	package boolean validateSatifiability = false
+	package boolean validateSatisfiability = false
 	
 	@Parameter(
 		names=#["--indicate-status"], 
@@ -30,14 +37,22 @@ class App {
 		names=#["--location-mapping"], 
 		description="location mapping file",
 		validateWith = FilePath,
-		order=4
+		order=3
 	)
 	package String locationMapping
 
 	@Parameter(
+		names=#["--root-directory"], 
+		description="root directory", 
+		validateWith = DirectoryPath,
+		order=4
+	)
+	package String rootDirectory
+
+	@Parameter(
 		names=#["-d", "--debug"], 
 		description="Shows debug logging statements", 
-		order=3
+		order=5
 	)
 	package boolean debug
 
@@ -45,7 +60,13 @@ class App {
 		names=#["--help", "-h"], 
 		description="Displays summary of options", 
 		help=true, 
-		order=4) package boolean help
+		order=5)
+	package boolean help
+
+	@Parameter(
+		description = "IRIs"
+	)
+	package List<String> iris = new ArrayList<String>();
 
 	val LOGGER = LogManager.getLogger(App)
 
@@ -69,15 +90,34 @@ class App {
 		LOGGER.info("                        S T A R T")
 		LOGGER.info("=================================================================")
 		
-		val validator = new OwlValidator
+		val ontologyManager = new OWLOntologyManagerImpl(new OWLDataFactoryImpl, new ReentrantReadWriteLock)
+
+		val OWLOntologyIRIMapper ontologyIRIMapper =
+			if (rootDirectory !== null) {
+				val d = new File(rootDirectory)
+				new AutoIRIMapper(d, true)
+			}
+			else
+				throw new RuntimeException("no location mapping specified and no root directory specified")
 		
-		validator.run
+		val validator = new OwlValidator(iris, ontologyManager)
+		
+		validator.run(validateSatisfiability)
 		
 		LOGGER.info("=================================================================")
 		LOGGER.info("                          E N D")
 		LOGGER.info("=================================================================")
 	}
 
+	static class DirectoryPath implements IParameterValidator {
+		override validate(String name, String value) throws ParameterException {
+			val file = new File(value)
+			if (file.isDirectory) {
+				throw new ParameterException("parameter " + name + " is not a valid directory path");
+			}
+	  	}
+	}
+	
 	static class FilePath implements IParameterValidator {
 		override validate(String name, String value) throws ParameterException {
 			val file = new File(value)
@@ -86,5 +126,4 @@ class App {
 			}
 	  	}
 	}
-	
 }

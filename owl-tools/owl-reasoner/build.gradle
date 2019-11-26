@@ -10,6 +10,7 @@ dependencies {
     implementation "com.beust:jcommander:1.72"
 	implementation "org.eclipse.xtext:org.eclipse.xtext.xbase:${versions.xtext}"
 	implementation "net.sourceforge.owlapi:owlapi-distribution:${versions.owl}"
+	implementation "org.yaml:snakeyaml:1.21"
 
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
