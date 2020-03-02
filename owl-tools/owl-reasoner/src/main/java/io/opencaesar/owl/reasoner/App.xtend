@@ -72,8 +72,8 @@ class App {
 		LOGGER.info("Input Folder= " + inputPath)
 		LOGGER.info("Output Folder= " + outputPath)
 
-		val inputFolder = new File(inputPath)
-		val inputFiles = collectOwlFiles(inputFolder)
+		//val inputFolder = new File(inputPath)
+		//val inputFiles = collectOwlFiles(inputFolder)
 		
 		// put reasoner code here
 		

@@ -21,7 +21,7 @@ subprojects {
 
 	repositories {
     	mavenLocal()
-		maven { url 'https://dl.bintray.com/opencaesar/oml-server' }
+		maven { url 'https://dl.bintray.com/opencaesar/oml' }
   		mavenCentral()
 		jcenter()
 	}
