@@ -1,15 +1,18 @@
 apply plugin: 'application'
 
-ext.title = 'Owl Reasoner'
-description = 'Owl resource'
-mainClassName = 'io.opencaesar.owl.reasoner.App'
-applicationName = 'owl-reasoner'
+ext.title = 'OWL Diff'
+description = 'A tool to calculate the diff between two OWL catalogs'
+mainClassName = 'io.opencaesar.owl.diff.App'
+applicationName = 'owl-diff'
 
 dependencies {
     // This dependency is used internally, and not exposed to consumers on their own compile classpath.
     implementation "com.beust:jcommander:1.72"
 	implementation "org.eclipse.xtext:org.eclipse.xtext.xbase:${versions.xtext}"
 	implementation "net.sourceforge.owlapi:owlapi-distribution:${versions.owl}"
+ 	implementation 'xml-resolver:xml-resolver:1.2'
+    implementation 'org.slf4j:slf4j-nop:1.7.+'
+	//implementation "edu.stanford.protege:org.protege.xmlcatalog:${versions.xmlcatalog}"
 
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'

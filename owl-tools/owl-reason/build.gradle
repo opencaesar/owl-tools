@@ -1,0 +1,17 @@
+apply plugin: 'application'
+
+ext.title = 'OWL Reason'
+description = 'A tool to run a DL reasoner on an OWL catalog'
+mainClassName = 'io.opencaesar.owl.reason.App'
+applicationName = 'owl-reason'
+
+dependencies {
+    // This dependency is used internally, and not exposed to consumers on their own compile classpath.
+    implementation "com.beust:jcommander:1.72"
+	implementation "org.eclipse.xtext:org.eclipse.xtext.xbase:${versions.xtext}"
+	implementation "net.sourceforge.owlapi:owlapi-distribution:${versions.owl}"
+	implementation "edu.stanford.protege:org.protege.xmlcatalog:${versions.xmlcatalog}"
+
+    // Use JUnit test framework
+    testImplementation 'junit:junit:4.12'
+}

@@ -1,1 +1,2 @@
-include 'owl-reasoner'
+include 'owl-diff'
+include 'owl-reason'
