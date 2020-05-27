@@ -21,7 +21,8 @@ subprojects {
 
 	repositories {
     	mavenLocal()
-		maven { url 'https://dl.bintray.com/opencaesar/oml' }
+		maven { url 'https://www.ebi.ac.uk/intact/maven/nexus/content/repositories/public/' }
+		maven { url 'http://code.berkeleybop.org/maven/repository/' }
   		mavenCentral()
 		jcenter()
 	}
@@ -33,10 +34,7 @@ subprojects {
 	
 	apply from: "${rootDir}/gradle/source-layout.gradle"
 	apply from: "${rootDir}/gradle/maven-deployment.gradle"
-	
-	sourceCompatibility = '1.8'
-	targetCompatibility = '1.8'
-	
+		
 	configurations.all {
 		exclude group: 'asm'
 	}

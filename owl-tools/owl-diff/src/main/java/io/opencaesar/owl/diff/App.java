@@ -53,12 +53,12 @@ public class App {
 	private String catalogPath2 = ".";
 
 	@Parameter(
-			names = { "--ignore", "-n" },
-			description = "List of comma-separated partial IRIs to ignore reporting on",
-			required = false,
-			converter = SetOfIris.class,
-			order = 3)
-		private Set<String> ignoreSet = new HashSet<String>();
+		names = { "--ignore", "-n" },
+		description = "List of comma-separated partial IRIs to ignore reporting on",
+		required = false,
+		converter = SetOfIris.class,
+		order = 3)
+	private Set<String> ignoreSet = new HashSet<String>();
 
 	@Parameter(
 		names = { "-d", "--debug" },
