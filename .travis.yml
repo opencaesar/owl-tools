@@ -4,6 +4,13 @@ install: true
 jdk:
 - openjdk10
 
+sudo: false
+
+cache:
+  directories:
+    - $HOME/.m2
+    - $HOME/.gradle
+
 before_script:
 - cd owl-tools
 
