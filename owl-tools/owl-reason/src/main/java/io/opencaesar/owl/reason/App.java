@@ -52,6 +52,8 @@ import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.vocabulary.RDFS;
+import org.apache.log4j.Appender;
+import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
@@ -95,7 +97,7 @@ public class App {
 	
 	private class Options {
 		@Parameter(
-			names = { "-catalog" },
+			names = { "--catalog" },
 			description = "path to the OWL catalog file (Required)",
 			validateWith = CatalogPath.class,
 			required = true,
@@ -103,14 +105,14 @@ public class App {
 		String catalogPath;
 		
 		@Parameter(
-			names = { "-input-iri" },
+			names = { "--input-iri" },
 			description = "iri of input ontology (Required)",
 			required = true,
 			order = 2)
 		List<String> inputOntologyIris;
 
 		@Parameter(
-			names = { "-spec" },
+			names = { "--spec" },
 			description = "output-iri-postfix=Types where Types is a list of comma-separated entailment statementTypes",
 			converter = SpecConverter.class,
 			required = false,
@@ -118,39 +120,52 @@ public class App {
 		List<Spec> specs = new ArrayList<Spec>();
 		
 		@Parameter(
-			names = { "-format" },
+			names = { "--format" },
 			description = "output ontology format",
 			required = false,
 			order = 4)
 		String format = "TURTLE";
 		
 		@Parameter(
-			names = { "-remove-unsats" },
+			names = { "--remove-unsats" },
 			description = "remove entailments due to unsatisfiability",
 			required = false,
 			order = 5)
-		boolean removeUnsats = false;
+		boolean removeUnsats = true;
 		
 		@Parameter(
-			names = { "-remove-backbone" },
+			names = { "--remove-backbone" },
 			description = "remove axioms on the backhone from entailments",
 			required = false,
 			order = 6)
-		boolean removeBackbone = false;
+		boolean removeBackbone = true;
 
 		@Parameter(
-			names = { "-backbone-iri" },
+			names = { "--backbone-iri" },
 			description = "iri of backbone ontology",
 			required = false,
 			order = 7)
 		String backboneIri = "http://opencaesar.io/oml";
 				
 		@Parameter(
-			names = { "-indent" },
+			names = { "--indent" },
 			description = "indent of the JUnit XML elements",
 			required = false,
 			order = 8)
 		int indent = 2;
+
+		@Parameter(
+			names = { "-d", "--debug" },
+			description = "Shows debug logging statements",
+			order = 9)
+		private boolean debug;
+
+		@Parameter(
+			names = { "--help", "-h" },
+			description = "Displays summary of options",
+			help = true,
+			order =10)
+		private boolean help;
 	}
 		
 	private static class Spec {
@@ -173,6 +188,14 @@ public class App {
 		final App app = new App();
 		final JCommander builder = JCommander.newBuilder().addObject(app.options).build();
 		builder.parse(args);
+		if (app.options.help) {
+			builder.usage();
+			return;
+		}
+		if (app.options.debug) {
+			final Appender appender = LogManager.getRootLogger().getAppender("stdout");
+			((AppenderSkeleton) appender).setThreshold(Level.DEBUG);
+		}
 	    try {
 			app.run(args);
 		} catch (Exception e) {

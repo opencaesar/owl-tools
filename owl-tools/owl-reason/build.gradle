@@ -5,8 +5,8 @@ description = 'A tool to run a DL reasoner on an OWL catalog'
 mainClassName = 'io.opencaesar.owl.reason.App'
 applicationName = 'owl-reason'
 
-sourceCompatibility = '10'
-targetCompatibility = '10'
+sourceCompatibility = '11'
+targetCompatibility = '11'
 
 dependencies {
     // This dependency is used internally, and not exposed to consumers on their own compile classpath.
