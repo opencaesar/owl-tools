@@ -17,13 +17,13 @@ Requirements: java 8, node 8.x
     ./gradlew build
 ```
 
-## [OWL Diff](owl-diff)
+## [OWL Diff](owl-tools/owl-diff/README.md)
 
 [ ![Download](https://api.bintray.com/packages/opencaesar/owl-tools/owl-diff/images/download.svg) ](https://bintray.com/opencaesar/owl-tools/owl-diff/_latestVersion)
 
 A tool to produce a difference report between two OWL datasets
 
-## [OWL Reason](owl-reason)
+## [OWL Reason](owl-tools/owl-reason/README.md)
 
 [ ![Download](https://api.bintray.com/packages/opencaesar/owl-tools/owl-reason/images/download.svg) ](https://bintray.com/opencaesar/owl-tools/owl-reason/_latestVersion)
 
