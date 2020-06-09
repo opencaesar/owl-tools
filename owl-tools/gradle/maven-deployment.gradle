@@ -5,7 +5,7 @@ apply plugin: 'maven-publish'
 ext.gh = [
 	dep: 'https://github.com',
 	org: 'opencaesar',
-	rep: 'owl-adapter'
+	rep: 'owl-tools'
 ]
 
 uploadArchives {
