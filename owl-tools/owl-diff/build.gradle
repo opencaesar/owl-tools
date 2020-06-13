@@ -1,6 +1,5 @@
 apply plugin: 'application'
 
-version = '0.1.0'
 ext.title = 'OWL Diff'
 description = 'A tool to calculate the diff between two OWL catalogs'
 mainClassName = 'io.opencaesar.owl.diff.App'
