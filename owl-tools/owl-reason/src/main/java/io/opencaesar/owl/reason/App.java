@@ -169,7 +169,7 @@ public class App {
 	}
 		
 	private static class Spec {
-		String iriPostfix;
+		String iri;
 		EnumSet<StatementType> statementTypes;
 	}
 
@@ -290,7 +290,7 @@ public class App {
 	    // Iterate over specs and extract entailments.
 
 	    for (Spec spec: options.specs) {
-	      String outputOntologyIri = inputOntologyIri + spec.iriPostfix;
+	      String outputOntologyIri = spec.iri;
 	      EnumSet<StatementType> statementTypes = spec.statementTypes;
 	      extractAndSaveEntailments(kb, inputOntologyIri, outputOntologyIri, statementTypes, manager);
 	    }
@@ -449,12 +449,14 @@ public class App {
 		// Open output stream.
 
 		LOGGER.info("open output stream "+filename);
-		FileOutputStream output = new FileOutputStream(new File(filename));
+		File outputFile = new File(filename);
+		outputFile.getParentFile().mkdirs();
+		FileOutputStream outputFileStream = new FileOutputStream(outputFile);
 		  
 		// Serialize Jena ontology model to output stream.
 		  
 		LOGGER.info("serialize "+entailments.size()+" entailments to "+filename);
-		model.write(output, options.format);
+		model.write(outputFileStream, options.format);
 		LOGGER.info("finished serializing "+filename);
 	}
 	
@@ -542,7 +544,7 @@ public class App {
 		public Spec convert(String value) {
 			String[] s = value.split("=");
 			Spec spec = new Spec();
-			spec.iriPostfix = s[0];
+			spec.iri = s[0];
 			spec.statementTypes = EnumSet.noneOf(StatementType.class);
 			for (String type : s[1].split(" ")) {
 				StatementType st = StatementType.valueOf(type);
