@@ -20,7 +20,7 @@ Args:
 ```
 --catalog path/to/owl/catalog.xml
 --input-iri of-a-box-ontology-in-catalog
---spec '_c=ALL_SUBCLASS'
---spec '_p=INVERSE_PROPERTY ALL_SUBPROPERTY'
---spec '_i=ALL_INSTANCE DATA_PROPERTY_VALUE OBJECT_PROPERTY_VALUE SAME_AS'
+--spec 'output_iri=ALL_SUBCLASS'
+--spec 'output_iri=INVERSE_PROPERTY ALL_SUBPROPERTY'
+--spec 'output_iri=ALL_INSTANCE DATA_PROPERTY_VALUE OBJECT_PROPERTY_VALUE SAME_AS'
 ```
