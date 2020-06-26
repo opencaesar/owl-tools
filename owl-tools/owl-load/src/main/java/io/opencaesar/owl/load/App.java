@@ -20,6 +20,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.log4j.Appender;
@@ -36,41 +38,58 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.google.common.io.CharStreams;
 
+import org.apache.jena.rdfconnection.RDFConnection;
+import org.apache.jena.rdfconnection.RDFConnectionRemote;
+import org.apache.jena.rdfconnection.RDFConnectionRemoteBuilder;
+
 public class App {
   
-	private Options options = new Options();
+	@Parameter(
+		names = { "--catalog", "-c" },
+		description = "path to the OWL catalog file (Required)",
+		validateWith = CatalogPath.class,
+		required = false, 
+		order = 1)
+	private String catalogPath = "default path";
 	
-	private class Options {
-		@Parameter(
-			names = { "--catalog" },
-			description = "path to the OWL catalog file (Required)",
-			validateWith = CatalogPath.class,
-			required = true,
-			order = 1)
-		String catalogPath;
-		
-		@Parameter(
-			names = { "--input-iri" },
-			description = "iri of input ontology (Required)",
-			required = true,
+	@Parameter(
+			names = { "--dataset-name", "-n" },
+			description = "Name of the dataset (Required)",
+			required = false,
 			order = 2)
-		List<String> inputOntologyIris;
+	private String datasetName = "default dataset";
+	
+	@Parameter(
+			names = { "--endpoint", "-e" },
+			description = "Sparql Endpoint URL (Required)",
+			required = false,
+			order = 3)
+	private String endpoint = "http://localhost:8080/fuseki";
+	
+	@Parameter(
+			names = { "--file-extensions", "-f" },
+			description = "Sparql Endpoint URL (Required)",
+			required = false,
+			order = 3)
+	private List<String> fileExt = new ArrayList<String>() {{
+		add("owl");
+	}};
+	
 
-		@Parameter(
-			names = { "-d", "--debug" },
-			description = "Shows debug logging statements",
-			order = 9)
-		private boolean debug;
+	@Parameter(
+		names = { "-d", "--debug" },
+		description = "Shows debug logging statements",
+		order = 9)
+	private boolean debug;
 
-		@Parameter(
-			names = { "--help", "-h" },
-			description = "Displays summary of options",
-			help = true,
-			order =10)
-		private boolean help;
-	}
+	@Parameter(
+		names = { "--help", "-h" },
+		description = "Displays summary of options",
+		help = true,
+		order =10)
+	private boolean help;
 		
-	private final Logger LOGGER = LogManager.getLogger("Owl Reason"); {
+	private final Logger LOGGER = LogManager.getLogger("Owl Load"); {
 		LOGGER.setLevel(Level.INFO);
 		PatternLayout layout = new PatternLayout("%r [%t] %-5p %c %x - %m%n");
 		LOGGER.addAppender(new ConsoleAppender(layout));
@@ -78,31 +97,46 @@ public class App {
 
 	public static void main(final String... args) {
 		final App app = new App();
-		final JCommander builder = JCommander.newBuilder().addObject(app.options).build();
+		final JCommander builder = JCommander.newBuilder().addObject(app).build();
 		builder.parse(args);
-		if (app.options.help) {
+		if (app.help) {
 			builder.usage();
 			return;
 		}
-		if (app.options.debug) {
+		if (app.debug) {
 			final Appender appender = LogManager.getRootLogger().getAppender("stdout");
 			((AppenderSkeleton) appender).setThreshold(Level.DEBUG);
 		}
 	    try {
-			app.run(args);
+			app.run();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
-	public void run(final String... args) throws Exception {
+	public void run() throws Exception {
 		LOGGER.info("=================================================================");
 		LOGGER.info("                        S T A R T");
-		LOGGER.info("                     OWL Reason " + getAppVersion());
+		LOGGER.info("                     OWL Load " + getAppVersion());
 		LOGGER.info("=================================================================");
-	    	    
-		// put your app logic
-	    
+		LOGGER.info(("OWL Catalog 1 = " + catalogPath));	    
+		LOGGER.info(("Dataset name = " + datasetName));
+		LOGGER.info(("File Extensions = " + fileExt)); 
+		LOGGER.info(("Endpoint = " + endpoint));
+
+		// Get OWL files from catalog - Reused from owl-diff
+		/*final File folder = new File(catalogPath).getParentFile();
+		final Collection<File> files1 = collectOwlFiles(folder, fileExt); */
+		
+		//Create connections with given Sparql endpoint
+		RDFConnectionRemoteBuilder builder = RDFConnectionRemote.create()
+				.destination(endpoint)
+				.queryEndpoint("sparql");
+		
+		try (RDFConnection conn = builder.build()) {
+			LOGGER.info(("Connection successful(?)"));
+		}
+		
 	    LOGGER.info("=================================================================");
 		LOGGER.info("                          E N D");
 		LOGGER.info("=================================================================");
@@ -135,5 +169,32 @@ public class App {
 			}
 		}
 	}
+	
+	// Given a File directory, return an Collection of Files (implemented as ArrayList) - Reused from owl-diff
+	// Add parameter to account for multiple file extensions 
+	private Collection<File> collectOwlFiles(final File directory, List<String> fileExt) {
+		ArrayList<File> omlFiles = new ArrayList<File>();
+		for (File file : directory.listFiles()) {
+			if (file.isFile()) {
+				//Edited to accept any of the given file extensions 
+				if (fileExt.contains(getFileExtension(file))) {
+					omlFiles.add(file);
+				}
+			} else if (file.isDirectory()) {
+				omlFiles.addAll(collectOwlFiles(file, fileExt));
+			}
+		}
+		return omlFiles;
+	}
+	
+	//Reused from owl-diff
+	private String getFileExtension(final File file) {
+        String fileName = file.getName();
+        if (fileName.lastIndexOf(".") != -1)
+        	return fileName.substring(fileName.lastIndexOf(".")+1);
+        else 
+        	return "";
+	}
+
 	
 }
