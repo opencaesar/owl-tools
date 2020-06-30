@@ -38,9 +38,15 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.google.common.io.CharStreams;
 
+import org.apache.jena.query.*;
 import org.apache.jena.rdfconnection.RDFConnection;
-import org.apache.jena.rdfconnection.RDFConnectionRemote;
+import org.apache.jena.rdfconnection.RDFConnectionFuseki;
 import org.apache.jena.rdfconnection.RDFConnectionRemoteBuilder;
+
+import org.apache.jena.rdf.model.Model ;
+import org.apache.jena.rdf.model.ModelFactory ;
+import org.apache.jena.util.FileManager;
+
 
 public class App {
   
@@ -64,7 +70,7 @@ public class App {
 			description = "Sparql Endpoint URL (Required)",
 			required = false,
 			order = 3)
-	private String endpoint = "http://localhost:8080/fuseki";
+	private String endpoint = "http://localhost:8080/fuseki/test/";
 	
 	@Parameter(
 			names = { "--file-extensions", "-f" },
@@ -75,7 +81,6 @@ public class App {
 		add("owl");
 	}};
 	
-
 	@Parameter(
 		names = { "-d", "--debug" },
 		description = "Shows debug logging statements",
@@ -127,16 +132,63 @@ public class App {
 		// Get OWL files from catalog - Reused from owl-diff
 		/*final File folder = new File(catalogPath).getParentFile();
 		final Collection<File> files1 = collectOwlFiles(folder, fileExt); */
+		//Model m = RDFDataMgr.loadModel("owl.ttl");
 		
-		//Create connections with given Sparql endpoint
-		RDFConnectionRemoteBuilder builder = RDFConnectionRemote.create()
-				.destination(endpoint)
-				.queryEndpoint("sparql");
+		Model model = ModelFactory.createDefaultModel();
+		InputStream in = FileManager.get().open("ex.rdf");
+		if (in == null) {
+			throw new IllegalArgumentException("File: ex.rdf not found"); 
+		}
+		model.read(in, null); 
 		
-		try (RDFConnection conn = builder.build()) {
-			LOGGER.info(("Connection successful(?)"));
+		RDFConnectionRemoteBuilder builder = RDFConnectionFuseki.create()
+				.updateEndpoint("update")
+				.queryEndpoint("sparql")
+				.destination(endpoint);
+		RDFConnection conn = builder.build(); 
+		conn.begin(ReadWrite.WRITE);
+		try {
+			conn.load(model);
+		} finally {
+			conn.commit(); 
+			conn.end(); 
 		}
 		
+		/*
+		RDFConnection conn0 = RDFConnectionRemote.create()
+					.destination(endpoint)
+					.queryEndpoint("sparql")
+                    .updateEndpoint("update")
+					//.triplesFormat(RDFFormat.TURTLE)
+					.acceptHeaderSelectQuery("application/sparql-results+json, application/sparql-results+xml;q=0.9")
+					.build(); 
+
+		//Query query = QueryFactory.create("SELECT * { BIND('Hello'as ?text) }");
+
+		try (RDFConnection conn = conn0) {		
+		   conn.load("annotation.owl");
+        }
+        */			
+        /*
+		//Create connections with given Sparql endpoint
+		RDFConnectionRemoteBuilder builder = RDFConnectionFuseki.create()
+				.destination(endpoint + "update")
+				.acceptHeaderGraph("text/turtle")
+				.triplesFormat(RDFLanguages.TURTLE);
+        
+		//Model model = ModelFactory.createDefaultModel(); 
+		//model.read("test.xml");
+		String queryString = "SELECT ?x \n" + 
+			"WHERE \n" +
+			"{ ?x <http://www.w3.org/2001/vcard-rdf/3.0#FN> \"John Smith\" }";
+		Query query = QueryFactory.create(queryString);
+		try (RDFConnection conn = builder.build()) {
+			LOGGER.info(("Connection successful"));
+			//conn.queryResultSet(query, ResultSetFormatter::out);
+			QueryExecution qexec = conn.query(query);
+			ResultSet results = qexec.execSelect() ;
+		}
+		*/
 	    LOGGER.info("=================================================================");
 		LOGGER.info("                          E N D");
 		LOGGER.info("=================================================================");

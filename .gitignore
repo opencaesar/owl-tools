@@ -5,3 +5,10 @@ xtend-gen
 build
 .gradle
 .launch
+owl-tools/owl.ttl
+owl-tools/owl-load/annotation.owl
+owl-tools/owl-load/ex.rdf
+owl-tools/owl-load/exdata.ttl
+owl-tools/owl-load/owl.ttl
+owl-tools/owl-load/q1.rq
+owl-tools/owl-load/test.xml
