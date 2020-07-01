@@ -126,6 +126,7 @@ public class App {
 		final File folder = catalogFile.getParentFile();
 		final Collection<File> files = collectOwlFiles(folder, fileExt);
 		
+		long startTime = System.nanoTime();
 		//Create remote connection to Fuseki server
 		RDFConnectionRemoteBuilder builder = RDFConnectionFuseki.create()
 				.updateEndpoint("update")
@@ -149,7 +150,40 @@ public class App {
 			conn.close();
 			conn.end(); 
 		}
-		
+		long elapsedTime = System.nanoTime() - startTime; 
+		LOGGER.info("Time1: " + elapsedTime);
+		LOGGER.info("=================================================================");
+		LOGGER.info("                 Testing parallelization                ");
+		LOGGER.info("=================================================================");
+		String endpoint2 = "http://localhost:8080/fuseki/test2"; 
+		//Create remote connection to Fuseki server
+		// Load the files into the dataset2 
+		long startTime2 = System.nanoTime();
+		ArrayList<Thread> threads = new ArrayList<Thread>(); 
+		for (File file: files) {
+			String relativePath = folder.toURI().relativize(file.toURI()).getPath();
+			String finalPath = relativeDirectory.concat(relativePath);
+			Thread thread = new Thread(new Runnable() {
+				public void run() {
+					RDFConnectionRemoteBuilder builder2 = RDFConnectionFuseki.create()
+							.updateEndpoint("update")
+							.queryEndpoint("sparql")
+							.destination(endpoint2);
+					RDFConnection conn2 = builder2.build();
+					try {
+						conn2.load(finalPath);
+					} finally {
+						conn2.commit();
+						conn2.close();
+						conn2.end();
+					}
+				}
+			});
+			threads.add(thread); 
+			thread.start(); 
+		}
+		long elapsedTime2 = System.nanoTime() - startTime2;
+		LOGGER.info("Time2: " + elapsedTime2);
 		
 	    LOGGER.info("=================================================================");
 		LOGGER.info("                          E N D");
