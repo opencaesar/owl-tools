@@ -39,6 +39,7 @@ import com.beust.jcommander.ParameterException;
 import com.google.common.io.CharStreams;
 
 import org.apache.jena.query.*;
+import org.apache.jena.query.QueryType;
 import org.apache.jena.rdfconnection.RDFConnection;
 import org.apache.jena.rdfconnection.RDFConnectionFuseki;
 import org.apache.jena.rdfconnection.RDFConnectionRemoteBuilder;
@@ -51,17 +52,10 @@ public class App {
   
 	@Parameter(
 		names = { "--endpoint", "-e" },
-		description = "Sparql Endpoint URL. Must end in / (Required)",
+		description = "Sparql Endpoint URL.  (Required)",
 		required = true,
 		order = 1)
 	String endpoint;
-	
-	@Parameter(
-		names = { "--dataset-name", "-n" },
-		description = "Name of the dataset (Required)",
-		required = true,
-		order = 2)
-	String datasetName;
 	
 	@Parameter(
 		names = { "--queries", "-q" },
@@ -98,7 +92,7 @@ public class App {
 		order =10)
 	private boolean help;
 	
-	private final Logger LOGGER = LogManager.getLogger("Owl Reason"); {
+	private final Logger LOGGER = LogManager.getLogger("Owl Query"); {
 		LOGGER.setLevel(Level.INFO);
 		PatternLayout layout = new PatternLayout("%r [%t] %-5p %c %x - %m%n");
 		LOGGER.addAppender(new ConsoleAppender(layout));
@@ -129,22 +123,35 @@ public class App {
 		LOGGER.info("                     OWL Query " + getAppVersion());
 		LOGGER.info("=================================================================");
 	    	    
-		// Get query files
+		// Create queries from the files 
 		final File folder = new File(queriesPath);
-		final Collection<Query> queries = collectSparqlFiles(folder);
-		/*
-		for (Query query: Query) {
-			//System.out.println(file.getName());
-		}
-		*/
+		final Collection<Query> queries = collectQueries(folder);
 		
-		/*
-		//Create remote connection to Fuseki server
+		// Create remote connection to Fuseki server
 		RDFConnectionRemoteBuilder builder = RDFConnectionFuseki.create()
 				.updateEndpoint("update")
 				.queryEndpoint("sparql")
-				.destination(endpoint + datasetName);
-		*/
+				.destination(endpoint);
+		
+		// Execute queries on the server
+		try (RDFConnection conn = builder.build()) {
+			for (Query query : queries) {
+				LOGGER.info(query.serialize());
+				QueryType type = query.queryType();
+				//Given the type of query, execute it 
+				switch (type) {
+					case ASK:
+						break; 
+					case CONSTRUCT:
+						break; 
+					case CONSTRUCT_JSON:
+						break; 
+					case CONSTRUCT_QUADS:
+				}
+				QueryExecution exec = conn.query(query); 
+				
+			}
+		}
 	    LOGGER.info("=================================================================");
 		LOGGER.info("                          E N D");
 		LOGGER.info("=================================================================");
@@ -184,7 +191,7 @@ public class App {
 	}
 	
 	// Given a File directory, return an Collection of Queries (implemented as ArrayList)
-	private Collection<Query> collectSparqlFiles(final File directory) {
+	private Collection<Query> collectQueries(final File directory) {
 		ArrayList<Query> queries = new ArrayList<Query>();
 		for (File file : directory.listFiles()) {
 			if (file.isFile()) {
@@ -192,10 +199,10 @@ public class App {
 				if (getFileExtension(file).equals("sparql")) {
 					//Read query from file and add it to collection 
 					LOGGER.info(("File path: " + file.getPath()));
-					//queries.add(QueryFactory.read(file.getPath()));
+					queries.add(QueryFactory.read(file.getPath()));
 				}
 			} else if (file.isDirectory()) {
-				queries.addAll(collectSparqlFiles(file));
+				queries.addAll(collectQueries(file));
 			}
 		}
 		return queries;
