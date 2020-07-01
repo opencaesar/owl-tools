@@ -37,3 +37,5 @@ owl-tools/owl-load/owl/opencaesar.io/services/cprov.owl
 owl-tools/owl-load/owl/purl.org/dc/elements/1.1.owl
 owl-tools/owl-load/owl/www.w3.org/ns/prov.owl
 owl-tools/owl-load/owl/iso.org/ex.rdf
+owl-tools/owl-query/queries/test.sparql
+owl-tools/owl-query/queries/test2.sparql

@@ -150,6 +150,7 @@ public class App {
 				throw new IllegalArgumentException("File: " + finalPath + " not found"); 
 			}
 			model.read(in, null); 
+			in.close();
 		}
 		
 		
