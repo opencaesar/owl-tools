@@ -133,26 +133,7 @@ public class App {
 		// Get files from catalog - Reused from owl-diff
 		File catalogFile = new File(catalogPath); 
 		final File folder = catalogFile.getParentFile();
-		String cat = new File(catalogPath).getParent(); 
 		final Collection<File> files = collectOwlFiles(folder, fileExt);
-		
-		// Read files into a model 
-		Model model = ModelFactory.createDefaultModel();
-		String relativeDirectory = catalogFile.getParent().replaceAll("\\\\", "/");
-		if (relativeDirectory.length() > 0) {
-			relativeDirectory = relativeDirectory.concat("/");
-		}
-		for (File file: files) {
-			String relativePath = folder.toURI().relativize(file.toURI()).getPath();
-			String finalPath = relativeDirectory.concat(relativePath);
-			InputStream in = FileManager.get().open(finalPath);
-			if (in == null) {
-				throw new IllegalArgumentException("File: " + finalPath + " not found"); 
-			}
-			model.read(in, null); 
-			in.close();
-		}
-		
 		
 		//Create remote connection to Fuseki server
 		RDFConnectionRemoteBuilder builder = RDFConnectionFuseki.create()
@@ -160,13 +141,21 @@ public class App {
 				.queryEndpoint("sparql")
 				.destination(endpoint + datasetName);
 		
-		//Transaction write to the dataset
-		RDFConnection conn = builder.build(); 
-		conn.begin(ReadWrite.WRITE);
+		// Load the files into the dataset 
+		String relativeDirectory = catalogFile.getParent().replaceAll("\\\\", "/");
+		if (relativeDirectory.length() > 0) {
+			relativeDirectory = relativeDirectory.concat("/");
+		}
+		RDFConnection conn = builder.build();
 		try {
-			conn.load(model);
+			for (File file: files) {
+				String relativePath = folder.toURI().relativize(file.toURI()).getPath();
+				String finalPath = relativeDirectory.concat(relativePath);
+				conn.load(finalPath);
+			}
 		} finally {
-			conn.commit(); 
+			conn.commit();
+			conn.close();
 			conn.end(); 
 		}
 		
