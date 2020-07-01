@@ -59,24 +59,17 @@ public class App {
 	private String catalogPath;
 	
 	@Parameter(
-			names = { "--dataset-name", "-n" },
-			description = "Name of the dataset (Required)",
+			names = { "--endpoint", "-e" },
+			description = "Sparql Endpoint URL, including the name of the dataset (Required)",
 			required = true,
 			order = 2)
-	private String datasetName;
-	
-	@Parameter(
-			names = { "--endpoint", "-e" },
-			description = "Sparql Endpoint URL that MUST end with a / (Required)",
-			required = true,
-			order = 3)
 	private String endpoint;
 	
 	@Parameter(
 			names = { "--file-extensions", "-f" },
 			description = "File extensions of files that will be uploaded. Default is only .owl (Not Required)",
 			required = false,
-			order = 4)
+			order = 3)
 	private List<String> fileExt = new ArrayList<String>() {{
 		add("owl");
 	}};
@@ -125,10 +118,8 @@ public class App {
 		LOGGER.info("                     OWL Load " + getAppVersion());
 		LOGGER.info("=================================================================");
 		LOGGER.info(("OWL Catalog = " + catalogPath));	    
-		LOGGER.info(("Dataset name = " + datasetName));
 		LOGGER.info(("File Extensions = " + fileExt)); 
 		LOGGER.info(("Endpoint = " + endpoint));
-		LOGGER.info(("Overal URL = " + endpoint + datasetName));
 
 		// Get files from catalog - Reused from owl-diff
 		File catalogFile = new File(catalogPath); 
@@ -139,7 +130,7 @@ public class App {
 		RDFConnectionRemoteBuilder builder = RDFConnectionFuseki.create()
 				.updateEndpoint("update")
 				.queryEndpoint("sparql")
-				.destination(endpoint + datasetName);
+				.destination(endpoint);
 		
 		// Load the files into the dataset 
 		String relativeDirectory = catalogFile.getParent().replaceAll("\\\\", "/");
