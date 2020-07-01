@@ -54,29 +54,29 @@ public class App {
 		names = { "--catalog", "-c" },
 		description = "path to the OWL catalog file (Required)",
 		validateWith = CatalogPath.class,
-		required = false, 
+		required = true, 
 		order = 1)
-	private String catalogPath = "default path";
+	private String catalogPath;
 	
 	@Parameter(
 			names = { "--dataset-name", "-n" },
 			description = "Name of the dataset (Required)",
-			required = false,
+			required = true,
 			order = 2)
-	private String datasetName = "default dataset";
+	private String datasetName;
 	
 	@Parameter(
 			names = { "--endpoint", "-e" },
-			description = "Sparql Endpoint URL (Required)",
-			required = false,
+			description = "Sparql Endpoint URL that MUST end with a / (Required)",
+			required = true,
 			order = 3)
-	private String endpoint = "http://localhost:8080/fuseki/test/";
+	private String endpoint;
 	
 	@Parameter(
 			names = { "--file-extensions", "-f" },
-			description = "Sparql Endpoint URL (Required)",
+			description = "File extensions of files that will be uploaded. Default is only .owl (Not Required)",
 			required = false,
-			order = 3)
+			order = 4)
 	private List<String> fileExt = new ArrayList<String>() {{
 		add("owl");
 	}};
@@ -124,27 +124,42 @@ public class App {
 		LOGGER.info("                        S T A R T");
 		LOGGER.info("                     OWL Load " + getAppVersion());
 		LOGGER.info("=================================================================");
-		LOGGER.info(("OWL Catalog 1 = " + catalogPath));	    
+		LOGGER.info(("OWL Catalog = " + catalogPath));	    
 		LOGGER.info(("Dataset name = " + datasetName));
 		LOGGER.info(("File Extensions = " + fileExt)); 
 		LOGGER.info(("Endpoint = " + endpoint));
+		LOGGER.info(("Overal URL = " + endpoint + datasetName));
 
-		// Get OWL files from catalog - Reused from owl-diff
-		/*final File folder = new File(catalogPath).getParentFile();
-		final Collection<File> files1 = collectOwlFiles(folder, fileExt); */
-		//Model m = RDFDataMgr.loadModel("owl.ttl");
+		// Get files from catalog - Reused from owl-diff
+		File catalogFile = new File(catalogPath); 
+		final File folder = catalogFile.getParentFile();
+		String cat = new File(catalogPath).getParent(); 
+		final Collection<File> files = collectOwlFiles(folder, fileExt);
 		
+		// Read files into a model 
 		Model model = ModelFactory.createDefaultModel();
-		InputStream in = FileManager.get().open("ex.rdf");
-		if (in == null) {
-			throw new IllegalArgumentException("File: ex.rdf not found"); 
+		String relativeDirectory = catalogFile.getParent().replaceAll("\\\\", "/");
+		if (relativeDirectory.length() > 0) {
+			relativeDirectory = relativeDirectory.concat("/");
 		}
-		model.read(in, null); 
+		for (File file: files) {
+			String relativePath = folder.toURI().relativize(file.toURI()).getPath();
+			String finalPath = relativeDirectory.concat(relativePath);
+			InputStream in = FileManager.get().open(finalPath);
+			if (in == null) {
+				throw new IllegalArgumentException("File: " + finalPath + " not found"); 
+			}
+			model.read(in, null); 
+		}
 		
+		
+		//Create remote connection to Fuseki server
 		RDFConnectionRemoteBuilder builder = RDFConnectionFuseki.create()
 				.updateEndpoint("update")
 				.queryEndpoint("sparql")
-				.destination(endpoint);
+				.destination(endpoint + datasetName);
+		
+		//Transaction write to the dataset
 		RDFConnection conn = builder.build(); 
 		conn.begin(ReadWrite.WRITE);
 		try {
@@ -154,41 +169,7 @@ public class App {
 			conn.end(); 
 		}
 		
-		/*
-		RDFConnection conn0 = RDFConnectionRemote.create()
-					.destination(endpoint)
-					.queryEndpoint("sparql")
-                    .updateEndpoint("update")
-					//.triplesFormat(RDFFormat.TURTLE)
-					.acceptHeaderSelectQuery("application/sparql-results+json, application/sparql-results+xml;q=0.9")
-					.build(); 
-
-		//Query query = QueryFactory.create("SELECT * { BIND('Hello'as ?text) }");
-
-		try (RDFConnection conn = conn0) {		
-		   conn.load("annotation.owl");
-        }
-        */			
-        /*
-		//Create connections with given Sparql endpoint
-		RDFConnectionRemoteBuilder builder = RDFConnectionFuseki.create()
-				.destination(endpoint + "update")
-				.acceptHeaderGraph("text/turtle")
-				.triplesFormat(RDFLanguages.TURTLE);
-        
-		//Model model = ModelFactory.createDefaultModel(); 
-		//model.read("test.xml");
-		String queryString = "SELECT ?x \n" + 
-			"WHERE \n" +
-			"{ ?x <http://www.w3.org/2001/vcard-rdf/3.0#FN> \"John Smith\" }";
-		Query query = QueryFactory.create(queryString);
-		try (RDFConnection conn = builder.build()) {
-			LOGGER.info(("Connection successful"));
-			//conn.queryResultSet(query, ResultSetFormatter::out);
-			QueryExecution qexec = conn.query(query);
-			ResultSet results = qexec.execSelect() ;
-		}
-		*/
+		
 	    LOGGER.info("=================================================================");
 		LOGGER.info("                          E N D");
 		LOGGER.info("=================================================================");
