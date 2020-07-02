@@ -135,21 +135,36 @@ public class App {
 		
 		// Execute queries on the server
 		try (RDFConnection conn = builder.build()) {
+			int i = 0; 
 			for (Query query : queries) {
-				LOGGER.info(query.serialize());
+				//LOGGER.info(query.serialize());
 				QueryType type = query.queryType();
 				//Given the type of query, execute it 
+				String outputName = "res" + i;
+				LOGGER.info(outputName);
 				switch (type) {
 					case ASK:
+						boolean res = conn.queryAsk(query);
+						LOGGER.info(res);
 						break; 
 					case CONSTRUCT:
 						break; 
 					case CONSTRUCT_JSON:
 						break; 
 					case CONSTRUCT_QUADS:
+						break;
+					case DESCRIBE:
+						break; 
+					case SELECT:
+						conn.queryResultSet(query, (resultSet)-> {
+							ResultSetFormatter.out(System.out, resultSet, query);
+						});
+						break; 
+					case UNKNOWN:
+						LOGGER.info("Unknown query. Please reformat");
 				}
-				QueryExecution exec = conn.query(query); 
-				
+				QueryExecution exec = conn.query(query);
+				i++;
 			}
 		}
 	    LOGGER.info("=================================================================");
@@ -198,8 +213,12 @@ public class App {
 				//Edited to accept any of the given file extensions 
 				if (getFileExtension(file).equals("sparql")) {
 					//Read query from file and add it to collection 
-					LOGGER.info(("File path: " + file.getPath()));
-					queries.add(QueryFactory.read(file.getPath()));
+					try {
+						queries.add(QueryFactory.read(file.toURI().getPath()));
+					} catch (QueryException e) {
+						String errorMsg = "File: " + file.getName() + " . Error with parsing this file's query: " + e;
+						LOGGER.error(errorMsg, e);
+					}
 				}
 			} else if (file.isDirectory()) {
 				queries.addAll(collectQueries(file));
