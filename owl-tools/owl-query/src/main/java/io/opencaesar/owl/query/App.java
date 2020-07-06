@@ -17,6 +17,8 @@
 package io.opencaesar.owl.query;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -58,15 +60,15 @@ public class App {
 	String endpoint;
 	
 	@Parameter(
-		names = { "--queries", "-q" },
-		description = "Path to folder containing .sparql query files (Required)",
+		names = { "--query", "-q" },
+		description = "Path to the .sparql query file (Required)",
 		required = true,
 		order = 3)
 	String queriesPath;
 	
 	@Parameter(
-		names = { "--results", "-r" },
-		description = "Path of folder to save results to (Required)",
+		names = { "--result", "-r" },
+		description = "Path to the folder to save the result to (Required)",
 		required = true,
 		order = 4)
 	String resultsPath;
@@ -123,9 +125,17 @@ public class App {
 		LOGGER.info("                     OWL Query " + getAppVersion());
 		LOGGER.info("=================================================================");
 	    	    
-		// Create queries from the files 
-		final File folder = new File(queriesPath);
-		final Collection<Query> queries = collectQueries(folder);
+		// Create query from the given file 
+		final File queryFile = new File(queriesPath);
+		String fileName = queryFile.getName();
+		Query query = QueryFactory.create(); 
+		try {
+			query = QueryFactory.read(queryFile.toURI().getPath());
+		} catch (QueryException e) {
+			String errorMsg = "File: " + fileName + " . Error with parsing this file's query. ";
+			LOGGER.error(errorMsg, e);
+			System.exit(1);
+		}
 		
 		// Create remote connection to Fuseki server
 		RDFConnectionRemoteBuilder builder = RDFConnectionFuseki.create()
@@ -135,37 +145,49 @@ public class App {
 		
 		// Execute queries on the server
 		try (RDFConnection conn = builder.build()) {
-			int i = 0; 
-			for (Query query : queries) {
-				//LOGGER.info(query.serialize());
-				QueryType type = query.queryType();
-				//Given the type of query, execute it 
-				String outputName = "res" + i;
-				LOGGER.info(outputName);
-				switch (type) {
-					case ASK:
-						boolean res = conn.queryAsk(query);
-						LOGGER.info(res);
-						break; 
-					case CONSTRUCT:
-						break; 
-					case CONSTRUCT_JSON:
-						break; 
-					case CONSTRUCT_QUADS:
-						break;
-					case DESCRIBE:
-						break; 
-					case SELECT:
-						conn.queryResultSet(query, (resultSet)-> {
-							ResultSetFormatter.out(System.out, resultSet, query);
-						});
-						break; 
-					case UNKNOWN:
-						LOGGER.info("Unknown query. Please reformat");
-				}
-				QueryExecution exec = conn.query(query);
-				i++;
+			String outputName = getFileName(queryFile);
+			File output = new File("results/"+outputName+".frame");
+			if (output.exists()) {
+				output.delete(); 
 			}
+			output.createNewFile(); 
+			FileOutputStream res = new FileOutputStream(output);
+			QueryType type = query.queryType();
+			//Given the type of query, execute it
+			switch (type) {
+				case ASK:
+					LOGGER.info("Ask");
+					byte b[] = Boolean.toString(conn.queryAsk(query)).getBytes(); 
+					res.write(b); 
+					break; 
+				case CONSTRUCT_JSON:
+				case CONSTRUCT_QUADS:
+				case CONSTRUCT:
+					LOGGER.info("Construct");
+					conn.queryConstruct(query).write(res); 
+					break; 
+				case DESCRIBE:
+					LOGGER.info("Describe");
+					conn.queryDescribe(query).write(res);
+					break; 
+				case SELECT:
+					LOGGER.info("Select");
+					conn.queryResultSet(query, (resultSet)-> {
+						ResultSetFormatter.outputAsXML(res, resultSet);
+					});
+					break; 
+				case UNKNOWN:
+					LOGGER.info("Unknown query. Please reformat");
+					break;
+				default:
+					LOGGER.info("Default reached? Please reformat query");
+					break;
+			}
+			//Close the writer 
+			res.close(); 
+		} catch (IOException e) {
+			LOGGER.info("Failed to create open file"); 
+			e.printStackTrace(); 
 		}
 	    LOGGER.info("=================================================================");
 		LOGGER.info("                          E N D");
@@ -205,33 +227,11 @@ public class App {
 		}
 	}
 	
-	// Given a File directory, return an Collection of Queries (implemented as ArrayList)
-	private Collection<Query> collectQueries(final File directory) {
-		ArrayList<Query> queries = new ArrayList<Query>();
-		for (File file : directory.listFiles()) {
-			if (file.isFile()) {
-				//Edited to accept any of the given file extensions 
-				if (getFileExtension(file).equals("sparql")) {
-					//Read query from file and add it to collection 
-					try {
-						queries.add(QueryFactory.read(file.toURI().getPath()));
-					} catch (QueryException e) {
-						String errorMsg = "File: " + file.getName() + " . Error with parsing this file's query: " + e;
-						LOGGER.error(errorMsg, e);
-					}
-				}
-			} else if (file.isDirectory()) {
-				queries.addAll(collectQueries(file));
-			}
-		}
-		return queries;
-	}
-	
-	//Reused from owl-diff
-	private String getFileExtension(final File file) {
+	//Modified from owl-diff
+	private String getFileName(final File file) {
         String fileName = file.getName();
         if (fileName.lastIndexOf(".") != -1)
-        	return fileName.substring(fileName.lastIndexOf(".")+1);
+        	return fileName.substring(0, fileName.lastIndexOf("."));
         else 
         	return "";
 	}

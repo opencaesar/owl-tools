@@ -32,3 +32,5 @@ owl-tools/owl-load/owl/opencaesar.io/services/cprov.owl
 owl-tools/owl-load/owl/purl.org/dc/elements/1.1.owl
 owl-tools/owl-load/owl/www.w3.org/ns/prov.owl
 owl-tools/owl-query/queries/bad.txt
+*.txt
+*.frame
