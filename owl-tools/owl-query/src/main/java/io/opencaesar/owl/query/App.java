@@ -42,7 +42,6 @@ import org.apache.jena.query.QueryType;
 import org.apache.jena.rdfconnection.RDFConnection;
 import org.apache.jena.rdfconnection.RDFConnectionFuseki;
 import org.apache.jena.rdfconnection.RDFConnectionRemoteBuilder;
-import org.apache.jena.riot.Lang;
 import org.apache.jena.sparql.resultset.ResultsFormat;
 
 public class App {
