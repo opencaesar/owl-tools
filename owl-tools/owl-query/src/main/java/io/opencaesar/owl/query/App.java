@@ -18,13 +18,10 @@ package io.opencaesar.owl.query;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 import org.apache.log4j.Appender;
 import org.apache.log4j.AppenderSkeleton;
@@ -45,10 +42,8 @@ import org.apache.jena.query.QueryType;
 import org.apache.jena.rdfconnection.RDFConnection;
 import org.apache.jena.rdfconnection.RDFConnectionFuseki;
 import org.apache.jena.rdfconnection.RDFConnectionRemoteBuilder;
-
-import org.apache.jena.rdf.model.Model ;
-import org.apache.jena.rdf.model.ModelFactory ;
-import org.apache.jena.util.FileManager;
+import org.apache.jena.riot.Lang;
+import org.apache.jena.sparql.resultset.ResultsFormat;
 
 public class App {
   
@@ -71,15 +66,15 @@ public class App {
 		description = "Path to the folder to save the result to (Required)",
 		required = true,
 		order = 4)
-	String resultsPath;
+	String resultPath;
 	
 	@Parameter(
 		names = { "--format", "-f" },
-		description = "Format of the results. Must be either xml, json, csv, or tsv (Required)",
+		description = "Format of the results. Must be either xml, json, csv, n3, ttl, n-triple or tsv (Required)",
 		validateWith = FormatType.class, 
-		required = true,
+		required = false,
 		order = 4)
-	String formatType;
+	String formatType = "xml";
 
 	@Parameter(
 		names = { "-d", "--debug" },
@@ -124,7 +119,10 @@ public class App {
 		LOGGER.info("                        S T A R T");
 		LOGGER.info("                     OWL Query " + getAppVersion());
 		LOGGER.info("=================================================================");
-	    	    
+		LOGGER.info("Endpoint: " + endpoint);
+		LOGGER.info("File path: " + queriesPath);
+		LOGGER.info("Result location: " + resultPath);
+		LOGGER.info("Format Type: " + formatType);
 		// Create query from the given file 
 		final File queryFile = new File(queriesPath);
 		String fileName = queryFile.getName();
@@ -146,7 +144,7 @@ public class App {
 		// Execute queries on the server
 		try (RDFConnection conn = builder.build()) {
 			String outputName = getFileName(queryFile);
-			File output = new File("results/"+outputName+".frame");
+			File output = new File(resultPath + "/" + outputName + ".frame");
 			if (output.exists()) {
 				output.delete(); 
 			}
@@ -156,24 +154,28 @@ public class App {
 			//Given the type of query, execute it
 			switch (type) {
 				case ASK:
-					LOGGER.info("Ask");
-					byte b[] = Boolean.toString(conn.queryAsk(query)).getBytes(); 
+					LOGGER.info("Query Type: Ask");
+					//ResultSetFormatter.out(res, conn.queryAsk(query));
+					byte b[] = Boolean.toString(conn.queryAsk(query)).getBytes();
 					res.write(b); 
 					break; 
 				case CONSTRUCT_JSON:
 				case CONSTRUCT_QUADS:
 				case CONSTRUCT:
-					LOGGER.info("Construct");
-					conn.queryConstruct(query).write(res); 
+					LOGGER.info("Query Type: Construct");
+					String constructFmt = getOutType(formatType); 
+					conn.queryConstruct(query).write(res, constructFmt); 
 					break; 
 				case DESCRIBE:
-					LOGGER.info("Describe");
-					conn.queryDescribe(query).write(res);
+					LOGGER.info("Query Type: Describe");
+					String describeFmt = getOutType(formatType); 
+					conn.queryDescribe(query).write(res, describeFmt);
 					break; 
 				case SELECT:
-					LOGGER.info("Select");
+					LOGGER.info("Query Type: Select");
+					ResultsFormat selectFmt = getSelectType(formatType);
 					conn.queryResultSet(query, (resultSet)-> {
-						ResultSetFormatter.outputAsXML(res, resultSet);
+						ResultSetFormatter.output(res, resultSet, selectFmt);
 					});
 					break; 
 				case UNKNOWN:
@@ -185,6 +187,7 @@ public class App {
 			}
 			//Close the writer 
 			res.close(); 
+			conn.close(); 
 		} catch (IOException e) {
 			LOGGER.info("Failed to create open file"); 
 			e.printStackTrace(); 
@@ -220,9 +223,12 @@ public class App {
 				add("json");
 				add("csv");
 				add("tsv");
+				add("n3");
+				add("ttl");
+				add("n-triple");
 			}};
 			if (!formatTypes.contains(value.toLowerCase())) {
-				throw new ParameterException("Paramter " + name + " must be either xml, json, csv, or tsv");
+				throw new ParameterException("Paramter " + name + " must be either xml, json, csv, n3, ttl, n-triple or tsv");
 			}
 		}
 	}
@@ -235,5 +241,46 @@ public class App {
         else 
         	return "";
 	}
+
+	//Get proper conversion for format string for describe/construct queries 
+	private String getOutType(String formatType) {
+		switch (formatType.toLowerCase()) {
+			case "xml":
+				return "RDF/XML";
+			case "n3":
+				return "N3";
+			case "n-triple":
+				return "N-TRIPLE";
+			case "ttl":
+				return "TURTLE";
+			default:
+				//Not a valid output type for describe/construct queries 
+				LOGGER.error(formatType + " is not a valid output type for describe/construct queries. Please use xml, n3, n-triple or ttl");
+				System.exit(1);
+				return "NULL";
+		}
+	}
 	
+	//Get proper conversion for format for select queries 
+	private ResultsFormat getSelectType (String formatType) {
+		switch (formatType.toLowerCase()) {
+			case "xml":
+				return ResultsFormat.FMT_RDF_XML; 
+			case "n-triple": 
+				return ResultsFormat.FMT_RDF_NT;
+			case "ttl":
+				return ResultsFormat.FMT_RDF_TURTLE;
+			case "csv":
+				return ResultsFormat.FMT_RS_CSV;
+			case "json":
+				return ResultsFormat.FMT_RS_JSON; 
+			case "tsv":
+				return ResultsFormat.FMT_RS_TSV;
+			default:
+				LOGGER.error(formatType + " is not a valid output format for select queries. Please use one of the listed formats: xml, ttl, csv, json, tsv");
+				System.exit(1);
+				return ResultsFormat.FMT_NONE;
+		}
+	}
 }
+
