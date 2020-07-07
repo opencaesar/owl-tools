@@ -188,6 +188,7 @@ public class App {
 			//Close the writer 
 			res.close(); 
 			conn.close(); 
+			LOGGER.info("Result saved at: " + resultPath + "/" + outputName + ".frame");
 		} catch (IOException e) {
 			LOGGER.info("Failed to create open file"); 
 			e.printStackTrace(); 

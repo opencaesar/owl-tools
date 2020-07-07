@@ -1,26 +1,25 @@
-# OWL Load
+# OWL Query
 
-[ ![Download](https://api.bintray.com/packages/opencaesar/owl-tools/owl-reason/images/download.svg) ](https://bintray.com/opencaesar/owl-tools/owl-reason/_latestVersion)
-
-A tool to analyze an OWL dataset for satisfiability and consistency with an OWL2-DL reasoner
+A tool to execute a query on a given SPARQL endpoint. 
 
 ## Run as CLI
 
 MacOS/Linux:
 ```
-    cd owl-adapter
-    ./gradlew owl-reason:run --args="..."
+    cd owl-tools
+    ./gradlew owl-query:run --args="..."
 ```
 Windows:
 ```
-    cd owl-adapter
-    gradlew.bat owl-reason:run --args="..."
+    cd owl-tools
+    gradlew.bat owl-query:run --args="..."
 ```
 Args:
 ```
---catalog path/to/owl/catalog.xml
---input-iri of-a-box-ontology-in-catalog
---spec '_c=ALL_SUBCLASS'
---spec '_p=INVERSE_PROPERTY ALL_SUBPROPERTY'
---spec '_i=ALL_INSTANCE DATA_PROPERTY_VALUE OBJECT_PROPERTY_VALUE SAME_AS'
+--query, -q path/to/queries/query.sparql (Required)
+--endpoint, -e http://fusekiURL/databaseName (Required)
+--result, -r path/to/result (Required) (If the result file previously exists, it will be overwritten)
+--format, -f xml (Optional; default value is xml)
+    - Can select xml, json, csv, n3, ttl, n-triple, or tsv
+    - Certain formats are supported based on query type     
 ```
