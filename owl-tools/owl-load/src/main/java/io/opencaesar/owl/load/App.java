@@ -24,6 +24,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.jena.rdfconnection.RDFConnection;
+import org.apache.jena.rdfconnection.RDFConnectionFuseki;
+import org.apache.jena.rdfconnection.RDFConnectionRemoteBuilder;
 import org.apache.log4j.Appender;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.ConsoleAppender;
@@ -38,21 +41,12 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.google.common.io.CharStreams;
 
-import org.apache.jena.query.*;
-import org.apache.jena.rdfconnection.RDFConnection;
-import org.apache.jena.rdfconnection.RDFConnectionFuseki;
-import org.apache.jena.rdfconnection.RDFConnectionRemoteBuilder;
-
-import org.apache.jena.rdf.model.Model ;
-import org.apache.jena.rdf.model.ModelFactory ;
-import org.apache.jena.util.FileManager;
-
 
 public class App {
   
 	@Parameter(
 		names = { "--catalog", "-c" },
-		description = "path to the OWL catalog file (Required)",
+		description = "Path to the OWL XML catalog file (Required)",
 		validateWith = CatalogPath.class,
 		required = true, 
 		order = 1)
@@ -60,7 +54,7 @@ public class App {
 	
 	@Parameter(
 			names = { "--endpoint", "-e" },
-			description = "Sparql Endpoint URL, including the name of the dataset (Required)",
+			description = "URL (endpoint) of the dataset in a triple store (Required)",
 			required = true,
 			order = 2)
 	private String endpoint;
@@ -70,9 +64,10 @@ public class App {
 			description = "File extensions of files that will be uploaded. Default is only .owl (Not Required)",
 			required = false,
 			order = 3)
-	private List<String> fileExt = new ArrayList<String>() {{
-		add("owl");
-	}};
+	private List<String> fileExt = new ArrayList<String>();
+	{
+		fileExt.add("owl");
+	}
 	
 	@Parameter(
 		names = { "-d", "--debug" },
