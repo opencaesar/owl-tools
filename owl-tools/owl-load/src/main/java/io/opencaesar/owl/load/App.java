@@ -25,7 +25,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.apache.jena.rdfconnection.RDFConnection;
-import org.apache.jena.rdfconnection.RDFConnectionFuseki;
+import org.apache.jena.rdfconnection.RDFConnectionRemote;
 import org.apache.jena.rdfconnection.RDFConnectionRemoteBuilder;
 import org.apache.log4j.Appender;
 import org.apache.log4j.AppenderSkeleton;
@@ -133,7 +133,7 @@ public class App {
 			Thread thread = new Thread(new Runnable() {
 				public void run() {
 					//Create remote connection to Fuseki server
-					RDFConnectionRemoteBuilder builder = RDFConnectionFuseki.create()
+					RDFConnectionRemoteBuilder builder = RDFConnectionRemote.create()
 							.updateEndpoint("update")
 							.queryEndpoint("sparql")
 							.destination(endpoint);

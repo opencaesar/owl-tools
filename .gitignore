@@ -40,3 +40,8 @@ owl-tools/owl-load/owl/iso.org/ex.rdf
 owl-tools/owl-query/queries/test.sparql
 owl-tools/owl-query/queries/test2.sparql
 owl-tools/owl-load/owl/iso.org/vc-db-1.rdf
+*.sparql
+*.frame
+owl-tools/owl-query/results/output.txt
+owl-tools/owl-query/queries/bad.txt
+owl-tools/owl-query/output.txt
