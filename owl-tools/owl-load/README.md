@@ -18,6 +18,7 @@ Args:
 ```
 --catalog path/to/owl/catalog.xml
 --endpoint http://sparqlURL/dataset
+    The dataset must be created prior to execution
 --file-extensions: comma,separated,file,extensions (Optional, default is owl)
                  : alternatively, can input them as separate -f (Ex: -f owl -f ttl ...)                 
 ```
@@ -56,4 +57,18 @@ Windows:
 [More instructions](https://jena.apache.org/documentation/fuseki2/fuseki-quick-start.html)
 [Other methods to run Fuseki](https://jena.apache.org/documentation/fuseki2/fuseki-run.html)
 
+# Creating a Fuseki Dataset
+These instructions are specific to creating a Fuseki dataset. 
 
+## Method 1: GUI
+Enter your Fuseki URL into your web browser and create a dataset in the manage dataset tab.
+
+## Method 2: CLI Curl 
+MacOS/Linux:
+```
+    curl 'http://fusekiURL/$/datasets' -d 'dbName=name&dbType=mem'
+```
+Windows (Using Powershell):
+```
+    curl.exe -X POST -d 'dbName=name&dbType=mem' http://fusekiURL/$/datasets
+```
