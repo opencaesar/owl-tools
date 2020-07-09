@@ -21,8 +21,18 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
+import org.apache.jena.query.Query;
+import org.apache.jena.query.QueryException;
+import org.apache.jena.query.QueryFactory;
+import org.apache.jena.query.QueryType;
+import org.apache.jena.query.ResultSetFormatter;
+import org.apache.jena.rdfconnection.RDFConnection;
+import org.apache.jena.rdfconnection.RDFConnectionFuseki;
+import org.apache.jena.rdfconnection.RDFConnectionRemoteBuilder;
+import org.apache.jena.sparql.resultset.ResultsFormat;
 import org.apache.log4j.Appender;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.ConsoleAppender;
@@ -36,13 +46,6 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.google.common.io.CharStreams;
-
-import org.apache.jena.query.*;
-import org.apache.jena.query.QueryType;
-import org.apache.jena.rdfconnection.RDFConnection;
-import org.apache.jena.rdfconnection.RDFConnectionFuseki;
-import org.apache.jena.rdfconnection.RDFConnectionRemoteBuilder;
-import org.apache.jena.sparql.resultset.ResultsFormat;
 
 public class App {
   
@@ -63,6 +66,7 @@ public class App {
 	@Parameter(
 		names = { "--result", "-r" },
 		description = "Path to the folder to save the result to (Required)",
+		validateWith = ResultFolderPath.class, 
 		required = true,
 		order = 4)
 	String resultPath;
@@ -134,13 +138,13 @@ public class App {
 			System.exit(1);
 		}
 		
-		// Create remote connection to Fuseki server
+		// Create remote connection to query endpoint
 		RDFConnectionRemoteBuilder builder = RDFConnectionFuseki.create()
 				.updateEndpoint("update")
 				.queryEndpoint("sparql")
 				.destination(endpoint);
 		
-		// Execute queries on the server
+		// Execute queries on the endpoint
 		try (RDFConnection conn = builder.build()) {
 			String outputName = getFileName(queryFile);
 			File output = new File(resultPath + "/" + outputName + ".frame");
@@ -218,21 +222,23 @@ public class App {
 	public static class FormatType implements IParameterValidator {
 		@Override
 		public void validate(final String name, final String value) throws ParameterException {
-			final ArrayList<String> formatTypes = new ArrayList<String>() {{
-				add("xml");
-				add("json");
-				add("csv");
-				add("tsv");
-				add("n3");
-				add("ttl");
-				add("n-triple");
-			}};
+			final List<String> formatTypes = Arrays.asList("xml", "json", "csv", "tsv", "n3", "ttl", "n-triple");
 			if (!formatTypes.contains(value.toLowerCase())) {
 				throw new ParameterException("Paramter " + name + " must be either xml, json, csv, n3, ttl, n-triple or tsv");
 			}
 		}
 	}
 	
+	public static class ResultFolderPath implements IParameterValidator {
+		@Override
+		public void validate(final String name, final String value) throws ParameterException {
+			File directory = new File(value);
+			if (!directory.exists()) {
+				directory.mkdir();
+			}
+	  	}
+	}
+
 	//Modified from owl-diff
 	private String getFileName(final File file) {
         String fileName = file.getName();
@@ -282,5 +288,6 @@ public class App {
 				return ResultsFormat.FMT_NONE;
 		}
 	}
+
 }
 
