@@ -58,7 +58,7 @@ Windows:
 [Other methods to run Fuseki](https://jena.apache.org/documentation/fuseki2/fuseki-run.html)
 
 # Creating a Fuseki Dataset
-These instructions are specific to creating a Fuseki server. 
+These instructions are specific to creating a Fuseki dataset. 
 
 ## Method 1: GUI
 Enter your Fuseki URL into your web browser and create a dataset in the manage dataset tab.
