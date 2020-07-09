@@ -1,26 +1,59 @@
 # OWL Load
 
-[ ![Download](https://api.bintray.com/packages/opencaesar/owl-tools/owl-reason/images/download.svg) ](https://bintray.com/opencaesar/owl-tools/owl-reason/_latestVersion)
-
-A tool to analyze an OWL dataset for satisfiability and consistency with an OWL2-DL reasoner
+A tool to load RDF files into a Fuseki end point. 
 
 ## Run as CLI
 
 MacOS/Linux:
 ```
-    cd owl-adapter
-    ./gradlew owl-reason:run --args="..."
+    cd owl-tools
+    ./gradlew owl-load:run --args="..."
 ```
 Windows:
 ```
-    cd owl-adapter
-    gradlew.bat owl-reason:run --args="..."
+    cd owl-tools
+    gradlew.bat owl-load:run --args="..."
 ```
 Args:
 ```
 --catalog path/to/owl/catalog.xml
---input-iri of-a-box-ontology-in-catalog
---spec '_c=ALL_SUBCLASS'
---spec '_p=INVERSE_PROPERTY ALL_SUBPROPERTY'
---spec '_i=ALL_INSTANCE DATA_PROPERTY_VALUE OBJECT_PROPERTY_VALUE SAME_AS'
+--endpoint http://sparqlURL/dataset
+--file-extensions: comma,separated,file,extensions (Optional, default is owl)
+                 : alternatively, can input them as separate -f (Ex: -f owl -f ttl ...)                 
 ```
+
+# Running Apache Jena Fuseki Locally:
+[Download Fuseki](https://jena.apache.org/download/index.cgi)
+
+## Method 1: Running a standalone server 
+By default, the server will be available at http://localhost:3030 after running the command
+MacOS/Linux: 
+```
+    cd fuseki-distribution-folder
+    ./fuseki-server
+```
+Windows:
+```
+    cd fuseki-distribution-folder
+    fuseki-server.bat
+```    
+[More instruction](https://jena.apache.org/documentation/fuseki2/fuseki-run.html#fuseki-standalone-server)
+## Method 2: Running as a Web Application
+Can use any application that provides Java Servlet 3.1 API. This tutorial will use [Apache Tomcat 8](https://tomcat.apache.org/download-80.cgi)
+Follow the setup instructions in the RUNNING.TXT file included in the Tomcat 8 distribution. Then
+copy the fuseki.war file from the Fuseki distribution into the webapps directory of Tomcat. The server
+will run on default at http://localhost:8080/fuseki after running the command 
+MacOS/Linux:
+```
+    cd tomcat-distribution-folder/bin
+    ./startup    
+```
+Windows:
+```
+    cd tomcat-distribution-folder/bin
+    startup.bat   
+```
+[More instructions](https://jena.apache.org/documentation/fuseki2/fuseki-quick-start.html)
+[Other methods to run Fuseki](https://jena.apache.org/documentation/fuseki2/fuseki-run.html)
+
+
