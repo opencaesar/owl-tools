@@ -57,7 +57,7 @@ Windows:
 [More instructions](https://jena.apache.org/documentation/fuseki2/fuseki-quick-start.html)
 [Other methods to run Fuseki](https://jena.apache.org/documentation/fuseki2/fuseki-run.html)
 
-# Creating a Fuseki Server
+# Creating a Fuseki Dataset
 These instructions are specific to creating a Fuseki server. 
 
 ## Method 1: GUI
