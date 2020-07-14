@@ -7,3 +7,4 @@ build
 .launch
 *.sparql
 *.frame
+owl-tools/owl-load/owl
