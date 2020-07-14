@@ -3,13 +3,13 @@ package io.opencaesar.owl.load;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import io.opencaesar.owl.load.App; 
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 
-public class GradlePlugin implements Plugin<Project>{
+public class OwlLoadGradle implements Plugin<Project>{
 	@Override
 	public void apply(Project project) {
 		OwlLoadExtension extension = project.getExtensions().create("owlLoad", OwlLoadExtension.class);
@@ -26,7 +26,7 @@ public class GradlePlugin implements Plugin<Project>{
 				args.add(extension.endpoint);
 				args.add("-f");
 				args.add(extension.fileExt);
-				App.main(args.toArray(new String[0]));
+				io.opencaesar.owl.load.App.main(args.toArray(new String[0]));
 			}
 		});
 	}

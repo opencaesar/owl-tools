@@ -1,0 +1,1401 @@
+
+------------------------------------------------------------
+Project :owl-load - A tool to load a set of OWL files to a SPARQL endpoint
+------------------------------------------------------------
+
+annotationProcessor - Annotation processors and their dependencies for source set 'main'.
+No dependencies
+
+apiElements - API elements for main. (n)
+No dependencies
+
+archives - Configuration for archive artifacts.
+No dependencies
+
+compile - Dependencies for source set 'main' (deprecated, use 'implementation ' instead).
+No dependencies
+
+compileClasspath - Compile classpath for source set 'main'.
++--- com.beust:jcommander:1.72
++--- log4j:log4j:1.2.17
++--- xml-resolver:xml-resolver:1.2
++--- org.slf4j:slf4j-nop:1.7.+ -> 1.7.30
+|    \--- org.slf4j:slf4j-api:1.7.30
++--- com.github.galigator.openllet:openllet-owlapi:2.6.5
+|    +--- com.github.galigator.openllet:openllet-core:2.6.5
+|    |    +--- com.github.galigator.openllet:openllet-functions:[2.6.5] -> 2.6.5
+|    |    |    \--- org.slf4j:slf4j-api:[1.7.25,1.7.99] -> 1.7.30
+|    |    +--- org.jgrapht:jgrapht-ext:1.1.0
+|    |    |    +--- org.jgrapht:jgrapht-core:1.1.0
+|    |    |    +--- org.jgrapht:jgrapht-io:1.1.0
+|    |    |    |    +--- org.jgrapht:jgrapht-core:1.1.0
+|    |    |    |    +--- org.antlr:antlr4-runtime:4.6
+|    |    |    |    \--- org.apache.commons:commons-lang3:3.5 -> 3.10
+|    |    |    +--- org.tinyjee.jgraphx:jgraphx:2.0.0.1
+|    |    |    \--- jgraph:jgraph:5.13.0.0
+|    |    \--- javax.xml.bind:jaxb-api:2.3.0
+|    +--- com.github.galigator.openllet:openllet-query:2.6.5
+|    |    +--- com.github.galigator.openllet:openllet-core:2.6.5 (*)
+|    |    \--- org.antlr:antlr-runtime:[3.5.2,3.5.99] -> 3.5.2
+|    +--- net.sourceforge.owlapi:owlapi-distribution:[5.1.9,) -> 5.1.15
+|    |    +--- net.sourceforge.owlapi:owlapi-compatibility:5.1.15
+|    |    |    +--- net.sourceforge.owlapi:owlapi-apibinding:5.1.15
+|    |    |    |    +--- net.sourceforge.owlapi:owlapi-api:5.1.15
+|    |    |    |    |    +--- org.tukaani:xz:1.6
+|    |    |    |    |    +--- org.apache.commons:commons-rdf-api:0.5.0
+|    |    |    |    |    +--- javax.inject:javax.inject:1
+|    |    |    |    |    +--- com.github.vsonnier:hppcrt:0.7.5
+|    |    |    |    |    +--- com.github.ben-manes.caffeine:caffeine:2.6.1
+|    |    |    |    |    +--- com.google.guava:guava:[18.0,22.0] -> 22.0
+|    |    |    |    |    |    +--- com.google.code.findbugs:jsr305:1.3.9 -> 3.0.2
+|    |    |    |    |    |    +--- com.google.errorprone:error_prone_annotations:2.0.18
+|    |    |    |    |    |    +--- com.google.j2objc:j2objc-annotations:1.1
+|    |    |    |    |    |    \--- org.codehaus.mojo:animal-sniffer-annotations:1.14
+|    |    |    |    |    +--- com.google.code.findbugs:jsr305:[2.0.0,4) -> 3.0.2
+|    |    |    |    |    +--- org.slf4j:slf4j-api:[1.7.0,1.7.26) -> 1.7.30
+|    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    +--- net.sourceforge.owlapi:owlapi-impl:5.1.15
+|    |    |    |    |    +--- net.sourceforge.owlapi:owlapi-api:5.1.15 (*)
+|    |    |    |    |    +--- javax.inject:javax.inject:1
+|    |    |    |    |    +--- com.github.vsonnier:hppcrt:0.7.5
+|    |    |    |    |    +--- com.github.ben-manes.caffeine:caffeine:2.6.1
+|    |    |    |    |    +--- com.google.guava:guava:[18.0,22.0] -> 22.0 (*)
+|    |    |    |    |    +--- com.google.code.findbugs:jsr305:[2.0.0,4) -> 3.0.2
+|    |    |    |    |    +--- org.slf4j:slf4j-api:[1.7.0,1.7.26) -> 1.7.30
+|    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    +--- net.sourceforge.owlapi:owlapi-parsers:5.1.15
+|    |    |    |    |    +--- net.sourceforge.owlapi:owlapi-api:5.1.15 (*)
+|    |    |    |    |    +--- com.github.vsonnier:hppcrt:0.7.5
+|    |    |    |    |    +--- com.github.ben-manes.caffeine:caffeine:2.6.1
+|    |    |    |    |    +--- com.google.guava:guava:[18.0,22.0] -> 22.0 (*)
+|    |    |    |    |    +--- com.google.code.findbugs:jsr305:[2.0.0,4) -> 3.0.2
+|    |    |    |    |    +--- org.slf4j:slf4j-api:[1.7.0,1.7.26) -> 1.7.30
+|    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    +--- net.sourceforge.owlapi:owlapi-oboformat:5.1.15
+|    |    |    |    |    +--- net.sourceforge.owlapi:owlapi-parsers:5.1.15 (*)
+|    |    |    |    |    +--- com.github.vsonnier:hppcrt:0.7.5
+|    |    |    |    |    +--- com.github.ben-manes.caffeine:caffeine:2.6.1
+|    |    |    |    |    +--- com.google.guava:guava:[18.0,22.0] -> 22.0 (*)
+|    |    |    |    |    +--- com.google.code.findbugs:jsr305:[2.0.0,4) -> 3.0.2
+|    |    |    |    |    +--- org.slf4j:slf4j-api:[1.7.0,1.7.26) -> 1.7.30
+|    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    +--- net.sourceforge.owlapi:owlapi-tools:5.1.15
+|    |    |    |    |    +--- net.sourceforge.owlapi:owlapi-api:5.1.15 (*)
+|    |    |    |    |    +--- com.github.vsonnier:hppcrt:0.7.5
+|    |    |    |    |    +--- com.github.ben-manes.caffeine:caffeine:2.6.1
+|    |    |    |    |    +--- com.google.guava:guava:[18.0,22.0] -> 22.0 (*)
+|    |    |    |    |    +--- com.google.code.findbugs:jsr305:[2.0.0,4) -> 3.0.2
+|    |    |    |    |    +--- org.slf4j:slf4j-api:[1.7.0,1.7.26) -> 1.7.30
+|    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    +--- net.sourceforge.owlapi:owlapi-rio:5.1.15
+|    |    |    |    |    +--- net.sourceforge.owlapi:owlapi-parsers:5.1.15 (*)
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2
+|    |    |    |    |    |    \--- org.eclipse.rdf4j:rdf4j-util:2.4.2
+|    |    |    |    |    |         \--- org.slf4j:slf4j-api:1.7.10 -> 1.7.30
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    \--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    \--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    \--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-binary:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    \--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-n3:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-turtle:2.4.2
+|    |    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2 (*)
+|    |    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2 (*)
+|    |    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    |    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2 (*)
+|    |    |    |    |    |    \--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2 (*)
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-nquads:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-ntriples:2.4.2
+|    |    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2 (*)
+|    |    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2 (*)
+|    |    |    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2 (*)
+|    |    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-ntriples:2.4.2 (*)
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-rdfjson:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    |    |    |    |    +--- com.fasterxml.jackson.core:jackson-core:2.9.6 -> 2.10.1
+|    |    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-rdfxml:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-trix:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-turtle:2.4.2 (*)
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-trig:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-turtle:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2 (*)
+|    |    |    |    |    |    \--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-jsonld:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    |    |    |    |    +--- com.github.jsonld-java:jsonld-java:0.12.0 -> 0.12.5
+|    |    |    |    |    |    |    +--- com.fasterxml.jackson.core:jackson-core:2.9.9 -> 2.10.1
+|    |    |    |    |    |    |    +--- com.fasterxml.jackson.core:jackson-databind:2.9.9.2 -> 2.10.1
+|    |    |    |    |    |    |    |    +--- com.fasterxml.jackson.core:jackson-annotations:2.10.1
+|    |    |    |    |    |    |    |    \--- com.fasterxml.jackson.core:jackson-core:2.10.1
+|    |    |    |    |    |    |    +--- org.apache.httpcomponents:httpclient-osgi:4.5.8
+|    |    |    |    |    |    |    |    +--- org.apache.httpcomponents:httpclient:4.5.8 -> 4.5.10
+|    |    |    |    |    |    |    |    |    +--- org.apache.httpcomponents:httpcore:4.4.12
+|    |    |    |    |    |    |    |    |    +--- commons-logging:commons-logging:1.2
+|    |    |    |    |    |    |    |    |    \--- commons-codec:commons-codec:1.11 -> 1.14
+|    |    |    |    |    |    |    |    +--- commons-codec:commons-codec:1.11 -> 1.14
+|    |    |    |    |    |    |    |    +--- org.apache.httpcomponents:httpmime:4.5.8
+|    |    |    |    |    |    |    |    |    \--- org.apache.httpcomponents:httpclient:4.5.8 -> 4.5.10 (*)
+|    |    |    |    |    |    |    |    +--- org.apache.httpcomponents:httpclient-cache:4.5.8 -> 4.5.10
+|    |    |    |    |    |    |    |    |    \--- org.apache.httpcomponents:httpclient:4.5.10 (*)
+|    |    |    |    |    |    |    |    \--- org.apache.httpcomponents:fluent-hc:4.5.8
+|    |    |    |    |    |    |    |         \--- org.apache.httpcomponents:httpclient:4.5.8 -> 4.5.10 (*)
+|    |    |    |    |    |    |    +--- org.apache.httpcomponents:httpcore-osgi:4.4.11
+|    |    |    |    |    |    |    |    +--- org.apache.httpcomponents:httpcore:4.4.11 -> 4.4.12
+|    |    |    |    |    |    |    |    \--- org.apache.httpcomponents:httpcore-nio:4.4.11
+|    |    |    |    |    |    |    |         \--- org.apache.httpcomponents:httpcore:4.4.11 -> 4.4.12
+|    |    |    |    |    |    |    +--- org.slf4j:slf4j-api:1.7.26 -> 1.7.30
+|    |    |    |    |    |    |    +--- org.slf4j:jcl-over-slf4j:1.7.26 -> 1.7.30
+|    |    |    |    |    |    |    |    \--- org.slf4j:slf4j-api:1.7.30
+|    |    |    |    |    |    |    \--- commons-io:commons-io:2.6
+|    |    |    |    |    |    +--- org.apache.httpcomponents:httpclient:4.5.5 -> 4.5.10 (*)
+|    |    |    |    |    |    +--- org.apache.httpcomponents:httpclient-cache:4.5.5 -> 4.5.10 (*)
+|    |    |    |    |    |    +--- com.fasterxml.jackson.core:jackson-core:2.9.6 -> 2.10.1
+|    |    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    |    +--- com.github.jsonld-java:jsonld-java:0.12.0 -> 0.12.5 (*)
+|    |    |    |    |    +--- com.github.vsonnier:hppcrt:0.7.5
+|    |    |    |    |    +--- com.github.ben-manes.caffeine:caffeine:2.6.1
+|    |    |    |    |    +--- com.google.guava:guava:[18.0,22.0] -> 22.0 (*)
+|    |    |    |    |    +--- com.google.code.findbugs:jsr305:[2.0.0,4) -> 3.0.2
+|    |    |    |    |    +--- org.slf4j:slf4j-api:[1.7.0,1.7.26) -> 1.7.30
+|    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    +--- com.github.vsonnier:hppcrt:0.7.5
+|    |    |    |    +--- com.github.ben-manes.caffeine:caffeine:2.6.1
+|    |    |    |    +--- com.google.guava:guava:[18.0,22.0] -> 22.0 (*)
+|    |    |    |    +--- com.google.code.findbugs:jsr305:[2.0.0,4) -> 3.0.2
+|    |    |    |    +--- org.slf4j:slf4j-api:[1.7.0,1.7.26) -> 1.7.30
+|    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    +--- com.github.vsonnier:hppcrt:0.7.5
+|    |    |    +--- com.github.ben-manes.caffeine:caffeine:2.6.1
+|    |    |    +--- com.google.guava:guava:[18.0,22.0] -> 22.0 (*)
+|    |    |    +--- com.google.code.findbugs:jsr305:[2.0.0,4) -> 3.0.2
+|    |    |    +--- org.slf4j:slf4j-api:[1.7.0,1.7.26) -> 1.7.30
+|    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    +--- com.fasterxml.jackson.core:jackson-core:2.9.10 -> 2.10.1
+|    |    +--- com.fasterxml.jackson.core:jackson-databind:2.9.10.5 -> 2.10.1 (*)
+|    |    +--- com.fasterxml.jackson.core:jackson-annotations:2.9.10 -> 2.10.1
+|    |    +--- org.apache.commons:commons-rdf-api:0.5.0
+|    |    +--- org.tukaani:xz:1.6
+|    |    +--- org.slf4j:slf4j-api:1.7.22 -> 1.7.30
+|    |    +--- org.slf4j:jcl-over-slf4j:1.7.22 -> 1.7.30 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-binary:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-n3:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-nquads:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-ntriples:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-rdfjson:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-jsonld:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-rdfxml:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-trix:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-turtle:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-trig:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    +--- com.github.jsonld-java:jsonld-java:0.12.0 -> 0.12.5 (*)
+|    |    +--- com.github.vsonnier:hppcrt:0.7.5
+|    |    +--- com.github.ben-manes.caffeine:caffeine:2.6.1
+|    |    +--- com.google.guava:guava:[18.0,22.0] -> 22.0 (*)
+|    |    +--- com.google.code.findbugs:jsr305:[2.0.0,4) -> 3.0.2
+|    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    \--- javax.xml.bind:jaxb-api:2.3.0
++--- com.github.galigator.openllet:openllet-explanation:2.6.5
+|    +--- com.github.galigator.openllet:openllet-core:2.6.5 (*)
+|    \--- com.github.galigator.openllet:openllet-owlapi:2.6.5 (*)
++--- com.github.galigator.openllet:openllet-jena:2.6.5
+|    +--- com.github.galigator.openllet:openllet-core:2.6.5 (*)
+|    +--- com.github.galigator.openllet:openllet-query:2.6.5 (*)
+|    +--- org.apache.jena:jena-core:[3.10.0,3.10.99] -> 3.15.0
+|    |    +--- org.apache.jena:jena-base:3.15.0
+|    |    |    +--- org.slf4j:slf4j-api:1.7.30
+|    |    |    +--- org.apache.jena:jena-shaded-guava:3.15.0
+|    |    |    +--- org.apache.commons:commons-csv:1.8
+|    |    |    +--- commons-io:commons-io:2.6
+|    |    |    +--- org.apache.commons:commons-lang3:3.10
+|    |    |    +--- commons-codec:commons-codec:1.14
+|    |    |    +--- org.apache.commons:commons-compress:1.20
+|    |    |    \--- com.github.andrewoma.dexx:collection:0.7
+|    |    +--- org.apache.jena:jena-iri:3.15.0
+|    |    \--- commons-cli:commons-cli:1.4
+|    +--- org.apache.jena:jena-arq:[3.10.0,3.10.99] -> 3.15.0
+|    |    +--- org.apache.jena:jena-core:3.15.0 (*)
+|    |    +--- org.apache.jena:jena-shaded-guava:3.15.0
+|    |    +--- org.apache.httpcomponents:httpclient:4.5.10 (*)
+|    |    +--- com.github.jsonld-java:jsonld-java:0.12.5 (*)
+|    |    +--- com.fasterxml.jackson.core:jackson-core:2.10.1
+|    |    +--- com.fasterxml.jackson.core:jackson-databind:2.10.1 (*)
+|    |    +--- org.apache.httpcomponents:httpclient-cache:4.5.10 (*)
+|    |    +--- org.apache.thrift:libthrift:0.13.0
+|    |    |    +--- org.slf4j:slf4j-api:1.7.25 -> 1.7.30
+|    |    |    +--- org.apache.httpcomponents:httpclient:4.5.6 -> 4.5.10 (*)
+|    |    |    \--- javax.annotation:javax.annotation-api:1.3.2
+|    |    +--- org.slf4j:jcl-over-slf4j:1.7.30 (*)
+|    |    \--- org.apache.commons:commons-lang3:3.10
+|    +--- org.antlr:antlr-runtime:[3.5.2,3.5.99] -> 3.5.2
+|    \--- javax.xml.bind:jaxb-api:2.3.0
+\--- org.apache.jena:jena-rdfconnection:3.15.+ -> 3.15.0
+     \--- org.apache.jena:jena-arq:3.15.0 (*)
+
+compileOnly - Compile only dependencies for source set 'main'.
+No dependencies
+
+default - Configuration for default artifacts.
++--- com.beust:jcommander:1.72
++--- log4j:log4j:1.2.17
++--- xml-resolver:xml-resolver:1.2
++--- org.slf4j:slf4j-nop:1.7.+ -> 1.7.30
+|    \--- org.slf4j:slf4j-api:1.7.30
++--- com.github.galigator.openllet:openllet-owlapi:2.6.5
+|    +--- com.github.galigator.openllet:openllet-core:2.6.5
+|    |    +--- com.github.galigator.openllet:openllet-functions:[2.6.5] -> 2.6.5
+|    |    |    \--- org.slf4j:slf4j-api:[1.7.25,1.7.99] -> 1.7.30
+|    |    +--- org.jgrapht:jgrapht-ext:1.1.0
+|    |    |    +--- org.jgrapht:jgrapht-core:1.1.0
+|    |    |    +--- org.jgrapht:jgrapht-io:1.1.0
+|    |    |    |    +--- org.jgrapht:jgrapht-core:1.1.0
+|    |    |    |    +--- org.antlr:antlr4-runtime:4.6
+|    |    |    |    \--- org.apache.commons:commons-lang3:3.5 -> 3.10
+|    |    |    +--- org.tinyjee.jgraphx:jgraphx:2.0.0.1
+|    |    |    \--- jgraph:jgraph:5.13.0.0
+|    |    \--- javax.xml.bind:jaxb-api:2.3.0
+|    +--- com.github.galigator.openllet:openllet-query:2.6.5
+|    |    +--- com.github.galigator.openllet:openllet-core:2.6.5 (*)
+|    |    \--- org.antlr:antlr-runtime:[3.5.2,3.5.99] -> 3.5.2
+|    +--- net.sourceforge.owlapi:owlapi-distribution:[5.1.9,) -> 5.1.15
+|    |    +--- net.sourceforge.owlapi:owlapi-compatibility:5.1.15
+|    |    |    +--- net.sourceforge.owlapi:owlapi-apibinding:5.1.15
+|    |    |    |    +--- net.sourceforge.owlapi:owlapi-api:5.1.15
+|    |    |    |    |    +--- org.tukaani:xz:1.6
+|    |    |    |    |    +--- org.apache.commons:commons-rdf-api:0.5.0
+|    |    |    |    |    +--- javax.inject:javax.inject:1
+|    |    |    |    |    +--- com.github.vsonnier:hppcrt:0.7.5
+|    |    |    |    |    +--- com.github.ben-manes.caffeine:caffeine:2.6.1
+|    |    |    |    |    +--- com.google.guava:guava:[18.0,22.0] -> 22.0
+|    |    |    |    |    |    +--- com.google.code.findbugs:jsr305:1.3.9 -> 3.0.2
+|    |    |    |    |    |    +--- com.google.errorprone:error_prone_annotations:2.0.18
+|    |    |    |    |    |    +--- com.google.j2objc:j2objc-annotations:1.1
+|    |    |    |    |    |    \--- org.codehaus.mojo:animal-sniffer-annotations:1.14
+|    |    |    |    |    +--- com.google.code.findbugs:jsr305:[2.0.0,4) -> 3.0.2
+|    |    |    |    |    +--- org.slf4j:slf4j-api:[1.7.0,1.7.26) -> 1.7.30
+|    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    +--- net.sourceforge.owlapi:owlapi-impl:5.1.15
+|    |    |    |    |    +--- net.sourceforge.owlapi:owlapi-api:5.1.15 (*)
+|    |    |    |    |    +--- javax.inject:javax.inject:1
+|    |    |    |    |    +--- com.github.vsonnier:hppcrt:0.7.5
+|    |    |    |    |    +--- com.github.ben-manes.caffeine:caffeine:2.6.1
+|    |    |    |    |    +--- com.google.guava:guava:[18.0,22.0] -> 22.0 (*)
+|    |    |    |    |    +--- com.google.code.findbugs:jsr305:[2.0.0,4) -> 3.0.2
+|    |    |    |    |    +--- org.slf4j:slf4j-api:[1.7.0,1.7.26) -> 1.7.30
+|    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    +--- net.sourceforge.owlapi:owlapi-parsers:5.1.15
+|    |    |    |    |    +--- net.sourceforge.owlapi:owlapi-api:5.1.15 (*)
+|    |    |    |    |    +--- com.github.vsonnier:hppcrt:0.7.5
+|    |    |    |    |    +--- com.github.ben-manes.caffeine:caffeine:2.6.1
+|    |    |    |    |    +--- com.google.guava:guava:[18.0,22.0] -> 22.0 (*)
+|    |    |    |    |    +--- com.google.code.findbugs:jsr305:[2.0.0,4) -> 3.0.2
+|    |    |    |    |    +--- org.slf4j:slf4j-api:[1.7.0,1.7.26) -> 1.7.30
+|    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    +--- net.sourceforge.owlapi:owlapi-oboformat:5.1.15
+|    |    |    |    |    +--- net.sourceforge.owlapi:owlapi-parsers:5.1.15 (*)
+|    |    |    |    |    +--- com.github.vsonnier:hppcrt:0.7.5
+|    |    |    |    |    +--- com.github.ben-manes.caffeine:caffeine:2.6.1
+|    |    |    |    |    +--- com.google.guava:guava:[18.0,22.0] -> 22.0 (*)
+|    |    |    |    |    +--- com.google.code.findbugs:jsr305:[2.0.0,4) -> 3.0.2
+|    |    |    |    |    +--- org.slf4j:slf4j-api:[1.7.0,1.7.26) -> 1.7.30
+|    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    +--- net.sourceforge.owlapi:owlapi-tools:5.1.15
+|    |    |    |    |    +--- net.sourceforge.owlapi:owlapi-api:5.1.15 (*)
+|    |    |    |    |    +--- com.github.vsonnier:hppcrt:0.7.5
+|    |    |    |    |    +--- com.github.ben-manes.caffeine:caffeine:2.6.1
+|    |    |    |    |    +--- com.google.guava:guava:[18.0,22.0] -> 22.0 (*)
+|    |    |    |    |    +--- com.google.code.findbugs:jsr305:[2.0.0,4) -> 3.0.2
+|    |    |    |    |    +--- org.slf4j:slf4j-api:[1.7.0,1.7.26) -> 1.7.30
+|    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    +--- net.sourceforge.owlapi:owlapi-rio:5.1.15
+|    |    |    |    |    +--- net.sourceforge.owlapi:owlapi-parsers:5.1.15 (*)
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2
+|    |    |    |    |    |    \--- org.eclipse.rdf4j:rdf4j-util:2.4.2
+|    |    |    |    |    |         \--- org.slf4j:slf4j-api:1.7.10 -> 1.7.30
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    \--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    \--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    \--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-binary:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    \--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-n3:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-turtle:2.4.2
+|    |    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2 (*)
+|    |    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2 (*)
+|    |    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    |    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2 (*)
+|    |    |    |    |    |    \--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2 (*)
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-nquads:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-ntriples:2.4.2
+|    |    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2 (*)
+|    |    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2 (*)
+|    |    |    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2 (*)
+|    |    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-ntriples:2.4.2 (*)
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-rdfjson:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    |    |    |    |    +--- com.fasterxml.jackson.core:jackson-core:2.9.6 -> 2.10.1
+|    |    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-rdfxml:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-trix:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-turtle:2.4.2 (*)
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-trig:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-turtle:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2 (*)
+|    |    |    |    |    |    \--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-jsonld:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    |    |    |    |    +--- com.github.jsonld-java:jsonld-java:0.12.0 -> 0.12.5
+|    |    |    |    |    |    |    +--- com.fasterxml.jackson.core:jackson-core:2.9.9 -> 2.10.1
+|    |    |    |    |    |    |    +--- com.fasterxml.jackson.core:jackson-databind:2.9.9.2 -> 2.10.1
+|    |    |    |    |    |    |    |    +--- com.fasterxml.jackson.core:jackson-annotations:2.10.1
+|    |    |    |    |    |    |    |    \--- com.fasterxml.jackson.core:jackson-core:2.10.1
+|    |    |    |    |    |    |    +--- org.apache.httpcomponents:httpclient-osgi:4.5.8
+|    |    |    |    |    |    |    |    +--- org.apache.httpcomponents:httpclient:4.5.8 -> 4.5.10
+|    |    |    |    |    |    |    |    |    +--- org.apache.httpcomponents:httpcore:4.4.12
+|    |    |    |    |    |    |    |    |    +--- commons-logging:commons-logging:1.2
+|    |    |    |    |    |    |    |    |    \--- commons-codec:commons-codec:1.11 -> 1.14
+|    |    |    |    |    |    |    |    +--- commons-codec:commons-codec:1.11 -> 1.14
+|    |    |    |    |    |    |    |    +--- org.apache.httpcomponents:httpmime:4.5.8
+|    |    |    |    |    |    |    |    |    \--- org.apache.httpcomponents:httpclient:4.5.8 -> 4.5.10 (*)
+|    |    |    |    |    |    |    |    +--- org.apache.httpcomponents:httpclient-cache:4.5.8 -> 4.5.10
+|    |    |    |    |    |    |    |    |    \--- org.apache.httpcomponents:httpclient:4.5.10 (*)
+|    |    |    |    |    |    |    |    \--- org.apache.httpcomponents:fluent-hc:4.5.8
+|    |    |    |    |    |    |    |         \--- org.apache.httpcomponents:httpclient:4.5.8 -> 4.5.10 (*)
+|    |    |    |    |    |    |    +--- org.apache.httpcomponents:httpcore-osgi:4.4.11
+|    |    |    |    |    |    |    |    +--- org.apache.httpcomponents:httpcore:4.4.11 -> 4.4.12
+|    |    |    |    |    |    |    |    \--- org.apache.httpcomponents:httpcore-nio:4.4.11
+|    |    |    |    |    |    |    |         \--- org.apache.httpcomponents:httpcore:4.4.11 -> 4.4.12
+|    |    |    |    |    |    |    +--- org.slf4j:slf4j-api:1.7.26 -> 1.7.30
+|    |    |    |    |    |    |    +--- org.slf4j:jcl-over-slf4j:1.7.26 -> 1.7.30
+|    |    |    |    |    |    |    |    \--- org.slf4j:slf4j-api:1.7.30
+|    |    |    |    |    |    |    \--- commons-io:commons-io:2.6
+|    |    |    |    |    |    +--- org.apache.httpcomponents:httpclient:4.5.5 -> 4.5.10 (*)
+|    |    |    |    |    |    +--- org.apache.httpcomponents:httpclient-cache:4.5.5 -> 4.5.10 (*)
+|    |    |    |    |    |    +--- com.fasterxml.jackson.core:jackson-core:2.9.6 -> 2.10.1
+|    |    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    |    +--- com.github.jsonld-java:jsonld-java:0.12.0 -> 0.12.5 (*)
+|    |    |    |    |    +--- com.github.vsonnier:hppcrt:0.7.5
+|    |    |    |    |    +--- com.github.ben-manes.caffeine:caffeine:2.6.1
+|    |    |    |    |    +--- com.google.guava:guava:[18.0,22.0] -> 22.0 (*)
+|    |    |    |    |    +--- com.google.code.findbugs:jsr305:[2.0.0,4) -> 3.0.2
+|    |    |    |    |    +--- org.slf4j:slf4j-api:[1.7.0,1.7.26) -> 1.7.30
+|    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    +--- com.github.vsonnier:hppcrt:0.7.5
+|    |    |    |    +--- com.github.ben-manes.caffeine:caffeine:2.6.1
+|    |    |    |    +--- com.google.guava:guava:[18.0,22.0] -> 22.0 (*)
+|    |    |    |    +--- com.google.code.findbugs:jsr305:[2.0.0,4) -> 3.0.2
+|    |    |    |    +--- org.slf4j:slf4j-api:[1.7.0,1.7.26) -> 1.7.30
+|    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    +--- com.github.vsonnier:hppcrt:0.7.5
+|    |    |    +--- com.github.ben-manes.caffeine:caffeine:2.6.1
+|    |    |    +--- com.google.guava:guava:[18.0,22.0] -> 22.0 (*)
+|    |    |    +--- com.google.code.findbugs:jsr305:[2.0.0,4) -> 3.0.2
+|    |    |    +--- org.slf4j:slf4j-api:[1.7.0,1.7.26) -> 1.7.30
+|    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    +--- com.fasterxml.jackson.core:jackson-core:2.9.10 -> 2.10.1
+|    |    +--- com.fasterxml.jackson.core:jackson-databind:2.9.10.5 -> 2.10.1 (*)
+|    |    +--- com.fasterxml.jackson.core:jackson-annotations:2.9.10 -> 2.10.1
+|    |    +--- org.apache.commons:commons-rdf-api:0.5.0
+|    |    +--- org.tukaani:xz:1.6
+|    |    +--- org.slf4j:slf4j-api:1.7.22 -> 1.7.30
+|    |    +--- org.slf4j:jcl-over-slf4j:1.7.22 -> 1.7.30 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-binary:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-n3:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-nquads:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-ntriples:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-rdfjson:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-jsonld:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-rdfxml:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-trix:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-turtle:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-trig:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    +--- com.github.jsonld-java:jsonld-java:0.12.0 -> 0.12.5 (*)
+|    |    +--- com.github.vsonnier:hppcrt:0.7.5
+|    |    +--- com.github.ben-manes.caffeine:caffeine:2.6.1
+|    |    +--- com.google.guava:guava:[18.0,22.0] -> 22.0 (*)
+|    |    +--- com.google.code.findbugs:jsr305:[2.0.0,4) -> 3.0.2
+|    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    \--- javax.xml.bind:jaxb-api:2.3.0
++--- com.github.galigator.openllet:openllet-explanation:2.6.5
+|    +--- com.github.galigator.openllet:openllet-core:2.6.5 (*)
+|    \--- com.github.galigator.openllet:openllet-owlapi:2.6.5 (*)
++--- com.github.galigator.openllet:openllet-jena:2.6.5
+|    +--- com.github.galigator.openllet:openllet-core:2.6.5 (*)
+|    +--- com.github.galigator.openllet:openllet-query:2.6.5 (*)
+|    +--- org.apache.jena:jena-core:[3.10.0,3.10.99] -> 3.15.0
+|    |    +--- org.apache.jena:jena-base:3.15.0
+|    |    |    +--- org.slf4j:slf4j-api:1.7.30
+|    |    |    +--- org.apache.jena:jena-shaded-guava:3.15.0
+|    |    |    +--- org.apache.commons:commons-csv:1.8
+|    |    |    +--- commons-io:commons-io:2.6
+|    |    |    +--- org.apache.commons:commons-lang3:3.10
+|    |    |    +--- commons-codec:commons-codec:1.14
+|    |    |    +--- org.apache.commons:commons-compress:1.20
+|    |    |    \--- com.github.andrewoma.dexx:collection:0.7
+|    |    +--- org.apache.jena:jena-iri:3.15.0
+|    |    \--- commons-cli:commons-cli:1.4
+|    +--- org.apache.jena:jena-arq:[3.10.0,3.10.99] -> 3.15.0
+|    |    +--- org.apache.jena:jena-core:3.15.0 (*)
+|    |    +--- org.apache.jena:jena-shaded-guava:3.15.0
+|    |    +--- org.apache.httpcomponents:httpclient:4.5.10 (*)
+|    |    +--- com.github.jsonld-java:jsonld-java:0.12.5 (*)
+|    |    +--- com.fasterxml.jackson.core:jackson-core:2.10.1
+|    |    +--- com.fasterxml.jackson.core:jackson-databind:2.10.1 (*)
+|    |    +--- org.apache.httpcomponents:httpclient-cache:4.5.10 (*)
+|    |    +--- org.apache.thrift:libthrift:0.13.0
+|    |    |    +--- org.slf4j:slf4j-api:1.7.25 -> 1.7.30
+|    |    |    +--- org.apache.httpcomponents:httpclient:4.5.6 -> 4.5.10 (*)
+|    |    |    \--- javax.annotation:javax.annotation-api:1.3.2
+|    |    +--- org.slf4j:jcl-over-slf4j:1.7.30 (*)
+|    |    \--- org.apache.commons:commons-lang3:3.10
+|    +--- org.antlr:antlr-runtime:[3.5.2,3.5.99] -> 3.5.2
+|    \--- javax.xml.bind:jaxb-api:2.3.0
+\--- org.apache.jena:jena-rdfconnection:3.15.+ -> 3.15.0
+     \--- org.apache.jena:jena-arq:3.15.0 (*)
+
+implementation - Implementation only dependencies for source set 'main'. (n)
++--- com.beust:jcommander:1.72 (n)
++--- log4j:log4j:1.2.17 (n)
++--- xml-resolver:xml-resolver:1.2 (n)
++--- org.slf4j:slf4j-nop:1.7.+ (n)
++--- com.github.galigator.openllet:openllet-owlapi:2.6.5 (n)
++--- com.github.galigator.openllet:openllet-explanation:2.6.5 (n)
++--- com.github.galigator.openllet:openllet-jena:2.6.5 (n)
+\--- org.apache.jena:jena-rdfconnection:3.15.+ (n)
+
+runtime - Runtime dependencies for source set 'main' (deprecated, use 'runtimeOnly ' instead).
+No dependencies
+
+runtimeClasspath - Runtime classpath of source set 'main'.
++--- com.beust:jcommander:1.72
++--- log4j:log4j:1.2.17
++--- xml-resolver:xml-resolver:1.2
++--- org.slf4j:slf4j-nop:1.7.+ -> 1.7.30
+|    \--- org.slf4j:slf4j-api:1.7.30
++--- com.github.galigator.openllet:openllet-owlapi:2.6.5
+|    +--- com.github.galigator.openllet:openllet-core:2.6.5
+|    |    +--- com.github.galigator.openllet:openllet-functions:[2.6.5] -> 2.6.5
+|    |    |    \--- org.slf4j:slf4j-api:[1.7.25,1.7.99] -> 1.7.30
+|    |    +--- org.jgrapht:jgrapht-ext:1.1.0
+|    |    |    +--- org.jgrapht:jgrapht-core:1.1.0
+|    |    |    +--- org.jgrapht:jgrapht-io:1.1.0
+|    |    |    |    +--- org.jgrapht:jgrapht-core:1.1.0
+|    |    |    |    +--- org.antlr:antlr4-runtime:4.6
+|    |    |    |    \--- org.apache.commons:commons-lang3:3.5 -> 3.10
+|    |    |    +--- org.tinyjee.jgraphx:jgraphx:2.0.0.1
+|    |    |    \--- jgraph:jgraph:5.13.0.0
+|    |    \--- javax.xml.bind:jaxb-api:2.3.0
+|    +--- com.github.galigator.openllet:openllet-query:2.6.5
+|    |    +--- com.github.galigator.openllet:openllet-core:2.6.5 (*)
+|    |    \--- org.antlr:antlr-runtime:[3.5.2,3.5.99] -> 3.5.2
+|    +--- net.sourceforge.owlapi:owlapi-distribution:[5.1.9,) -> 5.1.15
+|    |    +--- net.sourceforge.owlapi:owlapi-compatibility:5.1.15
+|    |    |    +--- net.sourceforge.owlapi:owlapi-apibinding:5.1.15
+|    |    |    |    +--- net.sourceforge.owlapi:owlapi-api:5.1.15
+|    |    |    |    |    +--- org.tukaani:xz:1.6
+|    |    |    |    |    +--- org.apache.commons:commons-rdf-api:0.5.0
+|    |    |    |    |    +--- javax.inject:javax.inject:1
+|    |    |    |    |    +--- com.github.vsonnier:hppcrt:0.7.5
+|    |    |    |    |    +--- com.github.ben-manes.caffeine:caffeine:2.6.1
+|    |    |    |    |    +--- com.google.guava:guava:[18.0,22.0] -> 22.0
+|    |    |    |    |    |    +--- com.google.code.findbugs:jsr305:1.3.9 -> 3.0.2
+|    |    |    |    |    |    +--- com.google.errorprone:error_prone_annotations:2.0.18
+|    |    |    |    |    |    +--- com.google.j2objc:j2objc-annotations:1.1
+|    |    |    |    |    |    \--- org.codehaus.mojo:animal-sniffer-annotations:1.14
+|    |    |    |    |    +--- com.google.code.findbugs:jsr305:[2.0.0,4) -> 3.0.2
+|    |    |    |    |    +--- org.slf4j:slf4j-api:[1.7.0,1.7.26) -> 1.7.30
+|    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    +--- net.sourceforge.owlapi:owlapi-impl:5.1.15
+|    |    |    |    |    +--- net.sourceforge.owlapi:owlapi-api:5.1.15 (*)
+|    |    |    |    |    +--- javax.inject:javax.inject:1
+|    |    |    |    |    +--- com.github.vsonnier:hppcrt:0.7.5
+|    |    |    |    |    +--- com.github.ben-manes.caffeine:caffeine:2.6.1
+|    |    |    |    |    +--- com.google.guava:guava:[18.0,22.0] -> 22.0 (*)
+|    |    |    |    |    +--- com.google.code.findbugs:jsr305:[2.0.0,4) -> 3.0.2
+|    |    |    |    |    +--- org.slf4j:slf4j-api:[1.7.0,1.7.26) -> 1.7.30
+|    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    +--- net.sourceforge.owlapi:owlapi-parsers:5.1.15
+|    |    |    |    |    +--- net.sourceforge.owlapi:owlapi-api:5.1.15 (*)
+|    |    |    |    |    +--- com.github.vsonnier:hppcrt:0.7.5
+|    |    |    |    |    +--- com.github.ben-manes.caffeine:caffeine:2.6.1
+|    |    |    |    |    +--- com.google.guava:guava:[18.0,22.0] -> 22.0 (*)
+|    |    |    |    |    +--- com.google.code.findbugs:jsr305:[2.0.0,4) -> 3.0.2
+|    |    |    |    |    +--- org.slf4j:slf4j-api:[1.7.0,1.7.26) -> 1.7.30
+|    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    +--- net.sourceforge.owlapi:owlapi-oboformat:5.1.15
+|    |    |    |    |    +--- net.sourceforge.owlapi:owlapi-parsers:5.1.15 (*)
+|    |    |    |    |    +--- com.github.vsonnier:hppcrt:0.7.5
+|    |    |    |    |    +--- com.github.ben-manes.caffeine:caffeine:2.6.1
+|    |    |    |    |    +--- com.google.guava:guava:[18.0,22.0] -> 22.0 (*)
+|    |    |    |    |    +--- com.google.code.findbugs:jsr305:[2.0.0,4) -> 3.0.2
+|    |    |    |    |    +--- org.slf4j:slf4j-api:[1.7.0,1.7.26) -> 1.7.30
+|    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    +--- net.sourceforge.owlapi:owlapi-tools:5.1.15
+|    |    |    |    |    +--- net.sourceforge.owlapi:owlapi-api:5.1.15 (*)
+|    |    |    |    |    +--- com.github.vsonnier:hppcrt:0.7.5
+|    |    |    |    |    +--- com.github.ben-manes.caffeine:caffeine:2.6.1
+|    |    |    |    |    +--- com.google.guava:guava:[18.0,22.0] -> 22.0 (*)
+|    |    |    |    |    +--- com.google.code.findbugs:jsr305:[2.0.0,4) -> 3.0.2
+|    |    |    |    |    +--- org.slf4j:slf4j-api:[1.7.0,1.7.26) -> 1.7.30
+|    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    +--- net.sourceforge.owlapi:owlapi-rio:5.1.15
+|    |    |    |    |    +--- net.sourceforge.owlapi:owlapi-parsers:5.1.15 (*)
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2
+|    |    |    |    |    |    \--- org.eclipse.rdf4j:rdf4j-util:2.4.2
+|    |    |    |    |    |         \--- org.slf4j:slf4j-api:1.7.10 -> 1.7.30
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    \--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    \--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    \--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-binary:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    \--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-n3:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-turtle:2.4.2
+|    |    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2 (*)
+|    |    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2 (*)
+|    |    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    |    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2 (*)
+|    |    |    |    |    |    \--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2 (*)
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-nquads:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-ntriples:2.4.2
+|    |    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2 (*)
+|    |    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2 (*)
+|    |    |    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2 (*)
+|    |    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-ntriples:2.4.2 (*)
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-rdfjson:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    |    |    |    |    +--- com.fasterxml.jackson.core:jackson-core:2.9.6 -> 2.10.1
+|    |    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-rdfxml:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-trix:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-turtle:2.4.2 (*)
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-trig:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-turtle:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2 (*)
+|    |    |    |    |    |    \--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-jsonld:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    |    |    |    |    +--- com.github.jsonld-java:jsonld-java:0.12.0 -> 0.12.5
+|    |    |    |    |    |    |    +--- com.fasterxml.jackson.core:jackson-core:2.9.9 -> 2.10.1
+|    |    |    |    |    |    |    +--- com.fasterxml.jackson.core:jackson-databind:2.9.9.2 -> 2.10.1
+|    |    |    |    |    |    |    |    +--- com.fasterxml.jackson.core:jackson-annotations:2.10.1
+|    |    |    |    |    |    |    |    \--- com.fasterxml.jackson.core:jackson-core:2.10.1
+|    |    |    |    |    |    |    +--- org.apache.httpcomponents:httpclient-osgi:4.5.8
+|    |    |    |    |    |    |    |    +--- org.apache.httpcomponents:httpclient:4.5.8 -> 4.5.10
+|    |    |    |    |    |    |    |    |    +--- org.apache.httpcomponents:httpcore:4.4.12
+|    |    |    |    |    |    |    |    |    +--- commons-logging:commons-logging:1.2
+|    |    |    |    |    |    |    |    |    \--- commons-codec:commons-codec:1.11 -> 1.14
+|    |    |    |    |    |    |    |    +--- commons-codec:commons-codec:1.11 -> 1.14
+|    |    |    |    |    |    |    |    +--- org.apache.httpcomponents:httpmime:4.5.8
+|    |    |    |    |    |    |    |    |    \--- org.apache.httpcomponents:httpclient:4.5.8 -> 4.5.10 (*)
+|    |    |    |    |    |    |    |    +--- org.apache.httpcomponents:httpclient-cache:4.5.8 -> 4.5.10
+|    |    |    |    |    |    |    |    |    \--- org.apache.httpcomponents:httpclient:4.5.10 (*)
+|    |    |    |    |    |    |    |    \--- org.apache.httpcomponents:fluent-hc:4.5.8
+|    |    |    |    |    |    |    |         \--- org.apache.httpcomponents:httpclient:4.5.8 -> 4.5.10 (*)
+|    |    |    |    |    |    |    +--- org.apache.httpcomponents:httpcore-osgi:4.4.11
+|    |    |    |    |    |    |    |    +--- org.apache.httpcomponents:httpcore:4.4.11 -> 4.4.12
+|    |    |    |    |    |    |    |    \--- org.apache.httpcomponents:httpcore-nio:4.4.11
+|    |    |    |    |    |    |    |         \--- org.apache.httpcomponents:httpcore:4.4.11 -> 4.4.12
+|    |    |    |    |    |    |    +--- org.slf4j:slf4j-api:1.7.26 -> 1.7.30
+|    |    |    |    |    |    |    +--- org.slf4j:jcl-over-slf4j:1.7.26 -> 1.7.30
+|    |    |    |    |    |    |    |    \--- org.slf4j:slf4j-api:1.7.30
+|    |    |    |    |    |    |    \--- commons-io:commons-io:2.6
+|    |    |    |    |    |    +--- org.apache.httpcomponents:httpclient:4.5.5 -> 4.5.10 (*)
+|    |    |    |    |    |    +--- org.apache.httpcomponents:httpclient-cache:4.5.5 -> 4.5.10 (*)
+|    |    |    |    |    |    +--- com.fasterxml.jackson.core:jackson-core:2.9.6 -> 2.10.1
+|    |    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    |    +--- com.github.jsonld-java:jsonld-java:0.12.0 -> 0.12.5 (*)
+|    |    |    |    |    +--- com.github.vsonnier:hppcrt:0.7.5
+|    |    |    |    |    +--- com.github.ben-manes.caffeine:caffeine:2.6.1
+|    |    |    |    |    +--- com.google.guava:guava:[18.0,22.0] -> 22.0 (*)
+|    |    |    |    |    +--- com.google.code.findbugs:jsr305:[2.0.0,4) -> 3.0.2
+|    |    |    |    |    +--- org.slf4j:slf4j-api:[1.7.0,1.7.26) -> 1.7.30
+|    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    +--- com.github.vsonnier:hppcrt:0.7.5
+|    |    |    |    +--- com.github.ben-manes.caffeine:caffeine:2.6.1
+|    |    |    |    +--- com.google.guava:guava:[18.0,22.0] -> 22.0 (*)
+|    |    |    |    +--- com.google.code.findbugs:jsr305:[2.0.0,4) -> 3.0.2
+|    |    |    |    +--- org.slf4j:slf4j-api:[1.7.0,1.7.26) -> 1.7.30
+|    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    +--- com.github.vsonnier:hppcrt:0.7.5
+|    |    |    +--- com.github.ben-manes.caffeine:caffeine:2.6.1
+|    |    |    +--- com.google.guava:guava:[18.0,22.0] -> 22.0 (*)
+|    |    |    +--- com.google.code.findbugs:jsr305:[2.0.0,4) -> 3.0.2
+|    |    |    +--- org.slf4j:slf4j-api:[1.7.0,1.7.26) -> 1.7.30
+|    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    +--- com.fasterxml.jackson.core:jackson-core:2.9.10 -> 2.10.1
+|    |    +--- com.fasterxml.jackson.core:jackson-databind:2.9.10.5 -> 2.10.1 (*)
+|    |    +--- com.fasterxml.jackson.core:jackson-annotations:2.9.10 -> 2.10.1
+|    |    +--- org.apache.commons:commons-rdf-api:0.5.0
+|    |    +--- org.tukaani:xz:1.6
+|    |    +--- org.slf4j:slf4j-api:1.7.22 -> 1.7.30
+|    |    +--- org.slf4j:jcl-over-slf4j:1.7.22 -> 1.7.30 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-binary:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-n3:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-nquads:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-ntriples:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-rdfjson:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-jsonld:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-rdfxml:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-trix:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-turtle:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-trig:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    +--- com.github.jsonld-java:jsonld-java:0.12.0 -> 0.12.5 (*)
+|    |    +--- com.github.vsonnier:hppcrt:0.7.5
+|    |    +--- com.github.ben-manes.caffeine:caffeine:2.6.1
+|    |    +--- com.google.guava:guava:[18.0,22.0] -> 22.0 (*)
+|    |    +--- com.google.code.findbugs:jsr305:[2.0.0,4) -> 3.0.2
+|    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    \--- javax.xml.bind:jaxb-api:2.3.0
++--- com.github.galigator.openllet:openllet-explanation:2.6.5
+|    +--- com.github.galigator.openllet:openllet-core:2.6.5 (*)
+|    \--- com.github.galigator.openllet:openllet-owlapi:2.6.5 (*)
++--- com.github.galigator.openllet:openllet-jena:2.6.5
+|    +--- com.github.galigator.openllet:openllet-core:2.6.5 (*)
+|    +--- com.github.galigator.openllet:openllet-query:2.6.5 (*)
+|    +--- org.apache.jena:jena-core:[3.10.0,3.10.99] -> 3.15.0
+|    |    +--- org.apache.jena:jena-base:3.15.0
+|    |    |    +--- org.slf4j:slf4j-api:1.7.30
+|    |    |    +--- org.apache.jena:jena-shaded-guava:3.15.0
+|    |    |    +--- org.apache.commons:commons-csv:1.8
+|    |    |    +--- commons-io:commons-io:2.6
+|    |    |    +--- org.apache.commons:commons-lang3:3.10
+|    |    |    +--- commons-codec:commons-codec:1.14
+|    |    |    +--- org.apache.commons:commons-compress:1.20
+|    |    |    \--- com.github.andrewoma.dexx:collection:0.7
+|    |    +--- org.apache.jena:jena-iri:3.15.0
+|    |    \--- commons-cli:commons-cli:1.4
+|    +--- org.apache.jena:jena-arq:[3.10.0,3.10.99] -> 3.15.0
+|    |    +--- org.apache.jena:jena-core:3.15.0 (*)
+|    |    +--- org.apache.jena:jena-shaded-guava:3.15.0
+|    |    +--- org.apache.httpcomponents:httpclient:4.5.10 (*)
+|    |    +--- com.github.jsonld-java:jsonld-java:0.12.5 (*)
+|    |    +--- com.fasterxml.jackson.core:jackson-core:2.10.1
+|    |    +--- com.fasterxml.jackson.core:jackson-databind:2.10.1 (*)
+|    |    +--- org.apache.httpcomponents:httpclient-cache:4.5.10 (*)
+|    |    +--- org.apache.thrift:libthrift:0.13.0
+|    |    |    +--- org.slf4j:slf4j-api:1.7.25 -> 1.7.30
+|    |    |    +--- org.apache.httpcomponents:httpclient:4.5.6 -> 4.5.10 (*)
+|    |    |    \--- javax.annotation:javax.annotation-api:1.3.2
+|    |    +--- org.slf4j:jcl-over-slf4j:1.7.30 (*)
+|    |    \--- org.apache.commons:commons-lang3:3.10
+|    +--- org.antlr:antlr-runtime:[3.5.2,3.5.99] -> 3.5.2
+|    \--- javax.xml.bind:jaxb-api:2.3.0
+\--- org.apache.jena:jena-rdfconnection:3.15.+ -> 3.15.0
+     \--- org.apache.jena:jena-arq:3.15.0 (*)
+
+runtimeElements - Elements of runtime for main. (n)
+No dependencies
+
+runtimeOnly - Runtime only dependencies for source set 'main'. (n)
+No dependencies
+
+testAnnotationProcessor - Annotation processors and their dependencies for source set 'test'.
+No dependencies
+
+testCompile - Dependencies for source set 'test' (deprecated, use 'testImplementation ' instead).
+No dependencies
+
+testCompileClasspath - Compile classpath for source set 'test'.
++--- com.beust:jcommander:1.72
++--- log4j:log4j:1.2.17
++--- xml-resolver:xml-resolver:1.2
++--- org.slf4j:slf4j-nop:1.7.+ -> 1.7.30
+|    \--- org.slf4j:slf4j-api:1.7.30
++--- com.github.galigator.openllet:openllet-owlapi:2.6.5
+|    +--- com.github.galigator.openllet:openllet-core:2.6.5
+|    |    +--- com.github.galigator.openllet:openllet-functions:[2.6.5] -> 2.6.5
+|    |    |    \--- org.slf4j:slf4j-api:[1.7.25,1.7.99] -> 1.7.30
+|    |    +--- org.jgrapht:jgrapht-ext:1.1.0
+|    |    |    +--- org.jgrapht:jgrapht-core:1.1.0
+|    |    |    +--- org.jgrapht:jgrapht-io:1.1.0
+|    |    |    |    +--- org.jgrapht:jgrapht-core:1.1.0
+|    |    |    |    +--- org.antlr:antlr4-runtime:4.6
+|    |    |    |    \--- org.apache.commons:commons-lang3:3.5 -> 3.10
+|    |    |    +--- org.tinyjee.jgraphx:jgraphx:2.0.0.1
+|    |    |    \--- jgraph:jgraph:5.13.0.0
+|    |    \--- javax.xml.bind:jaxb-api:2.3.0
+|    +--- com.github.galigator.openllet:openllet-query:2.6.5
+|    |    +--- com.github.galigator.openllet:openllet-core:2.6.5 (*)
+|    |    \--- org.antlr:antlr-runtime:[3.5.2,3.5.99] -> 3.5.2
+|    +--- net.sourceforge.owlapi:owlapi-distribution:[5.1.9,) -> 5.1.15
+|    |    +--- net.sourceforge.owlapi:owlapi-compatibility:5.1.15
+|    |    |    +--- net.sourceforge.owlapi:owlapi-apibinding:5.1.15
+|    |    |    |    +--- net.sourceforge.owlapi:owlapi-api:5.1.15
+|    |    |    |    |    +--- org.tukaani:xz:1.6
+|    |    |    |    |    +--- org.apache.commons:commons-rdf-api:0.5.0
+|    |    |    |    |    +--- javax.inject:javax.inject:1
+|    |    |    |    |    +--- com.github.vsonnier:hppcrt:0.7.5
+|    |    |    |    |    +--- com.github.ben-manes.caffeine:caffeine:2.6.1
+|    |    |    |    |    +--- com.google.guava:guava:[18.0,22.0] -> 22.0
+|    |    |    |    |    |    +--- com.google.code.findbugs:jsr305:1.3.9 -> 3.0.2
+|    |    |    |    |    |    +--- com.google.errorprone:error_prone_annotations:2.0.18
+|    |    |    |    |    |    +--- com.google.j2objc:j2objc-annotations:1.1
+|    |    |    |    |    |    \--- org.codehaus.mojo:animal-sniffer-annotations:1.14
+|    |    |    |    |    +--- com.google.code.findbugs:jsr305:[2.0.0,4) -> 3.0.2
+|    |    |    |    |    +--- org.slf4j:slf4j-api:[1.7.0,1.7.26) -> 1.7.30
+|    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    +--- net.sourceforge.owlapi:owlapi-impl:5.1.15
+|    |    |    |    |    +--- net.sourceforge.owlapi:owlapi-api:5.1.15 (*)
+|    |    |    |    |    +--- javax.inject:javax.inject:1
+|    |    |    |    |    +--- com.github.vsonnier:hppcrt:0.7.5
+|    |    |    |    |    +--- com.github.ben-manes.caffeine:caffeine:2.6.1
+|    |    |    |    |    +--- com.google.guava:guava:[18.0,22.0] -> 22.0 (*)
+|    |    |    |    |    +--- com.google.code.findbugs:jsr305:[2.0.0,4) -> 3.0.2
+|    |    |    |    |    +--- org.slf4j:slf4j-api:[1.7.0,1.7.26) -> 1.7.30
+|    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    +--- net.sourceforge.owlapi:owlapi-parsers:5.1.15
+|    |    |    |    |    +--- net.sourceforge.owlapi:owlapi-api:5.1.15 (*)
+|    |    |    |    |    +--- com.github.vsonnier:hppcrt:0.7.5
+|    |    |    |    |    +--- com.github.ben-manes.caffeine:caffeine:2.6.1
+|    |    |    |    |    +--- com.google.guava:guava:[18.0,22.0] -> 22.0 (*)
+|    |    |    |    |    +--- com.google.code.findbugs:jsr305:[2.0.0,4) -> 3.0.2
+|    |    |    |    |    +--- org.slf4j:slf4j-api:[1.7.0,1.7.26) -> 1.7.30
+|    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    +--- net.sourceforge.owlapi:owlapi-oboformat:5.1.15
+|    |    |    |    |    +--- net.sourceforge.owlapi:owlapi-parsers:5.1.15 (*)
+|    |    |    |    |    +--- com.github.vsonnier:hppcrt:0.7.5
+|    |    |    |    |    +--- com.github.ben-manes.caffeine:caffeine:2.6.1
+|    |    |    |    |    +--- com.google.guava:guava:[18.0,22.0] -> 22.0 (*)
+|    |    |    |    |    +--- com.google.code.findbugs:jsr305:[2.0.0,4) -> 3.0.2
+|    |    |    |    |    +--- org.slf4j:slf4j-api:[1.7.0,1.7.26) -> 1.7.30
+|    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    +--- net.sourceforge.owlapi:owlapi-tools:5.1.15
+|    |    |    |    |    +--- net.sourceforge.owlapi:owlapi-api:5.1.15 (*)
+|    |    |    |    |    +--- com.github.vsonnier:hppcrt:0.7.5
+|    |    |    |    |    +--- com.github.ben-manes.caffeine:caffeine:2.6.1
+|    |    |    |    |    +--- com.google.guava:guava:[18.0,22.0] -> 22.0 (*)
+|    |    |    |    |    +--- com.google.code.findbugs:jsr305:[2.0.0,4) -> 3.0.2
+|    |    |    |    |    +--- org.slf4j:slf4j-api:[1.7.0,1.7.26) -> 1.7.30
+|    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    +--- net.sourceforge.owlapi:owlapi-rio:5.1.15
+|    |    |    |    |    +--- net.sourceforge.owlapi:owlapi-parsers:5.1.15 (*)
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2
+|    |    |    |    |    |    \--- org.eclipse.rdf4j:rdf4j-util:2.4.2
+|    |    |    |    |    |         \--- org.slf4j:slf4j-api:1.7.10 -> 1.7.30
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    \--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    \--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    \--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-binary:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    \--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-n3:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-turtle:2.4.2
+|    |    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2 (*)
+|    |    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2 (*)
+|    |    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    |    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2 (*)
+|    |    |    |    |    |    \--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2 (*)
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-nquads:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-ntriples:2.4.2
+|    |    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2 (*)
+|    |    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2 (*)
+|    |    |    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2 (*)
+|    |    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-ntriples:2.4.2 (*)
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-rdfjson:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    |    |    |    |    +--- com.fasterxml.jackson.core:jackson-core:2.9.6 -> 2.10.1
+|    |    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-rdfxml:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-trix:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-turtle:2.4.2 (*)
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-trig:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-turtle:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2 (*)
+|    |    |    |    |    |    \--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-jsonld:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    |    |    |    |    +--- com.github.jsonld-java:jsonld-java:0.12.0 -> 0.12.5
+|    |    |    |    |    |    |    +--- com.fasterxml.jackson.core:jackson-core:2.9.9 -> 2.10.1
+|    |    |    |    |    |    |    +--- com.fasterxml.jackson.core:jackson-databind:2.9.9.2 -> 2.10.1
+|    |    |    |    |    |    |    |    +--- com.fasterxml.jackson.core:jackson-annotations:2.10.1
+|    |    |    |    |    |    |    |    \--- com.fasterxml.jackson.core:jackson-core:2.10.1
+|    |    |    |    |    |    |    +--- org.apache.httpcomponents:httpclient-osgi:4.5.8
+|    |    |    |    |    |    |    |    +--- org.apache.httpcomponents:httpclient:4.5.8 -> 4.5.10
+|    |    |    |    |    |    |    |    |    +--- org.apache.httpcomponents:httpcore:4.4.12
+|    |    |    |    |    |    |    |    |    +--- commons-logging:commons-logging:1.2
+|    |    |    |    |    |    |    |    |    \--- commons-codec:commons-codec:1.11 -> 1.14
+|    |    |    |    |    |    |    |    +--- commons-codec:commons-codec:1.11 -> 1.14
+|    |    |    |    |    |    |    |    +--- org.apache.httpcomponents:httpmime:4.5.8
+|    |    |    |    |    |    |    |    |    \--- org.apache.httpcomponents:httpclient:4.5.8 -> 4.5.10 (*)
+|    |    |    |    |    |    |    |    +--- org.apache.httpcomponents:httpclient-cache:4.5.8 -> 4.5.10
+|    |    |    |    |    |    |    |    |    \--- org.apache.httpcomponents:httpclient:4.5.10 (*)
+|    |    |    |    |    |    |    |    \--- org.apache.httpcomponents:fluent-hc:4.5.8
+|    |    |    |    |    |    |    |         \--- org.apache.httpcomponents:httpclient:4.5.8 -> 4.5.10 (*)
+|    |    |    |    |    |    |    +--- org.apache.httpcomponents:httpcore-osgi:4.4.11
+|    |    |    |    |    |    |    |    +--- org.apache.httpcomponents:httpcore:4.4.11 -> 4.4.12
+|    |    |    |    |    |    |    |    \--- org.apache.httpcomponents:httpcore-nio:4.4.11
+|    |    |    |    |    |    |    |         \--- org.apache.httpcomponents:httpcore:4.4.11 -> 4.4.12
+|    |    |    |    |    |    |    +--- org.slf4j:slf4j-api:1.7.26 -> 1.7.30
+|    |    |    |    |    |    |    +--- org.slf4j:jcl-over-slf4j:1.7.26 -> 1.7.30
+|    |    |    |    |    |    |    |    \--- org.slf4j:slf4j-api:1.7.30
+|    |    |    |    |    |    |    \--- commons-io:commons-io:2.6
+|    |    |    |    |    |    +--- org.apache.httpcomponents:httpclient:4.5.5 -> 4.5.10 (*)
+|    |    |    |    |    |    +--- org.apache.httpcomponents:httpclient-cache:4.5.5 -> 4.5.10 (*)
+|    |    |    |    |    |    +--- com.fasterxml.jackson.core:jackson-core:2.9.6 -> 2.10.1
+|    |    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    |    +--- com.github.jsonld-java:jsonld-java:0.12.0 -> 0.12.5 (*)
+|    |    |    |    |    +--- com.github.vsonnier:hppcrt:0.7.5
+|    |    |    |    |    +--- com.github.ben-manes.caffeine:caffeine:2.6.1
+|    |    |    |    |    +--- com.google.guava:guava:[18.0,22.0] -> 22.0 (*)
+|    |    |    |    |    +--- com.google.code.findbugs:jsr305:[2.0.0,4) -> 3.0.2
+|    |    |    |    |    +--- org.slf4j:slf4j-api:[1.7.0,1.7.26) -> 1.7.30
+|    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    +--- com.github.vsonnier:hppcrt:0.7.5
+|    |    |    |    +--- com.github.ben-manes.caffeine:caffeine:2.6.1
+|    |    |    |    +--- com.google.guava:guava:[18.0,22.0] -> 22.0 (*)
+|    |    |    |    +--- com.google.code.findbugs:jsr305:[2.0.0,4) -> 3.0.2
+|    |    |    |    +--- org.slf4j:slf4j-api:[1.7.0,1.7.26) -> 1.7.30
+|    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    +--- com.github.vsonnier:hppcrt:0.7.5
+|    |    |    +--- com.github.ben-manes.caffeine:caffeine:2.6.1
+|    |    |    +--- com.google.guava:guava:[18.0,22.0] -> 22.0 (*)
+|    |    |    +--- com.google.code.findbugs:jsr305:[2.0.0,4) -> 3.0.2
+|    |    |    +--- org.slf4j:slf4j-api:[1.7.0,1.7.26) -> 1.7.30
+|    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    +--- com.fasterxml.jackson.core:jackson-core:2.9.10 -> 2.10.1
+|    |    +--- com.fasterxml.jackson.core:jackson-databind:2.9.10.5 -> 2.10.1 (*)
+|    |    +--- com.fasterxml.jackson.core:jackson-annotations:2.9.10 -> 2.10.1
+|    |    +--- org.apache.commons:commons-rdf-api:0.5.0
+|    |    +--- org.tukaani:xz:1.6
+|    |    +--- org.slf4j:slf4j-api:1.7.22 -> 1.7.30
+|    |    +--- org.slf4j:jcl-over-slf4j:1.7.22 -> 1.7.30 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-binary:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-n3:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-nquads:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-ntriples:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-rdfjson:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-jsonld:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-rdfxml:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-trix:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-turtle:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-trig:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    +--- com.github.jsonld-java:jsonld-java:0.12.0 -> 0.12.5 (*)
+|    |    +--- com.github.vsonnier:hppcrt:0.7.5
+|    |    +--- com.github.ben-manes.caffeine:caffeine:2.6.1
+|    |    +--- com.google.guava:guava:[18.0,22.0] -> 22.0 (*)
+|    |    +--- com.google.code.findbugs:jsr305:[2.0.0,4) -> 3.0.2
+|    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    \--- javax.xml.bind:jaxb-api:2.3.0
++--- com.github.galigator.openllet:openllet-explanation:2.6.5
+|    +--- com.github.galigator.openllet:openllet-core:2.6.5 (*)
+|    \--- com.github.galigator.openllet:openllet-owlapi:2.6.5 (*)
++--- com.github.galigator.openllet:openllet-jena:2.6.5
+|    +--- com.github.galigator.openllet:openllet-core:2.6.5 (*)
+|    +--- com.github.galigator.openllet:openllet-query:2.6.5 (*)
+|    +--- org.apache.jena:jena-core:[3.10.0,3.10.99] -> 3.15.0
+|    |    +--- org.apache.jena:jena-base:3.15.0
+|    |    |    +--- org.slf4j:slf4j-api:1.7.30
+|    |    |    +--- org.apache.jena:jena-shaded-guava:3.15.0
+|    |    |    +--- org.apache.commons:commons-csv:1.8
+|    |    |    +--- commons-io:commons-io:2.6
+|    |    |    +--- org.apache.commons:commons-lang3:3.10
+|    |    |    +--- commons-codec:commons-codec:1.14
+|    |    |    +--- org.apache.commons:commons-compress:1.20
+|    |    |    \--- com.github.andrewoma.dexx:collection:0.7
+|    |    +--- org.apache.jena:jena-iri:3.15.0
+|    |    \--- commons-cli:commons-cli:1.4
+|    +--- org.apache.jena:jena-arq:[3.10.0,3.10.99] -> 3.15.0
+|    |    +--- org.apache.jena:jena-core:3.15.0 (*)
+|    |    +--- org.apache.jena:jena-shaded-guava:3.15.0
+|    |    +--- org.apache.httpcomponents:httpclient:4.5.10 (*)
+|    |    +--- com.github.jsonld-java:jsonld-java:0.12.5 (*)
+|    |    +--- com.fasterxml.jackson.core:jackson-core:2.10.1
+|    |    +--- com.fasterxml.jackson.core:jackson-databind:2.10.1 (*)
+|    |    +--- org.apache.httpcomponents:httpclient-cache:4.5.10 (*)
+|    |    +--- org.apache.thrift:libthrift:0.13.0
+|    |    |    +--- org.slf4j:slf4j-api:1.7.25 -> 1.7.30
+|    |    |    +--- org.apache.httpcomponents:httpclient:4.5.6 -> 4.5.10 (*)
+|    |    |    \--- javax.annotation:javax.annotation-api:1.3.2
+|    |    +--- org.slf4j:jcl-over-slf4j:1.7.30 (*)
+|    |    \--- org.apache.commons:commons-lang3:3.10
+|    +--- org.antlr:antlr-runtime:[3.5.2,3.5.99] -> 3.5.2
+|    \--- javax.xml.bind:jaxb-api:2.3.0
++--- org.apache.jena:jena-rdfconnection:3.15.+ -> 3.15.0
+|    \--- org.apache.jena:jena-arq:3.15.0 (*)
+\--- junit:junit:4.12
+     \--- org.hamcrest:hamcrest-core:1.3
+
+testCompileOnly - Compile only dependencies for source set 'test'.
+No dependencies
+
+testImplementation - Implementation only dependencies for source set 'test'. (n)
+\--- junit:junit:4.12 (n)
+
+testRuntime - Runtime dependencies for source set 'test' (deprecated, use 'testRuntimeOnly ' instead).
+No dependencies
+
+testRuntimeClasspath - Runtime classpath of source set 'test'.
++--- com.beust:jcommander:1.72
++--- log4j:log4j:1.2.17
++--- xml-resolver:xml-resolver:1.2
++--- org.slf4j:slf4j-nop:1.7.+ -> 1.7.30
+|    \--- org.slf4j:slf4j-api:1.7.30
++--- com.github.galigator.openllet:openllet-owlapi:2.6.5
+|    +--- com.github.galigator.openllet:openllet-core:2.6.5
+|    |    +--- com.github.galigator.openllet:openllet-functions:[2.6.5] -> 2.6.5
+|    |    |    \--- org.slf4j:slf4j-api:[1.7.25,1.7.99] -> 1.7.30
+|    |    +--- org.jgrapht:jgrapht-ext:1.1.0
+|    |    |    +--- org.jgrapht:jgrapht-core:1.1.0
+|    |    |    +--- org.jgrapht:jgrapht-io:1.1.0
+|    |    |    |    +--- org.jgrapht:jgrapht-core:1.1.0
+|    |    |    |    +--- org.antlr:antlr4-runtime:4.6
+|    |    |    |    \--- org.apache.commons:commons-lang3:3.5 -> 3.10
+|    |    |    +--- org.tinyjee.jgraphx:jgraphx:2.0.0.1
+|    |    |    \--- jgraph:jgraph:5.13.0.0
+|    |    \--- javax.xml.bind:jaxb-api:2.3.0
+|    +--- com.github.galigator.openllet:openllet-query:2.6.5
+|    |    +--- com.github.galigator.openllet:openllet-core:2.6.5 (*)
+|    |    \--- org.antlr:antlr-runtime:[3.5.2,3.5.99] -> 3.5.2
+|    +--- net.sourceforge.owlapi:owlapi-distribution:[5.1.9,) -> 5.1.15
+|    |    +--- net.sourceforge.owlapi:owlapi-compatibility:5.1.15
+|    |    |    +--- net.sourceforge.owlapi:owlapi-apibinding:5.1.15
+|    |    |    |    +--- net.sourceforge.owlapi:owlapi-api:5.1.15
+|    |    |    |    |    +--- org.tukaani:xz:1.6
+|    |    |    |    |    +--- org.apache.commons:commons-rdf-api:0.5.0
+|    |    |    |    |    +--- javax.inject:javax.inject:1
+|    |    |    |    |    +--- com.github.vsonnier:hppcrt:0.7.5
+|    |    |    |    |    +--- com.github.ben-manes.caffeine:caffeine:2.6.1
+|    |    |    |    |    +--- com.google.guava:guava:[18.0,22.0] -> 22.0
+|    |    |    |    |    |    +--- com.google.code.findbugs:jsr305:1.3.9 -> 3.0.2
+|    |    |    |    |    |    +--- com.google.errorprone:error_prone_annotations:2.0.18
+|    |    |    |    |    |    +--- com.google.j2objc:j2objc-annotations:1.1
+|    |    |    |    |    |    \--- org.codehaus.mojo:animal-sniffer-annotations:1.14
+|    |    |    |    |    +--- com.google.code.findbugs:jsr305:[2.0.0,4) -> 3.0.2
+|    |    |    |    |    +--- org.slf4j:slf4j-api:[1.7.0,1.7.26) -> 1.7.30
+|    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    +--- net.sourceforge.owlapi:owlapi-impl:5.1.15
+|    |    |    |    |    +--- net.sourceforge.owlapi:owlapi-api:5.1.15 (*)
+|    |    |    |    |    +--- javax.inject:javax.inject:1
+|    |    |    |    |    +--- com.github.vsonnier:hppcrt:0.7.5
+|    |    |    |    |    +--- com.github.ben-manes.caffeine:caffeine:2.6.1
+|    |    |    |    |    +--- com.google.guava:guava:[18.0,22.0] -> 22.0 (*)
+|    |    |    |    |    +--- com.google.code.findbugs:jsr305:[2.0.0,4) -> 3.0.2
+|    |    |    |    |    +--- org.slf4j:slf4j-api:[1.7.0,1.7.26) -> 1.7.30
+|    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    +--- net.sourceforge.owlapi:owlapi-parsers:5.1.15
+|    |    |    |    |    +--- net.sourceforge.owlapi:owlapi-api:5.1.15 (*)
+|    |    |    |    |    +--- com.github.vsonnier:hppcrt:0.7.5
+|    |    |    |    |    +--- com.github.ben-manes.caffeine:caffeine:2.6.1
+|    |    |    |    |    +--- com.google.guava:guava:[18.0,22.0] -> 22.0 (*)
+|    |    |    |    |    +--- com.google.code.findbugs:jsr305:[2.0.0,4) -> 3.0.2
+|    |    |    |    |    +--- org.slf4j:slf4j-api:[1.7.0,1.7.26) -> 1.7.30
+|    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    +--- net.sourceforge.owlapi:owlapi-oboformat:5.1.15
+|    |    |    |    |    +--- net.sourceforge.owlapi:owlapi-parsers:5.1.15 (*)
+|    |    |    |    |    +--- com.github.vsonnier:hppcrt:0.7.5
+|    |    |    |    |    +--- com.github.ben-manes.caffeine:caffeine:2.6.1
+|    |    |    |    |    +--- com.google.guava:guava:[18.0,22.0] -> 22.0 (*)
+|    |    |    |    |    +--- com.google.code.findbugs:jsr305:[2.0.0,4) -> 3.0.2
+|    |    |    |    |    +--- org.slf4j:slf4j-api:[1.7.0,1.7.26) -> 1.7.30
+|    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    +--- net.sourceforge.owlapi:owlapi-tools:5.1.15
+|    |    |    |    |    +--- net.sourceforge.owlapi:owlapi-api:5.1.15 (*)
+|    |    |    |    |    +--- com.github.vsonnier:hppcrt:0.7.5
+|    |    |    |    |    +--- com.github.ben-manes.caffeine:caffeine:2.6.1
+|    |    |    |    |    +--- com.google.guava:guava:[18.0,22.0] -> 22.0 (*)
+|    |    |    |    |    +--- com.google.code.findbugs:jsr305:[2.0.0,4) -> 3.0.2
+|    |    |    |    |    +--- org.slf4j:slf4j-api:[1.7.0,1.7.26) -> 1.7.30
+|    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    +--- net.sourceforge.owlapi:owlapi-rio:5.1.15
+|    |    |    |    |    +--- net.sourceforge.owlapi:owlapi-parsers:5.1.15 (*)
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2
+|    |    |    |    |    |    \--- org.eclipse.rdf4j:rdf4j-util:2.4.2
+|    |    |    |    |    |         \--- org.slf4j:slf4j-api:1.7.10 -> 1.7.30
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    \--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    \--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    \--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-binary:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    \--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-n3:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-turtle:2.4.2
+|    |    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2 (*)
+|    |    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2 (*)
+|    |    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    |    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2 (*)
+|    |    |    |    |    |    \--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2 (*)
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-nquads:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-ntriples:2.4.2
+|    |    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2 (*)
+|    |    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2 (*)
+|    |    |    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2 (*)
+|    |    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-ntriples:2.4.2 (*)
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-rdfjson:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    |    |    |    |    +--- com.fasterxml.jackson.core:jackson-core:2.9.6 -> 2.10.1
+|    |    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-rdfxml:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-trix:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-turtle:2.4.2 (*)
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-trig:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-turtle:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2 (*)
+|    |    |    |    |    |    \--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-jsonld:2.4.2
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2 (*)
+|    |    |    |    |    |    +--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    |    |    |    |    +--- com.github.jsonld-java:jsonld-java:0.12.0 -> 0.12.5
+|    |    |    |    |    |    |    +--- com.fasterxml.jackson.core:jackson-core:2.9.9 -> 2.10.1
+|    |    |    |    |    |    |    +--- com.fasterxml.jackson.core:jackson-databind:2.9.9.2 -> 2.10.1
+|    |    |    |    |    |    |    |    +--- com.fasterxml.jackson.core:jackson-annotations:2.10.1
+|    |    |    |    |    |    |    |    \--- com.fasterxml.jackson.core:jackson-core:2.10.1
+|    |    |    |    |    |    |    +--- org.apache.httpcomponents:httpclient-osgi:4.5.8
+|    |    |    |    |    |    |    |    +--- org.apache.httpcomponents:httpclient:4.5.8 -> 4.5.10
+|    |    |    |    |    |    |    |    |    +--- org.apache.httpcomponents:httpcore:4.4.12
+|    |    |    |    |    |    |    |    |    +--- commons-logging:commons-logging:1.2
+|    |    |    |    |    |    |    |    |    \--- commons-codec:commons-codec:1.11 -> 1.14
+|    |    |    |    |    |    |    |    +--- commons-codec:commons-codec:1.11 -> 1.14
+|    |    |    |    |    |    |    |    +--- org.apache.httpcomponents:httpmime:4.5.8
+|    |    |    |    |    |    |    |    |    \--- org.apache.httpcomponents:httpclient:4.5.8 -> 4.5.10 (*)
+|    |    |    |    |    |    |    |    +--- org.apache.httpcomponents:httpclient-cache:4.5.8 -> 4.5.10
+|    |    |    |    |    |    |    |    |    \--- org.apache.httpcomponents:httpclient:4.5.10 (*)
+|    |    |    |    |    |    |    |    \--- org.apache.httpcomponents:fluent-hc:4.5.8
+|    |    |    |    |    |    |    |         \--- org.apache.httpcomponents:httpclient:4.5.8 -> 4.5.10 (*)
+|    |    |    |    |    |    |    +--- org.apache.httpcomponents:httpcore-osgi:4.4.11
+|    |    |    |    |    |    |    |    +--- org.apache.httpcomponents:httpcore:4.4.11 -> 4.4.12
+|    |    |    |    |    |    |    |    \--- org.apache.httpcomponents:httpcore-nio:4.4.11
+|    |    |    |    |    |    |    |         \--- org.apache.httpcomponents:httpcore:4.4.11 -> 4.4.12
+|    |    |    |    |    |    |    +--- org.slf4j:slf4j-api:1.7.26 -> 1.7.30
+|    |    |    |    |    |    |    +--- org.slf4j:jcl-over-slf4j:1.7.26 -> 1.7.30
+|    |    |    |    |    |    |    |    \--- org.slf4j:slf4j-api:1.7.30
+|    |    |    |    |    |    |    \--- commons-io:commons-io:2.6
+|    |    |    |    |    |    +--- org.apache.httpcomponents:httpclient:4.5.5 -> 4.5.10 (*)
+|    |    |    |    |    |    +--- org.apache.httpcomponents:httpclient-cache:4.5.5 -> 4.5.10 (*)
+|    |    |    |    |    |    +--- com.fasterxml.jackson.core:jackson-core:2.9.6 -> 2.10.1
+|    |    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    |    +--- com.github.jsonld-java:jsonld-java:0.12.0 -> 0.12.5 (*)
+|    |    |    |    |    +--- com.github.vsonnier:hppcrt:0.7.5
+|    |    |    |    |    +--- com.github.ben-manes.caffeine:caffeine:2.6.1
+|    |    |    |    |    +--- com.google.guava:guava:[18.0,22.0] -> 22.0 (*)
+|    |    |    |    |    +--- com.google.code.findbugs:jsr305:[2.0.0,4) -> 3.0.2
+|    |    |    |    |    +--- org.slf4j:slf4j-api:[1.7.0,1.7.26) -> 1.7.30
+|    |    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    |    +--- com.github.vsonnier:hppcrt:0.7.5
+|    |    |    |    +--- com.github.ben-manes.caffeine:caffeine:2.6.1
+|    |    |    |    +--- com.google.guava:guava:[18.0,22.0] -> 22.0 (*)
+|    |    |    |    +--- com.google.code.findbugs:jsr305:[2.0.0,4) -> 3.0.2
+|    |    |    |    +--- org.slf4j:slf4j-api:[1.7.0,1.7.26) -> 1.7.30
+|    |    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    |    +--- com.github.vsonnier:hppcrt:0.7.5
+|    |    |    +--- com.github.ben-manes.caffeine:caffeine:2.6.1
+|    |    |    +--- com.google.guava:guava:[18.0,22.0] -> 22.0 (*)
+|    |    |    +--- com.google.code.findbugs:jsr305:[2.0.0,4) -> 3.0.2
+|    |    |    +--- org.slf4j:slf4j-api:[1.7.0,1.7.26) -> 1.7.30
+|    |    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    |    +--- com.fasterxml.jackson.core:jackson-core:2.9.10 -> 2.10.1
+|    |    +--- com.fasterxml.jackson.core:jackson-databind:2.9.10.5 -> 2.10.1 (*)
+|    |    +--- com.fasterxml.jackson.core:jackson-annotations:2.9.10 -> 2.10.1
+|    |    +--- org.apache.commons:commons-rdf-api:0.5.0
+|    |    +--- org.tukaani:xz:1.6
+|    |    +--- org.slf4j:slf4j-api:1.7.22 -> 1.7.30
+|    |    +--- org.slf4j:jcl-over-slf4j:1.7.22 -> 1.7.30 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-model:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-api:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-languages:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-datatypes:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-binary:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-n3:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-nquads:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-ntriples:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-rdfjson:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-jsonld:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-rdfxml:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-trix:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-turtle:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-rio-trig:2.4.2 (*)
+|    |    +--- org.eclipse.rdf4j:rdf4j-util:2.4.2 (*)
+|    |    +--- com.github.jsonld-java:jsonld-java:0.12.0 -> 0.12.5 (*)
+|    |    +--- com.github.vsonnier:hppcrt:0.7.5
+|    |    +--- com.github.ben-manes.caffeine:caffeine:2.6.1
+|    |    +--- com.google.guava:guava:[18.0,22.0] -> 22.0 (*)
+|    |    +--- com.google.code.findbugs:jsr305:[2.0.0,4) -> 3.0.2
+|    |    \--- commons-io:commons-io:2.5 -> 2.6
+|    \--- javax.xml.bind:jaxb-api:2.3.0
++--- com.github.galigator.openllet:openllet-explanation:2.6.5
+|    +--- com.github.galigator.openllet:openllet-core:2.6.5 (*)
+|    \--- com.github.galigator.openllet:openllet-owlapi:2.6.5 (*)
++--- com.github.galigator.openllet:openllet-jena:2.6.5
+|    +--- com.github.galigator.openllet:openllet-core:2.6.5 (*)
+|    +--- com.github.galigator.openllet:openllet-query:2.6.5 (*)
+|    +--- org.apache.jena:jena-core:[3.10.0,3.10.99] -> 3.15.0
+|    |    +--- org.apache.jena:jena-base:3.15.0
+|    |    |    +--- org.slf4j:slf4j-api:1.7.30
+|    |    |    +--- org.apache.jena:jena-shaded-guava:3.15.0
+|    |    |    +--- org.apache.commons:commons-csv:1.8
+|    |    |    +--- commons-io:commons-io:2.6
+|    |    |    +--- org.apache.commons:commons-lang3:3.10
+|    |    |    +--- commons-codec:commons-codec:1.14
+|    |    |    +--- org.apache.commons:commons-compress:1.20
+|    |    |    \--- com.github.andrewoma.dexx:collection:0.7
+|    |    +--- org.apache.jena:jena-iri:3.15.0
+|    |    \--- commons-cli:commons-cli:1.4
+|    +--- org.apache.jena:jena-arq:[3.10.0,3.10.99] -> 3.15.0
+|    |    +--- org.apache.jena:jena-core:3.15.0 (*)
+|    |    +--- org.apache.jena:jena-shaded-guava:3.15.0
+|    |    +--- org.apache.httpcomponents:httpclient:4.5.10 (*)
+|    |    +--- com.github.jsonld-java:jsonld-java:0.12.5 (*)
+|    |    +--- com.fasterxml.jackson.core:jackson-core:2.10.1
+|    |    +--- com.fasterxml.jackson.core:jackson-databind:2.10.1 (*)
+|    |    +--- org.apache.httpcomponents:httpclient-cache:4.5.10 (*)
+|    |    +--- org.apache.thrift:libthrift:0.13.0
+|    |    |    +--- org.slf4j:slf4j-api:1.7.25 -> 1.7.30
+|    |    |    +--- org.apache.httpcomponents:httpclient:4.5.6 -> 4.5.10 (*)
+|    |    |    \--- javax.annotation:javax.annotation-api:1.3.2
+|    |    +--- org.slf4j:jcl-over-slf4j:1.7.30 (*)
+|    |    \--- org.apache.commons:commons-lang3:3.10
+|    +--- org.antlr:antlr-runtime:[3.5.2,3.5.99] -> 3.5.2
+|    \--- javax.xml.bind:jaxb-api:2.3.0
++--- org.apache.jena:jena-rdfconnection:3.15.+ -> 3.15.0
+|    \--- org.apache.jena:jena-arq:3.15.0 (*)
+\--- junit:junit:4.12
+     \--- org.hamcrest:hamcrest-core:1.3
+
+testRuntimeOnly - Runtime only dependencies for source set 'test'. (n)
+No dependencies
+
+(*) - dependencies omitted (listed previously)
+
+(n) - Not resolved (configuration is not meant to be resolved)
+
+A web-based, searchable dependency report is available by adding the --scan option.

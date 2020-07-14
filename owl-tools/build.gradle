@@ -39,6 +39,7 @@ subprojects {
 		exclude group: 'asm'
 	}
 
+
 	task createVersion {
 	    doLast {
 	        def version = project.version.toString()
@@ -51,4 +52,3 @@ subprojects {
 	    dependsOn createVersion
 	}
 }
-

@@ -84,6 +84,7 @@ public class App {
 		
 	private final Logger LOGGER = LogManager.getLogger("Owl Load"); {
 		LOGGER.setLevel(Level.INFO);
+	
 		PatternLayout layout = new PatternLayout("%r [%t] %-5p %c %x - %m%n");
 		LOGGER.addAppender(new ConsoleAppender(layout));
 	}
@@ -115,7 +116,6 @@ public class App {
 		LOGGER.info(("OWL Catalog = " + catalogPath));	    
 		LOGGER.info(("File Extensions = " + fileExt)); 
 		LOGGER.info(("Endpoint = " + endpoint));
-
 		// Get files from catalog - Reused from owl-diff
 		File catalogFile = new File(catalogPath); 
 		final File folder = catalogFile.getParentFile();
@@ -150,9 +150,11 @@ public class App {
 			threads.add(thread); 
 			thread.start(); 
 		}
+		/*
 	    LOGGER.info("=================================================================");
 		LOGGER.info("                          E N D");
 		LOGGER.info("=================================================================");
+		*/
 	}
 	
 	/**
@@ -168,7 +170,7 @@ public class App {
 			version = CharStreams.toString(reader);
 		} catch (IOException e) {
 			String errorMsg = "Could not read version.txt file." + e;
-			LOGGER.error(errorMsg, e);
+			//LOGGER.error(errorMsg, e);
 		}
 		return version;
 	}
