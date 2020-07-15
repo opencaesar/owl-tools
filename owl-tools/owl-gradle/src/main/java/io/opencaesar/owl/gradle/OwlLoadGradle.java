@@ -1,9 +1,7 @@
 package io.opencaesar.owl.gradle;
 
-
 import java.util.ArrayList;
-import java.util.List;
-import io.opencaesar.owl.load.App; 
+import io.opencaesar.owl.load.LoadNoLog; 
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -18,7 +16,6 @@ public class OwlLoadGradle implements Plugin<Project>{
 			public void execute(Task arg0) {
 				// TODO Auto-generated method stub
 				//App.main(args.toArray(new String[0]));
-				System.out.println("Hello");
 				ArrayList<String> args = new ArrayList<String>();
 				args.add("-c");
 				args.add(project.file(extension.catalogPath).getAbsolutePath());
@@ -26,7 +23,7 @@ public class OwlLoadGradle implements Plugin<Project>{
 				args.add(extension.endpoint);
 				args.add("-f");
 				args.add(extension.fileExt);
-				io.opencaesar.owl.load.App.main(args.toArray(new String[0]));
+				LoadNoLog.execute(args.toArray(new String[0]));
 			}
 		});
 	}

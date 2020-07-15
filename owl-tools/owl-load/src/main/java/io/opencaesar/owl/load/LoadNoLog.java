@@ -41,8 +41,11 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.google.common.io.CharStreams;
 
-
-public class App {
+/**
+ * Owl Load without logging so it can be used as a Gradle interface 
+ *
+ */
+public class LoadNoLog {
   
 	@Parameter(
 		names = { "--catalog", "-c" },
@@ -82,15 +85,16 @@ public class App {
 		order =10)
 	private boolean help;
 		
-	private final Logger LOGGER = LogManager.getLogger(App.class);
+	private final Logger LOGGER = LogManager.getLogger(LoadNoLog.class); 
+	/*
 	{
 		LOGGER.setLevel(Level.INFO);
 		PatternLayout layout = new PatternLayout("%r [%t] %-5p %c %x - %m%n");
 		LOGGER.addAppender(new ConsoleAppender(layout));
 	}
-	
-	public static void main(final String... args) {
-		final App app = new App();
+	*/
+	public static void execute(final String... args) {
+		final LoadNoLog app = new LoadNoLog();
 		final JCommander builder = JCommander.newBuilder().addObject(app).build();
 		builder.parse(args);
 		if (app.help) {
@@ -109,6 +113,7 @@ public class App {
 	}
 
 	public void run() throws Exception {
+		/*
 		LOGGER.info("=================================================================");
 		LOGGER.info("                        S T A R T");
 		LOGGER.info("                     OWL Load " + getAppVersion());
@@ -116,6 +121,8 @@ public class App {
 		LOGGER.info(("OWL Catalog = " + catalogPath));	    
 		LOGGER.info(("File Extensions = " + fileExt)); 
 		LOGGER.info(("Endpoint = " + endpoint));
+		*/
+		System.out.println("Start Owl Load");
 		// Get files from catalog - Reused from owl-diff
 		File catalogFile = new File(catalogPath); 
 		final File folder = catalogFile.getParentFile();
@@ -150,9 +157,12 @@ public class App {
 			threads.add(thread); 
 			thread.start(); 
 		}
+		System.out.println("End Owl Load");
+		/*
 	    LOGGER.info("=================================================================");
 		LOGGER.info("                          E N D");
 		LOGGER.info("=================================================================");
+		*/
 	}
 	
 	/**
@@ -168,6 +178,7 @@ public class App {
 			version = CharStreams.toString(reader);
 		} catch (IOException e) {
 			String errorMsg = "Could not read version.txt file." + e;
+			System.out.println(errorMsg);
 			//LOGGER.error(errorMsg, e);
 		}
 		return version;

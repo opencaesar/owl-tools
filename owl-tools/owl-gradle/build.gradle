@@ -13,24 +13,21 @@ targetCompatibility = '1.8'
 dependencies {
     // This dependency is used internally, and not exposed to consumers on their own compile classpath.
     compile project(':owl-load')
+    compile project(':owl-query')
 
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
 }
-configurations.all {
-    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
-        if (details.requested.name == 'log4j') {
-            details.useTarget "org.slf4j:log4j-over-slf4j:1.7.+"
-        }
-    }
-}
-
 
 gradlePlugin {
 	plugins {
 		owlLoadPlugin {
 			id = 'io.opencaesar.owl.load'
 			implementationClass = 'io.opencaesar.owl.gradle.OwlLoadGradle'
+		}
+		owlQueryPlugin {
+			id = 'io.opencaesar.owl.query'
+			implementationClass = 'io.opencaesar.owl.gradle.OwlQueryGradle'
 		}
 	}
 }

@@ -1,6 +1,5 @@
 apply plugin: 'application'
 apply plugin: 'java'
-apply plugin: 'java-gradle-plugin'
 
 ext.title = 'OWL Load'
 description = 'A tool to load a set of OWL files to a SPARQL endpoint'
@@ -9,14 +8,6 @@ applicationName = 'owl-load'
 
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
-
-buildscript {
-	dependencies {
-		classpath name: 'java-gradle-plugin' {
-			exclude module:'slf4j'
-		}
-	}
-}
 
 
 dependencies {
@@ -33,17 +24,6 @@ dependencies {
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
 }
-
-
-gradlePlugin {
-	plugins {
-		owlLoadPlugin {
-			id = 'io.opencaesar.owl.load'
-			implementationClass = 'io.opencaesar.owl.load.GradlePlugin'
-		}
-	}
-}
-
 
 /*
 class GradlePlugin implements Plugin<Project> {
