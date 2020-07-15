@@ -1,14 +1,12 @@
 apply plugin: 'application'
-apply plugin: 'java'
 
 ext.title = 'OWL Load'
 description = 'A tool to load a set of OWL files to a SPARQL endpoint'
 mainClassName = 'io.opencaesar.owl.load.App'
 applicationName = 'owl-load'
 
-sourceCompatibility = '1.8'
-targetCompatibility = '1.8'
-
+sourceCompatibility = '11'
+targetCompatibility = '11'
 
 dependencies {
     // This dependency is used internally, and not exposed to consumers on their own compile classpath.
@@ -24,34 +22,3 @@ dependencies {
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
 }
-
-/*
-class GradlePlugin implements Plugin<Project> {
-    void apply(Project project) {
-		def extension = project.extensions.create('oml2owl', Oml2OwlExtension)
-        project.getTasks().create("generateOwl").doLast [
-	        def args = new ArrayList
-		    args += #["-i", project.file(^extension.inputPath).absolutePath]
-		    args += #["-o", project.file(^extension.outputPath).absolutePath]
-		    if (^extension.disjointUnions) {
-		    	args += "-u" 
-		    }
-		    if (^extension.annotationsOnAxioms) {
-		    	args += "-a" 
-		    }
-		    if (^extension.debug) {
-		    	args += "-d" 
-		    }
-	        App.main(args)
-        ]
-    }
-}
-
-class GradlePluginExtension {
-	String s1
-	String s2
-}
-
-// Apply the plugin
-apply plugin: GradlePlugin
-*/

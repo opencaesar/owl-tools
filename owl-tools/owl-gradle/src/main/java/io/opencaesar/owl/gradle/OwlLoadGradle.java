@@ -14,8 +14,6 @@ public class OwlLoadGradle implements Plugin<Project>{
 		project.getTasks().create("loadOwl").doLast(new Action<Task>() {
 			@Override
 			public void execute(Task arg0) {
-				// TODO Auto-generated method stub
-				//App.main(args.toArray(new String[0]));
 				ArrayList<String> args = new ArrayList<String>();
 				args.add("-c");
 				args.add(project.file(extension.catalogPath).getAbsolutePath());

@@ -14,14 +14,13 @@ public class OwlQueryGradle implements Plugin<Project>{
 		project.getTasks().create("queryOwl").doLast(new Action<Task>() {
 			@Override
 			public void execute(Task arg0) {
-				//App.main(args.toArray(new String[0]));
 				ArrayList<String> args = new ArrayList<String>();
 				args.add("-e");
 				args.add(extension.endpoint);
 				args.add("-q");
-				args.add(extension.queriesPath);
+				args.add(project.file(extension.queriesPath).getAbsolutePath());
 				args.add("-r");
-				args.add(extension.resultPath);
+				args.add(project.file(extension.resultPath).getAbsolutePath());
 				args.add("-f");
 				args.add(extension.formatType);
 				QueryNoLog.execute(args.toArray(new String[0]));

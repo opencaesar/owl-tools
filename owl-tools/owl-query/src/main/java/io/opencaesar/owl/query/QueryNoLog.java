@@ -35,11 +35,11 @@ import org.apache.jena.rdfconnection.RDFConnectionRemoteBuilder;
 import org.apache.jena.sparql.resultset.ResultsFormat;
 import org.apache.log4j.Appender;
 import org.apache.log4j.AppenderSkeleton;
-import org.apache.log4j.ConsoleAppender;
+//import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
+//import org.apache.log4j.PatternLayout;
 
 import com.beust.jcommander.IParameterValidator;
 import com.beust.jcommander.JCommander;
@@ -47,6 +47,10 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.google.common.io.CharStreams;
 
+/**
+ * Owl query with no log so it can be used as a gradle interface
+ *
+ */
 public class QueryNoLog {
   
 	@Parameter(
@@ -201,9 +205,12 @@ public class QueryNoLog {
 			System.out.println("Failed to create open file");
 			e.printStackTrace(); 
 		}
+		System.out.println("Owl Query End");
+		/*
 	    LOGGER.info("=================================================================");
 		LOGGER.info("                          E N D");
 		LOGGER.info("=================================================================");
+		*/
 	}
 	
 	/**

@@ -1,5 +1,4 @@
 apply plugin: 'application'
-//apply plugin: 'java-gradle-plugin'
 
 ext.title = 'OWL Query'
 description = 'A tool to execute a set of SPARQL queries on a given SPARQL dataset'
