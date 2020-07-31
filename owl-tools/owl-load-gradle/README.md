@@ -1,4 +1,4 @@
-# OWL Reason
+# OWL Load
 
 [ ![Download](https://api.bintray.com/packages/opencaesar/owl-tools/owl-load-gradle/images/download.svg) ](https://bintray.com/opencaesar/owl-tools/owl-load-gradle/_latestVersion)
 
