@@ -6,6 +6,7 @@ A Gradle task to analyze an OWL dataset for satisfiability and consistency with 
 
 ## Run as Gradle Task
 
+```
 buildscript {
 	repositories {
 		maven { url 'https://dl.bintray.com/opencaesar/owl-tools' }
@@ -31,3 +32,4 @@ task owlReason(type:io.opencaesar.owl.reason.OwlReasonTask) {
 	indent = 2 [Optional]
 	debug = true [Optional]
 }
+```
