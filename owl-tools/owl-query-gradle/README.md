@@ -2,7 +2,7 @@
 
 [ ![Download](https://api.bintray.com/packages/opencaesar/owl-tools/owl-query-gradle/images/download.svg) ](https://bintray.com/opencaesar/owl-tools/owl-query-gradle/_latestVersion)
 
-A Gradle task to execute a query on a given SPARQL endpoint. 
+A tool to execute a query on a given SPARQL endpoint. 
 
 ## Run as Gradle Task
 

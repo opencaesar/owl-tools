@@ -2,7 +2,7 @@
 
 [ ![Download](https://api.bintray.com/packages/opencaesar/owl-tools/owl-load-gradle/images/download.svg) ](https://bintray.com/opencaesar/owl-tools/owl-load-gradle/_latestVersion)
 
-A Gradle task to load OWL files to a SPARQL end point. 
+A tool to load OWL files to a SPARQL end point. 
 
 ## Run as Gradle Task
 

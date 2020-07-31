@@ -2,7 +2,7 @@
 
 [ ![Download](https://api.bintray.com/packages/opencaesar/owl-tools/owl-reason-gradle/images/download.svg) ](https://bintray.com/opencaesar/owl-tools/owl-reason-gradle/_latestVersion)
 
-A Gradle task to analyze an OWL dataset for satisfiability and consistency with an OWL2-DL reasoner
+A tool to analyze an OWL dataset for satisfiability and consistency with an OWL2-DL reasoner
 
 ## Run as Gradle Task
 
