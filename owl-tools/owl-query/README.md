@@ -24,8 +24,6 @@ Args:
 --format or -f xml [Optional; default value is xml]
     - forats: xml, json, csv, n3, ttl, n-triple, or tsv
     - Supported formats depend on the query type
---debug or -d
---help or -h
 ```
 
 ## [Run as Gradle Task](../owl-query-gradle/README.md)

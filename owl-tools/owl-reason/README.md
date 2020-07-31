@@ -28,8 +28,6 @@ Args:
 --remove-backbone or -rb [Optional]
 --backbone-iri or -b http://opencaesar.io/oml [Optional]
 --indent or -n 2 [Optional, default is 2]
---debug or -d [Optional]
---help or -h [Optional]
 ```
 
 ## [Run as Gradle Task](../owl-reason-gradle/README.md)

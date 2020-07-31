@@ -22,6 +22,5 @@ task owlQuery(type:io.opencaesar.owl.query.OwlQueryTask) {
 	queryPath = file('path/to/query.sparql') [Required]
 	resultPath = file('path/to/result.frame') [Required]
     format = 'xml' [Optional, default is xml, other options: json, csv, n3, ttl, n-triple, or tsv]
-	debug = true [Optional]
 }               
 ```

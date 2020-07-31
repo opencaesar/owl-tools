@@ -21,8 +21,6 @@ Args:
 --endpoint-url or -e http://sparqlURL/dataset [Required]
 --catalog-path or -c path/to/owl/catalog.xml [Required]
 --file-extensions or -f: comma,separated,file,extensions [Optional, default is owl]
---debug or -d
---help or -h           
 ```
 Note: The dataset (database) must have been created prior to execution
 

@@ -29,7 +29,6 @@ task owlReason(type:io.opencaesar.owl.reason.OwlReasonTask) {
 	removeUnsats = true [Optional]
 	removeBackbone = true [Optional]
 	backboneIri = 'http://opencaesar.io/oml' [Optional]
-	indent = 2 [Optional]
-	debug = true [Optional]
+	indent = 2 [Optional, default is 2]
 }
 ```

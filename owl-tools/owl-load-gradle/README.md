@@ -21,6 +21,5 @@ task owlLoad(type:io.opencaesar.owl.load.OwlLoadTask) {
 	endpointURL = 'url-of-sparql-endpoint' [Required]
 	catalogPath = file('path/to/catalog.xml') [Required]
     fileExtensions = ['owl', 'ttl'] [Optional, default is owl]
-	debug = true [Optional]
 }               
 ```
