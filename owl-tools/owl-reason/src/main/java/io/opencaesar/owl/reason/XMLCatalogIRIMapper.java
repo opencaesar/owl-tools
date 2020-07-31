@@ -3,8 +3,9 @@ package io.opencaesar.owl.reason;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URI;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.xml.resolver.Catalog;
 import org.apache.xml.resolver.CatalogManager;
 import org.semanticweb.owlapi.model.IRI;
@@ -14,7 +15,6 @@ import org.semanticweb.owlapi.model.OWLOntologyIRIMapper;
 public class XMLCatalogIRIMapper implements OWLOntologyIRIMapper {
 
 	private Catalog catalog;
-	private URI baseIRI;
 
 	public XMLCatalogIRIMapper(String catalogPath) throws MalformedURLException, IOException {
 		final File catalogFile = new File(catalogPath);
@@ -24,24 +24,19 @@ public class XMLCatalogIRIMapper implements OWLOntologyIRIMapper {
 		catalog = manager.getCatalog();
 		catalog.setupReaders();
 		catalog.parseCatalog(catalogFile.toURI().toURL());
-		baseIRI = new File(catalog.getCurrentBase()).getParentFile().toURI();
 	}
 
 	@Override
-	public IRI getDocumentIRI(IRI original) {
+	public IRI getDocumentIRI(IRI originalIri) {
 		try {
-			String iri = catalog.resolveURI(original.toString());
-			if (iri != null) {
-				URI redirect = new URI(iri);
-				if (redirect.toString().startsWith("file:.")) { 
-					//some catalogs erroneously treat paths that start with 'file:.' as relative
-					redirect = baseIRI.resolve(new URI(redirect.getSchemeSpecificPart()));
-				}
+			String documentUri = catalog.resolveURI(originalIri.toString());
+			if (documentUri != null) {
+				String extension = FilenameUtils.getExtension(documentUri);
 				// add ".owl" to the end of import paths
-				if (!redirect.toString().endsWith(".owl")) {
-					redirect = new URI(redirect.toString()+".owl");
+				if (extension == null || extension.isEmpty() || StringUtils.isNumeric(extension)) {
+					documentUri = documentUri+".owl";
 				}
-				return IRI.create(redirect);
+				return IRI.create(documentUri);
 			}
 		} catch (Exception e) {
 			System.out.println(e);

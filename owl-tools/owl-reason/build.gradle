@@ -2,22 +2,25 @@ apply plugin: 'application'
 
 ext.title = 'OWL Reason'
 description = 'A tool to run a DL reasoner on an OWL catalog'
-mainClassName = 'io.opencaesar.owl.reason.App'
+mainClassName = 'io.opencaesar.owl.reason.OwlReasonApp'
 applicationName = 'owl-reason'
 
-sourceCompatibility = '11'
-targetCompatibility = '11'
-
 dependencies {
-    // This dependency is used internally, and not exposed to consumers on their own compile classpath.
-    implementation "com.beust:jcommander:1.72"
-	implementation "log4j:log4j:1.2.17"
- 	implementation 'xml-resolver:xml-resolver:1.2'
-    implementation 'org.slf4j:slf4j-nop:1.7.+'
-	implementation "com.github.galigator.openllet:openllet-owlapi:2.6.5"
-	implementation "com.github.galigator.openllet:openllet-explanation:2.6.5"
-	implementation "com.github.galigator.openllet:openllet-jena:2.6.5"
-	
-    // Use JUnit test framework
+ 	implementation "com.beust:jcommander:1.72"
+	implementation 'log4j:log4j:1.2.17'
+	implementation 'org.slf4j:slf4j-nop:1.7.30'
+
+	implementation "xml-resolver:xml-resolver:${versions.xmlresolver}"
+	implementation "com.github.galigator.openllet:openllet-owlapi:${versions.openllet}"
+	implementation "com.github.galigator.openllet:openllet-explanation:${versions.openllet}"
+	implementation "com.github.galigator.openllet:openllet-jena:${versions.openllet}"
+
     testImplementation 'junit:junit:4.12'
+ }
+
+configurations.all {
+	resolutionStrategy {
+		exclude group: 'org.antlr', module: 'antlr-runtime'
+	}
 }
+ 

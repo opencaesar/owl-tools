@@ -17,8 +17,8 @@ import java.util.stream.Collectors;
 import org.apache.log4j.Appender;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Level;
-import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.apache.log4j.xml.DOMConfigurator;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.HasIRI;
 import org.semanticweb.owlapi.model.IRI;
@@ -34,7 +34,7 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.google.common.io.CharStreams;
 
-public class App {
+public class OwlDiffApp {
 
 	@Parameter(
 		names = { "--catalog1", "-c1" },
@@ -73,10 +73,13 @@ public class App {
 		order =5)
 	private boolean help;
 	
-	private final Logger LOGGER = LogManager.getLogger("Owl Diff");
+	private final static Logger LOGGER = Logger.getLogger(OwlDiffApp.class);
+	{
+        DOMConfigurator.configure(ClassLoader.getSystemClassLoader().getResource("log4j.xml"));
+	}
 
 	public static void main(final String... args) {
-		final App app = new App();
+		final OwlDiffApp app = new OwlDiffApp();
 		final JCommander builder = JCommander.newBuilder().addObject(app).build();
 		builder.parse(args);
 		if (app.help) {
@@ -84,7 +87,7 @@ public class App {
 			return;
 		}
 		if (app.debug) {
-			final Appender appender = LogManager.getRootLogger().getAppender("stdout");
+			final Appender appender = Logger.getRootLogger().getAppender("stdout");
 			((AppenderSkeleton) appender).setThreshold(Level.DEBUG);
 		}
 		try {

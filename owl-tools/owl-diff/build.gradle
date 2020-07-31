@@ -2,21 +2,16 @@ apply plugin: 'application'
 
 ext.title = 'OWL Diff'
 description = 'A tool to calculate the diff between two OWL catalogs'
-mainClassName = 'io.opencaesar.owl.diff.App'
+mainClassName = 'io.opencaesar.owl.diff.OwlDiffApp'
 applicationName = 'owl-diff'
 
-sourceCompatibility = '1.8'
-targetCompatibility = '1.8'
-
 dependencies {
-    // This dependency is used internally, and not exposed to consumers on their own compile classpath.
-    implementation "com.beust:jcommander:1.72"
-	implementation "org.eclipse.xtext:org.eclipse.xtext.xbase:${versions.xtext}"
+ 	implementation "com.beust:jcommander:1.72"
+	implementation 'log4j:log4j:1.2.17'
+	implementation 'org.slf4j:slf4j-simple:1.7.30'
+	
+ 	implementation "xml-resolver:xml-resolver:${versions.xmlresolver}"
 	implementation "net.sourceforge.owlapi:owlapi-distribution:${versions.owl}"
- 	implementation 'xml-resolver:xml-resolver:1.2'
-    implementation 'org.slf4j:slf4j-nop:1.7.+'
-	//implementation "edu.stanford.protege:org.protege.xmlcatalog:${versions.xmlcatalog}"
 
-    // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
 }

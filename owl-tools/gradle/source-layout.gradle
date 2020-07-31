@@ -9,10 +9,6 @@ sourceSets {
 	}
 }
 
-sourceSets.all {
-	resources.exclude '**/*.xtend', '**/*._trace'
-}
-
 task sourcesJar(type: Jar, dependsOn: classes) {
     classifier = 'sources'
     from sourceSets.main.allSource

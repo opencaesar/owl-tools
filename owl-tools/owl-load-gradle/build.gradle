@@ -1,0 +1,7 @@
+ext.title = 'OWL Load Gradle'
+description = 'A gradle interface to OWL Load'
+
+dependencies {
+	implementation gradleApi()
+    implementation project (':owl-load')
+}

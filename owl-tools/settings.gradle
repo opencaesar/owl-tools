@@ -1,4 +1,7 @@
 include 'owl-diff'
-include 'owl-reason'
 include 'owl-load'
+include 'owl-load-gradle'
 include 'owl-query'
+include 'owl-query-gradle'
+include 'owl-reason'
+include 'owl-reason-gradle'

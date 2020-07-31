@@ -1,0 +1,7 @@
+ext.title = 'OWL Query Task'
+description = 'A gradle task to invoke owl query'
+
+dependencies {
+	implementation gradleApi()
+    implementation project (':owl-query')
+}

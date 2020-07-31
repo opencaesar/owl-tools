@@ -1,0 +1,7 @@
+ext.title = 'OWL Reason Gradle'
+description = 'A gradle interface to invoke Owl Reason'
+
+dependencies {
+	implementation gradleApi()
+    implementation project (':owl-reason')
+}

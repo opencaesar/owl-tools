@@ -51,14 +51,15 @@ import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
+import org.apache.jena.riot.Lang;
+import org.apache.jena.riot.RDFLanguages;
 import org.apache.jena.vocabulary.RDFS;
 import org.apache.log4j.Appender;
 import org.apache.log4j.AppenderSkeleton;
-import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
+import org.apache.log4j.xml.DOMConfigurator;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.formats.FunctionalSyntaxDocumentFormat;
 import org.semanticweb.owlapi.io.StringDocumentTarget;
@@ -88,7 +89,7 @@ import openllet.owlapi.OpenlletReasoner;
 import openllet.owlapi.OpenlletReasonerFactory;
 import openllet.owlapi.explanation.PelletExplanation;
 
-public class App {
+public class OwlReasonApp {
   
 	private static final String CONSISTENCY = "consistency";
 	private static final String SATISFIABILITY = "satisfiability";
@@ -122,9 +123,10 @@ public class App {
 		@Parameter(
 			names = { "--format" },
 			description = "output ontology format",
+			converter = LanguageConverter.class,
 			required = false,
 			order = 4)
-		String format = "TURTLE";
+		Lang language = RDFLanguages.TURTLE;
 		
 		@Parameter(
 			names = { "--remove-unsats" },
@@ -178,14 +180,13 @@ public class App {
 		public String explanation;
 	}
 
-	private final Logger LOGGER = LogManager.getLogger("Owl Reason"); {
-		LOGGER.setLevel(Level.INFO);
-		PatternLayout layout = new PatternLayout("%r [%t] %-5p %c %x - %m%n");
-		LOGGER.addAppender(new ConsoleAppender(layout));
+	private final static Logger LOGGER = Logger.getLogger(OwlReasonApp.class);
+	{
+        DOMConfigurator.configure(ClassLoader.getSystemClassLoader().getResource("log4j.xml"));
 	}
 
 	public static void main(final String... args) {
-		final App app = new App();
+		final OwlReasonApp app = new OwlReasonApp();
 		final JCommander builder = JCommander.newBuilder().addObject(app.options).build();
 		builder.parse(args);
 		if (app.options.help) {
@@ -442,7 +443,7 @@ public class App {
 		// Create an empty OWLAPI Ontology to get the ontology document IRI
 
 		LOGGER.info("get output filename from location mapping");
-		OWLOntology empty = manager.createOntology(IRI.create(outputOntologyIri));
+		OWLOntology empty = manager.createOntology(IRI.create(outputOntologyIri+"."+options.language.getFileExtensions().get(0)));
 		String filename = URI.create(manager.getOntologyDocumentIRI(empty).toString()).getPath();
 		manager.removeOntology(empty);
 		  
@@ -456,7 +457,7 @@ public class App {
 		// Serialize Jena ontology model to output stream.
 		  
 		LOGGER.info("serialize "+entailments.size()+" entailments to "+filename);
-		model.write(outputFileStream, options.format);
+		model.write(outputFileStream, options.language.getName());
 		LOGGER.info("finished serializing "+filename);
 	}
 	
@@ -555,6 +556,15 @@ public class App {
 		        }
 			}
 			return spec;
+		}
+		
+	}
+
+	public static class LanguageConverter implements IStringConverter<Lang> {
+		@Override
+		public Lang convert(String value) {
+			Lang lang = RDFLanguages.filenameToLang(value);
+			return (lang != null) ? lang : RDFLanguages.TURTLE;
 		}
 		
 	}

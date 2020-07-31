@@ -2,23 +2,15 @@ apply plugin: 'application'
 
 ext.title = 'OWL Query'
 description = 'A tool to execute a set of SPARQL queries on a given SPARQL dataset'
-mainClassName = 'io.opencaesar.owl.query.App'
+mainClassName = 'io.opencaesar.owl.query.OwlQueryApp'
 applicationName = 'owl-query'
 
-sourceCompatibility = '11'
-targetCompatibility = '11'
-
 dependencies {
-    // This dependency is used internally, and not exposed to consumers on their own compile classpath.
-    implementation "com.beust:jcommander:1.72"
-	implementation "log4j:log4j:1.2.17"
- 	implementation 'xml-resolver:xml-resolver:1.2'
-    implementation 'org.slf4j:slf4j-nop:1.7.+'
-	implementation "com.github.galigator.openllet:openllet-owlapi:2.6.5"
-	implementation "com.github.galigator.openllet:openllet-explanation:2.6.5"
-	implementation "com.github.galigator.openllet:openllet-jena:2.6.5"
-	implementation "org.apache.jena:jena-rdfconnection:3.15.+"
-	
-    // Use JUnit test framework
+ 	implementation "com.beust:jcommander:1.72"
+	implementation 'log4j:log4j:1.2.17'
+	implementation 'org.slf4j:slf4j-nop:1.7.5'
+
+	implementation "org.apache.jena:jena-rdfconnection:${versions.jena}"
+
     testImplementation 'junit:junit:4.12'
 }

@@ -11,30 +11,33 @@ buildscript {
 
 subprojects {
 	group = 'io.opencaesar.owl'
-	version = '0.2.0'
+	version = '0.3.0'
 	
 	ext.versions = [
-	    xtext: '2.16.0',
-		owl: '5.1.+',
-		xmlcatalog: '1.0.4'
+		owl: '5.1.15',
+		openllet: '2.6.5',
+		jena: '3.16.0',
+		xmlcatalog: '1.0.4',
+		xmlresolver: '1.2',
 	]
 
 	repositories {
     	mavenLocal()
-		maven { url 'https://www.ebi.ac.uk/intact/maven/nexus/content/repositories/public/' }
-		maven { url 'http://code.berkeleybop.org/maven/repository/' }
   		mavenCentral()
 		jcenter()
 	}
 	
-	apply plugin: 'com.jfrog.bintray'
-	apply plugin: 'java'
+	apply plugin: 'java-library'
 	apply plugin: 'eclipse'
 	apply plugin: 'idea'
+	apply plugin: 'com.jfrog.bintray'
 	
 	apply from: "${rootDir}/gradle/source-layout.gradle"
 	apply from: "${rootDir}/gradle/maven-deployment.gradle"
 		
+	sourceCompatibility = '11'
+	targetCompatibility = '11'
+
 	configurations.all {
 		exclude group: 'asm'
 	}

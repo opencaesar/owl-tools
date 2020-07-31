@@ -24,6 +24,7 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.jena.ext.com.google.common.io.CharStreams;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryException;
 import org.apache.jena.query.QueryFactory;
@@ -35,41 +36,39 @@ import org.apache.jena.rdfconnection.RDFConnectionRemoteBuilder;
 import org.apache.jena.sparql.resultset.ResultsFormat;
 import org.apache.log4j.Appender;
 import org.apache.log4j.AppenderSkeleton;
-import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
+import org.apache.log4j.xml.DOMConfigurator;
 
 import com.beust.jcommander.IParameterValidator;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
-import com.google.common.io.CharStreams;
 
-public class App {
+public class OwlQueryApp {
   
 	@Parameter(
 		names = { "--endpoint", "-e" },
-		description = "Sparql Endpoint URL.  (Required)",
+		description = "Sparql Endpoint URL (Required)",
 		required = true,
 		order = 1)
-	String endpoint;
+	private String endpointURL;
 	
 	@Parameter(
 		names = { "--query", "-q" },
 		description = "Path to the .sparql query file (Required)",
 		required = true,
-		order = 3)
-	String queriesPath;
+		order = 2)
+	private String queryPath;
 	
 	@Parameter(
 		names = { "--result", "-r" },
 		description = "Path to the folder to save the result to (Required)",
 		validateWith = ResultFolderPath.class, 
 		required = true,
-		order = 4)
-	String resultPath;
+		order = 3)
+	private String resultPath;
 	
 	@Parameter(
 		names = { "--format", "-f" },
@@ -77,29 +76,28 @@ public class App {
 		validateWith = FormatType.class, 
 		required = false,
 		order = 4)
-	String formatType = "xml";
+	private String format = "xml";
 
 	@Parameter(
 		names = { "-d", "--debug" },
 		description = "Shows debug logging statements",
-		order = 9)
+		order = 5)
 	private boolean debug;
 
 	@Parameter(
 		names = { "--help", "-h" },
 		description = "Displays summary of options",
 		help = true,
-		order =10)
+		order =6)
 	private boolean help;
 	
-	private final Logger LOGGER = LogManager.getLogger("Owl Query"); {
-		LOGGER.setLevel(Level.INFO);
-		PatternLayout layout = new PatternLayout("%r [%t] %-5p %c %x - %m%n");
-		LOGGER.addAppender(new ConsoleAppender(layout));
+	private final Logger LOGGER = Logger.getLogger(OwlQueryApp.class);
+	{
+        DOMConfigurator.configure(ClassLoader.getSystemClassLoader().getResource("log4j.xml"));
 	}
 
 	public static void main(final String... args) {
-		final App app = new App();
+		final OwlQueryApp app = new OwlQueryApp();
 		final JCommander builder = JCommander.newBuilder().addObject(app).build();
 		builder.parse(args);
 		if (app.help) {
@@ -117,17 +115,18 @@ public class App {
 		}
 	}
 
-	public void run() throws Exception {
+	private void run() throws Exception {
 		LOGGER.info("=================================================================");
 		LOGGER.info("                        S T A R T");
 		LOGGER.info("                     OWL Query " + getAppVersion());
 		LOGGER.info("=================================================================");
-		LOGGER.info("Endpoint: " + endpoint);
-		LOGGER.info("File path: " + queriesPath);
+		LOGGER.info("Endpoint URL: " + endpointURL);
+		LOGGER.info("Query path: " + queryPath);
 		LOGGER.info("Result location: " + resultPath);
-		LOGGER.info("Format Type: " + formatType);
+		LOGGER.info("Format Type: " + format);
+		
 		// Create query from the given file 
-		final File queryFile = new File(queriesPath);
+		final File queryFile = new File(queryPath);
 		String fileName = queryFile.getName();
 		Query query = QueryFactory.create(); 
 		try {
@@ -142,7 +141,7 @@ public class App {
 		RDFConnectionRemoteBuilder builder = RDFConnectionFuseki.create()
 				.updateEndpoint("update")
 				.queryEndpoint("sparql")
-				.destination(endpoint);
+				.destination(endpointURL);
 		
 		// Execute queries on the endpoint
 		try (RDFConnection conn = builder.build()) {
@@ -166,17 +165,17 @@ public class App {
 				case CONSTRUCT_QUADS:
 				case CONSTRUCT:
 					LOGGER.info("Query Type: Construct");
-					String constructFmt = getOutType(formatType); 
+					String constructFmt = getOutType(format); 
 					conn.queryConstruct(query).write(res, constructFmt); 
 					break; 
 				case DESCRIBE:
 					LOGGER.info("Query Type: Describe");
-					String describeFmt = getOutType(formatType); 
+					String describeFmt = getOutType(format); 
 					conn.queryDescribe(query).write(res, describeFmt);
 					break; 
 				case SELECT:
 					LOGGER.info("Query Type: Select");
-					ResultsFormat selectFmt = getSelectType(formatType);
+					ResultsFormat selectFmt = getSelectType(format);
 					conn.queryResultSet(query, (resultSet)-> {
 						ResultSetFormatter.output(res, resultSet, selectFmt);
 					});
@@ -196,6 +195,7 @@ public class App {
 			LOGGER.info("Failed to create open file"); 
 			e.printStackTrace(); 
 		}
+		
 	    LOGGER.info("=================================================================");
 		LOGGER.info("                          E N D");
 		LOGGER.info("=================================================================");
@@ -206,7 +206,7 @@ public class App {
 	 * 
 	 * @return version string from build.properties or UNKNOWN
 	 */
-	public String getAppVersion() {
+	private String getAppVersion() {
 		String version = "UNKNOWN";
 		try {
 			InputStream input = Thread.currentThread().getContextClassLoader().getResourceAsStream("version.txt");
@@ -217,26 +217,6 @@ public class App {
 			LOGGER.error(errorMsg, e);
 		}
 		return version;
-	}
-
-	public static class FormatType implements IParameterValidator {
-		@Override
-		public void validate(final String name, final String value) throws ParameterException {
-			final List<String> formatTypes = Arrays.asList("xml", "json", "csv", "tsv", "n3", "ttl", "n-triple");
-			if (!formatTypes.contains(value.toLowerCase())) {
-				throw new ParameterException("Paramter " + name + " must be either xml, json, csv, n3, ttl, n-triple or tsv");
-			}
-		}
-	}
-	
-	public static class ResultFolderPath implements IParameterValidator {
-		@Override
-		public void validate(final String name, final String value) throws ParameterException {
-			File directory = new File(value);
-			if (!directory.exists()) {
-				directory.mkdir();
-			}
-	  	}
 	}
 
 	//Modified from owl-diff
@@ -287,6 +267,28 @@ public class App {
 				System.exit(1);
 				return ResultsFormat.FMT_NONE;
 		}
+	}
+
+	//------------
+	
+	public static class FormatType implements IParameterValidator {
+		@Override
+		public void validate(final String name, final String value) throws ParameterException {
+			final List<String> formatTypes = Arrays.asList("xml", "json", "csv", "tsv", "n3", "ttl", "n-triple");
+			if (!formatTypes.contains(value.toLowerCase())) {
+				throw new ParameterException("Paramter " + name + " must be either xml, json, csv, n3, ttl, n-triple or tsv");
+			}
+		}
+	}
+	
+	public static class ResultFolderPath implements IParameterValidator {
+		@Override
+		public void validate(final String name, final String value) throws ParameterException {
+			File directory = new File(value);
+			if (!directory.exists()) {
+				directory.mkdir();
+			}
+	  	}
 	}
 
 }
