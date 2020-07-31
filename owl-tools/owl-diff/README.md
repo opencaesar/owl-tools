@@ -8,13 +8,13 @@ A tool to produce a difference report between two OWL datasets
 
 MacOS/Linux:
 ```
-    cd owl-adapter
-    ./gradlew owl-diff:run --args="..."
+cd owl-adapter
+./gradlew owl-diff:run --args="..."
 ```
 Windows:
 ```
-    cd owl-adapter
-    gradlew.bat owl-diff:run --args="..."
+cd owl-adapter
+gradlew.bat owl-diff:run --args="..."
 ```
 Args:
 ```

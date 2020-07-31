@@ -8,13 +8,13 @@ A tool to execute a query on a given SPARQL endpoint.
 
 MacOS/Linux:
 ```
-    cd owl-tools
-    ./gradlew owl-query:run --args="..."
+cd owl-tools
+./gradlew owl-query:run --args="..."
 ```
 Windows:
 ```
-    cd owl-tools
-    gradlew.bat owl-query:run --args="..."
+cd owl-tools
+gradlew.bat owl-query:run --args="..."
 ```
 Args:
 ```

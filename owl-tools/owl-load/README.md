@@ -8,13 +8,13 @@ A tool to load OWL files to a SPARQL end point.
 
 MacOS/Linux:
 ```
-    cd owl-tools
-    ./gradlew owl-load:run --args="..."
+cd owl-tools
+./gradlew owl-load:run --args="..."
 ```
 Windows:
 ```
-    cd owl-tools
-    gradlew.bat owl-load:run --args="..."
+cd owl-tools
+gradlew.bat owl-load:run --args="..."
 ```
 Args:
 ```
