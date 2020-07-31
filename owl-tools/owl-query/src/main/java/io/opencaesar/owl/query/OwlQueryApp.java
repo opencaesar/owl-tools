@@ -49,21 +49,21 @@ import com.beust.jcommander.ParameterException;
 public class OwlQueryApp {
   
 	@Parameter(
-		names = { "--endpoint", "-e" },
+		names = {"--endpoint-url", "-e"},
 		description = "Sparql Endpoint URL (Required)",
 		required = true,
 		order = 1)
 	private String endpointURL;
 	
 	@Parameter(
-		names = { "--query", "-q" },
+		names = {"--query-path", "-q"},
 		description = "Path to the .sparql query file (Required)",
 		required = true,
 		order = 2)
 	private String queryPath;
 	
 	@Parameter(
-		names = { "--result", "-r" },
+		names = {"--result-path", "-r"},
 		description = "Path to the folder to save the result to (Required)",
 		validateWith = ResultFolderPath.class, 
 		required = true,
@@ -71,7 +71,7 @@ public class OwlQueryApp {
 	private String resultPath;
 	
 	@Parameter(
-		names = { "--format", "-f" },
+		names = {"--format", "-f"},
 		description = "Format of the results. Must be either xml, json, csv, n3, ttl, n-triple or tsv (Required)",
 		validateWith = FormatType.class, 
 		required = false,
@@ -79,13 +79,13 @@ public class OwlQueryApp {
 	private String format = "xml";
 
 	@Parameter(
-		names = { "-d", "--debug" },
+		names = {"--debug", "-d"},
 		description = "Shows debug logging statements",
 		order = 5)
 	private boolean debug;
 
 	@Parameter(
-		names = { "--help", "-h" },
+		names = {"--help", "-h"},
 		description = "Displays summary of options",
 		help = true,
 		order =6)

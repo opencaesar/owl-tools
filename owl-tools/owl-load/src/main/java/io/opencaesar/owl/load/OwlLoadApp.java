@@ -44,7 +44,7 @@ import com.beust.jcommander.ParameterException;
 public class OwlLoadApp {
   
 	@Parameter(
-		names = { "--catalog", "-c" },
+		names = { "--catalog-path", "-c" },
 		description = "Path to the OWL XML catalog file (Required)",
 		validateWith = CatalogPath.class,
 		required = true, 
@@ -52,7 +52,7 @@ public class OwlLoadApp {
 	private String catalogPath;
 	
 	@Parameter(
-			names = { "--endpointURL", "-e" },
+			names = { "--endpoint-url", "-e" },
 			description = "URL (endpointURL) of the dataset in a triple store (Required)",
 			required = true,
 			order = 2)

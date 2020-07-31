@@ -1,26 +1,26 @@
 # OWL Reason
 
-[ ![Download](https://api.bintray.com/packages/opencaesar/owl-tools/owl-reason/images/download.svg) ](https://bintray.com/opencaesar/owl-tools/owl-reason/_latestVersion)
+[ ![Download](https://api.bintray.com/packages/opencaesar/owl-tools/owl-load-gradle/images/download.svg) ](https://bintray.com/opencaesar/owl-tools/owl-load-gradle/_latestVersion)
 
-A tool to analyze an OWL dataset for satisfiability and consistency with an OWL2-DL reasoner
+A Gradle task to load OWL files to a SPARQL end point. 
 
-## Run as CLI
+## Run as Gradle Task
 
-MacOS/Linux:
 ```
-    cd owl-adapter
-    ./gradlew owl-reason:run --args="..."
-```
-Windows:
-```
-    cd owl-adapter
-    gradlew.bat owl-reason:run --args="..."
-```
-Args:
-```
---catalog path/to/owl/catalog.xml
---input-iri of-a-box-ontology-in-catalog
---spec 'output_iri=ALL_SUBCLASS'
---spec 'output_iri=INVERSE_PROPERTY ALL_SUBPROPERTY'
---spec 'output_iri=ALL_INSTANCE DATA_PROPERTY_VALUE OBJECT_PROPERTY_VALUE SAME_AS'
+buildscript {
+	repositories {
+		maven { url 'https://dl.bintray.com/opencaesar/owl-tools' }
+  		mavenCentral()
+		jcenter()
+	}
+	dependencies {
+		classpath 'io.opencaesar.owl:owl-load-gradle:+'
+	}
+}
+task owlLoad(type:io.opencaesar.owl.load.OwlLoadTask) {
+	endpointURL = 'url-of-sparql-endpoint' [Required]
+	catalogPath = file('path/to/catalog.xml') [Required]
+    fileExtensions = ['owl', 'ttl'] [Optional, default is owl]
+	debug = true [Optional]
+}               
 ```

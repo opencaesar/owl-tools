@@ -8,7 +8,7 @@ import org.gradle.api.tasks.TaskAction;
 
 public class OwlReasonTask extends DefaultTask {
 
-	public String catalog;
+	public String catalogPath;
 
 	public List<String> inputOntologyIris;
 
@@ -29,38 +29,38 @@ public class OwlReasonTask extends DefaultTask {
     @TaskAction
     public void run() {
 		final ArrayList<String> args = new ArrayList<String>();
-		if (catalog != null) {
-			args.add("--catalog");
-			args.add(catalog);
+		if (catalogPath != null) {
+			args.add("-c");
+			args.add(catalogPath);
 		}
 		if (inputOntologyIris != null) {
 			inputOntologyIris.forEach((String iri) -> {
-				args.add("--input-iri");
+				args.add("-i");
 				args.add(iri);
 			});
 		}
 		if (specs != null) {
 			specs.forEach((String spec) -> {
-				args.add("--spec");
+				args.add("-s");
 				args.add(spec);
 			});
 		}
 		if (format != null) {
-			args.add("--format");
+			args.add("-f");
 			args.add(format);
 		}
 		if (removeUnsats) {
-			args.add("--remove-unsats");
+			args.add("-ru");
 		}
 		if (removeBackbone) {
-			args.add("--remove-backbone");
+			args.add("-rb");
 		}
 		if (backboneIri != null) {
-			args.add("--backbone-iri");
+			args.add("-b");
 			args.add(backboneIri);
 		}
 		if (indent != null) {
-			args.add("-indent");
+			args.add("-n");
 			args.add(indent.toString());
 		}
 		if (debug) {

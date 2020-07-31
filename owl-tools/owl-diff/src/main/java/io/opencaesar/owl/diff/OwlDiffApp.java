@@ -53,7 +53,7 @@ public class OwlDiffApp {
 	private String catalogPath2 = ".";
 
 	@Parameter(
-		names = { "--ignore", "-n" },
+		names = { "--ignore", "-i" },
 		description = "List of comma-separated partial IRIs to ignore reporting on",
 		required = false,
 		converter = SetOfIris.class,

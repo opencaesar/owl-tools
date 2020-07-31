@@ -98,7 +98,7 @@ public class OwlReasonApp {
 	
 	private class Options {
 		@Parameter(
-			names = { "--catalog" },
+			names = { "--catalog-path", "-c"},
 			description = "path to the OWL catalog file (Required)",
 			validateWith = CatalogPath.class,
 			required = true,
@@ -106,14 +106,14 @@ public class OwlReasonApp {
 		String catalogPath;
 		
 		@Parameter(
-			names = { "--input-iri" },
+			names = { "--input-iri", "-i"},
 			description = "iri of input ontology (Required)",
 			required = true,
 			order = 2)
 		List<String> inputOntologyIris;
 
 		@Parameter(
-			names = { "--spec" },
+			names = {"--spec", "-s"},
 			description = "output-iri-postfix=Types where Types is a list of comma-separated entailment statementTypes",
 			converter = SpecConverter.class,
 			required = false,
@@ -121,7 +121,7 @@ public class OwlReasonApp {
 		List<Spec> specs = new ArrayList<Spec>();
 		
 		@Parameter(
-			names = { "--format" },
+			names = {"--format", "-f"},
 			description = "output ontology format",
 			converter = LanguageConverter.class,
 			required = false,
@@ -129,41 +129,41 @@ public class OwlReasonApp {
 		Lang language = RDFLanguages.TURTLE;
 		
 		@Parameter(
-			names = { "--remove-unsats" },
+			names = {"--remove-unsats", "-ru"},
 			description = "remove entailments due to unsatisfiability",
 			required = false,
 			order = 5)
 		boolean removeUnsats = true;
 		
 		@Parameter(
-			names = { "--remove-backbone" },
+			names = {"--remove-backbone", "-rb"},
 			description = "remove axioms on the backhone from entailments",
 			required = false,
 			order = 6)
 		boolean removeBackbone = true;
 
 		@Parameter(
-			names = { "--backbone-iri" },
+			names = {"--backbone-iri", "-b"},
 			description = "iri of backbone ontology",
 			required = false,
 			order = 7)
 		String backboneIri = "http://opencaesar.io/oml";
 				
 		@Parameter(
-			names = { "--indent" },
+			names = {"--indent", "-n"},
 			description = "indent of the JUnit XML elements",
 			required = false,
 			order = 8)
 		int indent = 2;
 
 		@Parameter(
-			names = { "-d", "--debug" },
+			names = {"--debug", "-d"},
 			description = "Shows debug logging statements",
 			order = 9)
 		private boolean debug;
 
 		@Parameter(
-			names = { "--help", "-h" },
+			names = {"--help", "-h"},
 			description = "Displays summary of options",
 			help = true,
 			order =10)

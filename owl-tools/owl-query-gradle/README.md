@@ -1,26 +1,27 @@
-# OWL Reason
+# OWL Query
 
-[ ![Download](https://api.bintray.com/packages/opencaesar/owl-tools/owl-reason/images/download.svg) ](https://bintray.com/opencaesar/owl-tools/owl-reason/_latestVersion)
+[ ![Download](https://api.bintray.com/packages/opencaesar/owl-tools/owl-query-gradle/images/download.svg) ](https://bintray.com/opencaesar/owl-tools/owl-query-gradle/_latestVersion)
 
-A tool to analyze an OWL dataset for satisfiability and consistency with an OWL2-DL reasoner
+A Gradle task to execute a query on a given SPARQL endpoint. 
 
-## Run as CLI
+## Run as Gradle Task
 
-MacOS/Linux:
 ```
-    cd owl-adapter
-    ./gradlew owl-reason:run --args="..."
-```
-Windows:
-```
-    cd owl-adapter
-    gradlew.bat owl-reason:run --args="..."
-```
-Args:
-```
---catalog path/to/owl/catalog.xml
---input-iri of-a-box-ontology-in-catalog
---spec 'output_iri=ALL_SUBCLASS'
---spec 'output_iri=INVERSE_PROPERTY ALL_SUBPROPERTY'
---spec 'output_iri=ALL_INSTANCE DATA_PROPERTY_VALUE OBJECT_PROPERTY_VALUE SAME_AS'
+buildscript {
+	repositories {
+		maven { url 'https://dl.bintray.com/opencaesar/owl-tools' }
+  		mavenCentral()
+		jcenter()
+	}
+	dependencies {
+		classpath 'io.opencaesar.owl:owl-query-gradle:+'
+	}
+}
+task owlQuery(type:io.opencaesar.owl.query.OwlQueryTask) {
+	endpointURL = 'url-of-sparql-endpoint' [Required]
+	queryPath = file('path/to/query.sparql') [Required]
+	resultPath = file('path/to/result.frame') [Required]
+    format = 'xml' [Optional, default is xml, other options: json, csv, n3, ttl, n-triple, or tsv]
+	debug = true [Optional]
+}               
 ```

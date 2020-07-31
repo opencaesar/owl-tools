@@ -1,5 +1,7 @@
 # OWL Query
 
+[ ![Download](https://api.bintray.com/packages/opencaesar/owl-tools/owl-query/images/download.svg) ](https://bintray.com/opencaesar/owl-tools/owl-query/_latestVersion)
+
 A tool to execute a query on a given SPARQL endpoint. 
 
 ## Run as CLI
@@ -16,10 +18,14 @@ Windows:
 ```
 Args:
 ```
---query, -q path/to/queries/query.sparql (Required)
---endpoint, -e http://fusekiURL/databaseName (Required)
---result, -r path/to/result (Required) (If the result file previously exists, it will be overwritten)
---format, -f xml (Optional; default value is xml)
-    - Can select xml, json, csv, n3, ttl, n-triple, or tsv
-    - Certain formats are supported based on query type     
+--endpoint-url or -e http://fusekiURL/databaseName [Required]
+--query-path or -q path/to/query.sparql [Required]
+--result-path or -r path/to/result.frame [Required]
+--format or -f xml [Optional; default value is xml]
+    - forats: xml, json, csv, n3, ttl, n-triple, or tsv
+    - Supported formats depend on the query type
+--debug or -d
+--help or -h
 ```
+
+## [Run as Gradle Task](../owl-query-gradle/README.md)

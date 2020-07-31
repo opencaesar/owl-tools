@@ -18,9 +18,18 @@ Windows:
 ```
 Args:
 ```
---catalog path/to/owl/catalog.xml
---input-iri of-a-box-ontology-in-catalog
---spec 'output_iri=ALL_SUBCLASS'
---spec 'output_iri=INVERSE_PROPERTY ALL_SUBPROPERTY'
---spec 'output_iri=ALL_INSTANCE DATA_PROPERTY_VALUE OBJECT_PROPERTY_VALUE SAME_AS'
+--catalog-path or -c path/to/owl/catalog.xml
+--input-iri or -i input-ontology-iri
+--spec or -s 'output-ontology-iri=ALL_SUBCLASS'
+--spec or -s 'output-ontology-iri=INVERSE_PROPERTY ALL_SUBPROPERTY'
+--spec or -s 'output-ontology-iri=ALL_INSTANCE DATA_PROPERTY_VALUE OBJECT_PROPERTY_VALUE SAME_AS'
+--format or -f RDFXML [Optional, default is RDFXML, other values include: TTL, RDF, XML, N3, NTriples]
+--remove-unsats or -ru [Optional]
+--remove-backbone or -rb [Optional]
+--backbone-iri or -b http://opencaesar.io/oml [Optional]
+--indent or -n 2 [Optional, default is 2]
+--debug or -d [Optional]
+--help or -h [Optional]
 ```
+
+## [Run as Gradle Task](../owl-reason-gradle/README.md)

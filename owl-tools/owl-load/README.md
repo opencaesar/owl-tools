@@ -1,6 +1,8 @@
 # OWL Load
 
-A tool to load RDF files into a Fuseki end point. 
+[ ![Download](https://api.bintray.com/packages/opencaesar/owl-tools/owl-load/images/download.svg) ](https://bintray.com/opencaesar/owl-tools/owl-load/_latestVersion)
+
+A tool to load OWL files to a SPARQL end point. 
 
 ## Run as CLI
 
@@ -16,14 +18,17 @@ Windows:
 ```
 Args:
 ```
---catalog path/to/owl/catalog.xml
---endpoint http://sparqlURL/dataset
-    The dataset must be created prior to execution
---file-extensions: comma,separated,file,extensions (Optional, default is owl)
-                 : alternatively, can input them as separate -f (Ex: -f owl -f ttl ...)                 
+--endpoint-url or -e http://sparqlURL/dataset [Required]
+--catalog-path or -c path/to/owl/catalog.xml [Required]
+--file-extensions or -f: comma,separated,file,extensions [Optional, default is owl]
+--debug or -d
+--help or -h           
 ```
+Note: The dataset (database) must have been created prior to execution
 
-# Running Apache Jena Fuseki Locally:
+## [Run as Gradle Task](../owl-load-gradle/README.md)
+
+# Running Apache Jena Fuseki
 [Download Fuseki](https://jena.apache.org/download/index.cgi)
 
 ## Method 1: Running a standalone server 

@@ -11,7 +11,7 @@ A set of OWL based analysis tools
 ```
       
 ## Build
-Requirements: java 8, node 8.x 
+Requirements: java 11
 ```
     cd owl-tools
     ./gradlew build
