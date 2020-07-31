@@ -18,12 +18,12 @@ Windows:
 ```
 Args:
 ```
---endpoint-url or -e http://fusekiURL/databaseName [Required]
---query-path or -q path/to/query.sparql [Required]
---result-path or -r path/to/result.frame [Required]
---format or -f xml [Optional; default value is xml]
-    - forats: xml, json, csv, n3, ttl, n-triple, or tsv
-    - Supported formats depend on the query type
+--endpoint-url | -e http://fusekiURL/databaseName [Required]
+--query-path | -q path/to/query.sparql [Required]
+--result-path | -r path/to/result.frame [Required]
+--format | -f xml [Optional; default value is xml]
+    (forats: xml, json, csv, n3, ttl, n-triple, or tsv)
+    (Supported formats depend on the query type)
 ```
 
 ## [Run as Gradle Task](../owl-query-gradle/README.md)

@@ -18,16 +18,16 @@ Windows:
 ```
 Args:
 ```
---catalog-path or -c path/to/owl/catalog.xml
---input-iri or -i input-ontology-iri
---spec or -s 'output-ontology-iri=ALL_SUBCLASS'
---spec or -s 'output-ontology-iri=INVERSE_PROPERTY ALL_SUBPROPERTY'
---spec or -s 'output-ontology-iri=ALL_INSTANCE DATA_PROPERTY_VALUE OBJECT_PROPERTY_VALUE SAME_AS'
---format or -f RDFXML [Optional, default is RDFXML, other values include: TTL, RDF, XML, N3, NTriples]
---remove-unsats or -ru [Optional]
---remove-backbone or -rb [Optional]
---backbone-iri or -b http://opencaesar.io/oml [Optional]
---indent or -n 2 [Optional, default is 2]
+--catalog-path | -c path/to/owl/catalog.xml
+--input-iri | -i input-ontology-iri
+--spec | -s 'output-ontology-iri=ALL_SUBCLASS'
+--spec | -s 'output-ontology-iri=INVERSE_PROPERTY ALL_SUBPROPERTY'
+--spec | -s 'output-ontology-iri=ALL_INSTANCE DATA_PROPERTY_VALUE OBJECT_PROPERTY_VALUE SAME_AS'
+--format | -f RDFXML [Optional, default is RDFXML, other values include: TTL, RDF, XML, N3, NTriples]
+--remove-unsats | -ru [Optional]
+--remove-backbone | -rb [Optional]
+--backbone-iri | -b http://opencaesar.io/oml [Optional]
+--indent | -n 2 [Optional, default is 2]
 ```
 
 ## [Run as Gradle Task](../owl-reason-gradle/README.md)

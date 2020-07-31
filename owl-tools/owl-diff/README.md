@@ -18,7 +18,7 @@ Windows:
 ```
 Args:
 ```
---catalog1 or -c1 path/to/first/owl/catalog.xml [Required]
---catalog2 or -c2 path/to/second/owl/catalog.xml [Required]
---ignore or -i comma-separated-partial-iris-to-ignore [Optional]
+--catalog1 | -c1 path/to/first/owl/catalog.xml [Required]
+--catalog2 | -c2 path/to/second/owl/catalog.xml [Required]
+--ignore | -i comma-separated-partial-iris-to-ignore [Optional]
 ```
