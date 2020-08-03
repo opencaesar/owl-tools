@@ -120,9 +120,9 @@ public class OwlLoadApp {
 		final Collection<File> files = collectOwlFiles(folder, fileExtensions);
 		
 		// Load the files into the dataset in parallel
-		String relativeDirectory = catalogFile.getParent().replaceAll("\\\\", "/");
+		String relativeDirectory = catalogFile.getParent().replaceAll("\\\\", File.separator);
 		if (relativeDirectory.length() > 0) {
-			relativeDirectory = relativeDirectory.concat("/");
+			relativeDirectory = relativeDirectory.concat(File.separator);
 		}
 		
 		ArrayList<Thread> threads = new ArrayList<Thread>(); 

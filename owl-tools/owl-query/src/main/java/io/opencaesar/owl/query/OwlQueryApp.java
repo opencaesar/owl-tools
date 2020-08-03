@@ -146,7 +146,7 @@ public class OwlQueryApp {
 		// Execute queries on the endpoint
 		try (RDFConnection conn = builder.build()) {
 			String outputName = getFileName(queryFile);
-			File output = new File(resultPath + "/" + outputName + ".frame");
+			File output = new File(resultPath + File.separator + outputName + ".frame");
 			if (output.exists()) {
 				output.delete(); 
 			}
@@ -190,7 +190,7 @@ public class OwlQueryApp {
 			//Close the writer 
 			res.close(); 
 			conn.close(); 
-			LOGGER.info("Result saved at: " + resultPath + "/" + outputName + ".frame");
+			LOGGER.info("Result saved at: " + resultPath + File.separator + outputName + ".frame");
 		} catch (IOException e) {
 			LOGGER.info("Failed to create open file"); 
 			e.printStackTrace(); 
