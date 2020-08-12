@@ -19,13 +19,13 @@ buildscript {
 }
 task owlReason(type:io.opencaesar.owl.reason.OwlReasonTask) {
 	catalogPath = file('path/to/owl/catalog.xml') [Required]
-	inputOntologyIris = ['input-ontology-iri'] [Required]
+	inputOntologyIri = 'iri' [Required]
 	specs = [
 		'output-ontology-iri=ALL_SUBCLASS',
 		'output-ontology-iri=INVERSE_PROPERTY ALL_SUBPROPERTY',
 		'output-ontology-iri=ALL_INSTANCE DATA_PROPERTY_VALUE OBJECT_PROPERTY_VALUE SAME_AS'
 	] [Required]
-	format = TTL [Optional]
+	format = 'ttl' [Optional, default is ttl, other options: rdf, owl, nt, n3]
 	removeUnsats = true [Optional]
 	removeBackbone = true [Optional]
 	backboneIri = 'http://opencaesar.io/oml' [Optional]

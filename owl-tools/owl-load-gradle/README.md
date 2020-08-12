@@ -18,8 +18,8 @@ buildscript {
 	}
 }
 task owlLoad(type:io.opencaesar.owl.load.OwlLoadTask) {
-	endpointURL = 'url-of-sparql-endpoint' [Required]
 	catalogPath = file('path/to/catalog.xml') [Required]
+	endpointURL = 'url-of-sparql-endpoint' [Required]
     fileExtensions = ['owl', 'ttl'] [Optional, default is owl]
 }               
 ```

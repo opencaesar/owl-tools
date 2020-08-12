@@ -5,14 +5,17 @@ import java.util.List;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.TaskExecutionException;
 
 public class OwlReasonTask extends DefaultTask {
 
 	public String catalogPath;
 
-	public List<String> inputOntologyIris;
+	public String inputOntologyIri;
 
 	public List<String> specs;
+	
+	public String reportPath;
 
 	public String format;
 
@@ -33,17 +36,19 @@ public class OwlReasonTask extends DefaultTask {
 			args.add("-c");
 			args.add(catalogPath);
 		}
-		if (inputOntologyIris != null) {
-			inputOntologyIris.forEach((String iri) -> {
-				args.add("-i");
-				args.add(iri);
-			});
+		if (inputOntologyIri != null) {
+			args.add("-i");
+			args.add(inputOntologyIri);
 		}
 		if (specs != null) {
 			specs.forEach((String spec) -> {
 				args.add("-s");
 				args.add(spec);
 			});
+		}
+		if (reportPath != null) {
+			args.add("-r");
+			args.add(reportPath);
 		}
 		if (format != null) {
 			args.add("-f");
@@ -66,7 +71,11 @@ public class OwlReasonTask extends DefaultTask {
 		if (debug) {
 			args.add("-d");
 		}
-		OwlReasonApp.main(args.toArray(new String[args.size()]));
+		try {
+			OwlReasonApp.main(args.toArray(new String[args.size()]));
+		} catch (Exception e) {
+			throw new TaskExecutionException(this, e);
+		}
 	}
 
 }

@@ -21,7 +21,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.PrintStream;
 import java.net.URI;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -70,9 +69,9 @@ import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.model.parameters.Imports;
 import org.semanticweb.owlapi.util.SimpleRenderer;
+import org.w3c.dom.CDATASection;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Text;
 
 import com.beust.jcommander.IParameterValidator;
 import com.beust.jcommander.IStringConverter;
@@ -99,84 +98,93 @@ public class OwlReasonApp {
 	private class Options {
 		@Parameter(
 			names = { "--catalog-path", "-c"},
-			description = "path to the OWL catalog file (Required)",
+			description = "path to the input OWL catalog (Required)",
 			validateWith = CatalogPath.class,
 			required = true,
 			order = 1)
 		String catalogPath;
 		
 		@Parameter(
-			names = { "--input-iri", "-i"},
-			description = "iri of input ontology (Required)",
+			names = { "--input-ontology-iri", "-i"},
+			description = "iri of input OWL ontology (Required)",
 			required = true,
 			order = 2)
-		List<String> inputOntologyIris;
+		String inputOntologyIri;
 
 		@Parameter(
 			names = {"--spec", "-s"},
-			description = "output-iri-postfix=Types where Types is a list of comma-separated entailment statementTypes",
+			description = "output-ontology-iri= list of entailment statement types separarted by | (Required)",
 			converter = SpecConverter.class,
-			required = false,
+			required = true,
 			order = 3)
 		List<Spec> specs = new ArrayList<Spec>();
 		
+		@Parameter(
+			names = {"--report-path", "-r"},
+			description = "path to a report file in Junit XML format ",
+			validateWith = ReportPathValidator.class,
+			required = true,
+			order = 4)
+		String reportPath;
+
 		@Parameter(
 			names = {"--format", "-f"},
 			description = "output ontology format",
 			converter = LanguageConverter.class,
 			required = false,
-			order = 4)
-		Lang language = RDFLanguages.TURTLE;
+			order = 5)
+		String format = "ttl";
 		
 		@Parameter(
 			names = {"--remove-unsats", "-ru"},
 			description = "remove entailments due to unsatisfiability",
 			required = false,
-			order = 5)
+			order = 6)
 		boolean removeUnsats = true;
 		
 		@Parameter(
 			names = {"--remove-backbone", "-rb"},
 			description = "remove axioms on the backhone from entailments",
 			required = false,
-			order = 6)
+			order = 7)
 		boolean removeBackbone = true;
 
 		@Parameter(
 			names = {"--backbone-iri", "-b"},
 			description = "iri of backbone ontology",
 			required = false,
-			order = 7)
+			order = 8)
 		String backboneIri = "http://opencaesar.io/oml";
 				
 		@Parameter(
 			names = {"--indent", "-n"},
 			description = "indent of the JUnit XML elements",
 			required = false,
-			order = 8)
+			order = 9)
 		int indent = 2;
 
 		@Parameter(
 			names = {"--debug", "-d"},
 			description = "Shows debug logging statements",
-			order = 9)
+			order = 10)
 		private boolean debug;
 
 		@Parameter(
 			names = {"--help", "-h"},
 			description = "Displays summary of options",
 			help = true,
-			order =10)
+			order =11)
 		private boolean help;
 	}
 		
 	private static class Spec {
-		String iri;
+		String outputOntologyIri;
 		EnumSet<StatementType> statementTypes;
 	}
 
 	private static class Result {
-		public boolean success;
+		public String name;
+		public String message;
 		public String explanation;
 	}
 
@@ -185,7 +193,7 @@ public class OwlReasonApp {
         DOMConfigurator.configure(ClassLoader.getSystemClassLoader().getResource("log4j.xml"));
 	}
 
-	public static void main(final String... args) {
+	public static void main(final String... args) throws Exception {
 		final OwlReasonApp app = new OwlReasonApp();
 		final JCommander builder = JCommander.newBuilder().addObject(app.options).build();
 		builder.parse(args);
@@ -197,11 +205,7 @@ public class OwlReasonApp {
 			final Appender appender = LogManager.getRootLogger().getAppender("stdout");
 			((AppenderSkeleton) appender).setThreshold(Level.DEBUG);
 		}
-	    try {
-			app.run(args);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		app.run(args);
 	}
 
 	public void run(final String... args) throws Exception {
@@ -229,12 +233,10 @@ public class OwlReasonApp {
 
 	    FunctionalSyntaxDocumentFormat functionalSyntaxFormat = new FunctionalSyntaxDocumentFormat();
 
-	    // Check the input ontologies
-	    for (String inputOntologyIri : options.inputOntologyIris) {
-	    	check(manager, reasonerFactory, functionalSyntaxFormat, inputOntologyIri);
-	    }
-	    
-	    LOGGER.info("=================================================================");
+	    // Check the input ontology
+    	check(manager, reasonerFactory, functionalSyntaxFormat, options.inputOntologyIri);
+
+    	LOGGER.info("=================================================================");
 		LOGGER.info("                          E N D");
 		LOGGER.info("=================================================================");
 	}
@@ -268,18 +270,6 @@ public class OwlReasonApp {
 	    final SimpleRenderer renderer = new SimpleRenderer();
 		renderer.setPrefixesFromOntologyFormat(inputOntology, false);
 	  
-	    // Check for consistency and satisfiability, save results.
-		
-		Map<String, Map<String, Result>> allResults = new HashMap<String, Map<String, Result>>();
-		allResults.put(CONSISTENCY, checkConsistency(inputOntologyIri, reasoner, explanation, functionalSyntaxFormat));
-		allResults.put(SATISFIABILITY, checkSatisfiability(inputOntologyIri, reasoner, explanation, renderer, functionalSyntaxFormat));
-		
-	    writeResults(allResults, System.out, options.indent);
-	    if (allResults.get(CONSISTENCY).get(inputOntologyIri) == null) {
-	      LOGGER.warn("stopping the analysis of "+inputOntologyIri+" due to inconsistency");
-	      System.exit(1);
-	    }
-
 	    // Create knowledge base.
 
 	    LOGGER.info("create knowledge base and extractor");
@@ -287,40 +277,66 @@ public class OwlReasonApp {
 	    if (kb == null) {
 	    	throw new RuntimeException("couldn't get knowledge base");
 	    }
+
+	    // Check for consistency and satisfiability
+		
+		Map<String, List<Result>> allResults = new HashMap<String, List<Result>>();
+		allResults.put(CONSISTENCY, checkConsistency(inputOntologyIri, reasoner, explanation, functionalSyntaxFormat));
+		boolean isConsistent = allResults.get(CONSISTENCY).isEmpty();
+		boolean isSatisfiable = false;
+		if (isConsistent) {
+	    	allResults.put(SATISFIABILITY, checkSatisfiability(inputOntologyIri, reasoner, explanation, renderer, functionalSyntaxFormat));
+	    	isSatisfiable = !allResults.get(SATISFIABILITY).stream().filter(r -> r.explanation != null).findFirst().isPresent();
+	    }
+		writeResults(inputOntologyIri, allResults, options.indent);
+	    
+		// Check Results
+		
+		if (!isConsistent) {
+			LOGGER.error("check file "+options.reportPath+" for more details.");
+			throw new ReasoningException("ontology "+inputOntologyIri+" is inconsistent");
+	    }
+		if (!isSatisfiable) {
+			LOGGER.error("check file "+options.reportPath+" for more details.");
+			throw new ReasoningException("ntology "+inputOntologyIri+" is insatisfiable");
+	    }
 	    
 	    // Iterate over specs and extract entailments.
 
 	    for (Spec spec: options.specs) {
-	      String outputOntologyIri = spec.iri;
+	      String outputOntologyIri = spec.outputOntologyIri;
 	      EnumSet<StatementType> statementTypes = spec.statementTypes;
 	      extractAndSaveEntailments(kb, inputOntologyIri, outputOntologyIri, statementTypes, manager);
 	    }
 	}
 
-	private Map<String, Result> checkConsistency(String ontologyIri, OpenlletReasoner reasoner, PelletExplanation explanation, FunctionalSyntaxDocumentFormat functionalSyntaxFormat) throws Exception {
+	private List<Result> checkConsistency(String ontologyIri, OpenlletReasoner reasoner, PelletExplanation explanation, FunctionalSyntaxDocumentFormat functionalSyntaxFormat) throws Exception {
     	LOGGER.info("test consistency on "+ontologyIri);
-    	Map<String, Result> results = new HashMap<String, Result>();
+    	List<Result> results = new ArrayList<Result>();
 
-    	Result result = new Result();
-	    results.put(ontologyIri, result);
-	    	      
-		result.success = reasoner.isConsistent();
-    	LOGGER.info((result.success ? "" : "in") + "consistent");
+		boolean success = reasoner.isConsistent();
+    	if (success) {
+    		LOGGER.info("ontology "+ontologyIri+" is consistent");
+    	} else {
+    		LOGGER.error("ontology "+ontologyIri+" is inconsistent");
+    	}
     	
-        if (!result.success) {
-			OWLClass owl_Thing = OWLManager.getOWLDataFactory().getOWLThing();
-			if (owl_Thing == null) {
-				throw new RuntimeException("couldn't create OWL:Thing");
-			}
-    		result.explanation = explainClass(owl_Thing, explanation, functionalSyntaxFormat);
+        if (!success) {
+        	//TODO: consider using explanation.getInconsistencyExplanations()
+        	Set<OWLAxiom> axioms = explanation.getInconsistencyExplanation();
+        	Result result = new Result();
+        	result.name = ontologyIri;
+        	result.message = reasoner.getKB().getExplanation();
+        	result.explanation = createExplanationOntology(axioms, functionalSyntaxFormat);
+    	    results.add(result);
         }
     
 	    return results;
 	}
 
-	private Map<String, Result> checkSatisfiability(String ontologyIri, OpenlletReasoner reasoner, PelletExplanation explanation, SimpleRenderer renderer, FunctionalSyntaxDocumentFormat functionalSyntaxFormat) throws Exception {
+	private List<Result> checkSatisfiability(String ontologyIri, OpenlletReasoner reasoner, PelletExplanation explanation, SimpleRenderer renderer, FunctionalSyntaxDocumentFormat functionalSyntaxFormat) throws Exception {
     	LOGGER.info("test satisfiability on "+ontologyIri);
-    	Map<String, Result> results = new HashMap<String, Result>();
+    	List<Result> results = new ArrayList<Result>();
     	
 		Set<OWLClass> allClasses = reasoner.getRootOntology().classesInSignature(Imports.INCLUDED).collect(Collectors.toSet());
 		if (allClasses == null) {
@@ -333,34 +349,36 @@ public class OwlReasonApp {
     	int count = 0;
     	int numOfUnsat = 0;
     	for (OWLClass klass : allClasses) {
-    	    String className = renderer.render(klass);
+    		if (options.removeBackbone && klass.getIRI().getIRIString().startsWith(options.backboneIri))
+    			continue;
+    		
+    		String className = renderer.render(klass);
     	    LOGGER.info(className+" "+ ++count+" of "+numOfClasses);
 
-    	    String caseName = ontologyIri+" "+className;
+    	    boolean success = reasoner.isSatisfiable(klass);
+    	    LOGGER.info("class "+className+" is "+(success?"":"un")+"satisfiable");
+
     	    Result result = new Result();
-    	    results.put(caseName, result);
-
-    	    result.success = reasoner.isSatisfiable(klass);
-    	    LOGGER.info(caseName+" "+(result.success?"":"un")+"satisfiable");
-
-    	    if (!result.success) {
+    	    results.add(result);
+    	    result.name = className;
+    	    
+    	    if (!success) {
+    	    	result.message = "class "+className+" is insatisfiable";
+    	    	result.explanation = createExplanationOntology(explanation.getUnsatisfiableExplanation(klass), functionalSyntaxFormat);
     	    	numOfUnsat += 1;
-    	    	result.explanation = explainClass(klass, explanation, functionalSyntaxFormat);
     	    }
     	}
-    	LOGGER.info(numOfUnsat+" unsatisfiable classes");
+    	if (numOfUnsat > 0) {
+    		LOGGER.error("ontology "+ontologyIri+" has "+numOfUnsat+" insatisfiabilities");
+    	}
 
     	return results;
 	}
 
-	private String explainClass(OWLClass klass, PelletExplanation explanation, FunctionalSyntaxDocumentFormat format) throws Exception {
+	private String createExplanationOntology(Set<OWLAxiom> axioms, FunctionalSyntaxDocumentFormat format) throws Exception {
 	    OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
 	    if (manager == null ) {
 	    	throw new RuntimeException("couldn't create owl ontology manager");
-	    }
-	    Set<OWLAxiom> axioms = explanation.getUnsatisfiableExplanation(klass);
-	    if (axioms == null) {
-	    	throw new RuntimeException("couldn't get explanation for "+klass);
 	    }
 	    OWLOntology ontology = manager.createOntology(axioms);
 	    if (ontology == null) {
@@ -371,27 +389,29 @@ public class OwlReasonApp {
 	    return target.toString();
 	}
 
-	private void writeResults(Map<String, Map<String, Result>> allResults, PrintStream io, int indent) throws Exception {
+	private void writeResults(String ontologyIri, Map<String, List<Result>> allResults, int indent) throws Exception {
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db = dbf.newDocumentBuilder();
 	    Document doc = db.newDocument();
 		Element tss = doc.createElement("testsuites");
+		tss.setAttribute("name", ontologyIri);
 		doc.appendChild(tss);
 		
 		allResults.forEach((test, results) -> {
 	    	Element ts = doc.createElement("testsuite");
 	      	ts.setAttribute("name", test);
 			tss.appendChild(ts);
-			results.forEach((id, result) -> {
+			results.forEach(result -> {
 		    	Element tc = doc.createElement("testcase");
-		        tc.setAttribute("name", id);
+		        tc.setAttribute("name", result.name);
 		    	ts.appendChild(tc);
-		        if (!result.success) {
+		        if (result.explanation != null) {
 		        	Element fl = doc.createElement("failure");
 		        	tc.appendChild(fl);
+		        	fl.setAttribute("message", result.message);
 	      	        String exp = result.explanation;
-	      	        Text tn = doc.createTextNode(exp);
-		    		fl.appendChild(tn);
+		        	CDATASection cdoc = doc.createCDATASection("\n"+exp+"\n");
+		    		fl.appendChild(cdoc);
 	  	        }
 	    	});
 	    });
@@ -400,8 +420,14 @@ public class OwlReasonApp {
         transformer.setOutputProperty(OutputKeys.INDENT, "yes");
         transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", ""+indent);
         DOMSource source = new DOMSource(doc);
-        StreamResult console = new StreamResult(io);
-        transformer.transform(source, console);
+        File reportFile = new File(options.reportPath);
+        FileOutputStream stream = new FileOutputStream(reportFile);
+        try {
+	        StreamResult console = new StreamResult(stream);
+	        transformer.transform(source, console);
+        } finally {
+        	stream.close();
+        }
 	}
 	
 	private void extractAndSaveEntailments(KnowledgeBase kb, String inputOntologyIri, String outputOntologyIri, EnumSet<StatementType> statementTypes, OWLOntologyManager manager) throws Exception {
@@ -443,7 +469,7 @@ public class OwlReasonApp {
 		// Create an empty OWLAPI Ontology to get the ontology document IRI
 
 		LOGGER.info("get output filename from location mapping");
-		OWLOntology empty = manager.createOntology(IRI.create(outputOntologyIri+"."+options.language.getFileExtensions().get(0)));
+		OWLOntology empty = manager.createOntology(IRI.create(outputOntologyIri+"."+options.format));
 		String filename = URI.create(manager.getOntologyDocumentIRI(empty).toString()).getPath();
 		manager.removeOntology(empty);
 		  
@@ -457,7 +483,7 @@ public class OwlReasonApp {
 		// Serialize Jena ontology model to output stream.
 		  
 		LOGGER.info("serialize "+entailments.size()+" entailments to "+filename);
-		model.write(outputFileStream, options.language.getName());
+		model.write(outputFileStream, RDFLanguages.fileExtToLang(options.format).getName());
 		LOGGER.info("finished serializing "+filename);
 	}
 	
@@ -545,9 +571,10 @@ public class OwlReasonApp {
 		public Spec convert(String value) {
 			String[] s = value.split("=");
 			Spec spec = new Spec();
-			spec.iri = s[0];
+			spec.outputOntologyIri = s[0].trim();
 			spec.statementTypes = EnumSet.noneOf(StatementType.class);
-			for (String type : s[1].split(" ")) {
+			for (String type : s[1].trim().split("\\|")) {
+				type = type.trim();
 				StatementType st = StatementType.valueOf(type);
 		        if (st != null) {
 		        	spec.statementTypes.add(st);
@@ -560,12 +587,33 @@ public class OwlReasonApp {
 		
 	}
 
-	public static class LanguageConverter implements IStringConverter<Lang> {
+	public static class LanguageConverter implements IStringConverter<String> {
 		@Override
-		public Lang convert(String value) {
-			Lang lang = RDFLanguages.filenameToLang(value);
-			return (lang != null) ? lang : RDFLanguages.TURTLE;
+		public String convert(String value) {
+			Lang lang = RDFLanguages.fileExtToLang(value);
+			return (lang != null) ? value : "ttl";
 		}
 		
+	}
+	
+	public static class ReportPathValidator implements IParameterValidator {
+		@Override
+		public void validate(final String name, final String value) throws ParameterException {
+			File file = new File(value);
+			if (!file.getName().endsWith(".xml")) {
+				throw new ParameterException("Parameter " + name + " should be a valid XML path");
+			}
+			File parentFile = file.getParentFile();
+			if (parentFile != null && !parentFile.exists()) {
+				parentFile.mkdirs();
+			}
+	  	}
+	}
+	
+	@SuppressWarnings("serial")
+	private class ReasoningException extends Exception {
+		public ReasoningException(String s) {
+			super(s);
+		}
 	}
 }

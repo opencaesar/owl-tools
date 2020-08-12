@@ -18,8 +18,8 @@ gradlew.bat owl-load:run --args="..."
 ```
 Args:
 ```
---endpoint-url | -e http://sparqlURL/dataset [Required]
 --catalog-path | -c path/to/owl/catalog.xml [Required]
+--endpoint-url | -e http://sparqlURL/dataset [Required]
 --file-extensions | -f: comma,separated,file,extensions [Optional, default is owl]
 ```
 Note: The dataset (database) must have been created prior to execution

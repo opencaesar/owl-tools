@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.TaskExecutionException;
 
 public class OwlLoadTask extends DefaultTask {
 
@@ -36,6 +37,10 @@ public class OwlLoadTask extends DefaultTask {
 		if (debug) {
 			args.add("-d");
 		}
-		OwlLoadApp.main(args.toArray(new String[args.size()]));
+		try {
+			OwlLoadApp.main(args.toArray(new String[args.size()]));
+		} catch (Exception e) {
+			throw new TaskExecutionException(this, e);
+		}
     }
 }

@@ -19,11 +19,11 @@ gradlew.bat owl-reason:run --args="..."
 Args:
 ```
 --catalog-path | -c path/to/owl/catalog.xml
---input-iri | -i input-ontology-iri
+--input-ontology-iri | -i iri
 --spec | -s 'output-ontology-iri=ALL_SUBCLASS'
---spec | -s 'output-ontology-iri=INVERSE_PROPERTY ALL_SUBPROPERTY'
---spec | -s 'output-ontology-iri=ALL_INSTANCE DATA_PROPERTY_VALUE OBJECT_PROPERTY_VALUE SAME_AS'
---format | -f RDFXML [Optional, default is RDFXML, other values include: TTL, RDF, XML, N3, NTriples]
+--spec | -s 'output-ontology-iri=INVERSE_PROPERTY | ALL_SUBPROPERTY'
+--spec | -s 'output-ontology-iri=ALL_INSTANCE | DATA_PROPERTY_VALUE | OBJECT_PROPERTY_VALUE | SAME_AS'
+--format | -f ttl [Optional, default is ttl, other options: rdf, owl, nt, n3]
 --remove-unsats | -ru [Optional]
 --remove-backbone | -rb [Optional]
 --backbone-iri | -b http://opencaesar.io/oml [Optional]

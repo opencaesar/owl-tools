@@ -96,7 +96,7 @@ public class OwlQueryApp {
         DOMConfigurator.configure(ClassLoader.getSystemClassLoader().getResource("log4j.xml"));
 	}
 
-	public static void main(final String... args) {
+	public static void main(final String... args) throws Exception {
 		final OwlQueryApp app = new OwlQueryApp();
 		final JCommander builder = JCommander.newBuilder().addObject(app).build();
 		builder.parse(args);
@@ -108,11 +108,7 @@ public class OwlQueryApp {
 			final Appender appender = LogManager.getRootLogger().getAppender("stdout");
 			((AppenderSkeleton) appender).setThreshold(Level.DEBUG);
 		}
-	    try {
-			app.run();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		app.run();
 	}
 
 	private void run() throws Exception {

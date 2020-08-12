@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.TaskExecutionException;
 
 public class OwlQueryTask extends DefaultTask {
 
@@ -39,6 +40,10 @@ public class OwlQueryTask extends DefaultTask {
 		if (debug) {
 			args.add("-d");
 		}
-		OwlQueryApp.main(args.toArray(new String[args.size()]));
+		try {
+			OwlQueryApp.main(args.toArray(new String[args.size()]));
+		} catch (Exception e) {
+			throw new TaskExecutionException(this, e);
+		}
     }
 }
