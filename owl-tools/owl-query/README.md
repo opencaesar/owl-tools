@@ -20,6 +20,7 @@ Args:
 ```
 --endpoint-url | -e http://fusekiURL/databaseName [Required]
 --query-path | -q path/to/query.sparql [Required]
+    (Accepts either a .sparql file or a directory that will be searched for .sparql files)
 --result-path | -r path/to/result.frame [Required]
 --format | -f xml [Optional; default value is xml]
     (forats: xml, json, csv, n3, ttl, n-triple, or tsv)

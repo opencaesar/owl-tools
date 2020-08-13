@@ -21,7 +21,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import org.apache.jena.ext.com.google.common.io.CharStreams;
@@ -57,7 +59,8 @@ public class OwlQueryApp {
 	
 	@Parameter(
 		names = {"--query-path", "-q"},
-		description = "Path to the .sparql query file (Required)",
+		description = "Path to the .sparql query file or directory (Required)",
+		validateWith = QueryPath.class,
 		required = true,
 		order = 2)
 	private String queryPath;
@@ -121,18 +124,70 @@ public class OwlQueryApp {
 		LOGGER.info("Result location: " + resultPath);
 		LOGGER.info("Format Type: " + format);
 		
-		// Create query from the given file 
 		final File queryFile = new File(queryPath);
-		String fileName = queryFile.getName();
-		Query query = QueryFactory.create(); 
-		try {
-			query = QueryFactory.read(queryFile.toURI().getPath());
-		} catch (QueryException e) {
-			String errorMsg = "File: " + fileName + " . Error with parsing this file's query. ";
-			LOGGER.error(errorMsg, e);
+		
+		// Collect the queries (single file and directory handled the same way) 
+		// Key = fileName value = query
+		HashMap<String, Query> queries = getQueries(queryFile);
+		// Check for any issues 
+		if (queries == null) {
 			System.exit(1);
 		}
+		// Check for no given sparql files in a directory
+		if (queries.size() == 0) {
+			LOGGER.error("Warning: no .sparql files were found in the given directory.");
+			System.exit(10);
+		}
 		
+		// Execute the queries in parallel 
+		ArrayList<Thread> threads = new ArrayList<Thread>();
+		queries.forEach((name, query) -> {
+			// For every query, execute it in parallel 
+			Thread thread = new Thread(new Runnable() {
+				public void run() {
+					executeQuery(name, query);
+				}
+			});
+			threads.add(thread); 
+			thread.start();
+		});
+		threads.forEach(it -> {
+			try {
+				it.join();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		});
+		
+	    LOGGER.info("=================================================================");
+		LOGGER.info("                          E N D");
+		LOGGER.info("=================================================================");
+	}
+	
+	/**
+	 * Get application version id from properties file.
+	 * 
+	 * @return version string from build.properties or UNKNOWN
+	 */
+	private String getAppVersion() {
+		String version = "UNKNOWN";
+		try {
+			InputStream input = Thread.currentThread().getContextClassLoader().getResourceAsStream("version.txt");
+			InputStreamReader reader = new InputStreamReader(input);
+			version = CharStreams.toString(reader);
+		} catch (IOException e) {
+			String errorMsg = "Could not read version.txt file." + e;
+			LOGGER.error(errorMsg, e);
+		}
+		return version;
+	}
+	
+	/**
+	 * Executes a given query and outputs the result to result/outputName.frame
+	 * @param outputName name of the output file 
+	 * @param query query to be executed
+	 */
+	private void executeQuery (String outputName, Query query) {
 		// Create remote connection to query endpoint
 		RDFConnectionRemoteBuilder builder = RDFConnectionFuseki.create()
 				.updateEndpoint("update")
@@ -141,7 +196,6 @@ public class OwlQueryApp {
 		
 		// Execute queries on the endpoint
 		try (RDFConnection conn = builder.build()) {
-			String outputName = getFileName(queryFile);
 			File output = new File(resultPath + File.separator + outputName + ".frame");
 			if (output.exists()) {
 				output.delete(); 
@@ -171,10 +225,43 @@ public class OwlQueryApp {
 					break; 
 				case SELECT:
 					LOGGER.info("Query Type: Select");
-					ResultsFormat selectFmt = getSelectType(format);
-					conn.queryResultSet(query, (resultSet)-> {
-						ResultSetFormatter.output(res, resultSet, selectFmt);
-					});
+					// Certain formats call the function directly for better better formatting 
+					// EX: Calling the xml function directly gives W3 standard format
+					switch (format.toLowerCase()) {
+						case "xml":
+							conn.queryResultSet(query, (resultSet)-> {
+								ResultSetFormatter.outputAsXML(res, resultSet);
+							});
+							break;
+						case "tsv":
+							conn.queryResultSet(query, (resultSet)-> {
+								ResultSetFormatter.outputAsTSV(res, resultSet);
+							});
+							break;	
+						case "csv":
+							conn.queryResultSet(query, (resultSet)-> {
+								ResultSetFormatter.outputAsCSV(res, resultSet);
+							});
+							break;	
+						case "json":
+							conn.queryResultSet(query, (resultSet)-> {
+								ResultSetFormatter.outputAsJSON(res, resultSet);
+							});
+							break;	 
+						case "n-triple": 
+							conn.queryResultSet(query, (resultSet)-> {
+								ResultSetFormatter.output(res, resultSet, ResultsFormat.FMT_RDF_NT);
+							});
+							break;
+						case "ttl":
+							conn.queryResultSet(query, (resultSet)-> {
+								ResultSetFormatter.output(res, resultSet, ResultsFormat.FMT_RDF_TURTLE);
+							});
+							break;
+						default:
+							LOGGER.error(format + " is not a valid output format for select queries. Please use one of the listed formats: xml, ttl, csv, json, tsv");
+							System.exit(1);
+					}
 					break; 
 				case UNKNOWN:
 					LOGGER.info("Unknown query. Please reformat");
@@ -191,28 +278,6 @@ public class OwlQueryApp {
 			LOGGER.info("Failed to create open file"); 
 			e.printStackTrace(); 
 		}
-		
-	    LOGGER.info("=================================================================");
-		LOGGER.info("                          E N D");
-		LOGGER.info("=================================================================");
-	}
-	
-	/**
-	 * Get application version id from properties file.
-	 * 
-	 * @return version string from build.properties or UNKNOWN
-	 */
-	private String getAppVersion() {
-		String version = "UNKNOWN";
-		try {
-			InputStream input = Thread.currentThread().getContextClassLoader().getResourceAsStream("version.txt");
-			InputStreamReader reader = new InputStreamReader(input);
-			version = CharStreams.toString(reader);
-		} catch (IOException e) {
-			String errorMsg = "Could not read version.txt file." + e;
-			LOGGER.error(errorMsg, e);
-		}
-		return version;
 	}
 
 	//Modified from owl-diff
@@ -220,6 +285,63 @@ public class OwlQueryApp {
         String fileName = file.getName();
         if (fileName.lastIndexOf(".") != -1)
         	return fileName.substring(0, fileName.lastIndexOf("."));
+        else 
+        	return "";
+	}
+	
+	private HashMap<String, Query> getQueries(final File file) {
+		if (file.isFile()) {
+			//Edited to accept any of the given file extensions 
+			if (getFileExtension(file).equals("sparql")) {
+				//Read query from file and add it to collection 
+				try {
+					HashMap<String, Query> queries = new HashMap<String, Query>();
+					queries.put(getFileName(file), QueryFactory.read(file.toURI().getPath()));
+					return queries;
+				} catch (QueryException e) {
+					String errorMsg = "File: " + file.getName() + " . Error with parsing this file's query: " + e;
+					LOGGER.error(errorMsg, e);
+					return null; 
+				}
+			} else {
+				LOGGER.error("Please give an input query of type .sparql");
+				return null;
+			}
+		} else if (file.isDirectory()) {
+			return collectQueries(file);
+		} else {
+			//Neither file nor directory? 
+			LOGGER.error("Given input is not valid (not a file nor directory");
+			return null;
+		}
+	}
+	
+	// Helper to getQueries: Given a File directory, return an HashMap of <FileName, Query> pairs
+	private HashMap<String, Query> collectQueries(final File directory) {
+		HashMap<String, Query> queries = new HashMap<String, Query>();
+		for (File file : directory.listFiles()) {
+			if (file.isFile()) {
+				//Edited to accept any of the given file extensions 
+				if (getFileExtension(file).equals("sparql")) {
+					//Read query from file and add it to collection 
+					try {
+						queries.put(getFileName(file), QueryFactory.read(file.toURI().getPath()));
+					} catch (QueryException e) {
+						String errorMsg = "File: " + file.getName() + " . Error with parsing this file's query: " + e;
+						LOGGER.error(errorMsg, e);
+					}
+				}
+			} else if (file.isDirectory()) {
+				queries.putAll(collectQueries(file));
+			}
+		}
+		return queries;
+	}
+	
+	public String getFileExtension(final File file) {
+        String fileName = file.getName();
+        if (fileName.lastIndexOf(".") != -1)
+        	return fileName.substring(fileName.lastIndexOf(".")+1);
         else 
         	return "";
 	}
@@ -242,31 +364,10 @@ public class OwlQueryApp {
 				return "NULL";
 		}
 	}
-	
-	//Get proper conversion for format for select queries 
-	private ResultsFormat getSelectType (String formatType) {
-		switch (formatType.toLowerCase()) {
-			case "xml":
-				return ResultsFormat.FMT_RDF_XML; 
-			case "n-triple": 
-				return ResultsFormat.FMT_RDF_NT;
-			case "ttl":
-				return ResultsFormat.FMT_RDF_TURTLE;
-			case "csv":
-				return ResultsFormat.FMT_RS_CSV;
-			case "json":
-				return ResultsFormat.FMT_RS_JSON; 
-			case "tsv":
-				return ResultsFormat.FMT_RS_TSV;
-			default:
-				LOGGER.error(formatType + " is not a valid output format for select queries. Please use one of the listed formats: xml, ttl, csv, json, tsv");
-				System.exit(1);
-				return ResultsFormat.FMT_NONE;
-		}
-	}
 
 	//------------
 	
+
 	public static class FormatType implements IParameterValidator {
 		@Override
 		public void validate(final String name, final String value) throws ParameterException {
@@ -285,6 +386,17 @@ public class OwlQueryApp {
 				directory.mkdir();
 			}
 	  	}
+	}
+	
+	public static class QueryPath implements IParameterValidator {
+		@Override
+		public void validate(final String name, final String value) throws ParameterException {
+			File input = new File(value);
+			if (!input.exists()) {
+				throw new ParameterException("Paramter " + name + " does not exist at " + value
+						+ "\n Please give an existing input");
+			}
+		}
 	}
 
 }
