@@ -32,28 +32,28 @@ publishing {
     publications {
         mavenPublication(MavenPublication) {
             from components.java
-	            artifact sourcesJar {
-	                classifier "sources"
-	            }
-	            artifact javadocJar {
-	                classifier "javadoc"
-	            }
-            	afterEvaluate {
-					plugins.withType(ApplicationPlugin) {
-						artifact distZip
-						artifact distTar
-				    }
-	        	}
-	            groupId project.group
-	            artifactId project.name
-	            version project.version
-	            pom.withXml {
-	                def root = asNode()
-	                root.appendNode('description', project.description)
-	                root.appendNode('name', project.ext.title)
-	                root.appendNode('url', gh.dep+'/'+gh.org+'/'+gh.rep)
-	                root.children().last() + pomConfig
-	            }
+            artifact sourcesJar {
+                classifier "sources"
+            }
+            artifact javadocJar {
+                classifier "javadoc"
+            }
+        	afterEvaluate {
+				plugins.withType(ApplicationPlugin) {
+					artifact distZip
+					artifact distTar
+			    }
+        	}
+            groupId project.group
+            artifactId project.name
+            version project.version
+            pom.withXml {
+                def root = asNode()
+                root.appendNode('description', project.description)
+                root.appendNode('name', project.ext.title)
+                root.appendNode('url', gh.dep+'/'+gh.org+'/'+gh.rep)
+                root.children().last() + pomConfig
+            }
         }
     }
 }
