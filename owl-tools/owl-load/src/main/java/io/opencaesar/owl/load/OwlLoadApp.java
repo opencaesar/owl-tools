@@ -116,15 +116,8 @@ public class OwlLoadApp {
 		final Collection<File> files = collectOwlFiles(folder, fileExtensions);
 		
 		// Load the files into the dataset in parallel
-		String relativeDirectory = catalogFile.getParent().replaceAll("\\\\", File.separator);
-		if (relativeDirectory.length() > 0) {
-			relativeDirectory = relativeDirectory.concat(File.separator);
-		}
-		
 		ArrayList<Thread> threads = new ArrayList<Thread>(); 
 		for (File file: files) {
-			String relativePath = folder.toURI().relativize(file.toURI()).getPath();
-			String finalPath = relativeDirectory.concat(relativePath);
 			Thread thread = new Thread(new Runnable() {
 				public void run() {
 					//Create remote connection to Fuseki server
@@ -134,8 +127,11 @@ public class OwlLoadApp {
 							.destination(endpointURL);
 					RDFConnection conn = builder.build();
 					try {
-						conn.load(finalPath);
-					} finally {
+						conn.load(file.getPath());
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					finally {
 						conn.commit();
 						conn.close();
 						conn.end();
@@ -206,6 +202,9 @@ public class OwlLoadApp {
 		@Override
 		public void validate(final String name, final String value) throws ParameterException {
 			File file = new File(value);
+			if (!file.exists()) {
+				throw new ParameterException("Catalog not found, please give a valid catalog. Does not exist at: " + value); 
+			}
 			if (!file.getName().endsWith("catalog.xml")) {
 				throw new ParameterException("Parameter " + name + " should be a valid OWL catalog path");
 			}
