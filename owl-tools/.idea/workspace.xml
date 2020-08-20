@@ -227,7 +227,7 @@
       <workItem from="1597685470861" duration="804000" />
       <workItem from="1597938914724" duration="2283000" />
     </task>
-    <task id="LOCAL-00001" summary="owl-close-bundle renamed to owl-close-taxonomy">
+    <task id="LOCAL-00001" summary="owl-close-bundle renamed to owl-close-world">
       <created>1597939617000</created>
       <option name="number" value="00001" />
       <option name="presentableId" value="LOCAL-00001" />
@@ -241,8 +241,8 @@
     <option name="version" value="3" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="owl-close-bundle renamed to owl-close-taxonomy" />
-    <option name="LAST_COMMIT_MESSAGE" value="owl-close-bundle renamed to owl-close-taxonomy" />
+    <MESSAGE value="owl-close-bundle renamed to owl-close-world" />
+    <option name="LAST_COMMIT_MESSAGE" value="owl-close-bundle renamed to owl-close-world" />
   </component>
   <component name="WindowStateProjectService">
     <state x="350" y="165" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1597945008722">

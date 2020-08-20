@@ -1,14 +1,18 @@
 package io.opencaesar.closeworld;
 
-import org.junit.*;
-
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@SuppressWarnings("AssertBetweenInconvertibleTypes")
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
 public class TestAxiom {
 
     Set<ClassExpression> ces1a, ces1b, ces2a, ces2b;
