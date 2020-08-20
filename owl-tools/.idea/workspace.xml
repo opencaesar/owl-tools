@@ -1,41 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AnalysisUIOptions">
+    <option name="SCOPE_TYPE" value="4" />
+  </component>
   <component name="AutoImportSettings">
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
     <list default="true" id="48a535ce-8091-4bfd-ab51-ebd808857b70" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/owl-close-taxonomy/.classpath" beforeDir="false" afterPath="$PROJECT_DIR$/owl-close-world/.classpath" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/owl-close-taxonomy/.project" beforeDir="false" afterPath="$PROJECT_DIR$/owl-close-world/.project" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/owl-close-taxonomy/.settings/org.eclipse.buildship.core.prefs" beforeDir="false" afterPath="$PROJECT_DIR$/owl-close-world/.settings/org.eclipse.buildship.core.prefs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/owl-close-taxonomy/.settings/org.eclipse.jdt.core.prefs" beforeDir="false" afterPath="$PROJECT_DIR$/owl-close-world/.settings/org.eclipse.jdt.core.prefs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/owl-close-taxonomy/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/owl-close-world/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/owl-close-taxonomy/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/owl-close-world/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/owl-close-taxonomy/src/main/java/io/opencaesar/closetaxonomy/Axiom.java" beforeDir="false" afterPath="$PROJECT_DIR$/owl-close-world/src/main/java/io/opencaesar/closeworld/Axiom.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/owl-close-taxonomy/src/main/java/io/opencaesar/closetaxonomy/ClassExpression.java" beforeDir="false" afterPath="$PROJECT_DIR$/owl-close-world/src/main/java/io/opencaesar/closeworld/ClassExpression.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/owl-close-taxonomy/src/main/java/io/opencaesar/closetaxonomy/OwlApi.java" beforeDir="false" afterPath="$PROJECT_DIR$/owl-close-world/src/main/java/io/opencaesar/closeworld/OwlApi.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/owl-close-taxonomy/src/main/java/io/opencaesar/closetaxonomy/OwlAxiom.java" beforeDir="false" afterPath="$PROJECT_DIR$/owl-close-world/src/main/java/io/opencaesar/closeworld/OwlAxiom.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/owl-close-taxonomy/src/main/java/io/opencaesar/closetaxonomy/OwlClassExpression.java" beforeDir="false" afterPath="$PROJECT_DIR$/owl-close-world/src/main/java/io/opencaesar/closeworld/OwlClassExpression.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/owl-close-taxonomy/src/main/java/io/opencaesar/closetaxonomy/Taxonomy.java" beforeDir="false" afterPath="$PROJECT_DIR$/owl-close-world/src/main/java/io/opencaesar/closeworld/Taxonomy.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/owl-close-taxonomy/src/main/resources/log4j.xml" beforeDir="false" afterPath="$PROJECT_DIR$/owl-close-world/src/main/resources/log4j.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/owl-close-taxonomy/src/main/resources/version.txt" beforeDir="false" afterPath="$PROJECT_DIR$/owl-close-world/src/main/resources/version.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/owl-close-taxonomy/src/test/java/io/opencaesar/closetaxonomy/TestAsymmetricTaxonomy.java" beforeDir="false" afterPath="$PROJECT_DIR$/owl-close-world/src/test/java/io/opencaesar/closeworld/TestAsymmetricTaxonomy.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/owl-close-taxonomy/src/test/java/io/opencaesar/closetaxonomy/TestAxiom.java" beforeDir="false" afterPath="$PROJECT_DIR$/owl-close-world/src/test/java/io/opencaesar/closeworld/TestAxiom.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/owl-close-taxonomy/src/test/java/io/opencaesar/closetaxonomy/TestComplement.java" beforeDir="false" afterPath="$PROJECT_DIR$/owl-close-world/src/test/java/io/opencaesar/closeworld/TestComplement.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/owl-close-taxonomy/src/test/java/io/opencaesar/closetaxonomy/TestDifference.java" beforeDir="false" afterPath="$PROJECT_DIR$/owl-close-world/src/test/java/io/opencaesar/closeworld/TestDifference.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/owl-close-taxonomy/src/test/java/io/opencaesar/closetaxonomy/TestDoubleEdgeChainTaxonomy.java" beforeDir="false" afterPath="$PROJECT_DIR$/owl-close-world/src/test/java/io/opencaesar/closeworld/TestDoubleEdgeChainTaxonomy.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/owl-close-taxonomy/src/test/java/io/opencaesar/closetaxonomy/TestEmpty.java" beforeDir="false" afterPath="$PROJECT_DIR$/owl-close-world/src/test/java/io/opencaesar/closeworld/TestEmpty.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/owl-close-taxonomy/src/test/java/io/opencaesar/closetaxonomy/TestEmptyTaxonomy.java" beforeDir="false" afterPath="$PROJECT_DIR$/owl-close-world/src/test/java/io/opencaesar/closeworld/TestEmptyTaxonomy.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/owl-close-taxonomy/src/test/java/io/opencaesar/closetaxonomy/TestIntersection.java" beforeDir="false" afterPath="$PROJECT_DIR$/owl-close-world/src/test/java/io/opencaesar/closeworld/TestIntersection.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/owl-close-taxonomy/src/test/java/io/opencaesar/closetaxonomy/TestSingleEdgeTaxonomy.java" beforeDir="false" afterPath="$PROJECT_DIR$/owl-close-world/src/test/java/io/opencaesar/closeworld/TestSingleEdgeTaxonomy.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/owl-close-taxonomy/src/test/java/io/opencaesar/closetaxonomy/TestSingleVertexTaxonomy.java" beforeDir="false" afterPath="$PROJECT_DIR$/owl-close-world/src/test/java/io/opencaesar/closeworld/TestSingleVertexTaxonomy.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/owl-close-taxonomy/src/test/java/io/opencaesar/closetaxonomy/TestSingleton.java" beforeDir="false" afterPath="$PROJECT_DIR$/owl-close-world/src/test/java/io/opencaesar/closeworld/TestSingleton.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/owl-close-taxonomy/src/test/java/io/opencaesar/closetaxonomy/TestTaxonomyProperties.java" beforeDir="false" afterPath="$PROJECT_DIR$/owl-close-world/src/test/java/io/opencaesar/closeworld/TestTaxonomyProperties.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/owl-close-taxonomy/src/test/java/io/opencaesar/closetaxonomy/TestUnion.java" beforeDir="false" afterPath="$PROJECT_DIR$/owl-close-world/src/test/java/io/opencaesar/closeworld/TestUnion.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/owl-close-taxonomy/src/test/java/io/opencaesar/closetaxonomy/TestUniversal.java" beforeDir="false" afterPath="$PROJECT_DIR$/owl-close-world/src/test/java/io/opencaesar/closeworld/TestUniversal.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/settings.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/settings.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/owl-close-world/src/test/java/io/opencaesar/closeworld/TestSingleVertexTaxonomy.java" beforeDir="false" afterPath="$PROJECT_DIR$/owl-close-world/src/test/java/io/opencaesar/closeworld/TestSingleVertexTaxonomy.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -108,19 +81,18 @@
     <property name="node.js.path.for.package.tslint" value="project" />
     <property name="node.js.selected.package.eslint" value="(autodetect)" />
     <property name="node.js.selected.package.tslint" value="(autodetect)" />
+    <property name="run.code.analysis.last.selected.profile" value="pProject Default" />
     <property name="settings.editor.selected.configurable" value="reference.settingsdialog.project.gradle" />
     <property name="show.unlinked.gradle.project.popup" value="true" />
   </component>
   <component name="RunManager" selected="Gradle.Tests in 'owl-tools.owl-close-world'">
-    <configuration default="true" type="ArquillianTestNG" factoryName="" nameIsGenerated="true">
+    <configuration default="true" type="ArquillianJUnit" factoryName="" nameIsGenerated="true">
       <option name="arquillianRunConfiguration">
         <value>
           <option name="containerStateName" value="" />
         </value>
       </option>
-      <option name="TEST_OBJECT" value="CLASS" />
-      <properties />
-      <listeners />
+      <option name="TEST_OBJECT" value="class" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -234,7 +206,14 @@
       <option name="project" value="LOCAL" />
       <updated>1597939617000</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="owl-close-taxonomy renamed to owl-close-world">
+      <created>1597945079430</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1597945079430</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -249,26 +228,30 @@
       <screen x="0" y="23" width="1920" height="999" />
     </state>
     <state x="350" y="165" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.23.1920.999@0.23.1920.999" timestamp="1597945008722" />
-    <state x="405" y="81" key="CommitChangelistDialog2" timestamp="1597939616746">
+    <state x="648" y="363" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1" timestamp="1597945094793">
       <screen x="0" y="23" width="1920" height="999" />
     </state>
-    <state x="405" y="81" key="CommitChangelistDialog2/0.23.1920.999@0.23.1920.999" timestamp="1597939616746" />
-    <state width="1670" height="243" key="GridCell.Tab.0.bottom" timestamp="1597944942401">
+    <state x="648" y="363" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1/0.23.1920.999@0.23.1920.999" timestamp="1597945094793" />
+    <state x="405" y="81" key="CommitChangelistDialog2" timestamp="1597945079181">
       <screen x="0" y="23" width="1920" height="999" />
     </state>
-    <state width="1670" height="243" key="GridCell.Tab.0.bottom/0.23.1920.999@0.23.1920.999" timestamp="1597944942401" />
-    <state width="1670" height="243" key="GridCell.Tab.0.center" timestamp="1597944942401">
+    <state x="405" y="81" key="CommitChangelistDialog2/0.23.1920.999@0.23.1920.999" timestamp="1597945079181" />
+    <state width="1670" height="243" key="GridCell.Tab.0.bottom" timestamp="1597946935856">
       <screen x="0" y="23" width="1920" height="999" />
     </state>
-    <state width="1670" height="243" key="GridCell.Tab.0.center/0.23.1920.999@0.23.1920.999" timestamp="1597944942401" />
-    <state width="1670" height="243" key="GridCell.Tab.0.left" timestamp="1597944942400">
+    <state width="1670" height="243" key="GridCell.Tab.0.bottom/0.23.1920.999@0.23.1920.999" timestamp="1597946935856" />
+    <state width="1670" height="243" key="GridCell.Tab.0.center" timestamp="1597946935855">
       <screen x="0" y="23" width="1920" height="999" />
     </state>
-    <state width="1670" height="243" key="GridCell.Tab.0.left/0.23.1920.999@0.23.1920.999" timestamp="1597944942400" />
-    <state width="1670" height="243" key="GridCell.Tab.0.right" timestamp="1597944942401">
+    <state width="1670" height="243" key="GridCell.Tab.0.center/0.23.1920.999@0.23.1920.999" timestamp="1597946935855" />
+    <state width="1670" height="243" key="GridCell.Tab.0.left" timestamp="1597946935855">
       <screen x="0" y="23" width="1920" height="999" />
     </state>
-    <state width="1670" height="243" key="GridCell.Tab.0.right/0.23.1920.999@0.23.1920.999" timestamp="1597944942401" />
+    <state width="1670" height="243" key="GridCell.Tab.0.left/0.23.1920.999@0.23.1920.999" timestamp="1597946935855" />
+    <state width="1670" height="243" key="GridCell.Tab.0.right" timestamp="1597946935855">
+      <screen x="0" y="23" width="1920" height="999" />
+    </state>
+    <state width="1670" height="243" key="GridCell.Tab.0.right/0.23.1920.999@0.23.1920.999" timestamp="1597946935855" />
     <state x="588" y="215" key="NewModule_or_Project.wizard" timestamp="1597943216182">
       <screen x="0" y="23" width="1920" height="999" />
     </state>
