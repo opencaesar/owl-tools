@@ -3,13 +3,10 @@ package io.opencaesar.closetaxonomy;
 import io.opencaesar.closetaxonomy.ClassExpression.Empty;
 import io.opencaesar.closetaxonomy.ClassExpression.Singleton;
 import io.opencaesar.closetaxonomy.ClassExpression.Universal;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 public class TestEmpty {
 	private Singleton sa;

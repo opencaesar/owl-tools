@@ -3,11 +3,7 @@ package io.opencaesar.closetaxonomy;
 import io.opencaesar.closetaxonomy.ClassExpression.Singleton;
 import io.opencaesar.closetaxonomy.Taxonomy.InvalidTreeException;
 import io.opencaesar.closetaxonomy.Taxonomy.UnconnectedTaxonomyException;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
 import static org.junit.Assert.*;
 
