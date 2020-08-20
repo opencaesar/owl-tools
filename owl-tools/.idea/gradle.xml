@@ -24,7 +24,7 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/owl-close-taxonomy" />
+            <option value="$PROJECT_DIR$/owl-close-world" />
             <option value="$PROJECT_DIR$/owl-diff" />
             <option value="$PROJECT_DIR$/owl-load" />
             <option value="$PROJECT_DIR$/owl-load-gradle" />
