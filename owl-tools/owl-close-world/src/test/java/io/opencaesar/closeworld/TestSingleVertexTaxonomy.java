@@ -37,7 +37,7 @@ public class TestSingleVertexTaxonomy {
 		}
 	}
 
-	public void testDirectChildrenOf() {
+	@Test public void testDirectChildrenOf() {
 		if (!((t.directChildrenOf(a).isEmpty()))) {
 			throw new AssertionError();
 		}
