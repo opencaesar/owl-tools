@@ -1,24 +1,12 @@
 package io.opencaesar.closetaxonomy;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
+import io.opencaesar.closetaxonomy.ClassExpression.*;
+import org.junit.*;
 
 import java.util.Arrays;
 import java.util.HashSet;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
-import io.opencaesar.closetaxonomy.ClassExpression.Complement;
-import io.opencaesar.closetaxonomy.ClassExpression.Difference;
-import io.opencaesar.closetaxonomy.ClassExpression.Empty;
-import io.opencaesar.closetaxonomy.ClassExpression.Intersection;
-import io.opencaesar.closetaxonomy.ClassExpression.Singleton;
-import io.opencaesar.closetaxonomy.ClassExpression.Union;
+import static org.junit.Assert.*;
 
 @SuppressWarnings("all")
 public class TestUnion {

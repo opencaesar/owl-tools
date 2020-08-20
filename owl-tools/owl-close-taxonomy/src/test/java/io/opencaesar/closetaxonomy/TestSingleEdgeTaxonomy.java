@@ -1,16 +1,13 @@
 package io.opencaesar.closetaxonomy;
 
 import io.opencaesar.closetaxonomy.ClassExpression.Singleton;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
 import java.util.Arrays;
 import java.util.HashSet;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 public class TestSingleEdgeTaxonomy {
 	

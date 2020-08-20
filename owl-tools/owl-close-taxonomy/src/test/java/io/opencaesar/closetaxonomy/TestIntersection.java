@@ -1,21 +1,10 @@
 package io.opencaesar.closetaxonomy;
 
+import io.opencaesar.closetaxonomy.ClassExpression.*;
+import org.junit.*;
+
 import java.util.Arrays;
 import java.util.HashSet;
-
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
-import io.opencaesar.closetaxonomy.ClassExpression.Complement;
-import io.opencaesar.closetaxonomy.ClassExpression.Difference;
-import io.opencaesar.closetaxonomy.ClassExpression.Empty;
-import io.opencaesar.closetaxonomy.ClassExpression.Intersection;
-import io.opencaesar.closetaxonomy.ClassExpression.Singleton;
-import io.opencaesar.closetaxonomy.ClassExpression.Union;
-import io.opencaesar.closetaxonomy.ClassExpression.Universal;
 
 import static org.junit.Assert.*;
 

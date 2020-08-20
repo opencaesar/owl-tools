@@ -1,4 +1,4 @@
-include 'owl-close-bundle'
+include 'owl-close-taxonomy'
 include 'owl-diff'
 include 'owl-load'
 include 'owl-load-gradle'
