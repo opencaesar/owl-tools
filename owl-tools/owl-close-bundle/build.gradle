@@ -9,7 +9,8 @@ dependencies {
  	implementation "com.beust:jcommander:1.72"
 	implementation 'log4j:log4j:1.2.17'
 	implementation 'org.slf4j:slf4j-nop:1.7.30'
-
+	implementation 'net.sourceforge.owlapi:owlapi-distribution:5.1.16'
+	implementation 'org.jgrapht:jgrapht-core:1.5.0'
     testImplementation 'junit:junit:4.12'
  }
 
