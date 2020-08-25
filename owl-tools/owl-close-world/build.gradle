@@ -1,0 +1,14 @@
+ext.title = 'OWL Close World'
+description = 'A library of algorithms to close the world in OWL ontologies'
+
+dependencies {
+	implementation "net.sourceforge.owlapi:owlapi-distribution:${versions.owl}"
+	implementation "org.jgrapht:jgrapht-core:${versions.jgrapht}"
+}
+
+configurations.all {
+	resolutionStrategy {
+		exclude group: 'org.antlr', module: 'antlr-runtime'
+	}
+}
+ 

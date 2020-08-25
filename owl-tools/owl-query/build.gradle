@@ -6,11 +6,5 @@ mainClassName = 'io.opencaesar.owl.query.OwlQueryApp'
 applicationName = 'owl-query'
 
 dependencies {
- 	implementation "com.beust:jcommander:1.72"
-	implementation 'log4j:log4j:1.2.17'
-	implementation 'org.slf4j:slf4j-nop:1.7.5'
-
 	implementation "org.apache.jena:jena-rdfconnection:${versions.jena}"
-
-    testImplementation 'junit:junit:4.12'
 }
