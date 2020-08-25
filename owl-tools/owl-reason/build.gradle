@@ -6,16 +6,10 @@ mainClassName = 'io.opencaesar.owl.reason.OwlReasonApp'
 applicationName = 'owl-reason'
 
 dependencies {
- 	implementation "com.beust:jcommander:1.72"
-	implementation 'log4j:log4j:1.2.17'
-	implementation 'org.slf4j:slf4j-nop:1.7.30'
-
 	implementation "xml-resolver:xml-resolver:${versions.xmlresolver}"
 	implementation "com.github.galigator.openllet:openllet-owlapi:${versions.openllet}"
 	implementation "com.github.galigator.openllet:openllet-explanation:${versions.openllet}"
 	implementation "com.github.galigator.openllet:openllet-jena:${versions.openllet}"
-
-    testImplementation 'junit:junit:4.12'
  }
 
 configurations.all {

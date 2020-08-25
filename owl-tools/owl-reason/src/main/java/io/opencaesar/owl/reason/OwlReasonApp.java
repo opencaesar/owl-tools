@@ -68,7 +68,6 @@ import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.model.parameters.Imports;
-import org.semanticweb.owlapi.util.SimpleRenderer;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -264,12 +263,6 @@ public class OwlReasonApp {
 	    LOGGER.info("create explanation for "+inputOntologyIri);
 	    PelletExplanation explanation = new PelletExplanation(reasoner);
 	    	    
-		// Create renderer for unsatisfiable class names.
-	    
-	    LOGGER.info("create renderer for "+inputOntologyIri);
-	    final SimpleRenderer renderer = new SimpleRenderer();
-		renderer.setPrefixesFromOntologyFormat(inputOntology, false);
-	  
 	    // Create knowledge base.
 
 	    LOGGER.info("create knowledge base and extractor");
@@ -285,7 +278,7 @@ public class OwlReasonApp {
 		boolean isConsistent = allResults.get(CONSISTENCY).isEmpty();
 		boolean isSatisfiable = false;
 		if (isConsistent) {
-	    	allResults.put(SATISFIABILITY, checkSatisfiability(inputOntologyIri, reasoner, explanation, renderer, functionalSyntaxFormat));
+	    	allResults.put(SATISFIABILITY, checkSatisfiability(inputOntologyIri, reasoner, explanation, functionalSyntaxFormat));
 	    	isSatisfiable = !allResults.get(SATISFIABILITY).stream().filter(r -> r.explanation != null).findFirst().isPresent();
 	    }
 		writeResults(inputOntologyIri, allResults, options.indent);
@@ -334,7 +327,7 @@ public class OwlReasonApp {
 	    return results;
 	}
 
-	private List<Result> checkSatisfiability(String ontologyIri, OpenlletReasoner reasoner, PelletExplanation explanation, SimpleRenderer renderer, FunctionalSyntaxDocumentFormat functionalSyntaxFormat) throws Exception {
+	private List<Result> checkSatisfiability(String ontologyIri, OpenlletReasoner reasoner, PelletExplanation explanation, FunctionalSyntaxDocumentFormat functionalSyntaxFormat) throws Exception {
     	LOGGER.info("test satisfiability on "+ontologyIri);
     	List<Result> results = new ArrayList<Result>();
     	
@@ -352,7 +345,7 @@ public class OwlReasonApp {
     		if (options.removeBackbone && klass.getIRI().getIRIString().startsWith(options.backboneIri))
     			continue;
     		
-    		String className = renderer.render(klass);
+    		String className = klass.getIRI().getIRIString();
     	    LOGGER.info(className+" "+ ++count+" of "+numOfClasses);
 
     	    boolean success = reasoner.isSatisfiable(klass);
