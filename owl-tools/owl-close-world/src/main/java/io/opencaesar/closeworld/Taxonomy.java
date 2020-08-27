@@ -23,6 +23,7 @@ import com.google.common.base.Objects;
 
 import io.opencaesar.closeworld.Axiom.ClassExpressionSetAxiom.DisjointClassesAxiom;
 import io.opencaesar.closeworld.Axiom.ClassExpressionSetAxiom.DisjointUnionAxiom;
+import org.jgrapht.traverse.DepthFirstIterator;
 
 @SuppressWarnings("serial")
 public class Taxonomy extends DirectedAcyclicGraph<ClassExpression, Taxonomy.TaxonomyEdge> {
@@ -81,7 +82,12 @@ public class Taxonomy extends DirectedAcyclicGraph<ClassExpression, Taxonomy.Tax
 	}
 
 	public Optional<ClassExpression> multiParentChild() {
-		return vertexSet().stream().filter(it -> parentsOf(it).size() > 1).findFirst();
+		final DepthFirstIterator dfi = new DepthFirstIterator(this);
+		while (dfi.hasNext()) {
+			final ClassExpression v = (ClassExpression) dfi.next();
+			if (directParentsOf(v).size() > 1) return Optional.of(v);
+		}
+		return Optional.empty();
 	}
 
 	public Taxonomy exciseVertex(final ClassExpression v) {
