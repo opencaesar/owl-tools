@@ -1,19 +1,28 @@
 package io.opencaesar.closeworld;
 
-import com.google.common.base.Objects;
+import java.util.AbstractMap;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
 import org.jgrapht.GraphTests;
+import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.alg.TransitiveReduction;
-import org.jgrapht.alg.connectivity.ConnectivityInspector;
 import org.jgrapht.graph.AsUndirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DirectedAcyclicGraph;
 
-import java.util.*;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
+import com.google.common.base.Objects;
 
-import static io.opencaesar.closeworld.Axiom.ClassExpressionSetAxiom.DisjointClassesAxiom;
-import static io.opencaesar.closeworld.Axiom.ClassExpressionSetAxiom.DisjointUnionAxiom;
+import io.opencaesar.closeworld.Axiom.ClassExpressionSetAxiom.DisjointClassesAxiom;
+import io.opencaesar.closeworld.Axiom.ClassExpressionSetAxiom.DisjointUnionAxiom;
 
 @SuppressWarnings("serial")
 public class Taxonomy extends DirectedAcyclicGraph<ClassExpression, Taxonomy.TaxonomyEdge> {
@@ -338,7 +347,7 @@ public class Taxonomy extends DirectedAcyclicGraph<ClassExpression, Taxonomy.Tax
 	 * @return boolean
 	 */
 	public boolean isConnected() {
-		return new ConnectivityInspector<>(this).isConnected();
+		return new ConnectivityInspector<>(this).isGraphConnected();
 	}
 
 	/**
