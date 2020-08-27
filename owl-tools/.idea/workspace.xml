@@ -8,12 +8,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="48a535ce-8091-4bfd-ab51-ebd808857b70" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/jarRepositories.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/jarRepositories.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/owl-close-world/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/owl-close-world/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/owl-close-world/src/main/java/io/opencaesar/closeworld/OwlApi.java" beforeDir="false" afterPath="$PROJECT_DIR$/owl-close-world/src/main/java/io/opencaesar/closeworld/OwlApi.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/owl-close-world/src/main/resources/version.txt" beforeDir="false" afterPath="$PROJECT_DIR$/owl-close-world/src/main/resources/version.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -63,24 +58,6 @@
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
                 <item name="owl-tools" type="f1a62948:ProjectNode" />
               </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="owl-tools" type="f1a62948:ProjectNode" />
-                <item name="owl-close-world" type="2d1252cf:ModuleNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="owl-tools" type="f1a62948:ProjectNode" />
-                <item name="owl-close-world" type="2d1252cf:ModuleNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="owl-tools" type="f1a62948:ProjectNode" />
-                <item name="owl-close-world" type="2d1252cf:ModuleNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="publishing" type="c8890929:TasksNode$1" />
-              </path>
             </expand>
             <select />
           </tree_state>
@@ -129,7 +106,7 @@
       <recent name="" />
     </key>
   </component>
-  <component name="RunManager" selected="Gradle.owl-tools:owl-close-world [build]">
+  <component name="RunManager" selected="Gradle.owl-tools:owl-close-world [publishToMavenLocal]">
     <configuration default="true" type="ArquillianJUnit" factoryName="" nameIsGenerated="true">
       <option name="arquillianRunConfiguration">
         <value>
@@ -317,26 +294,26 @@
       <screen x="0" y="23" width="1920" height="999" />
     </state>
     <state x="405" y="81" key="CommitChangelistDialog2/0.23.1920.999@0.23.1920.999" timestamp="1597945079181" />
-    <state width="1670" height="243" key="GridCell.Tab.0.bottom" timestamp="1598556962044">
+    <state width="1670" height="243" key="GridCell.Tab.0.bottom" timestamp="1598560659227">
       <screen x="0" y="23" width="1920" height="999" />
     </state>
     <state width="1670" height="243" key="GridCell.Tab.0.bottom/0.0.1792.1120@0.0.1792.1120" timestamp="1598501881685" />
-    <state width="1670" height="243" key="GridCell.Tab.0.bottom/0.23.1920.999@0.23.1920.999" timestamp="1598556962044" />
-    <state width="1670" height="243" key="GridCell.Tab.0.center" timestamp="1598556962044">
+    <state width="1670" height="243" key="GridCell.Tab.0.bottom/0.23.1920.999@0.23.1920.999" timestamp="1598560659227" />
+    <state width="1670" height="243" key="GridCell.Tab.0.center" timestamp="1598560659226">
       <screen x="0" y="23" width="1920" height="999" />
     </state>
     <state width="1670" height="243" key="GridCell.Tab.0.center/0.0.1792.1120@0.0.1792.1120" timestamp="1598501881684" />
-    <state width="1670" height="243" key="GridCell.Tab.0.center/0.23.1920.999@0.23.1920.999" timestamp="1598556962044" />
-    <state width="1670" height="243" key="GridCell.Tab.0.left" timestamp="1598556962043">
+    <state width="1670" height="243" key="GridCell.Tab.0.center/0.23.1920.999@0.23.1920.999" timestamp="1598560659226" />
+    <state width="1670" height="243" key="GridCell.Tab.0.left" timestamp="1598560659226">
       <screen x="0" y="23" width="1920" height="999" />
     </state>
     <state width="1670" height="243" key="GridCell.Tab.0.left/0.0.1792.1120@0.0.1792.1120" timestamp="1598501881684" />
-    <state width="1670" height="243" key="GridCell.Tab.0.left/0.23.1920.999@0.23.1920.999" timestamp="1598556962043" />
-    <state width="1670" height="243" key="GridCell.Tab.0.right" timestamp="1598556962044">
+    <state width="1670" height="243" key="GridCell.Tab.0.left/0.23.1920.999@0.23.1920.999" timestamp="1598560659226" />
+    <state width="1670" height="243" key="GridCell.Tab.0.right" timestamp="1598560659226">
       <screen x="0" y="23" width="1920" height="999" />
     </state>
     <state width="1670" height="243" key="GridCell.Tab.0.right/0.0.1792.1120@0.0.1792.1120" timestamp="1598501881685" />
-    <state width="1670" height="243" key="GridCell.Tab.0.right/0.23.1920.999@0.23.1920.999" timestamp="1598556962044" />
+    <state width="1670" height="243" key="GridCell.Tab.0.right/0.23.1920.999@0.23.1920.999" timestamp="1598560659226" />
     <state x="588" y="215" key="NewModule_or_Project.wizard" timestamp="1597943216182">
       <screen x="0" y="23" width="1920" height="999" />
     </state>
