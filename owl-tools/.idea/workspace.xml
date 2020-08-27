@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AnalysisUIOptions">
+    <option name="SCOPE_TYPE" value="4" />
+  </component>
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="48a535ce-8091-4bfd-ab51-ebd808857b70" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/owl-close-world/src/test/java/io/opencaesar/closeworld/TestSingleVertexTaxonomy.java" beforeDir="false" afterPath="$PROJECT_DIR$/owl-close-world/src/test/java/io/opencaesar/closeworld/TestSingleVertexTaxonomy.java" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="CodeStyleSettingsInfer">
+    <option name="done" value="true" />
+  </component>
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$/../../owl-adapter/owl-adapter">
+      <ProjectState />
+    </projectState>
+    <projectState path="$PROJECT_DIR$">
+      <ProjectState />
+    </projectState>
+    <projectState path="$PROJECT_DIR$/owl-close-taxonomy">
+      <ProjectState />
+    </projectState>
+  </component>
+  <component name="ExternalProjectsManager">
+    <system id="GRADLE">
+      <state>
+        <task path="$PROJECT_DIR$">
+          <activation />
+        </task>
+        <task path="$PROJECT_DIR$/owl-close-taxonomy">
+          <activation />
+        </task>
+        <projects_view>
+          <tree_state>
+            <expand>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="owl-tools" type="f1a62948:ProjectNode" />
+              </path>
+            </expand>
+            <select />
+          </tree_state>
+        </projects_view>
+      </state>
+    </system>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="mavenHome" value="$APPLICATION_HOME_DIR$/plugins/maven/lib/maven3" />
+      </MavenGeneralSettings>
+    </option>
+  </component>
+  <component name="ProjectCodeStyleSettingsMigration">
+    <option name="version" value="1" />
+  </component>
+  <component name="ProjectId" id="1fxb1qcQQVwSf0VSBkKq0RIU7Cj" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="aspect.path.notification.shown" value="true" />
+    <property name="node.js.detected.package.eslint" value="true" />
+    <property name="node.js.detected.package.tslint" value="true" />
+    <property name="node.js.path.for.package.eslint" value="project" />
+    <property name="node.js.path.for.package.tslint" value="project" />
+    <property name="node.js.selected.package.eslint" value="(autodetect)" />
+    <property name="node.js.selected.package.tslint" value="(autodetect)" />
+    <property name="run.code.analysis.last.selected.profile" value="pProject Default" />
+    <property name="settings.editor.selected.configurable" value="reference.settingsdialog.project.gradle" />
+    <property name="show.unlinked.gradle.project.popup" value="true" />
+  </component>
+  <component name="RunManager" selected="Gradle.Tests in 'owl-tools.owl-close-world'">
+    <configuration default="true" type="ArquillianJUnit" factoryName="" nameIsGenerated="true">
+      <option name="arquillianRunConfiguration">
+        <value>
+          <option name="containerStateName" value="" />
+        </value>
+      </option>
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Tests in 'owl-tools.owl-close-world'" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" value="--tests *" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value=":owl-close-world:test" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <GradleScriptDebugEnabled>false</GradleScriptDebugEnabled>
+      <method v="2" />
+    </configuration>
+    <configuration name="owl-tools" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list />
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
+      <method v="2" />
+    </configuration>
+    <configuration name="owl-tools:owl-close-taxonomy [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/owl-close-taxonomy" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="build" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
+      <method v="2" />
+    </configuration>
+    <configuration name="owl-tools:owl-close-taxonomy [publishToMavenLocal]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/owl-close-taxonomy" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="publishToMavenLocal" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Gradle.owl-tools" />
+      <item itemvalue="Gradle.owl-tools:owl-close-taxonomy [build]" />
+      <item itemvalue="Gradle.owl-tools:owl-close-taxonomy [publishToMavenLocal]" />
+      <item itemvalue="Gradle.Tests in 'owl-tools.owl-close-world'" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Gradle.Tests in 'owl-tools.owl-close-world'" />
+        <item itemvalue="Gradle.owl-tools:owl-close-taxonomy [publishToMavenLocal]" />
+        <item itemvalue="Gradle.owl-tools:owl-close-taxonomy [build]" />
+        <item itemvalue="Gradle.owl-tools" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="48a535ce-8091-4bfd-ab51-ebd808857b70" name="Default Changelist" comment="" />
+      <created>1597162478984</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1597162478984</updated>
+      <workItem from="1597162480025" duration="156000" />
+      <workItem from="1597162675505" duration="2182000" />
+      <workItem from="1597685470861" duration="804000" />
+      <workItem from="1597938914724" duration="2283000" />
+    </task>
+    <task id="LOCAL-00001" summary="owl-close-bundle renamed to owl-close-world">
+      <created>1597939617000</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1597939617000</updated>
+    </task>
+    <task id="LOCAL-00002" summary="owl-close-taxonomy renamed to owl-close-world">
+      <created>1597945079430</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1597945079430</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="owl-close-bundle renamed to owl-close-world" />
+    <option name="LAST_COMMIT_MESSAGE" value="owl-close-bundle renamed to owl-close-world" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="350" y="165" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1597945008722">
+      <screen x="0" y="23" width="1920" height="999" />
+    </state>
+    <state x="350" y="165" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.23.1920.999@0.23.1920.999" timestamp="1597945008722" />
+    <state x="648" y="363" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1" timestamp="1597945094793">
+      <screen x="0" y="23" width="1920" height="999" />
+    </state>
+    <state x="648" y="363" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1/0.23.1920.999@0.23.1920.999" timestamp="1597945094793" />
+    <state x="405" y="81" key="CommitChangelistDialog2" timestamp="1597945079181">
+      <screen x="0" y="23" width="1920" height="999" />
+    </state>
+    <state x="405" y="81" key="CommitChangelistDialog2/0.23.1920.999@0.23.1920.999" timestamp="1597945079181" />
+    <state width="1670" height="243" key="GridCell.Tab.0.bottom" timestamp="1597946935856">
+      <screen x="0" y="23" width="1920" height="999" />
+    </state>
+    <state width="1670" height="243" key="GridCell.Tab.0.bottom/0.23.1920.999@0.23.1920.999" timestamp="1597946935856" />
+    <state width="1670" height="243" key="GridCell.Tab.0.center" timestamp="1597946935855">
+      <screen x="0" y="23" width="1920" height="999" />
+    </state>
+    <state width="1670" height="243" key="GridCell.Tab.0.center/0.23.1920.999@0.23.1920.999" timestamp="1597946935855" />
+    <state width="1670" height="243" key="GridCell.Tab.0.left" timestamp="1597946935855">
+      <screen x="0" y="23" width="1920" height="999" />
+    </state>
+    <state width="1670" height="243" key="GridCell.Tab.0.left/0.23.1920.999@0.23.1920.999" timestamp="1597946935855" />
+    <state width="1670" height="243" key="GridCell.Tab.0.right" timestamp="1597946935855">
+      <screen x="0" y="23" width="1920" height="999" />
+    </state>
+    <state width="1670" height="243" key="GridCell.Tab.0.right/0.23.1920.999@0.23.1920.999" timestamp="1597946935855" />
+    <state x="588" y="215" key="NewModule_or_Project.wizard" timestamp="1597943216182">
+      <screen x="0" y="23" width="1920" height="999" />
+    </state>
+    <state x="588" y="215" key="NewModule_or_Project.wizard/0.23.1920.999@0.23.1920.999" timestamp="1597943216182" />
+    <state x="536" y="141" key="SettingsEditor" timestamp="1597940553805">
+      <screen x="0" y="23" width="1920" height="999" />
+    </state>
+    <state x="536" y="141" key="SettingsEditor/0.23.1920.999@0.23.1920.999" timestamp="1597940553805" />
+    <state x="308" y="121" key="new project wizard" timestamp="1597869552463">
+      <screen x="0" y="23" width="1920" height="999" />
+    </state>
+    <state x="308" y="121" key="new project wizard/0.23.1920.999@0.23.1920.999" timestamp="1597869552463" />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/owl_tools$Tests_in__owl_tools_owl_close_taxonomy_.ic" NAME="Tests in 'owl-tools.owl-close-taxonomy' Coverage Results" MODIFIED="1597939360563" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" />
+  </component>
+</project>
