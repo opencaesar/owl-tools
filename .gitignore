@@ -7,3 +7,6 @@ build
 .launch
 *.sparql
 *.frame
+.project
+.settings
+
