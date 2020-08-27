@@ -8,7 +8,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="48a535ce-8091-4bfd-ab51-ebd808857b70" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/owl-close-world/src/test/java/io/opencaesar/closeworld/TestSingleVertexTaxonomy.java" beforeDir="false" afterPath="$PROJECT_DIR$/owl-close-world/src/test/java/io/opencaesar/closeworld/TestSingleVertexTaxonomy.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/jarRepositories.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/jarRepositories.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/owl-close-world/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/owl-close-world/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/owl-close-world/src/main/java/io/opencaesar/closeworld/OwlApi.java" beforeDir="false" afterPath="$PROJECT_DIR$/owl-close-world/src/main/java/io/opencaesar/closeworld/OwlApi.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/owl-close-world/src/main/resources/version.txt" beforeDir="false" afterPath="$PROJECT_DIR$/owl-close-world/src/main/resources/version.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -38,12 +43,43 @@
         <task path="$PROJECT_DIR$/owl-close-taxonomy">
           <activation />
         </task>
+        <task path="$PROJECT_DIR$/owl-close-world">
+          <activation />
+        </task>
+        <task path="$PROJECT_DIR$/../../owl-adapter/owl-adapter/oml2owl">
+          <activation />
+        </task>
+        <task path="$PROJECT_DIR$/../../owl-adapter/owl-adapter">
+          <activation />
+        </task>
         <projects_view>
           <tree_state>
             <expand>
               <path>
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="owl-adapter" type="f1a62948:ProjectNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
                 <item name="owl-tools" type="f1a62948:ProjectNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="owl-tools" type="f1a62948:ProjectNode" />
+                <item name="owl-close-world" type="2d1252cf:ModuleNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="owl-tools" type="f1a62948:ProjectNode" />
+                <item name="owl-close-world" type="2d1252cf:ModuleNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="owl-tools" type="f1a62948:ProjectNode" />
+                <item name="owl-close-world" type="2d1252cf:ModuleNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="publishing" type="c8890929:TasksNode$1" />
               </path>
             </expand>
             <select />
@@ -81,11 +117,19 @@
     <property name="node.js.path.for.package.tslint" value="project" />
     <property name="node.js.selected.package.eslint" value="(autodetect)" />
     <property name="node.js.selected.package.tslint" value="(autodetect)" />
+    <property name="project.structure.last.edited" value="Libraries" />
+    <property name="project.structure.proportion" value="0.15" />
+    <property name="project.structure.side.proportion" value="0.2" />
     <property name="run.code.analysis.last.selected.profile" value="pProject Default" />
     <property name="settings.editor.selected.configurable" value="reference.settingsdialog.project.gradle" />
     <property name="show.unlinked.gradle.project.popup" value="true" />
   </component>
-  <component name="RunManager" selected="Gradle.Tests in 'owl-tools.owl-close-world'">
+  <component name="RecentsManager">
+    <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
+      <recent name="" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Gradle.owl-tools:owl-close-world [build]">
     <configuration default="true" type="ArquillianJUnit" factoryName="" nameIsGenerated="true">
       <option name="arquillianRunConfiguration">
         <value>
@@ -116,27 +160,10 @@
       <GradleScriptDebugEnabled>false</GradleScriptDebugEnabled>
       <method v="2" />
     </configuration>
-    <configuration name="owl-tools" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="owl-tools [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list />
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
-      <method v="2" />
-    </configuration>
-    <configuration name="owl-tools:owl-close-taxonomy [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$/owl-close-taxonomy" />
         <option name="externalSystemIdString" value="GRADLE" />
         <option name="scriptParameters" />
         <option name="taskDescriptions">
@@ -152,10 +179,48 @@
       <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
       <method v="2" />
     </configuration>
-    <configuration name="owl-tools:owl-close-taxonomy [publishToMavenLocal]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="owl-tools [clean]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$/owl-close-taxonomy" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="clean" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
+      <method v="2" />
+    </configuration>
+    <configuration name="owl-tools:owl-close-world [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/owl-close-world" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="build" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
+      <method v="2" />
+    </configuration>
+    <configuration name="owl-tools:owl-close-world [publishToMavenLocal]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/owl-close-world" />
         <option name="externalSystemIdString" value="GRADLE" />
         <option name="scriptParameters" />
         <option name="taskDescriptions">
@@ -172,17 +237,19 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Gradle.owl-tools" />
-      <item itemvalue="Gradle.owl-tools:owl-close-taxonomy [build]" />
-      <item itemvalue="Gradle.owl-tools:owl-close-taxonomy [publishToMavenLocal]" />
       <item itemvalue="Gradle.Tests in 'owl-tools.owl-close-world'" />
+      <item itemvalue="Gradle.owl-tools [clean]" />
+      <item itemvalue="Gradle.owl-tools [build]" />
+      <item itemvalue="Gradle.owl-tools:owl-close-world [publishToMavenLocal]" />
+      <item itemvalue="Gradle.owl-tools:owl-close-world [build]" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Gradle.owl-tools:owl-close-world [build]" />
+        <item itemvalue="Gradle.owl-tools:owl-close-world [publishToMavenLocal]" />
+        <item itemvalue="Gradle.owl-tools [build]" />
+        <item itemvalue="Gradle.owl-tools [clean]" />
         <item itemvalue="Gradle.Tests in 'owl-tools.owl-close-world'" />
-        <item itemvalue="Gradle.owl-tools:owl-close-taxonomy [publishToMavenLocal]" />
-        <item itemvalue="Gradle.owl-tools:owl-close-taxonomy [build]" />
-        <item itemvalue="Gradle.owl-tools" />
       </list>
     </recent_temporary>
   </component>
@@ -198,6 +265,12 @@
       <workItem from="1597162675505" duration="2182000" />
       <workItem from="1597685470861" duration="804000" />
       <workItem from="1597938914724" duration="2283000" />
+      <workItem from="1597947747896" duration="5880000" />
+      <workItem from="1597960760472" duration="16000" />
+      <workItem from="1598034973567" duration="557000" />
+      <workItem from="1598044438398" duration="4000" />
+      <workItem from="1598497659169" duration="2485000" />
+      <workItem from="1598556339071" duration="526000" />
     </task>
     <task id="LOCAL-00001" summary="owl-close-bundle renamed to owl-close-world">
       <created>1597939617000</created>
@@ -224,10 +297,18 @@
     <option name="LAST_COMMIT_MESSAGE" value="owl-close-bundle renamed to owl-close-world" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="350" y="165" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1597945008722">
+    <state x="374" y="85" key="#Project_Structure" timestamp="1597952403048">
       <screen x="0" y="23" width="1920" height="999" />
     </state>
-    <state x="350" y="165" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.23.1920.999@0.23.1920.999" timestamp="1597945008722" />
+    <state x="374" y="85" key="#Project_Structure/0.23.1920.999@0.23.1920.999" timestamp="1597952403048" />
+    <state x="350" y="165" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1597950466960">
+      <screen x="0" y="23" width="1920" height="999" />
+    </state>
+    <state x="350" y="165" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.23.1920.999@0.23.1920.999" timestamp="1597950466960" />
+    <state x="491" y="377" key="#com.intellij.refactoring.move.moveClassesOrPackages.MoveClassesOrPackagesDialog.classes" timestamp="1597951054731">
+      <screen x="0" y="23" width="1920" height="999" />
+    </state>
+    <state x="491" y="377" key="#com.intellij.refactoring.move.moveClassesOrPackages.MoveClassesOrPackagesDialog.classes/0.23.1920.999@0.23.1920.999" timestamp="1597951054731" />
     <state x="648" y="363" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1" timestamp="1597945094793">
       <screen x="0" y="23" width="1920" height="999" />
     </state>
@@ -236,30 +317,34 @@
       <screen x="0" y="23" width="1920" height="999" />
     </state>
     <state x="405" y="81" key="CommitChangelistDialog2/0.23.1920.999@0.23.1920.999" timestamp="1597945079181" />
-    <state width="1670" height="243" key="GridCell.Tab.0.bottom" timestamp="1597946935856">
+    <state width="1670" height="243" key="GridCell.Tab.0.bottom" timestamp="1598556962044">
       <screen x="0" y="23" width="1920" height="999" />
     </state>
-    <state width="1670" height="243" key="GridCell.Tab.0.bottom/0.23.1920.999@0.23.1920.999" timestamp="1597946935856" />
-    <state width="1670" height="243" key="GridCell.Tab.0.center" timestamp="1597946935855">
+    <state width="1670" height="243" key="GridCell.Tab.0.bottom/0.0.1792.1120@0.0.1792.1120" timestamp="1598501881685" />
+    <state width="1670" height="243" key="GridCell.Tab.0.bottom/0.23.1920.999@0.23.1920.999" timestamp="1598556962044" />
+    <state width="1670" height="243" key="GridCell.Tab.0.center" timestamp="1598556962044">
       <screen x="0" y="23" width="1920" height="999" />
     </state>
-    <state width="1670" height="243" key="GridCell.Tab.0.center/0.23.1920.999@0.23.1920.999" timestamp="1597946935855" />
-    <state width="1670" height="243" key="GridCell.Tab.0.left" timestamp="1597946935855">
+    <state width="1670" height="243" key="GridCell.Tab.0.center/0.0.1792.1120@0.0.1792.1120" timestamp="1598501881684" />
+    <state width="1670" height="243" key="GridCell.Tab.0.center/0.23.1920.999@0.23.1920.999" timestamp="1598556962044" />
+    <state width="1670" height="243" key="GridCell.Tab.0.left" timestamp="1598556962043">
       <screen x="0" y="23" width="1920" height="999" />
     </state>
-    <state width="1670" height="243" key="GridCell.Tab.0.left/0.23.1920.999@0.23.1920.999" timestamp="1597946935855" />
-    <state width="1670" height="243" key="GridCell.Tab.0.right" timestamp="1597946935855">
+    <state width="1670" height="243" key="GridCell.Tab.0.left/0.0.1792.1120@0.0.1792.1120" timestamp="1598501881684" />
+    <state width="1670" height="243" key="GridCell.Tab.0.left/0.23.1920.999@0.23.1920.999" timestamp="1598556962043" />
+    <state width="1670" height="243" key="GridCell.Tab.0.right" timestamp="1598556962044">
       <screen x="0" y="23" width="1920" height="999" />
     </state>
-    <state width="1670" height="243" key="GridCell.Tab.0.right/0.23.1920.999@0.23.1920.999" timestamp="1597946935855" />
+    <state width="1670" height="243" key="GridCell.Tab.0.right/0.0.1792.1120@0.0.1792.1120" timestamp="1598501881685" />
+    <state width="1670" height="243" key="GridCell.Tab.0.right/0.23.1920.999@0.23.1920.999" timestamp="1598556962044" />
     <state x="588" y="215" key="NewModule_or_Project.wizard" timestamp="1597943216182">
       <screen x="0" y="23" width="1920" height="999" />
     </state>
     <state x="588" y="215" key="NewModule_or_Project.wizard/0.23.1920.999@0.23.1920.999" timestamp="1597943216182" />
-    <state x="536" y="141" key="SettingsEditor" timestamp="1597940553805">
+    <state x="536" y="141" key="SettingsEditor" timestamp="1597949729983">
       <screen x="0" y="23" width="1920" height="999" />
     </state>
-    <state x="536" y="141" key="SettingsEditor/0.23.1920.999@0.23.1920.999" timestamp="1597940553805" />
+    <state x="536" y="141" key="SettingsEditor/0.23.1920.999@0.23.1920.999" timestamp="1597949729983" />
     <state x="308" y="121" key="new project wizard" timestamp="1597869552463">
       <screen x="0" y="23" width="1920" height="999" />
     </state>

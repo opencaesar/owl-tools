@@ -41,5 +41,10 @@
       <option name="name" value="maven" />
       <option name="url" value="https://dl.bintray.com/opencaesar/oml" />
     </remote-repository>
+    <remote-repository>
+      <option name="id" value="maven" />
+      <option name="name" value="maven" />
+      <option name="url" value="https://dl.bintray.com/opencaesar/owl-tools" />
+    </remote-repository>
   </component>
 </project>

@@ -30,7 +30,25 @@ public class OwlApi {
 	public OWLClass getOWLClass(IRI iri) {
 		return factory.getOWLClass(iri);
 	}
-	
+
+	public OWLDataProperty getOWLDataProperty(IRI iri) {
+		return factory.getOWLDataProperty(iri);
+	}
+
+	public OWLObjectProperty getOWLObjectProperty(IRI iri) {
+		return factory.getOWLObjectProperty(iri);
+	}
+
+	public OWLNamedIndividual getOWLNamedIndividual(IRI iri) { return factory.getOWLNamedIndividual(iri); }
+
+	public OWLObjectInverseOf getOWLObjectInverseOf(OWLObjectProperty property) {
+		return factory.getOWLObjectInverseOf(property);
+	}
+
+	public OWLClassAssertionAxiom getOWLClassAssertionAxiom(OWLClassExpression ce, OWLIndividual i) {
+		return factory.getOWLClassAssertionAxiom(ce, i);
+	}
+
 	public OWLObjectComplementOf getOWLObjectComplementOf(OWLClassExpression e) {
 		return factory.getOWLObjectComplementOf(e);
 	}
@@ -55,4 +73,11 @@ public class OwlApi {
 		return factory.getOWLDisjointUnionAxiom(c, operands);
 	}
 
+	public OWLDataMaxCardinality getOWLDataMaxCardinality(int cardinality, OWLDataPropertyExpression pe) {
+		return factory.getOWLDataMaxCardinality(cardinality, pe);
+	}
+
+	public OWLObjectMaxCardinality getOWLObjectMaxCardinality(int cardinality, OWLObjectPropertyExpression pe) {
+		return factory.getOWLObjectMaxCardinality(cardinality, pe);
+	}
 }
