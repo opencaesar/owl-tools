@@ -82,9 +82,10 @@ public class Taxonomy extends DirectedAcyclicGraph<ClassExpression, Taxonomy.Tax
 	}
 
 	public Optional<ClassExpression> multiParentChild() {
-		final DepthFirstIterator dfi = new DepthFirstIterator(this);
+		final DepthFirstIterator<ClassExpression, Taxonomy.TaxonomyEdge> dfi = 
+				new DepthFirstIterator<ClassExpression, Taxonomy.TaxonomyEdge>(this);
 		while (dfi.hasNext()) {
-			final ClassExpression v = (ClassExpression) dfi.next();
+			final ClassExpression v = dfi.next();
 			if (directParentsOf(v).size() > 1) return Optional.of(v);
 		}
 		return Optional.empty();

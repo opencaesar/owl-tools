@@ -26,6 +26,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -89,8 +90,8 @@ import openllet.owlapi.explanation.PelletExplanation;
 
 public class OwlReasonApp {
   
-	private static final String CONSISTENCY = "consistency";
-	private static final String SATISFIABILITY = "satisfiability";
+	private static final String CONSISTENCY = "Consistency";
+	private static final String SATISFIABILITY = "Satisfiability";
 
 	private Options options = new Options();
 	
@@ -273,9 +274,9 @@ public class OwlReasonApp {
 
 	    // Check for consistency and satisfiability
 		
-		Map<String, List<Result>> allResults = new HashMap<String, List<Result>>();
+		Map<String, List<Result>> allResults = new LinkedHashMap<String, List<Result>>();
 		allResults.put(CONSISTENCY, checkConsistency(inputOntologyIri, reasoner, explanation, functionalSyntaxFormat));
-		boolean isConsistent = allResults.get(CONSISTENCY).isEmpty();
+		boolean isConsistent = !allResults.get(CONSISTENCY).stream().filter(r -> r.explanation != null).findFirst().isPresent();
 		boolean isSatisfiable = false;
 		if (isConsistent) {
 	    	allResults.put(SATISFIABILITY, checkSatisfiability(inputOntologyIri, reasoner, explanation, functionalSyntaxFormat));
@@ -314,15 +315,15 @@ public class OwlReasonApp {
     		LOGGER.error("ontology "+ontologyIri+" is inconsistent");
     	}
     	
+    	Result result = new Result();
+    	result.name = ontologyIri;
         if (!success) {
         	//TODO: consider using explanation.getInconsistencyExplanations()
         	Set<OWLAxiom> axioms = explanation.getInconsistencyExplanation();
-        	Result result = new Result();
-        	result.name = ontologyIri;
         	result.message = reasoner.getKB().getExplanation();
         	result.explanation = createExplanationOntology(axioms, functionalSyntaxFormat);
-    	    results.add(result);
         }
+	    results.add(result);
     
 	    return results;
 	}
@@ -402,8 +403,7 @@ public class OwlReasonApp {
 		        	Element fl = doc.createElement("failure");
 		        	tc.appendChild(fl);
 		        	fl.setAttribute("message", result.message);
-	      	        String exp = result.explanation;
-		        	CDATASection cdoc = doc.createCDATASection("\n"+exp+"\n");
+		        	CDATASection cdoc = doc.createCDATASection("\n"+result.message+"\n\n"+result.explanation+"\n");
 		    		fl.appendChild(cdoc);
 	  	        }
 	    	});

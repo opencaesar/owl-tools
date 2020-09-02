@@ -5,8 +5,3 @@ xtend-gen
 build
 .gradle
 .launch
-*.sparql
-*.frame
-.project
-.settings
-
