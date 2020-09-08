@@ -23,7 +23,8 @@ subprojects {
 		jcommander: '1.72',
 		log4j: '1.2.17',
 		slf4j: '1.7.30',
-		junit: '4.12'
+		junit: '4.12',
+		jgrapht: '1.5.0'
 	]
 
 	repositories {
