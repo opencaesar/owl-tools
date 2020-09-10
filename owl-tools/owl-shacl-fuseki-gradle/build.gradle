@@ -1,0 +1,7 @@
+ext.title = 'OWL SHACL Fuseki Task'
+description = 'A gradle task to invoke owl shacl fuseki'
+
+dependencies {
+	implementation gradleApi()
+    implementation project (':owl-shacl-fuseki')
+}
