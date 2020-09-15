@@ -1,0 +1,10 @@
+apply plugin: 'application'
+
+ext.title = 'OWL SHACL Fuseki'
+description = 'A tool to execute a set of SHACL queries on a given Fuseki+SHACL dataset'
+mainClassName = 'io.opencaesar.owl.query.OwlShaclFusekiApp'
+applicationName = 'owl-shacl-fuseki'
+
+dependencies {
+	implementation "org.apache.jena:apache-jena-libs:${versions.jena}"
+}

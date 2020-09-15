@@ -34,12 +34,12 @@ By default, the server will be available at http://localhost:3030 after running 
 MacOS/Linux: 
 ```
     cd fuseki-distribution-folder
-    ./fuseki-server
+    ./fuseki-server --config=<path to this project>/.fuseki.ttl
 ```
 Windows:
 ```
     cd fuseki-distribution-folder
-    fuseki-server.bat
+    fuseki-server.bat --config=<path to this project>\.fuseki.ttl
 ```    
 [More instruction](https://jena.apache.org/documentation/fuseki2/fuseki-run.html#fuseki-standalone-server)
 ## Method 2: Running as a Web Application
