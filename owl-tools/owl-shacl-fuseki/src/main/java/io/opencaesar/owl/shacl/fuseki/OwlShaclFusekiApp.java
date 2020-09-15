@@ -50,22 +50,41 @@ import com.github.jsonldjava.shaded.com.google.common.base.Suppliers;
 
 public class OwlShaclFusekiApp {
 
-	@Parameter(names = { "--endpoint-url",
-			"-e" }, description = "Sparql Endpoint URL (Required)", required = true, validateWith = URIValidator.class, order = 1)
+	@Parameter(
+		names = { "--endpoint-url", "-e" },
+		description = "Sparql Endpoint URL (Required)",
+		required = true, 
+		validateWith = URIValidator.class, 
+		order = 1)
 	private String endpointURL;
 
-	@Parameter(names = { "--query-path",
-			"-q" }, description = "Path to the .sparql query file or directory (Required)", validateWith = QueryPath.class, required = true, order = 2)
+	@Parameter(
+		names = { "--query-path", "-q" },
+		description = "Path to the .sparql query file or directory (Required)",
+		validateWith = QueryPath.class,
+		required = true,
+		order = 2)
 	private String queryPath;
 
-	@Parameter(names = { "--result-path",
-			"-r" }, description = "Path to the folder to save the result to (Required)", validateWith = ResultFolderPath.class, required = true, order = 3)
+	@Parameter(
+		names = { "--result-path", "-r" },
+		description = "Path to the folder to save the result to (Required)",
+		validateWith = ResultFolderPath.class,
+		required = true,
+		order = 3)
 	private String resultPath;
 
-	@Parameter(names = { "--debug", "-d" }, description = "Shows debug logging statements", order = 4)
+	@Parameter(
+		names = { "--debug", "-d" },
+		description = "Shows debug logging statements",
+		order = 4)
 	private boolean debug;
 
-	@Parameter(names = { "--help", "-h" }, description = "Displays summary of options", help = true, order = 5)
+	@Parameter(
+		names = { "--help", "-h" },
+		description = "Displays summary of options",
+		help = true,
+		order = 5)
 	private boolean help;
 
 	private final Logger LOGGER = Logger.getLogger(OwlShaclFusekiApp.class);
@@ -86,6 +105,51 @@ public class OwlShaclFusekiApp {
 			((AppenderSkeleton) appender).setThreshold(Level.DEBUG);
 		}
 		app.run();
+	}
+
+	private void run() {
+		LOGGER.info("=================================================================");
+		LOGGER.info("                        S T A R T");
+		LOGGER.info("                     OWL Query " + getAppVersion());
+		LOGGER.info("=================================================================");
+		LOGGER.info("Endpoint URL: " + endpointURL);
+		LOGGER.info("Query path: " + queryPath);
+		LOGGER.info("Result location: " + resultPath);
+
+		final File queryFile = new File(queryPath);
+
+		// Collect the queries (single file and directory handled the same way)
+		// Key = fileName value = query
+		HashMap<String, File> queries = getQueries(queryFile);
+		// Check for any issues
+		if (queries == null) {
+			System.exit(1);
+		}
+		// Check for no given sparql files in a directory
+		if (queries.size() == 0) {
+			LOGGER.error("Warning: no .ttl files were found in the given directory.");
+			System.exit(10);
+		}
+
+		// Execute the queries in parallel
+		ArrayList<Thread> threads = new ArrayList<>();
+		queries.forEach((name, query) -> {
+			// For every query, execute it in parallel
+			Thread thread = new Thread(() -> executeQuery(name, query));
+			threads.add(thread);
+			thread.start();
+		});
+		threads.forEach(it -> {
+			try {
+				it.join();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		});
+
+		LOGGER.info("=================================================================");
+		LOGGER.info("                          E N D");
+		LOGGER.info("=================================================================");
 	}
 
 	/**
@@ -244,51 +308,6 @@ public class OwlShaclFusekiApp {
 						"Paramter " + name + " does not exist at " + value + "\n Please give an existing input");
 			}
 		}
-	}
-
-	private void run() {
-		LOGGER.info("=================================================================");
-		LOGGER.info("                        S T A R T");
-		LOGGER.info("                     OWL Query " + getAppVersion());
-		LOGGER.info("=================================================================");
-		LOGGER.info("Endpoint URL: " + endpointURL);
-		LOGGER.info("Query path: " + queryPath);
-		LOGGER.info("Result location: " + resultPath);
-
-		final File queryFile = new File(queryPath);
-
-		// Collect the queries (single file and directory handled the same way)
-		// Key = fileName value = query
-		HashMap<String, File> queries = getQueries(queryFile);
-		// Check for any issues
-		if (queries == null) {
-			System.exit(1);
-		}
-		// Check for no given sparql files in a directory
-		if (queries.size() == 0) {
-			LOGGER.error("Warning: no .ttl files were found in the given directory.");
-			System.exit(10);
-		}
-
-		// Execute the queries in parallel
-		ArrayList<Thread> threads = new ArrayList<>();
-		queries.forEach((name, query) -> {
-			// For every query, execute it in parallel
-			Thread thread = new Thread(() -> executeQuery(name, query));
-			threads.add(thread);
-			thread.start();
-		});
-		threads.forEach(it -> {
-			try {
-				it.join();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		});
-
-		LOGGER.info("=================================================================");
-		LOGGER.info("                          E N D");
-		LOGGER.info("=================================================================");
 	}
 
 }
