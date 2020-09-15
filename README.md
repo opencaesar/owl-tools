@@ -31,8 +31,12 @@ A tool to analyze an OWL dataset for satisfiability and consistency with an OWL2
 
 ## [OWL Load](owl-tools/owl-load/README.md) [ ![Download](https://api.bintray.com/packages/opencaesar/owl-tools/owl-load/images/download.svg) ](https://bintray.com/opencaesar/owl-tools/owl-load/_latestVersion)
 
-A tool to load a catalog of OWL ontologies to a data store endpoint
+A tool to load a catalog of OWL ontologies to a database endpoint
 
 ## [OWL Query](owl-tools/owl-query/README.md) [ ![Download](https://api.bintray.com/packages/opencaesar/owl-tools/owl-query/images/download.svg) ](https://bintray.com/opencaesar/owl-tools/owl-query/_latestVersion)
 
-A tool to send a SPARQL query to a data store endpoint and save the result
+A tool to send a SPARQL query to a database endpoint and save the result
+
+## [OWL Shacl](owl-tools/owl-shacl-fuseki/README.md) [ ![Download](https://api.bintray.com/packages/opencaesar/owl-tools/owl-shacl-fuseki/images/download.svg) ](https://bintray.com/opencaesar/owl-tools/owl-shacl-fuseki/_latestVersion)
+
+A tool to send SHACL queries to a database endpoint and save the result

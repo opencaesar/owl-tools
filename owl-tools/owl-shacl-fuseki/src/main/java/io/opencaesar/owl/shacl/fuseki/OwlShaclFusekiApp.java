@@ -60,7 +60,7 @@ public class OwlShaclFusekiApp {
 
 	@Parameter(
 		names = { "--query-path", "-q" },
-		description = "Path to the .sparql query file or directory (Required)",
+		description = "Path to a .shacl query file or directory (Required)",
 		validateWith = QueryPath.class,
 		required = true,
 		order = 2)

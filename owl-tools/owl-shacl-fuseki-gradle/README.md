@@ -19,8 +19,7 @@ buildscript {
 }
 task owlShaclFuseki(type:io.opencaesar.owl.query.OwlShaclFusekiTask) {
 	endpointURL = 'url-of-sparql-endpoint' [Required]
-	queryPath = file('path/to/query.sparql') [Required]
-	resultPath = file('path/to/result.frame') [Required]
-    format = 'xml' [Optional, default is xml, other options: json, csv, n3, ttl, n-triple, or tsv]
+	queryPath = file('path/to/queries.shacl') [Required, path to file or folder]
+	resultPath = file('path/to/result/folder') [Required]
 }               
 ```
