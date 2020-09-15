@@ -37,6 +37,6 @@ A tool to load a catalog of OWL ontologies to a database endpoint
 
 A tool to send a SPARQL query to a database endpoint and save the result
 
-## [OWL Shacl](owl-tools/owl-shacl-fuseki/README.md) [ ![Download](https://api.bintray.com/packages/opencaesar/owl-tools/owl-shacl-fuseki/images/download.svg) ](https://bintray.com/opencaesar/owl-tools/owl-shacl-fuseki/_latestVersion)
+## [OWL Shacl Fuseki](owl-tools/owl-shacl-fuseki/README.md) [ ![Download](https://api.bintray.com/packages/opencaesar/owl-tools/owl-shacl-fuseki/images/download.svg) ](https://bintray.com/opencaesar/owl-tools/owl-shacl-fuseki/_latestVersion)
 
-A tool to send SHACL queries to a database endpoint and save the result
+A tool to send SHACL queries to a Fuseki database endpoint and save the result
