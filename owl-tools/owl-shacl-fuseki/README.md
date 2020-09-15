@@ -1,4 +1,4 @@
-# OWL Query
+# OWL Shacl
 
 [ ![Download](https://api.bintray.com/packages/opencaesar/owl-tools/owl-shacl-fuseki/images/download.svg) ](https://bintray.com/opencaesar/owl-tools/owl-shacl-fuseki/_latestVersion)
 
