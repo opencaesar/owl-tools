@@ -2,7 +2,7 @@
 
 [ ![Download](https://api.bintray.com/packages/opencaesar/owl-tools/owl-load/images/download.svg) ](https://bintray.com/opencaesar/owl-tools/owl-load/_latestVersion)
 
-A tool to load OWL files to a SPARQL end point. 
+A tool to clear and load a Fuseki dataset with the transitive closure of all imported ontologies from a set of Catalog-resolved IRIs.
 
 ## Run as CLI
 
@@ -18,9 +18,10 @@ gradlew.bat owl-load:run --args="..."
 ```
 Args:
 ```
---catalog-path | -c path/to/owl/catalog.xml [Required]
---endpoint-url | -e http://sparqlURL/dataset [Required]
---file-extensions | -f: comma,separated,file,extensions [Optional, default is owl]
+--iri | -i <IRI>                                        [Required, at least one]
+--catalog-path | -c path/to/owl/catalog.xml             [Required]
+--endpoint-url | -e http://fusekiURL/dataset            [Required]
+--file-extensions | -f extension                       [Optional, default: -f ttl -f owl]
 ```
 Note: The dataset (database) must have been created prior to execution
 
