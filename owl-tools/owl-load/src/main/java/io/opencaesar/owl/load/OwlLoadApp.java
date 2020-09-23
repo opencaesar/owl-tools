@@ -1,13 +1,13 @@
 /**
  * Copyright 2019 California Institute of Technology ("Caltech").
  * U.S. Government sponsorship acknowledged.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,11 +20,12 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 import org.apache.jena.ext.com.google.common.io.CharStreams;
+import org.apache.jena.query.Dataset;
 import org.apache.jena.rdfconnection.RDFConnection;
 import org.apache.jena.rdfconnection.RDFConnectionRemote;
 import org.apache.jena.rdfconnection.RDFConnectionRemoteBuilder;
@@ -34,181 +35,228 @@ import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
+import org.semanticweb.owlapi.apibinding.OWLManager;
+import org.semanticweb.owlapi.model.IRI;
+import org.semanticweb.owlapi.model.OWLOntology;
+import org.semanticweb.owlapi.model.OWLOntologyCreationException;
+import org.semanticweb.owlapi.model.OWLOntologyManager;
 
 import com.beust.jcommander.IParameterValidator;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 
-
 public class OwlLoadApp {
-  
-	@Parameter(
-		names = { "--catalog-path", "-c" },
-		description = "Path to the OWL XML catalog file (Required)",
-		validateWith = CatalogPath.class,
-		required = true, 
-		order = 1)
-	private String catalogPath;
-	
-	@Parameter(
-			names = { "--endpoint-url", "-e" },
-			description = "URL (endpointURL) of the dataset in a triple store (Required)",
-			required = true,
-			order = 2)
-	private String endpointURL;
-	
-	@Parameter(
-			names = { "--file-extensions", "-f" },
-			description = "File extensions of files that will be uploaded. Default is only .owl (Not Required)",
-			required = false,
-			order = 3)
-	private List<String> fileExtensions = new ArrayList<String>();
-	{
-		fileExtensions.add("owl");
-	}
-	
-	@Parameter(
-		names = { "-d", "--debug" },
-		description = "Shows debug logging statements",
-		order = 4)
-	private boolean debug;
 
-	@Parameter(
-		names = { "--help", "-h" },
-		description = "Displays summary of options",
-		help = true,
-		order =5)
-	private boolean help;
-		
-	private final static Logger LOGGER = Logger.getLogger(OwlLoadApp.class);
-	{
+    @Parameter(
+            names = {"--iri", "-i"},
+            description = "IRIs to load (Required)",
+            required = true,
+            order = 1)
+    private List<String> iris = new ArrayList<>();
+
+    @Parameter(
+            names = {"--catalog-path", "-c"},
+            description = "Path to the OWL XML catalog file (Required)",
+            validateWith = CatalogPath.class,
+            required = true,
+            order = 2)
+    private String catalogPath;
+
+    @Parameter(
+            names = {"--endpoint-url", "-e"},
+            description = "URL (endpointURL) of the dataset in a triple store (Required)",
+            required = true,
+            order = 3)
+    private String endpointURL;
+
+    @Parameter(
+            names = {"--file-extensions", "-f"},
+            description = "File extensions of files that will be uploaded. Default is only .owl (Not Required)",
+            order = 4)
+    private List<String> fileExtensions = new ArrayList<>();
+
+    {
+        fileExtensions.add("owl");
+        fileExtensions.add("ttl");
+    }
+
+    @Parameter(
+            names = {"-d", "--debug"},
+            description = "Shows debug logging statements",
+            order = 5)
+    private boolean debug;
+
+    @Parameter(
+            names = {"--help", "-h"},
+            description = "Displays summary of options",
+            help = true,
+            order = 6)
+    private boolean help;
+
+    private final static Logger LOGGER = Logger.getLogger(OwlLoadApp.class);
+
+    static {
         DOMConfigurator.configure(ClassLoader.getSystemClassLoader().getResource("log4j.xml"));
-	}
+    }
 
-	public static void main(final String... args) throws Exception {
-		final OwlLoadApp app = new OwlLoadApp();
-		final JCommander builder = JCommander.newBuilder().addObject(app).build();
-		builder.parse(args);
-		if (app.help) {
-			builder.usage();
-			return;
-		}
-		if (app.debug) {
-			final Appender appender = LogManager.getRootLogger().getAppender("stdout");
-			((AppenderSkeleton) appender).setThreshold(Level.DEBUG);
-		}
-		app.run();
-	}
+    public static void main(final String... args) throws Exception {
+        final OwlLoadApp app = new OwlLoadApp();
+        final JCommander builder = JCommander.newBuilder().addObject(app).build();
+        builder.parse(args);
+        if (app.help) {
+            builder.usage();
+            return;
+        }
+        if (app.debug) {
+            final Appender appender = LogManager.getRootLogger().getAppender("stdout");
+            ((AppenderSkeleton) appender).setThreshold(Level.DEBUG);
+        }
+        app.run();
+    }
 
-	private void run() throws Exception {
-		LOGGER.info("=================================================================");
-		LOGGER.info("                        S T A R T");
-		LOGGER.info("                     OWL Load " + getAppVersion());
-		LOGGER.info("=================================================================");
-		LOGGER.info(("Catalog path = " + catalogPath));	    
-		LOGGER.info(("Endpoint URL = " + endpointURL));
-		LOGGER.info(("File Extensions = " + fileExtensions)); 
+    private CompletableFuture<Void> loadOntology(final OWLOntology ont, final ExecutorService pool) {
+        return CompletableFuture.runAsync(() -> {
+            //Create remote connection to Fuseki server
+            RDFConnectionRemoteBuilder builder = RDFConnectionRemote.create()
+                    .updateEndpoint("update")
+                    .queryEndpoint("sparql")
+                    .destination(endpointURL);
+            RDFConnection conn = builder.build();
+            try {
+                IRI documentIRI = ont.getOWLOntologyManager().getOntologyDocumentIRI(ont);
+                String documentFile = documentIRI.toURI().toURL().getFile();
+                Optional<IRI> defaultDocumentIRI = ont.getOntologyID().getDefaultDocumentIRI();
+                assert(defaultDocumentIRI.isPresent());
+                String graphName = defaultDocumentIRI.get().getIRIString();
+                conn.load(graphName, documentFile);
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                conn.commit();
+                conn.close();
+                conn.end();
+            }
+        }, pool);
+    }
 
-		// Get files from catalog - Reused from owl-diff
-		File catalogFile = new File(catalogPath); 
-		final File folder = catalogFile.getParentFile();
-		final Collection<File> files = collectOwlFiles(folder, fileExtensions);
-		
-		// Load the files into the dataset in parallel
-		ArrayList<Thread> threads = new ArrayList<Thread>(); 
-		for (File file: files) {
-			Thread thread = new Thread(new Runnable() {
-				public void run() {
-					//Create remote connection to Fuseki server
-					RDFConnectionRemoteBuilder builder = RDFConnectionRemote.create()
-							.updateEndpoint("update")
-							.queryEndpoint("sparql")
-							.destination(endpointURL);
-					RDFConnection conn = builder.build();
-					try {
-						conn.load(file.getPath());
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-					finally {
-						conn.commit();
-						conn.close();
-						conn.end();
-					}
-				}
-			});
-			threads.add(thread); 
-			thread.start(); 
-		}
-		threads.forEach(it -> {
-			try {
-				it.join();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		});
+    private void run() throws Exception {
+        LOGGER.info("=================================================================");
+        LOGGER.info("                        S T A R T");
+        LOGGER.info("                     OWL Load " + getAppVersion());
+        LOGGER.info("=================================================================");
+        LOGGER.info(("Catalog path = " + catalogPath));
+        LOGGER.info(("Endpoint URL = " + endpointURL));
+        LOGGER.info(("File Extensions = " + fileExtensions));
 
-		LOGGER.info("=================================================================");
-		LOGGER.info("                          E N D");
-		LOGGER.info("=================================================================");
-	}
-	
-	/**
-	 * Get application version id from properties file.
-	 * 
-	 * @return version string from build.properties or UNKNOWN
-	 */
-	private String getAppVersion() {
-		String version = "UNKNOWN";
-		try {
-			InputStream input = Thread.currentThread().getContextClassLoader().getResourceAsStream("version.txt");
-			InputStreamReader reader = new InputStreamReader(input);
-			version = CharStreams.toString(reader);
-		} catch (IOException e) {
-			String errorMsg = "Could not read version.txt file." + e;
-			LOGGER.error(errorMsg, e);
-		}
-		return version;
-	}
+        // Delete all existing models of the dataset before loading anything.
+        RDFConnectionRemoteBuilder builder = RDFConnectionRemote.create()
+                .updateEndpoint("update")
+                .queryEndpoint("sparql")
+                .destination(endpointURL);
+        RDFConnection conn = builder.build();
+        try {
+            Dataset ds = conn.fetchDataset();
+            List<String> names = new ArrayList<>();
+            ds.listNames().forEachRemaining(names::add);
+            names.forEach(conn::delete);
+        } finally {
+            conn.commit();
+            conn.close();
+            conn.end();
+        }
 
-	// Given a File directory, return an Collection of Files (implemented as ArrayList) - Reused from owl-diff
-	// Add parameter to account for multiple file extensions 
-	private Collection<File> collectOwlFiles(final File directory, List<String> fileExt) {
-		ArrayList<File> omlFiles = new ArrayList<File>();
-		for (File file : directory.listFiles()) {
-			if (file.isFile()) {
-				//Edited to accept any of the given file extensions 
-				if (fileExt.contains(getFileExtension(file))) {
-					omlFiles.add(file);
-				}
-			} else if (file.isDirectory()) {
-				omlFiles.addAll(collectOwlFiles(file, fileExt));
-			}
-		}
-		return omlFiles;
-	}
-	
-	//Reused from owl-diff
-	public String getFileExtension(final File file) {
-        String fileName = file.getName();
-        if (fileName.lastIndexOf(".") != -1)
-        	return fileName.substring(fileName.lastIndexOf(".")+1);
-        else 
-        	return "";
-	}
+        LOGGER.info("create ontology manager");
+        final OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
+        if (manager == null) {
+            throw new RuntimeException("couldn't create owl ontology manager");
+        }
+        LOGGER.debug("add location mappers");
+        XMLCatalogIRIMapper mapper = new XMLCatalogIRIMapper(new File(catalogPath), fileExtensions);
+        manager.getIRIMappers().add(mapper);
 
-	public static class CatalogPath implements IParameterValidator {
-		@Override
-		public void validate(final String name, final String value) throws ParameterException {
-			File file = new File(value);
-			if (!file.exists()) {
-				throw new ParameterException("Catalog not found, please give a valid catalog. Does not exist at: " + value); 
-			}
-			if (!file.getName().endsWith("catalog.xml")) {
-				throw new ParameterException("Parameter " + name + " should be a valid OWL catalog path");
-			}
-		}
-	}
-		
+        iris.forEach(iri -> {
+            LOGGER.info("load ontology " + iri);
+            try {
+                final OWLOntology ont = manager.loadOntology(IRI.create(iri));
+                if (ont == null) {
+                    throw new RuntimeException("couldn't load ontology at IRI=" + iri);
+                }
+            } catch (OWLOntologyCreationException e) {
+                e.printStackTrace();
+            }
+        });
+
+        final Set<OWLOntology> allOntologies = manager.ontologies().flatMap(manager::importsClosure).collect(Collectors.toUnmodifiableSet());
+        LOGGER.info("Loading "+allOntologies.size()+" ontologies...");
+
+        // Creates a work-stealing thread pool using all available processors as its target parallelism level.
+        final ExecutorService pool = Executors.newWorkStealingPool();
+        CompletableFuture<Void> allLoaded = CompletableFuture.allOf(allOntologies.stream().map(ont -> loadOntology(ont, pool)).toArray(CompletableFuture[]::new));
+
+        allLoaded.get();
+        LOGGER.info("All ontologies loaded.");
+
+        shutdownAndAwaitTermination(pool);
+
+        LOGGER.info("=================================================================");
+        LOGGER.info("                          E N D");
+        LOGGER.info("=================================================================");
+    }
+
+    /**
+     * @param pool An ExecutionService
+     * @see <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/concurrent/ExecutorService.html">ExecutorService Usage</a>
+     */
+    void shutdownAndAwaitTermination(ExecutorService pool) {
+        pool.shutdown(); // Disable new tasks from being submitted
+        try {
+            // Wait a while for existing tasks to terminate
+            if (!pool.awaitTermination(60, TimeUnit.SECONDS)) {
+                pool.shutdownNow(); // Cancel currently executing tasks
+                // Wait a while for tasks to respond to being cancelled
+                if (!pool.awaitTermination(60, TimeUnit.SECONDS))
+                    System.err.println("Pool did not terminate");
+            }
+        } catch (InterruptedException ie) {
+            // (Re-)Cancel if current thread also interrupted
+            pool.shutdownNow();
+            // Preserve interrupt status
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    /**
+     * Get application version id from properties file.
+     *
+     * @return version string from build.properties or UNKNOWN
+     */
+    private String getAppVersion() {
+        String version = "UNKNOWN";
+        try {
+            InputStream input = Thread.currentThread().getContextClassLoader().getResourceAsStream("version.txt");
+            if (null != input) {
+                InputStreamReader reader = new InputStreamReader(input);
+                version = CharStreams.toString(reader);
+            }
+        } catch (IOException e) {
+            String errorMsg = "Could not read version.txt file." + e;
+            LOGGER.error(errorMsg, e);
+        }
+        return version;
+    }
+
+    public static class CatalogPath implements IParameterValidator {
+        @Override
+        public void validate(final String name, final String value) throws ParameterException {
+            File file = new File(value);
+            if (!file.exists()) {
+                throw new ParameterException("Catalog not found, please give a valid catalog. Does not exist at: " + value);
+            }
+            if (!file.getName().endsWith("catalog.xml")) {
+                throw new ParameterException("Parameter " + name + " should be a valid OWL catalog path");
+            }
+        }
+    }
+
 }
