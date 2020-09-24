@@ -9,7 +9,5 @@ applicationName = 'owl-load'
 
 dependencies {
 	implementation "org.apache.jena:jena-rdfconnection:${versions.jena}"
-	implementation "com.github.galigator.openllet:openllet-owlapi:${versions.openllet}"
-	implementation "com.github.galigator.openllet:openllet-explanation:${versions.openllet}"
-	implementation "com.github.galigator.openllet:openllet-jena:${versions.openllet}"
+    implementation "net.sourceforge.owlapi:owlapi-distribution:${versions.owl}"
 }
