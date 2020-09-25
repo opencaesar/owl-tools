@@ -5,6 +5,9 @@ description = 'A tool to load a set of OWL files to a SPARQL endpoint'
 mainClassName = 'io.opencaesar.owl.load.OwlLoadApp'
 applicationName = 'owl-load'
 
+// Note: This library uses the OpenJDK XML Catalog API implementation instead of the old Apache XML Catalog library.
+
 dependencies {
 	implementation "org.apache.jena:jena-rdfconnection:${versions.jena}"
+    implementation "net.sourceforge.owlapi:owlapi-distribution:${versions.owl}"
 }

@@ -5,3 +5,5 @@ xtend-gen
 build
 .gradle
 .launch
+*.eml
+*.iml
