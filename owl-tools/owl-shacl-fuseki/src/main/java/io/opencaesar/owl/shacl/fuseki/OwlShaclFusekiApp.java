@@ -183,7 +183,7 @@ public class OwlShaclFusekiApp {
 		var client = HttpClient.newHttpClient();
 
 		try {
-			var request = HttpRequest.newBuilder(URI.create(endpointURL)).header("Content-Type", "text/turtle")
+			var request = HttpRequest.newBuilder(URI.create(endpointURL+"/shacl?graph=default")).header("Content-Type", "text/turtle")
 					.header("Accept", "text/turtle")
 					.POST(HttpRequest.BodyPublishers.ofInputStream(Suppliers.ofInstance(new FileInputStream(query))))
 					.build();
