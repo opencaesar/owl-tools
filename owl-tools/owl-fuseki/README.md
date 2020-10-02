@@ -1,4 +1,4 @@
-# OWL Load
+# OWL Fuseki
 
 [ ![Download](https://api.bintray.com/packages/opencaesar/owl-tools/owl-fuseki/images/download.svg) ](https://bintray.com/opencaesar/owl-tools/owl-fuseki/_latestVersion)
 
@@ -17,9 +17,9 @@ gradlew.bat owl-fuseki:run --args="..."
 ```
 Args:
 ```
---command | -c start|stop                               [Required]
---configurationPath | -g path/to/.fuseki.ttl            [Required]
---outputFolderPath | -i path/to/output/folder  		    [Required]
+--command | -c start|stop								[Required]
+--configurationPath | -g path/to/.fuseki.ttl			[Required]
+--outputFolderPath | -i path/to/output/folder			[Required]
 ```
 
 ## Run as Gradle Task
