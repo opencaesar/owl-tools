@@ -1,12 +1,142 @@
 package io.opencaesar.owl.fuseki;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.Optional;
 
+import org.apache.jena.ext.com.google.common.io.CharStreams;
+import org.apache.log4j.Appender;
+import org.apache.log4j.AppenderSkeleton;
+import org.apache.log4j.Level;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+import org.apache.log4j.xml.DOMConfigurator;
+
+import com.beust.jcommander.IStringConverter;
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.Parameter;
+import com.beust.jcommander.ParameterException;
+
 public class FusekiApp {
 
+	enum Command {
+		start,
+		stop
+	}
+	
+    @Parameter(
+            names = {"--command", "-c"},
+            description = "An enumerated command: start or stop (Required)",
+            converter = CommandConverter.class,
+            required = true,
+            order = 1)
+    private Command command;
+	
+    @Parameter(
+            names = {"--configurationPath", "-g"},
+            description = "A path to a configuration file (Required)",
+            required = false,
+            order = 2)
+    private String configurationPath;
+	
+    @Parameter(
+            names = {"--outputFolderPath", "-o"},
+            description = "A path to an output folder (Required)",
+            required = true,
+            order = 3)
+    private String outputFolderPath;
+	
+    @Parameter(
+            names = {"--debug", "-d"},
+            description = "Shows debug logging statements",
+            order = 4)
+    private boolean debug;
+
+    @Parameter(
+            names = {"--help", "-h"},
+            description = "Displays summary of options",
+            help = true,
+            order = 5)
+    private boolean help;
+	
+    private final static Logger LOGGER = Logger.getLogger(FusekiApp.class);
+
+    static {
+        DOMConfigurator.configure(ClassLoader.getSystemClassLoader().getResource("log4j.xml"));
+    }
+
+    public static void main(final String... args) throws Exception {
+        final FusekiApp app = new FusekiApp();
+        final JCommander builder = JCommander.newBuilder().addObject(app).build();
+        builder.parse(args);
+        if (app.help) {
+            builder.usage();
+            return;
+        }
+        if (app.debug) {
+            final Appender appender = LogManager.getRootLogger().getAppender("stdout");
+            ((AppenderSkeleton) appender).setThreshold(Level.DEBUG);
+        }
+        app.run();
+    }
+
+    private void run() throws Exception {
+    	LOGGER.info("=================================================================");
+    	LOGGER.info("                        S T A R T");
+    	LOGGER.info("                     OWL Fuseki " + getAppVersion());
+    	LOGGER.info("=================================================================");
+    	LOGGER.info(("Command = " + command));
+    	LOGGER.info(("Configuration path = " + configurationPath));
+    	LOGGER.info(("Output folder path = " + outputFolderPath));
+        
+    	if (command == Command.start) {
+    		startFuseki(new File(configurationPath), new File(outputFolderPath));
+    	} else {
+    		stopFuseki(new File(outputFolderPath));
+    	}
+        
+    	LOGGER.info("=================================================================");
+    	LOGGER.info("                          E N D");
+    	LOGGER.info("=================================================================");
+    }
+
+    private String getAppVersion() {
+        String version = "UNKNOWN";
+        try {
+            InputStream input = Thread.currentThread().getContextClassLoader().getResourceAsStream("version.txt");
+            if (null != input) {
+                InputStreamReader reader = new InputStreamReader(input);
+                version = CharStreams.toString(reader);
+            }
+        } catch (IOException e) {
+            String errorMsg = "Could not read version.txt file." + e;
+            LOGGER.error(errorMsg, e);
+        }
+        return version;
+    }
+
+    public class CommandConverter implements IStringConverter<Command> {
+
+		@Override
+		public Command convert(String value) {
+			Command c = Command.valueOf(value);
+			if (c == null) {
+				throw new ParameterException("Value "+value+" is not a valid (only start or stop)"); 
+			}
+			return c;
+		}
+    	
+    }
+    
     /**
      * Starts a background Fuseki server from a Fuseki configuration file.
      *
@@ -18,20 +148,17 @@ public class FusekiApp {
      * @throws IllegalArgumentException If there exists a process whose ID matches 'fuseki.pid' from the output directory.
      */
     public static void startFuseki(File config, File outputDirectory) throws IOException {
-        String java = getJavaCommandPath();
-        String jar = findJar("org.apache.jena.fuseki.main.cmds.FusekiMainCmd");
-
         Optional<ProcessHandle> ph = findFusekiProcess(outputDirectory);
         if (ph.isPresent()) {
             throw new IllegalArgumentException("There is already a fuseki server running with pid="+ph.get().pid());
         }
         outputDirectory.mkdirs();
-        deleteDirectoryRecursively(outputDirectory);
-        outputDirectory.mkdir();
         Path output = outputDirectory.toPath();
         File log = output.resolve("fuseki.log").toFile();
         File pid = output.resolve("fuseki.pid").toFile();
 
+        String java = getJavaCommandPath();
+        String jar = findJar("org.apache.jena.fuseki.main.cmds.FusekiMainCmd");
         ProcessBuilder pb = new ProcessBuilder(java, "-jar", jar, "--config=" + config.getAbsolutePath());
         pb.directory(output.toFile());
         pb.redirectErrorStream(true);
@@ -83,7 +210,8 @@ public class FusekiApp {
         boolean ok = p.destroyForcibly();
         if (!ok)
             throw new IllegalArgumentException("Failed to kill fuseki process with pid=" + p.pid());
-    }
+        deleteDirectoryRecursively(fusekiDir);
+   }
 
     /**
      * Find the path of a jar on the classpath that provides a class by its dot-qualified name.
