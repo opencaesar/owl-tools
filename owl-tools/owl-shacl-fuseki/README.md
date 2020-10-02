@@ -27,4 +27,21 @@ Args:
     (Supported formats depend on the query type)
 ```
 
-## [Run as Gradle Task](../owl-shacl-fuseki-gradle/README.md)
+## Run as Gradle Task
+```
+buildscript {
+	repositories {
+		maven { url 'https://dl.bintray.com/opencaesar/owl-tools' }
+  		mavenCentral()
+		jcenter()
+	}
+	dependencies {
+		classpath 'io.opencaesar.owl:owl-shacl-fuseki-gradle:+'
+	}
+}
+task owlShaclFuseki(type:io.opencaesar.owl.query.OwlShaclFusekiTask) {
+	endpointURL = 'url-of-sparql-endpoint' [Required]
+	queryPath = file('path/to/queries.shacl') [Required, path to file or folder]
+	resultPath = file('path/to/result/folder') [Required]
+}               
+```

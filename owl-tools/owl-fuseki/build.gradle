@@ -1,0 +1,10 @@
+apply plugin: 'application'
+
+ext.title = 'OWL Fuseki'
+description = 'A tool to start/stop a background fuseki server.'
+mainClassName = 'io.opencaesar.owl.fuseki.OwlFusekiApp'
+applicationName = 'owl-fuseki'
+
+dependencies {
+	implementation "org.apache.jena:jena-fuseki-server:${versions.jena}"
+}

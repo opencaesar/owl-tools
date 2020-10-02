@@ -1,0 +1,6 @@
+# text files have LF line endings.
+* text eol=lf
+
+# binary files are as-is.
+*.jar binary
+*.zip binary
