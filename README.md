@@ -27,7 +27,7 @@ A tool to produce a difference report between two OWL datasets
 
 ## [OWL Fuseki](owl-tools/owl-fuseki/README.md) [ ![Download](https://api.bintray.com/packages/opencaesar/owl-tools/owl-fuseki/images/download.svg) ](https://bintray.com/opencaesar/owl-tools/owl-fuseki/_latestVersion)
 
-A tool to start and stop a UU-less Fuseki server with a given configuration file
+A tool to start and stop a UI-less Fuseki server with a given configuration file
 
 ## [OWL Reason](owl-tools/owl-reason/README.md) [ ![Download](https://api.bintray.com/packages/opencaesar/owl-tools/owl-reason/images/download.svg) ](https://bintray.com/opencaesar/owl-tools/owl-reason/_latestVersion)
 
