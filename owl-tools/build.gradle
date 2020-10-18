@@ -51,10 +51,6 @@ subprojects {
 	    testImplementation "junit:junit:${versions.junit}"
 	}
 	
-	configurations.all {
-		exclude group: 'asm'
-	}
-
 	task createVersion {
 	    doLast {
 	        def version = project.version.toString()
