@@ -11,9 +11,6 @@ cache:
     - $HOME/.m2
     - $HOME/.gradle
 
-before_script:
-- cd owl-tools
-
 script:
   - ./gradlew build
 
@@ -24,5 +21,4 @@ deploy:
     dry-run: false
     on:
       tags: true
-      repo: opencaesar/owl-tools
       branch: master
