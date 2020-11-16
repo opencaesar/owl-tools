@@ -103,4 +103,26 @@ Now observe that if _C_ ⊆ _B_<sub>_i_</sub> ∩ _C_ and (by definition) _B_<su
 
 ![Step 2](step2.svg)
 
+Finally we note that the two sibling subclasses of _B_<sub>_i_</sub> are disjoint by definition, so the presence of _B_<sub>_i_</sub> in the graph is redundant for the purpose of applying the disjointness policy. We can therefore remove it as shown below:
+
+![Step 3](step3.svg)
+
+Now observe that after this step _C_ may still have multiple parents, but each of its paths to the root has now been shortened by one edge. Because by assumption _G_ is rooted, _C_ must after repeated applications of Steps 1-3 eventually have only a single parent, which may be the root. Therefore, repeated applications of the algorithm to _C_ will converge. The procedure removes the multi-parentedness of _C_ and creates no other multi-parent children, so repeated applications to each multi-parent child will converge. The resulting transformed graph is a tree.
+
+### Algorithm Implementation
+
+The transformation code does not follow the proof steps one-by-one. An outer while-loop selects, by depth-first search, the first multi-parent child _C_. If none, then _G_ is a tree and the algorithm terminates. If _C_ is found, then the subgraph rooted at _C_ is a tree (because the search is depth-first) and the following steps are applied.
+
+#### Bypass
+
+The edge from _C_ to each of its parents (_B_<sub>_i_</sub>) is replaced by an edge to each of its grandparents (_A_<sub>_i*_</sub>). That is, the parents of _C_ are bypassed.
+
+#### Reduce
+
+The _bypass_ step may leave _G_ no longer in transitive reduction form. The _reduce_ step removes any redundant edges among ancestors of _C_.
+
+#### Isolate
+
+The _isolate_ step replaces each _B_<sub>_i_</sub> with _B_<sub>_i_</sub> ∩ _C_.
+
 ## Description Bundle Closure
