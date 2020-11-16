@@ -4,7 +4,7 @@
 
 A library of different algorithms to close the world on OWL ontologies
 
-## Vocabulary Closure
+## Vocabulary Bundle Closure
 
 ### Introduction
 
@@ -83,6 +83,6 @@ The subclass relation is transitive, that is, if _A_ is a subclass of _B_ and _B
 #### Theory
 Let _T_ be a rooted taxonomy and let _G_ be the transitive reduction of a graph whose edges represent the is-subclass-of relation. Further suppose that _G_ is a directed acyclic graph. Then the ancestors of a class _A_ in _G_ correspond to the superclasses of _A_ (omitting _A_) in _T_ and the descendants of _A_ in _G_ correspond to the subclasses of _A_ (omitting _A_) in _T_.
 
-Suppose there exists a class _C_ such that _C_ ⊆ _B_<sub>1</sub>, _C_ ⊆ _B_<sub>2</sub>, …, _C_ ⊆ _B_<sub>_k_</sub> (where _k_ > 1), _D_<sub>1</sub> \subseteq _C_, _D_<sub>2</sub> \subseteq _C_, …, _D_<sub>_l_</sub> \subseteq _C_ (where l \geqq 0), and the sub-taxonomy rooted at _C_ is a tree. (See Figure [fig:Multi-parent-class]. Note that there may be other ancestors of _B_{i} and descendants of _D_{i} not shown, but there are no edges from any ancestor of _C_ to any descendant of _C_.)
+Suppose there exists a class _C_ such that _C_ ⊆ _B_<sub>1</sub>, _C_ ⊆ _B_<sub>2</sub>, …, _C_ ⊆ _B_<sub>_k_</sub> (where _k_ > 1), _D_<sub>1</sub> ⊆ _C_, _D_<sub>2</sub> ⊆ _C_, …, _D_<sub>_l_</sub> ⊆  _C_ (where l ≥ 0), and the sub-taxonomy rooted at _C_ is a tree. (See Figure [fig:Multi-parent-class]. Note that there may be other ancestors of _B_<sub>_i_</sub> and descendants of _D_<sub>_i_</sub> not shown, but there are no edges from any ancestor of _C_ to any descendant of _C_.)
   
-## Desciption Closure
+## Description Bundle Closure
