@@ -43,4 +43,32 @@ That fact follows from the definition of disjointness--a DL reasoner will infer 
 DisjointClasses(Car Vehicle)
 ```
 A reasoner will include that the set of cars is empty, but the empty set is a valid set. A class that can have no members is said to be _unsatisfiable_.
+
+### Disjointness Maintenance
+
+The general problem of disjointness maintenance is the augmentation of a taxonomy with disjointness axioms that encode a specific policy for vocabulary closure. It is of utmost importance to note that these disjointness axioms are in no sense implied by the taxonomy itself; indeed, the open world interpretation is that two classes are not considered to be disjoint unless explicitly declared to be so or if their disjointness is implied by mutually exclusive constraints such as property range or cardinality restrictions.
+
+The policy to be implemented here is simple: any two classes that have no common subclass are considered to be disjoint. A simple corollary is that, if _B_ is a subclass of _A_, then _A_ and _B_ are not disjoint because _A_ and _B_ have a common subclass, namely _B_. Also note that disjointness is inherited: if _A_ and _B_ are disjoint, then every subclass of _A_ is disjoint with every subclass of _B_. We can use this fact to make our generated disjointness axioms concise.
+
+This policy is inappropriate for, say, biological taxonomies in which we seel to classify objects as they exist in the real world, without teleological context. In that case, disjointness is a feature to be discovered (or not). Developing a vocabulary for engineering, in contrast, involves identifying important concepts and noting that, in many cases, these concepts are disjoint. By definition, an engineering requirement, the system component bound by that requirement, and the supplier of that component cannot be the same thing; they belong to disjoint categories. It is appropriate in this cases to declare our intent that the ontological classes `Requirement`, `Component`, and `Supplier` are disjoint.
+
+The implemented policy simply makes disjointness the default. Exceptions must be stated explicitly.
+
+The objectives of a disjointness maintenance algorithm are threefold:
+
+1. to implement the disjointness policy,
+2. to minimize the number of disjointness axioms generated, and
+3. to generate disjointness axioms of tractable computational complexity for a reasoner.
+
+The final item is beyond the expertise of the authors. We focus on the first two and hope for the best with the third.
+
+### The Simplest Case
+Consider the case of a taxonomy that is a _directed rooted tree_ in the graph-theoretic sense. A _tree_ is an undirected graph that is connected and acyclic. (An equivalent condition is that there is exactly one path between any two vertices.) A _directed tree_ is a tree in which the edges are directed, and a _rooted tree_ is a directed tree in which a single vertex is designated the _root_. For this discussion we will take edge direction to be from subclass to superclass; the parents of a vertex correspond to its superclasses and its children correspond to its subclasses. The root vertex is the universal set _U_.
+
+#### Theorem 1
+_Declaring all sibling subclasses of every class disjoint satisfies the disjointness policy._
+##### Proof: Necessity
+Any two sibling subclasses _A_ and _B_ of a common superclass cannot share a common subclass. If a common subclass existed, there would be two paths to the root from it: one through _A_ and one through _B_. Every tree contains exactly one path between any pair of vertices, so a common subclass cannot exist.
+##### Proof: Sufficiency
+Proof. Any two sibling subclasses _A_ and _B_ of a common superclass cannot share a common subclass. If a common subclass existed, there would be two paths to the root from it: one through _A_ and one through _B_. Every tree contains exactly one path between any pair of vertices, so a common subclass cannot exist.
 ## Desciption Closure
