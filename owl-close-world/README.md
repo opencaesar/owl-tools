@@ -99,5 +99,8 @@ The first step of the procedure makes use of the identity _B_<sub>_i_</sub> ≡ 
 
 ![Step 1](step1.svg)
 
+Now observe that if _C_ ⊆ _B_<sub>_i_</sub> ∩ _C_ and (by definition) _B_<sub>_i_</sub> ∩ _C_ ⊆ _C_, then _C_ ≡ _B_<sub>_i_</sub> ∩ _C_. We can therefore substitute as shown below:
+
+![Step 2](step2.svg)
 
 ## Description Bundle Closure
