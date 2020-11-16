@@ -91,7 +91,7 @@ Note that there may be other ancestors of _B_<sub>_i_</sub> and descendants of _
 
 Consider a particular parent of _C_, _B_<sub>_i_</sub>, and its parents _A_<sub>1</sub>, _A_<sub>1</sub>, …, _A_<sub>_j</sub>. Because _T_ is rooted, _j_ > 0.
 
-![Detail for Bi](initial.svg)
+![Detail for Bi](bidetail.svg)
 
 Note that the fact that _T_ is in reduced form implies that no _B_<sub>_n_</sub> is a sub- or superclass of _B_<sub>_i_</sub> for _n_ ≠ _i_.
 
