@@ -95,4 +95,9 @@ Consider a particular parent of _C_, _B_<sub>_i_</sub>, and its parents _A_<sub>
 
 Note that the fact that _T_ is in reduced form implies that no _B_<sub>_n_</sub> is a sub- or superclass of _B_<sub>_i_</sub> for _n_ ≠ _i_.
 
+The first step of the procedure makes use of the identity _B_<sub>_i_</sub> ≡ (_B_<sub>_i_</sub> \ _C_) ⋃ (_B_<sub>_i_</sub> ∩ _C_). Because there are no edges from _C_ or any of its descendants to any _E_<sub>_j*_</sub>, we can use the disjointness policy to rewrite the graph as shown below:
+
+![Step 1](step1.svg)
+
+
 ## Description Bundle Closure
