@@ -71,4 +71,11 @@ _Declaring all sibling subclasses of every class disjoint satisfies the disjoint
 Any two sibling subclasses _A_ and _B_ of a common superclass cannot share a common subclass. If a common subclass existed, there would be two paths to the root from it: one through _A_ and one through _B_. Every tree contains exactly one path between any pair of vertices, so a common subclass cannot exist.
 ##### Proof: Sufficiency
 Proof. Any two sibling subclasses _A_ and _B_ of a common superclass cannot share a common subclass. If a common subclass existed, there would be two paths to the root from it: one through _A_ and one through _B_. Every tree contains exactly one path between any pair of vertices, so a common subclass cannot exist.
+### The General Case
+In the general case, we cannot assume the taxonomy is a tree. There may be explicitly-asserted common subclasses, and these invalidate the assumptions that led to the simple algorithm in the simple case.
+
+One possible strategy for dealing with the general case is to apply a set of transformations to an arbitrary taxonomy that result in a tree and then apply the simple algorithm to the tree. These transformations should be chosen in such a way that the disjointness policy is still satisfied: that every pair of classes without an explicit common subclass is disjoint. In the event we cannot find a transformation that preserves the policy, it is important to ensure that the transformed taxonomy does not result in spurious unsatisfiability. That is, the transformed (relaxed) taxonomy may generate weaker disjointness constraints than the original, but must not generate stronger constraints than implied by the original.
+
+The subclass relation is transitive, that is, if _A_ is a subclass of _B_ and _B_ is a subclass of _C_, then _A_ is a subclass of _C_. It is true in this case that _A_ is a common subclass of _B_ and _C_, but so is _B_. The fact that _A_ is a subclass of _C_ does not rule out any disjointness not already ruled out. In the following discussions of algorithms, we will assume that the input has undergone transitive reduction and is maintained in reduced state.
+
 ## Desciption Closure
