@@ -24,6 +24,7 @@ We naturally expect that an object may be a `Vehicle` or it may be a `Person`, b
 If instead, however, we want to declare classes that are not disjoint because one is a subclass of the other, Java requires us to declare the relation explicitly:
 ```
 public class Vehicle {}
+public class Car extends Vehicle {}
 ```
 The situation with OWL and the Semantic Web is somewhat different. Suppose we declare OWL classes as follows:
 ```
