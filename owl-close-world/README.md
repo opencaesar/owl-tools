@@ -29,6 +29,8 @@ public class Car extends Vehicle {}
 The situation with OWL and the Semantic Web is somewhat different. Suppose we declare OWL classes as follows:
 ```
 Declaration(Class(Vehicle))
+Declaration(Class(Person))
+Declaration(Class(Car))
 ```
 If we assert nothing further, then any pair of classes may have a nonempty intersection. To assert the the situation from the Java example, we must add two axioms:
 ```
