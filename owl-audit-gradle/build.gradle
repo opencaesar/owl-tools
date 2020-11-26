@@ -1,0 +1,7 @@
+ext.title = 'OWL Audit Task'
+description = 'A gradle task to invoke owl audit'
+
+dependencies {
+	implementation gradleApi()
+    implementation project (':owl-audit')
+}
