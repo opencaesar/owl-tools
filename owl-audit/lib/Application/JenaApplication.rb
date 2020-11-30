@@ -14,18 +14,16 @@
 #
 #++
 
-require 'Application'
+require 'Application/Application'
 
 class JenaApplication < Application
   
   require 'set'
   require 'tsort'
   require 'yaml'
-  require 'jena'
-  require 'imce'
+  require 'ruby-jena/jena'
   
   include Jena
-  include IMCE
   
   BUILTIN_NAMESPACES = {
     'rdf' => 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
@@ -64,7 +62,11 @@ class JenaApplication < Application
   end
   
   private
-  
+
+  DEFAULT_IMPORTS_FILE = nil
+  DEFAULT_ENTAILMENT_TYPES = 'ClassEntailments,PropertyEntailments'
+  DEFAULT_PREFIX_FILE = nil
+
   def add_options
   
     @options.host = DEFAULT_HOST

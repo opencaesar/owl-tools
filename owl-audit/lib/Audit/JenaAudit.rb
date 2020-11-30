@@ -14,12 +14,12 @@
 #
 #++
 
-require 'JenaApplication'
+require 'Application/JenaApplication'
 require 'csv'
 require 'thread'
 require 'rexml/document'
 require 'tempfile'
-require 'zip'
+#require 'zip'
 
 java_import com.hp.hpl.jena.query.QuerySolutionMap
 java_import com.hp.hpl.jena.sparql.core.ResultBinding

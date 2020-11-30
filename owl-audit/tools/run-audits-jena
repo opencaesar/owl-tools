@@ -14,8 +14,8 @@
 #
 #++
 
-require 'JenaApplication'
-require 'JenaAudit'
+require 'Application/JenaApplication'
+require 'Audit/JenaAudit'
 
 APPLICATION_NAME = 'run-audits-jena'
 GROUP_TYPES = %w{imce omg}
