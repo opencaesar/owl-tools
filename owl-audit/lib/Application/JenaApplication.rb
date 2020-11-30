@@ -67,6 +67,15 @@ class JenaApplication < Application
   DEFAULT_ENTAILMENT_TYPES = 'ClassEntailments,PropertyEntailments'
   DEFAULT_PREFIX_FILE = nil
 
+  IMCE_JPL_NASA_GOV = 'http:\/\/imce\.jpl\.nasa\.gov/(foundation|discipline|application)'
+  IMCE_JPL_NASA_GOV_RE = Regexp.new(IMCE_JPL_NASA_GOV)
+
+  ANNOTATION_IRI = 'http://imce.jpl.nasa.gov/foundation/annotation/annotation'
+
+  EMBEDDING_STRING = '-embedding'
+  METAMODEL_STRING = '-metamodel'
+  VIEW_STRING = '-view'
+
   def add_options
   
     @options.host = DEFAULT_HOST
@@ -204,8 +213,7 @@ class JenaApplication < Application
     log(INFO, 'partition ontologies by group')
     ontologies_by_group = {}
     ontologies = named_ontologies + imported_ontologies
-    { 'imce' => IMCE_JPL_NASA_GOV_RE, 'omg' => WWW_OMG_ORG_RE,
-      'owl2-mof2' => OWL2_MOF2_RE }.each do |group, re|
+    { 'imce' => IMCE_JPL_NASA_GOV_RE, }.each do |group, re|
       ontologies_by_group[group] = ontologies.select { |o| o.to_s =~ re }
     end
     { 'named' => named_ontologies, 'imported' => imported_ontologies,
@@ -215,8 +223,6 @@ class JenaApplication < Application
     ontologies_by_group.keys.each do |group|
       g = group + '-imce'
       ontologies_by_group[g] = ontologies_by_group[group] & ontologies_by_group['imce']
-      g = group + '-omg'
-      ontologies_by_group[g] = ontologies_by_group[group] & ontologies_by_group['omg']
     end
     ontologies_by_group.keys.each do |group|
       [EMBEDDING_STRING, METAMODEL_STRING, VIEW_STRING].each do |string|

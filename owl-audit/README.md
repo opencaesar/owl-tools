@@ -52,7 +52,27 @@ gem install logger-application
 
 ```
 export RUBYLIB=`pwd`/owl-audit/lib
-./owl-audit/tools/run-audits-jena
+./owl-audit/tools/run-audits-jena \
+    --host localhost \
+    --port 3030 \
+    --dataset firesat \
+    --audit-dir `pwd`/owl-audit/audits \
+    --iri-file `pwd`/owl-audit/iris.list
+```
+
+Produces:
+
+```
+WARNING: An illegal reflective access operation has occurred
+WARNING: Illegal reflective access by jnr.posix.JavaLibCHelper to method sun.nio.ch.SelChImpl.getFD()
+WARNING: Please consider reporting this to the maintainers of jnr.posix.JavaLibCHelper
+WARNING: Use --illegal-access=warn to enable warnings of further illegal reflective access operations
+WARNING: All illegal access operations will be denied in a future release
+io/console on JRuby shells out to stty for most operations
+log4j:WARN No appenders could be found for logger (com.hp.hpl.jena.util.FileManager).
+log4j:WARN Please initialize the log4j system properly.
+log4j:WARN See http://logging.apache.org/log4j/1.2/faq.html#noconfig for more info.
+<testsuites/>
 ```
 
 </details>
