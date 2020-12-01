@@ -111,6 +111,7 @@ class JenaApplication < Application
   def get_service_uris(host = @options.host, port = @options.port, dataset = @options.dataset)
     service_uri = FUSEKI_SERVICES.inject({}) do |m, o|
       m[o] = "http://#{host}:#{port}/#{dataset}/#{o}"
+      log(INFO, "m[#{o}] = #{m[o]}")
       m
     end
   end
@@ -118,6 +119,7 @@ class JenaApplication < Application
   # Open data service.
   
   def open_data_service(uri)
+    log(DEBUG, "open_data_service: uri=#{uri}")
     DatasetAccessorFactory.create_http(uri)
   end
   
@@ -130,6 +132,7 @@ class JenaApplication < Application
       namespace_by_prefix.merge!(BUILTIN_NAMESPACES)
     else
       BUILTIN_NAMESPACES.each do |p, n|
+        log(DEBUG, "set nsPrefix: #{p} = #{n}")
         @data_service.get_model.set_ns_prefix(p, n)
       end
       namespace_by_prefix = @data_service.get_model.get_ns_prefix_map.to_hash
