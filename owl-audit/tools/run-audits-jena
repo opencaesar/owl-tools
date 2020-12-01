@@ -26,76 +26,72 @@ class JenaAuditApplication < JenaApplication
     
     # Extend standard options for audit files, directories, and trees.
     
-    options.audit_files = []
-    option_parser.on('--audit-file FILE', 'audit spec file') do |v|
-      options.audit_files << v
+    @options.audit_files = []
+    @option_parser.on('--audit-file FILE', 'audit spec file') do |v|
+      @options.audit_files << v
     end
     
-    options.audit_dirs = []
-    option_parser.on('--audit-dir DIRECTORY', 'audit specs directory') do |v|
-      options.audit_dirs << v
+    @options.audit_dirs = []
+    @option_parser.on('--audit-dir DIRECTORY', 'audit specs directory') do |v|
+      @options.audit_dirs << v
     end
     
-    options.audit_trees = []
-    option_parser.on('--audit-tree TREE', 'audit specs tree') do |v|
-      options.audit_trees << v
+    @options.audit_trees = []
+    @option_parser.on('--audit-tree TREE', 'audit specs tree') do |v|
+      @options.audit_trees << v
     end
     
-    options.report = false
-    option_parser.on('--report', 'run as reports') do
-      options.report = true
-    end
-    
-    options.iri_file = nil
-    option_parser.on('--iri-file FILE', 'input IRI file [nil]') do |v|
-      options.iri_file = v
+    @options.report = false
+    @option_parser.on('--report', 'run as reports') do
+      @options.report = true
     end
 
     # Audit options.
     
-    options.audit_options = OpenStruct.new
-    option_parser.on('--audit-option NAME=VALUE', 'audit option') do |v|
+    @options.audit_options = OpenStruct.new
+    @option_parser.on('--audit-option NAME=VALUE', 'audit option') do |v|
       name, value = v.split(/=/)
       method = "#{name}=".to_sym
-      options.audit_options.send(method, value)
-    end
-      
-    super
-    
-    if argv.empty? && options.iri_file.nil?
-      log(FATAL, 'no named ontologies')
-      return 1
+      @options.audit_options.send(method, value)
     end
 
     # Load IRIs from file if specified.
 
-    if options.iri_file
+    @options.iri_file = nil
+    @option_parser.on('--iri-file FILE', 'input IRI file [nil]') do |v|
       begin
-        argv = File.open(@options.iri_file).readlines.map { |l| l.strip }
+        @options.iri_file = v
+        @argv = File.open(@options.iri_file).readlines.map { |l| l.strip }
       rescue
-        log(FATAL, "error reading IRI file #{@options.iri_file}")
+        print("error reading IRI file #{@options.iri_file}\n")
         raise $!
       end
     end
-    
-    
+
     # Pass information through in options.
     
-    options.application = self
-    options.binding = binding
-    options.logger = @log
+    @options.application = self
+    @options.binding = binding
+    @options.logger = @log
     
     # Collect audit specifications.
     
     battery = @options.report ?
-      OntologyAudit::ReportBattery.new(options) : OntologyAudit::AuditBattery.new(options)
+      OntologyAudit::ReportBattery.new(@options) : OntologyAudit::AuditBattery.new(@options)
     
-    options.audit_files.each { |f| battery.add_audit_file(f) }
-    options.audit_dirs.each { |d| battery.add_audit_dir(d) }
-    options.audit_trees.each { |t| battery.add_audit_tree(t) }
+    @options.audit_files.each { |f| battery.add_audit_file(f) }
+    @options.audit_dirs.each { |d| battery.add_audit_dir(d) }
+    @options.audit_trees.each { |t| battery.add_audit_tree(t) }
     
     # Run audits.
-    
+
+    super
+
+    if @argv.empty? && @options.iri_file.nil?
+      print('no named ontologies\n')
+      return 1
+    end
+
     result = battery.run
     
     # Write output.

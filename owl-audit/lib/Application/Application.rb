@@ -49,9 +49,11 @@ class Application < Logger::Application
     @option_parser.parse!(@argv)
     configure_log
     log(INFO, "Start of #{@appname}.")
-    log(DEBUG, "options: #{@options}")
-    log(DEBUG, "argv: #{@argv}")
-    
+    # log(DEBUG, "options: #{@options}")
+    # log(DEBUG, "argv: #{@argv}")
+    log(DEBUG, "IRIs: #{@options.iri_file}")
+    log(DEBUG, "Fuseki: #{@options.host}:#{@options.port}/#{@options.dataset}")
+
   end
   
   def get_binding

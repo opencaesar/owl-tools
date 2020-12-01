@@ -36,12 +36,25 @@ class JenaApplication < Application
     'swrlb' => 'http://www.w3.org/2003/11/swrlb#',
   }
 
+  DEFAULT_IMPORTS_FILE = nil
+  DEFAULT_ENTAILMENT_TYPES = 'ClassEntailments,PropertyEntailments'
+  DEFAULT_PREFIX_FILE = nil
+
+  IMCE_JPL_NASA_GOV = 'http:\/\/imce\.jpl\.nasa\.gov/(foundation|discipline|application)'
+  IMCE_JPL_NASA_GOV_RE = Regexp.new(IMCE_JPL_NASA_GOV)
+
+  ANNOTATION_IRI = 'http://imce.jpl.nasa.gov/foundation/annotation/annotation'
+
+  EMBEDDING_STRING = '-embedding'
+  METAMODEL_STRING = '-metamodel'
+  VIEW_STRING = '-view'
+
   def run
-    
+
     add_options
-    
+
     super
-      
+
     # Load dataset information if specified.
    
     if @options.host && @options.port && @options.dataset
@@ -63,43 +76,31 @@ class JenaApplication < Application
   
   private
 
-  DEFAULT_IMPORTS_FILE = nil
-  DEFAULT_ENTAILMENT_TYPES = 'ClassEntailments,PropertyEntailments'
-  DEFAULT_PREFIX_FILE = nil
-
-  IMCE_JPL_NASA_GOV = 'http:\/\/imce\.jpl\.nasa\.gov/(foundation|discipline|application)'
-  IMCE_JPL_NASA_GOV_RE = Regexp.new(IMCE_JPL_NASA_GOV)
-
-  ANNOTATION_IRI = 'http://imce.jpl.nasa.gov/foundation/annotation/annotation'
-
-  EMBEDDING_STRING = '-embedding'
-  METAMODEL_STRING = '-metamodel'
-  VIEW_STRING = '-view'
 
   def add_options
   
     @options.host = DEFAULT_HOST
-    option_parser.on('--host HOST', "Jena host (#{DEFAULT_HOST})") do |v|
+    @option_parser.on('--host HOST', "Jena host (#{DEFAULT_HOST})") do |v|
       @options.host = v
     end
     @options.port = DEFAULT_PORT 
-    option_parser.on('--port PORT', "Jena port (#{DEFAULT_PORT})") do |v|
+    @option_parser.on('--port PORT', "Jena port (#{DEFAULT_PORT})") do |v|
       @options.port = v
     end
     @options.dataset = DEFAULT_DATASET
-    option_parser.on('--dataset DATASET', "Jena dataset (#{DEFAULT_DATASET})") do |v|
+    @option_parser.on('--dataset DATASET', "Jena dataset (#{DEFAULT_DATASET})") do |v|
       @options.dataset = v
     end
     @options.imports_file = DEFAULT_IMPORTS_FILE
-    option_parser.on('--imports-file FILE', "ontology imports file (#{DEFAULT_IMPORTS_FILE})") do |v|
+    @option_parser.on('--imports-file FILE', "ontology imports file (#{DEFAULT_IMPORTS_FILE})") do |v|
       @options.imports_file = v
     end
     @options.entailment_types = DEFAULT_ENTAILMENT_TYPES
-    option_parser.on('--entailment-types LIST', "entailment types (#{DEFAULT_ENTAILMENT_TYPES})") do |v|
+    @option_parser.on('--entailment-types LIST', "entailment types (#{DEFAULT_ENTAILMENT_TYPES})") do |v|
       @options.entailment_types = v
     end
     @options.prefix_file = DEFAULT_PREFIX_FILE
-    option_parser.on('--prefix-file FILE', "prefix file (#{DEFAULT_PREFIX_FILE})") do |v|
+    @option_parser.on('--prefix-file FILE', "prefix file (#{DEFAULT_PREFIX_FILE})") do |v|
       @options.prefix_file = v
     end
   
