@@ -67,13 +67,13 @@ export RUBYLIB=`pwd`/owl-audit/lib
     --host localhost \
     --port 3030 \
     --dataset firesat \
-    --audit-dir `pwd`/owl-audit/audits \
+    --audit-tree `pwd`/owl-audit/audits/bundle \
     --iri-file `pwd`/owl-audit/iris.list
     --debug \
-    > test.log 2>&1
+    > test-bundle.log 2>&1
 ```
 
-Produces [test.log](test.log)
+Produces [test-bundle.log](test-bundle.log)
 
 </details>
 
@@ -92,16 +92,7 @@ Produces [test.log](test.log)
   Without `zip`, we cannot use the option `--report` that would
   create a zip file.
   
-- What is an `audit battery` and how is it specified?
-
-  See [test.log](test.log):
-  
-  ```
-  D, [2020-11-30 17:16:09 #2742263] DEBUG -- run-audits-jena: report? false
-  audit battery: {}
-  <testsuites/>
-  I, [2020-11-30 17:16:09 #2742263]  INFO -- run-audits-jena: End of run-audits-jena. (status: 0)
-  ```
+- The option `--audit-dir` seems ineffective but `--audit-tree` seems to work.
   
   
 </details>
