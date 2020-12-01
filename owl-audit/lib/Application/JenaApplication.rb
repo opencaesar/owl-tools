@@ -110,7 +110,11 @@ class JenaApplication < Application
     
   def get_service_uris(host = @options.host, port = @options.port, dataset = @options.dataset)
     service_uri = FUSEKI_SERVICES.inject({}) do |m, o|
-      m[o] = "http://#{host}:#{port}/#{dataset}/#{o}"
+      if o == 'query'
+        m[o] = "http://#{host}:#{port}/#{dataset}"
+      else
+        m[o] = "http://#{host}:#{port}/#{dataset}/#{o}"
+      end
       log(INFO, "m[#{o}] = #{m[o]}")
       m
     end
@@ -304,6 +308,8 @@ class JenaApplication < Application
   
   def run_select_query(qstring, binding = nil, service_uri = @service_uri['query'], &block)
     query = prepare_query(qstring, binding).asQuery
+    log(DEBUG, "SPARQL endpoint: #{service_uri}")
+    log(DEBUG, "SPARQL query: #{query}")
     query_exec = QueryExecutionFactory.sparqlService(service_uri, query)
     
     solns = []
