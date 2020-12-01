@@ -1,0 +1,8 @@
+assemblies: http://imce.jpl.nasa.gov/discipline/fse/assemblies
+fse: http://imce.jpl.nasa.gov/discipline/fse/fse
+endcircuits: http://imce.jpl.nasa.gov/discipline/fse/endcircuits
+analysis: http://imce.jpl.nasa.gov/foundation/analysis
+base: http://imce.jpl.nasa.gov/foundation/base
+mission: http://imce.jpl.nasa.gov/foundation/mission
+project: http://imce.jpl.nasa.gov/foundation/project
+annotation: http://imce.jpl.nasa.gov/foundation/annotation

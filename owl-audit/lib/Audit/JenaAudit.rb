@@ -169,10 +169,16 @@ module OntologyAudit
         out_queue = @queues.first
         Thread.new(processor, in_queue, out_queue) do |qry, in_q, out_q|
           loop do
+            Thread.current.abort_on_exception = true
             result = in_q.shift
-            processor.run(result) do |r|
-              out_q << r
+            begin
+              processor.run(result) do |r|
+                out_q << r
+              end
+            rescue => e
+              raise "\nException Occurred: #{e.message}.\nBacktrace:\n- #{e.backtrace.join("\n- ")}"
             end
+
             break unless result
           end
         end
@@ -345,10 +351,8 @@ module OntologyAudit
     
     def run
       test_suites = OntologyAudit::TestSuites.new
-      print("audit battery: #{@audits}\n")
       @audits.each_value do |audit|
-        @logger.log(Logger::INFO, "battery #{self.to_s} starting audit '#{audit.name}'") if @logger
-        print("battery #{self.to_s} starting audit '#{audit.name}'\n")
+        @logger.log(Logger::DEBUG, "battery #{self.to_s} starting audit '#{audit.name}'") if @logger
         test_suites << audit.run_audit
       end
       REXML::Formatters::Pretty.new.write(test_suites, '')

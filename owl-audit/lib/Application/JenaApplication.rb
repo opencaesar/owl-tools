@@ -135,11 +135,13 @@ class JenaApplication < Application
       namespace_by_prefix = YAML.load(File.open(@options.prefix_file))
       namespace_by_prefix.merge!(BUILTIN_NAMESPACES)
     else
-      BUILTIN_NAMESPACES.each do |p, n|
-        log(DEBUG, "set nsPrefix: #{p} = #{n}")
-        @data_service.get_model.set_ns_prefix(p, n)
-      end
-      namespace_by_prefix = @data_service.get_model.get_ns_prefix_map.to_hash
+      # This code uses the @data_service to populate namespace prefixes; however, set_ns_prefix may not have any effect.
+      # BUILTIN_NAMESPACES.each do |p, n|
+      #   log(DEBUG, "set nsPrefix: #{p} = #{n}")
+      #   @data_service.get_model.set_ns_prefix(p, n)
+      # end
+      # namespace_by_prefix = @data_service.get_model.get_ns_prefix_map.to_hash
+      namespace_by_prefix = BUILTIN_NAMESPACES
     end
     log(DEBUG, "namespace_by_prefix: #{namespace_by_prefix.inspect}")
     namespace_by_prefix

@@ -61,19 +61,161 @@ Save the output as [iris.list](iris.list)
 
 3) Run Audits
 
+<details>
+<summary>audits/bundle</summary>
+
 ```
-export RUBYLIB=`pwd`/owl-audit/lib
-./owl-audit/tools/run-audits-jena \
+cd owl-audit
+export RUBYLIB=`pwd`/lib
+./tools/run-audits-jena \
     --host localhost \
     --port 3030 \
     --dataset firesat \
-    --audit-tree `pwd`/owl-audit/audits/bundle \
-    --iri-file `pwd`/owl-audit/iris.list
-    --debug \
-    > test-bundle.log 2>&1
+    --audit-tree `pwd`/audits/bundle \
+    --iri-file `pwd`/iris.list \
+    --prefix-file `pwd`/prefixes.yaml \
+    > test-bundle.xml
 ```
 
-Produces [test-bundle.log](test-bundle.log)
+See [test-bundle.xml](test-bundle.xml)
+
+</details>
+
+
+<details>
+<summary>audits/non-recurring</summary>
+
+
+```
+./tools/run-audits-jena \
+    --host localhost \
+    --port 3030 \
+    --dataset firesat \
+    --audit-tree `pwd`/audits/non-recurring \
+    --iri-file `pwd`/iris.list \
+    --prefix-file `pwd`/prefixes.yaml \
+    > test-non-recurring.xml
+```
+
+See [test-non-recurring.xml](test-non-recurring.xml)
+
+</details>
+
+
+<details>
+<summary>audits/group/special</summary>
+
+```
+./tools/run-audits-jena \
+    --host localhost \
+    --port 3030 \
+    --dataset firesat \
+    --audit-tree `pwd`/audits/group/special \
+    --iri-file `pwd`/iris.list \
+    --prefix-file `pwd`/prefixes.yaml \
+    > test-group-special.xml
+```
+
+See [test-group-special.xml](test-group-special.xml)
+
+</details>
+
+
+<details>
+<summary>audits/group/all/other</summary>
+
+```
+./tools/run-audits-jena \
+    --host localhost \
+    --port 3030 \
+    --dataset firesat \
+    --audit-tree `pwd`/audits/group/all/other \
+    --iri-file `pwd`/iris.list \
+    --prefix-file `pwd`/prefixes.yaml \
+    > test-group-all-other.xml
+F, [2020-12-01 12:01:16 #2879080] FATAL -- run-audits-jena: Detected an exception. Stopping ... 
+Exception Occurred: undefined method `map' for nil:NilClass.
+Backtrace:
+- (erb):50:in `result'
+- org/jruby/RubyKernel.java:1079:in `eval'
+- /home/rouquette/.rvm/rubies/jruby-1.7.27/lib/ruby/1.9/erb.rb:838:in `result'
+- /opt/local/github.opencaesar/owl-tools/owl-audit/lib/Audit/JenaAudit.rb:75:in `run'
+- /opt/local/github.opencaesar/owl-tools/owl-audit/lib/Audit/JenaAudit.rb:175:in `start'
+- org/jruby/RubyKernel.java:1479:in `loop'
+- /opt/local/github.opencaesar/owl-tools/owl-audit/lib/Audit/JenaAudit.rb:171:in `start' (RuntimeError)
+/opt/local/github.opencaesar/owl-tools/owl-audit/lib/Audit/JenaAudit.rb:179:in `start'
+org/jruby/RubyKernel.java:1479:in `loop'
+/opt/local/github.opencaesar/owl-tools/owl-audit/lib/Audit/JenaAudit.rb:171:in `start'
+```
+
+</details>
+
+
+<details>
+<summary>audits/group/all/no-embedding</summary>
+
+```
+./tools/run-audits-jena \
+    --host localhost \
+    --port 3030 \
+    --dataset firesat \
+    --audit-tree `pwd`/audits/group/all/no-embedding \
+    --iri-file `pwd`/iris.list \
+    --prefix-file `pwd`/prefixes.yaml \
+    > test-group-all-no-embedding.xml
+.
+F, [2020-12-01 12:02:09 #2879610] FATAL -- run-audits-jena: Detected an exception. Stopping ... 
+Exception Occurred: Line 869, column 66: Unresolved prefixed name: owl2-mof2-backbone:topReifiedStructuredDataPropertySource.
+Backtrace:
+- com.hp.hpl.jena.sparql.lang.ParserBase.throwParseException(com/hp/hpl/jena/sparql/lang/ParserBase.java:661)
+- com.hp.hpl.jena.sparql.lang.ParserBase.resolvePName(com/hp/hpl/jena/sparql/lang/ParserBase.java:274)
+- com.hp.hpl.jena.sparql.lang.sparql_11.SPARQLParser11.PrefixedName(com/hp/hpl/jena/sparql/lang/sparql_11/SPARQLParser11.java:4888)
+- com.hp.hpl.jena.sparql.lang.sparql_11.SPARQLParser11.iri(com/hp/hpl/jena/sparql/lang/sparql_11/SPARQLParser11.java:4872)
+- com.hp.hpl.jena.sparql.lang.sparql_11.SPARQLParser11.GraphTerm(com/hp/hpl/jena/sparql/lang/sparql_11/SPARQLParser11.java:3389)
+- com.hp.hpl.jena.sparql.lang.sparql_11.SPARQLParser11.VarOrTerm(com/hp/hpl/jena/sparql/lang/sparql_11/SPARQLParser11.java:3331)
+- com.hp.hpl.jena.sparql.lang.sparql_11.SPARQLParser11.GraphNodePath(com/hp/hpl/jena/sparql/lang/sparql_11/SPARQLParser11.java:3287)
+- com.hp.hpl.jena.sparql.lang.sparql_11.SPARQLParser11.ObjectPath(com/hp/hpl/jena/sparql/lang/sparql_11/SPARQLParser11.java:2793)
+- com.hp.hpl.jena.sparql.lang.sparql_11.SPARQLParser11.ObjectListPath(com/hp/hpl/jena/sparql/lang/sparql_11/SPARQLParser11.java:2774)
+- com.hp.hpl.jena.sparql.lang.sparql_11.SPARQLParser11.PropertyListPathNotEmpty(com/hp/hpl/jena/sparql/lang/sparql_11/SPARQLParser11.java:2705)
+- com.hp.hpl.jena.sparql.lang.sparql_11.SPARQLParser11.TriplesSameSubjectPath(com/hp/hpl/jena/sparql/lang/sparql_11/SPARQLParser11.java:2649)
+- com.hp.hpl.jena.sparql.lang.sparql_11.SPARQLParser11.TriplesBlock(com/hp/hpl/jena/sparql/lang/sparql_11/SPARQLParser11.java:1819)
+- com.hp.hpl.jena.sparql.lang.sparql_11.SPARQLParser11.GroupGraphPatternSub(com/hp/hpl/jena/sparql/lang/sparql_11/SPARQLParser11.java:1740)
+- com.hp.hpl.jena.sparql.lang.sparql_11.SPARQLParser11.GroupGraphPattern(com/hp/hpl/jena/sparql/lang/sparql_11/SPARQLParser11.java:1702)
+- com.hp.hpl.jena.sparql.lang.sparql_11.SPARQLParser11.ExistsFunc(com/hp/hpl/jena/sparql/lang/sparql_11/SPARQLParser11.java:4412)
+- com.hp.hpl.jena.sparql.lang.sparql_11.SPARQLParser11.BuiltInCall(com/hp/hpl/jena/sparql/lang/sparql_11/SPARQLParser11.java:4329)
+- com.hp.hpl.jena.sparql.lang.sparql_11.SPARQLParser11.PrimaryExpression(com/hp/hpl/jena/sparql/lang/sparql_11/SPARQLParser11.java:3881)
+- com.hp.hpl.jena.sparql.lang.sparql_11.SPARQLParser11.UnaryExpression(com/hp/hpl/jena/sparql/lang/sparql_11/SPARQLParser11.java:3802)
+- com.hp.hpl.jena.sparql.lang.sparql_11.SPARQLParser11.MultiplicativeExpression(com/hp/hpl/jena/sparql/lang/sparql_11/SPARQLParser11.java:3669)
+- com.hp.hpl.jena.sparql.lang.sparql_11.SPARQLParser11.AdditiveExpression(com/hp/hpl/jena/sparql/lang/sparql_11/SPARQLParser11.java:3567)
+- com.hp.hpl.jena.sparql.lang.sparql_11.SPARQLParser11.NumericExpression(com/hp/hpl/jena/sparql/lang/sparql_11/SPARQLParser11.java:3560)
+- com.hp.hpl.jena.sparql.lang.sparql_11.SPARQLParser11.RelationalExpression(com/hp/hpl/jena/sparql/lang/sparql_11/SPARQLParser11.java:3492)
+- com.hp.hpl.jena.sparql.lang.sparql_11.SPARQLParser11.ValueLogical(com/hp/hpl/jena/sparql/lang/sparql_11/SPARQLParser11.java:3485)
+- com.hp.hpl.jena.sparql.lang.sparql_11.SPARQLParser11.ConditionalAndExpression(com/hp/hpl/jena/sparql/lang/sparql_11/SPARQLParser11.java:3476)
+- com.hp.hpl.jena.sparql.lang.sparql_11.SPARQLParser11.ConditionalOrExpression(com/hp/hpl/jena/sparql/lang/sparql_11/SPARQLParser11.java:3443)
+- com.hp.hpl.jena.sparql.lang.sparql_11.SPARQLParser11.Expression(com/hp/hpl/jena/sparql/lang/sparql_11/SPARQLParser11.java:3436)
+- com.hp.hpl.jena.sparql.lang.sparql_11.SPARQLParser11.Bind(com/hp/hpl/jena/sparql/lang/sparql_11/SPARQLParser11.java:1945)
+- com.hp.hpl.jena.sparql.lang.sparql_11.SPARQLParser11.GraphPatternNotTriples(com/hp/hpl/jena/sparql/lang/sparql_11/SPARQLParser11.java:1891)
+- com.hp.hpl.jena.sparql.lang.sparql_11.SPARQLParser11.GroupGraphPatternSub(com/hp/hpl/jena/sparql/lang/sparql_11/SPARQLParser11.java:1765)
+- com.hp.hpl.jena.sparql.lang.sparql_11.SPARQLParser11.GroupGraphPattern(com/hp/hpl/jena/sparql/lang/sparql_11/SPARQLParser11.java:1702)
+- com.hp.hpl.jena.sparql.lang.sparql_11.SPARQLParser11.WhereClause(com/hp/hpl/jena/sparql/lang/sparql_11/SPARQLParser11.java:446)
+- com.hp.hpl.jena.sparql.lang.sparql_11.SPARQLParser11.SelectQuery(com/hp/hpl/jena/sparql/lang/sparql_11/SPARQLParser11.java:134)
+- com.hp.hpl.jena.sparql.lang.sparql_11.SPARQLParser11.Query(com/hp/hpl/jena/sparql/lang/sparql_11/SPARQLParser11.java:50)
+- com.hp.hpl.jena.sparql.lang.sparql_11.SPARQLParser11.QueryUnit(com/hp/hpl/jena/sparql/lang/sparql_11/SPARQLParser11.java:41)
+- com.hp.hpl.jena.sparql.lang.ParserSPARQL11$1.exec(com/hp/hpl/jena/sparql/lang/ParserSPARQL11.java:49)
+- com.hp.hpl.jena.sparql.lang.ParserSPARQL11.perform(com/hp/hpl/jena/sparql/lang/ParserSPARQL11.java:98)
+- com.hp.hpl.jena.sparql.lang.ParserSPARQL11.parse$(com/hp/hpl/jena/sparql/lang/ParserSPARQL11.java:53)
+- com.hp.hpl.jena.sparql.lang.SPARQLParser.parse(com/hp/hpl/jena/sparql/lang/SPARQLParser.java:37)
+- com.hp.hpl.jena.query.QueryFactory.parse(com/hp/hpl/jena/query/QueryFactory.java:156)
+- com.hp.hpl.jena.query.QueryFactory.create(com/hp/hpl/jena/query/QueryFactory.java:79)
+- com.hp.hpl.jena.query.QueryFactory.create(com/hp/hpl/jena/query/QueryFactory.java:52)
+- com.hp.hpl.jena.query.QueryFactory.create(com/hp/hpl/jena/query/QueryFactory.java:40)
+- com.hp.hpl.jena.query.ParameterizedSparqlString.asQuery(com/hp/hpl/jena/query/ParameterizedSparqlString.java:1384)
+- jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(jdk/internal/reflect/DelegatingMethodAccessorImpl.java:43)
+- java.lang.reflect.Method.invoke(java/lang/reflect/Method.java:566)
+
+```
+
+</details>
 
 </details>
 
