@@ -69,9 +69,39 @@ export RUBYLIB=`pwd`/owl-audit/lib
     --dataset firesat \
     --audit-dir `pwd`/owl-audit/audits \
     --iri-file `pwd`/owl-audit/iris.list
-    --debug
+    --debug \
+    > test.log 2>&1
 ```
 
 Produces [test.log](test.log)
 
+</details>
+
+## Problems
+
+<details>
+<summary>Details</summary>
+
+- Missing Ruby gem for `zip` 
+
+  Which version is compatible with jRuby-1.7?
+  https://github.com/rubyzip/rubyzip/releases
+  
+  For example, rubyzip-1.1.7 requires jRuby >= 1.9.2
+  
+  Without `zip`, we cannot use the option `--report` that would
+  create a zip file.
+  
+- What is an `audit battery` and how is it specified?
+
+  See [test.log](test.log):
+  
+  ```
+  D, [2020-11-30 17:16:09 #2742263] DEBUG -- run-audits-jena: report? false
+  audit battery: {}
+  <testsuites/>
+  I, [2020-11-30 17:16:09 #2742263]  INFO -- run-audits-jena: End of run-audits-jena. (status: 0)
+  ```
+  
+  
 </details>

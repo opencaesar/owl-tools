@@ -19,6 +19,9 @@ require 'csv'
 require 'thread'
 require 'rexml/document'
 require 'tempfile'
+
+# This is needed to run with the --report option.
+# However, where can we find a version that works w/ JRuby 1.7?
 #require 'zip'
 
 java_import com.hp.hpl.jena.query.QuerySolutionMap
@@ -342,8 +345,10 @@ module OntologyAudit
     
     def run
       test_suites = OntologyAudit::TestSuites.new
+      print("audit battery: #{@audits}\n")
       @audits.each_value do |audit|
         @logger.log(Logger::INFO, "battery #{self.to_s} starting audit '#{audit.name}'") if @logger
+        print("battery #{self.to_s} starting audit '#{audit.name}'\n")
         test_suites << audit.run_audit
       end
       REXML::Formatters::Pretty.new.write(test_suites, '')
@@ -355,11 +360,13 @@ module OntologyAudit
     
     def run
       fn = Dir::Tmpname.make_tmpname(@options.application.appname, '.zip')
+      print("temp file=#{fn}\n")
       @logger.log(Logger::INFO, "temp file #{fn}") if @logger
       begin
         Zip::OutputStream.open(fn) do |zio|
           @audits.each_value do |report|
             @logger.log(Logger::INFO, "battery #{self.to_s} starting report '#{report.name}'") if @logger
+            print("battery #{self.to_s} starting report '#{report.name}'\n")
             file_name = report.name + '.csv'
             zio.put_next_entry(file_name)
             zio << report.run_report
@@ -371,7 +378,8 @@ module OntologyAudit
         io.close
         data
       ensure
-        File.unlink(fn)
+        # no such file!???!??!?
+        # File.unlink(fn)
       end
     end
 

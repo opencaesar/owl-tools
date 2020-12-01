@@ -73,9 +73,13 @@ class JenaAuditApplication < JenaApplication
     @options.application = self
     @options.binding = binding
     @options.logger = @log
-    
+
+    super
+
     # Collect audit specifications.
-    
+
+    log(DEBUG, "report? #{@options.report}")
+
     battery = @options.report ?
       OntologyAudit::ReportBattery.new(@options) : OntologyAudit::AuditBattery.new(@options)
     
@@ -84,8 +88,6 @@ class JenaAuditApplication < JenaApplication
     @options.audit_trees.each { |t| battery.add_audit_tree(t) }
     
     # Run audits.
-
-    super
 
     if @argv.empty? && @options.iri_file.nil?
       print('no named ontologies\n')
