@@ -29,11 +29,10 @@ export PATH="$PATH:$HOME/.rvm/bin"
 source $HOME/.rvm/scripts/rvm
 ```
 
-4) Configure jRuby
+4) Select jRuby 1.7.27
 
 ```zsh
 rvm use jruby-1.7.27
-gem install logger-application
 ```
 
 </details>
@@ -61,13 +60,18 @@ Save the output as [iris.list](iris.list)
 
 3) Run Audits
 
+All the examples below require the following environment setup:
+
+```
+cd owl-audit
+export RUBYLIB=`pwd`/src/main/resources/audit-framework:`pwd`/src/main/resources/rubygems/logger-application-0.0.2/lib
+```
+
 <details>
 <summary>audits/bundle</summary>
 
 ```
-cd owl-audit
-export RUBYLIB=`pwd`/lib
-./tools/run-audits-jena \
+./src/main/resources/audit-framework/tools/run-audits-jena-cli \
     --host localhost \
     --port 3030 \
     --dataset firesat \
@@ -87,7 +91,7 @@ See [test-bundle.xml](test-bundle.xml)
 
 
 ```
-./tools/run-audits-jena \
+./src/main/resources/audit-framework/tools/run-audits-jena-cli \
     --host localhost \
     --port 3030 \
     --dataset firesat \
@@ -106,7 +110,7 @@ See [test-non-recurring.xml](test-non-recurring.xml)
 <summary>audits/group/special</summary>
 
 ```
-./tools/run-audits-jena \
+./src/main/resources/audit-framework/tools/run-audits-jena-cli \
     --host localhost \
     --port 3030 \
     --dataset firesat \
@@ -125,7 +129,7 @@ See [test-group-special.xml](test-group-special.xml)
 <summary>audits/group/all/other</summary>
 
 ```
-./tools/run-audits-jena \
+./src/main/resources/audit-framework/tools/run-audits-jena-cli \
     --host localhost \
     --port 3030 \
     --dataset firesat \
@@ -155,7 +159,7 @@ org/jruby/RubyKernel.java:1479:in `loop'
 <summary>audits/group/all/no-embedding</summary>
 
 ```
-./tools/run-audits-jena \
+./src/main/resources/audit-framework/tools/run-audits-jena-cli \
     --host localhost \
     --port 3030 \
     --dataset firesat \
