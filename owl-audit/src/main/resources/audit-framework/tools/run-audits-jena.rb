@@ -68,6 +68,10 @@ class JenaAuditApplication < JenaApplication
       end
     end
 
+    @options.output_file = nil
+    @option_parser.on('--output-file FILE', 'output file [nil]') do |v|
+      @options.output_file = v
+    end
     # Pass information through in options.
     
     @options.application = self
@@ -97,8 +101,10 @@ class JenaAuditApplication < JenaApplication
     result = battery.run
     
     # Write output.
-    
-    puts result
+
+    File.open(@options.output_file, 'w') do |fo|
+      fo.puts result
+    end
     
     # Exit.
         

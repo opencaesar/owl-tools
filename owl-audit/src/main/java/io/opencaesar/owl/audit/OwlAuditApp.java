@@ -5,6 +5,8 @@ import com.beust.jcommander.Parameter;
 import org.apache.log4j.*;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.jruby.Ruby;
+import org.jruby.RubyInstanceConfig;
+import org.jruby.util.ClassCache;
 import org.jruby.RubyRuntimeAdapter;
 import org.jruby.javasupport.JavaEmbedUtils;
 import org.jruby.runtime.builtin.IRubyObject;
@@ -20,7 +22,7 @@ import java.util.List;
  * @see: https://github.com/jruby/jruby/wiki/DirectJRubyEmbedding
  * @see: https://github.com/jruby/jruby/wiki/Rubygems
  */
-public class AuditApp {
+public class OwlAuditApp {
 
     @Parameter(
             names = {"--host"},
@@ -71,17 +73,26 @@ public class AuditApp {
     private boolean debug;
 
     @Parameter(
+            names = {"--output-file"},
+            description = "File for JUnit Audit results (Required)",
+            required = true,
+            order = 8)
+    private String output_file;
+
+    @Parameter(
             names = {"--help", "-h"},
             description = "Displays summary of options",
             help = true,
-            order = 8)
+            order = 9)
     private boolean help;
 
-    private final static Logger LOGGER = Logger.getLogger(AuditApp.class);
+    private final static Logger LOGGER = Logger.getLogger(OwlAuditApp.class);
 
     public static void main(final String... args) throws Exception {
-        DOMConfigurator.configure(AuditApp.class.getClassLoader().getResource("log4j.xml"));
-        final AuditApp app = new AuditApp();
+        URL log4jConfig = OwlAuditApp.class.getClassLoader().getResource("log4j.xml");
+        if (null != log4jConfig)
+            DOMConfigurator.configure(log4jConfig);
+        final OwlAuditApp app = new OwlAuditApp();
         final JCommander builder = JCommander.newBuilder().addObject(app).build();
         builder.parse(args);
         if (app.help) {
@@ -101,7 +112,7 @@ public class AuditApp {
     }
 
     private static String getResourcePath(String resource) {
-        final URL url = AuditApp.class.getResource(resource);
+        final URL url = OwlAuditApp.class.getResource(resource);
         if (null == url)
             throw new IllegalArgumentException("Cannot find on the classpath the following resource: "+resource);
         return url.getPath();
@@ -117,7 +128,12 @@ public class AuditApp {
             final List<String> loadPaths = new ArrayList<>();
             loadPaths.add(getResourcePath("/audit-framework"));
             loadPaths.add(getResourcePath("/rubygems/logger-application-0.0.2/lib"));
-            final Ruby runtime = JavaEmbedUtils.initialize(loadPaths);
+
+            final ClassCache cc = JavaEmbedUtils.createClassCache(this.getClass().getClassLoader());
+            final RubyInstanceConfig config = new RubyInstanceConfig();
+            config.setClassCache(cc);
+            config.setLoader(this.getClass().getClassLoader());
+            final Ruby runtime = JavaEmbedUtils.initialize(loadPaths, config);
             final RubyRuntimeAdapter adapter = JavaEmbedUtils.newRuntimeAdapter();
             String script = "require 'tools/run-audits-jena.rb'\n"+
                     "JenaAuditApplication.new('run-audits-jena.rb',\n"+
@@ -127,12 +143,14 @@ public class AuditApp {
                     "'--dataset','"+dataset+"',\n"+
                     "'--audit-tree','"+audit_tree+"',\n"+
                     "'--iri-file','"+iri_file+"',\n"+
-                    "'--prefix-file','"+prefix_file+"'\n"+
+                    "'--prefix-file','"+prefix_file+"',\n"+
+                    "'--output-file','"+output_file+"'\n"+
                     "]).start\n";
             final IRubyObject result = adapter.eval(runtime, script);
             LOGGER.info("Script:\n"+script);
             LOGGER.info("Result:\n"+result);
         } catch (Exception e) {
+            System.err.println(e.getLocalizedMessage());
             e.printStackTrace();
             System.exit(255);
         }

@@ -302,7 +302,6 @@ class JenaApplication < Application
       map.addAll(binding)
       pss.setParams(map)
     end
-    log(DEBUG, "query: #{pss.toString}")
     pss
   end
   
@@ -310,8 +309,9 @@ class JenaApplication < Application
   
   def run_select_query(qstring, binding = nil, service_uri = @service_uri['query'], &block)
     query = prepare_query(qstring, binding).asQuery
+    log(DEBUG, "===============")
     log(DEBUG, "SPARQL endpoint: #{service_uri}")
-    log(DEBUG, "SPARQL query: #{query}")
+    log(DEBUG, "SPARQL query:\n#{query}")
     query_exec = QueryExecutionFactory.sparqlService(service_uri, query)
     
     solns = []
