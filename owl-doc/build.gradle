@@ -1,0 +1,11 @@
+apply plugin: 'application'
+
+ext.title = 'OWL Query'
+description = 'A tool to execute a set of SPARQL queries on a given SPARQL dataset'
+mainClassName = 'io.opencaesar.owl.query.OwlQueryApp'
+applicationName = 'owl-query'
+
+dependencies {
+	implementation "org.apache.jena:jena-rdfconnection:${versions.jena}"
+	implementation "org.apache.jena:jena-arq:${versions.jena}"
+}

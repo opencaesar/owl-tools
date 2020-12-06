@@ -25,6 +25,10 @@ A library of different algorithms to close the world on OWL ontologies
 
 A tool to produce a difference report between two OWL datasets
 
+## [OWL Doc](owl-tools/owl-doc) [ ![Download](https://api.bintray.com/packages/opencaesar/owl-tools/owl-doc/images/download.svg) ](https://bintray.com/opencaesar/owl-tools/owl-doc/_latestVersion)
+
+A tool to generate documents specified with the OpenCAESAR document vocabulary.
+
 ## [OWL Fuseki](owl-tools/owl-fuseki) [ ![Download](https://api.bintray.com/packages/opencaesar/owl-tools/owl-fuseki/images/download.svg) ](https://bintray.com/opencaesar/owl-tools/owl-fuseki/_latestVersion)
 
 A tool to start and stop a UI-less Fuseki server with a given configuration file

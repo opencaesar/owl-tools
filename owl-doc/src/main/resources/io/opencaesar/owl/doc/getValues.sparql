@@ -1,0 +1,4 @@
+SELECT DISTINCT ?key ?value
+WHERE {
+    ?key ? ?value .
+}
