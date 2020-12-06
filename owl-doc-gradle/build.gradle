@@ -1,0 +1,7 @@
+ext.title = 'OWL Doc Task'
+description = 'A gradle task to invoke owl doc'
+
+dependencies {
+	implementation gradleApi()
+    implementation project (':owl-doc')
+}
