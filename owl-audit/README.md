@@ -56,7 +56,7 @@ rvm use jruby-1.7.27
     } order by ?iri
     ```
   
-  Save the output as [iris.list](iris.list)
+  Save the output as [iris.list](example/iris.list)
 
 3) Run Audits
 
@@ -83,14 +83,14 @@ rvm use jruby-1.7.27
       --host localhost \
       --port 3030 \
       --dataset firesat \
-      --audit-tree `pwd`/audits/bundle \
-      --iri-file `pwd`/iris.list \
-      --prefix-file `pwd`/prefixes.yaml \
-      --output-file `pwd`/test-bundle.xml
+      --audit-tree `pwd`/example/audits/bundle \
+      --iri-file `pwd`/example/iris.list \
+      --prefix-file `pwd`/example/prefixes.yaml \
+      --output-file `pwd`/example/results/test-bundle.xml
   ```
   
   
-  See [test-bundle.xml](test-bundle.xml)
+  See [example/results/test-bundle.xml](example/results/test-bundle.xml)
   
   </details>
   
@@ -104,13 +104,13 @@ rvm use jruby-1.7.27
       --host localhost \
       --port 3030 \
       --dataset firesat \
-      --audit-tree `pwd`/audits/non-recurring \
-      --iri-file `pwd`/iris.list \
-      --prefix-file `pwd`/prefixes.yaml \
-      --output-file `pwd`/test-non-recurring.xml
+      --audit-tree `pwd`/example/audits/non-recurring \
+      --iri-file `pwd`/example/iris.list \
+      --prefix-file `pwd`/example/prefixes.yaml \
+      --output-file `pwd`/example/results/test-non-recurring.xml
   ```
   
-  See [test-non-recurring.xml](test-non-recurring.xml)
+  See [example/results/test-non-recurring.xml](example/results/test-non-recurring.xml)
   
   </details>
   
@@ -123,13 +123,13 @@ rvm use jruby-1.7.27
       --host localhost \
       --port 3030 \
       --dataset firesat \
-      --audit-tree `pwd`/audits/group/special \
-      --iri-file `pwd`/iris.list \
-      --prefix-file `pwd`/prefixes.yaml \
-      --output-file `pwd`/test-group-special.xml
+      --audit-tree `pwd`/exammple/audits/group/special \
+      --iri-file `pwd`/example/iris.list \
+      --prefix-file `pwd`/example/prefixes.yaml \
+      --output-file `pwd`/example/results/test-group-special.xml
   ```
   
-  See [test-group-special.xml](test-group-special.xml)
+  See [example/results/test-group-special.xml](example/results/test-group-special.xml)
   
   </details>
   
@@ -142,10 +142,10 @@ rvm use jruby-1.7.27
       --host localhost \
       --port 3030 \
       --dataset firesat \
-      --audit-tree `pwd`/audits/group/all/other \
-      --iri-file `pwd`/iris.list \
-      --prefix-file `pwd`/prefixes.yaml \
-      --output-file `pwd`/test-group-all-other.xml
+      --audit-tree `pwd`/example/audits/group/all/other \
+      --iri-file `pwd`/example/iris.list \
+      --prefix-file `pwd`/example/prefixes.yaml \
+      --output-file `pwd`/example/results/test-group-all-other.xml
   F, [2020-12-01 12:01:16 #2879080] FATAL -- run-audits-jena: Detected an exception. Stopping ... 
   Exception Occurred: undefined method `map' for nil:NilClass.
   Backtrace:
@@ -172,10 +172,10 @@ rvm use jruby-1.7.27
       --host localhost \
       --port 3030 \
       --dataset firesat \
-      --audit-tree `pwd`/audits/group/all/no-embedding \
-      --iri-file `pwd`/iris.list \
-      --prefix-file `pwd`/prefixes.yaml \
-      --output-file `pwd`/test-group-all-no-embedding.xml
+      --audit-tree `pwd`/example/audits/group/all/no-embedding \
+      --iri-file `pwd`/example/iris.list \
+      --prefix-file `pwd`/example/prefixes.yaml \
+      --output-file `pwd`/example/results/test-group-all-no-embedding.xml
   .
   F, [2020-12-01 12:02:09 #2879610] FATAL -- run-audits-jena: Detected an exception. Stopping ... 
   Exception Occurred: Line 869, column 66: Unresolved prefixed name: owl2-mof2-backbone:topReifiedStructuredDataPropertySource.
@@ -244,10 +244,10 @@ java -jar <path>/owl-audit-<version>.jar \
   --host localhost \
   --port 3030 \
   --dataset firesat \
-  --audit-tree ./src/audits/bundle \
-  --iri-file iris.list \
-  --prefix-file prefixes.yaml \
-  --output-file tests.xml 
+  --audit-tree ./example/audits/bundle \
+  --iri-file ./exampleiris.list \
+  --prefix-file ./exampleprefixes.yaml \
+  --output-file ./example/results/tests.xml 
 ```
 
 To debug the Audit rules, execute with the `--debug` option and save the output to a log file:
@@ -257,14 +257,14 @@ java -jar <path>/owl-audit-<version>.jar \
   --host localhost \
   --port 3030 \
   --dataset firesat \
-  --audit-tree ./src/audits/bundle \
-  --iri-file iris.list \
-  --prefix-file prefixes.yaml \
-  --output-file tests.xml \
-  --debug > tests.log 2>&1
+  --audit-tree ./example/audits/bundle \
+  --iri-file ./example/iris.list \
+  --prefix-file ./example/prefixes.yaml \
+  --output-file ./example/results/tests.xml \
+  --debug > ./build/tests.log 2>&1
 ```
 
-The log file, `tests.log`, will show multiple sequences of the following:
+The log file, `./build/tests.log`, will show multiple sequences of the following:
 
 - A separating log entry of `=` signs.
 - The SPARQL endpoint.
