@@ -232,6 +232,79 @@ rvm use jruby-1.7.27
 
 </details>
 
+## Writing Audit rules
+
+<details>
+<summary>Details</summary>
+
+Audits are SPARQL queries written in Ruby's [ERB](https://docs.ruby-lang.org/en/2.3.0/ERB.html) templating syntax with additional features designed to reduce the tedious aspects
+of writing and composing SPARQL queries.
+
+An audit is a Ruby file (i.e., `*.rb`).
+
+- The name of the file is the name of the audit.
+
+- The contents of the file specifies up to 4 sections:
+
+  1) The name of the audit; which is typically a human-friendly rendering of the file name.
+    
+     Example: [example/audits/bundle/imce/every-entity-aspect-or-rop-is-a-ce.rb](example/audits/bundle/imce/every-entity-aspect-or-rop-is-a-ce.rb)
+    
+     ```ruby
+     name 'every entity, aspect, or reified object property is a characterized element'
+     ```
+     
+  2) A template SPARQL query `query %q{ .... }`
+
+     Use the template directive
+     `<%= @namespace_defs %>` instead of writing
+     [SPARQL namespace prefixes](https://www.w3.org/TR/sparql11-query/#docNamespaces).
+     The expansion of this directive will contain namespace prefixes
+     from the `--prefix-file` command line argument augmented with the prefixes found
+     from the transitive closure of ontology imports from the `--iri-file`
+     command line argument.
+     
+     To restrict a SPARQL query to [named graphs](https://www.w3.org/TR/sparql11-query/#specDataset),
+     use one of the following template directives:
+     
+     - `<%= @from_clauses_by_group[GG] %>`
+      
+       - `GG` can be either `'imce'`, `'named'` or `'imported'`.
+        
+     - `<%= @from_clauses_by_group_by_type[TT][KK] %>`
+       
+       - `TT` can be either `'named'` or `'imported'`
+       - `KK` can be either `ClassEntailments`, `IndividualEntailments` or `PropertyEntailments`.
+    
+  3) An optional predicate for generating an optional message for each result.
+    
+     ```ruby
+     predicate do |r|
+       # Array of message results.
+       msg = []
+       # Test the result r and if applicable, add a new explanation message
+       msg << 'Some message.' unless SomeTest(r)
+       msg.empty? ? [true, nil] : [false, msg.join(' ')]
+     end
+     ```
+     
+   4) A mapping of the result to a single IRI identifying the entity being audited.
+    
+      Suppose the SPARQL query had a select statement like this:
+      
+      ```sparql
+      select distinct ?a ?b ?c 
+      ...
+      ```
+      
+      If `?a` identifies the entity being audited, then add:
+    
+      ```ruby
+      case_name { |r| r.a.to_qname(@namespace_by_prefix) }
+      ```
+      
+</details>
+
 ## Debugging Audit rules
 
 <details>
