@@ -1,0 +1,5 @@
+#!/usr/bin/env ruby
+
+require 'tools/run-audits-jena'
+
+exit(JenaAuditApplication.new(APPLICATION_NAME).start)
