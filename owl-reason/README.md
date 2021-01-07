@@ -8,12 +8,12 @@ A tool to analyze an OWL dataset for satisfiability and consistency with an OWL2
 
 MacOS/Linux:
 ```
-cd owl-adapter
+cd owl-tools
 ./gradlew owl-reason:run --args="..."
 ```
 Windows:
 ```
-cd owl-adapter
+cd owl-tools
 gradlew.bat owl-reason:run --args="..."
 ```
 Args:
