@@ -1,6 +1,7 @@
 # OWL Tools
 
 [![Build Status](https://travis-ci.org/opencaesar/owl-tools.svg?branch=master)](https://travis-ci.org/opencaesar/owl-tools)
+[![Release](https://img.shields.io/github/v/tag/opencaesar/owl-tools?label=release)](https://github.com/opencaesar/owl-tools/releases/latest)
 
 A set of OWL based analysis tools
 
@@ -11,36 +12,35 @@ A set of OWL based analysis tools
 ```
       
 ## Build
-Requirements: java 11
+Requirements: JDK 11
 ```
-    cd owl-tools
     ./gradlew build
 ```
 
-## [OWL Close World](owl-close-world) [ ![Download](https://api.bintray.com/packages/opencaesar/owl-tools/owl-close-world/images/download.svg) ](https://bintray.com/opencaesar/owl-tools/owl-close-world/_latestVersion)
+## [OWL Close World](owl-close-world/README.md)
 
 A library of different algorithms to close the world on OWL ontologies
 
-## [OWL Diff](owl-diff) [ ![Download](https://api.bintray.com/packages/opencaesar/owl-tools/owl-diff/images/download.svg) ](https://bintray.com/opencaesar/owl-tools/owl-diff/_latestVersion)
+## [OWL Diff](owl-diff/README.md)
 
 A tool to produce a difference report between two OWL datasets
 
-## [OWL Fuseki](owl-fuseki) [ ![Download](https://api.bintray.com/packages/opencaesar/owl-tools/owl-fuseki/images/download.svg) ](https://bintray.com/opencaesar/owl-tools/owl-fuseki/_latestVersion)
+## [OWL Fuseki](owl-fuseki/README.md)
 
 A tool to start and stop a UI-less Fuseki server with a given configuration file
 
-## [OWL Reason](owl-reason) [ ![Download](https://api.bintray.com/packages/opencaesar/owl-tools/owl-reason/images/download.svg) ](https://bintray.com/opencaesar/owl-tools/owl-reason/_latestVersion)
+## [OWL Reason](owl-reason/README.md)
 
 A tool to analyze an OWL dataset for satisfiability and consistency with an OWL2-DL reasoner
 
-## [OWL Load](owl-load) [ ![Download](https://api.bintray.com/packages/opencaesar/owl-tools/owl-load/images/download.svg) ](https://bintray.com/opencaesar/owl-tools/owl-load/_latestVersion)
+## [OWL Load](owl-load/README.md)
 
 A tool to load a catalog of OWL ontologies to a database endpoint
 
-## [OWL Query](owl-query) [ ![Download](https://api.bintray.com/packages/opencaesar/owl-tools/owl-query/images/download.svg) ](https://bintray.com/opencaesar/owl-tools/owl-query/_latestVersion)
+## [OWL Query](owl-query/README.md)
 
 A tool to send a SPARQL query to a database endpoint and save the result
 
-## [OWL Shacl Fuseki](owl-shacl-fuseki) [ ![Download](https://api.bintray.com/packages/opencaesar/owl-tools/owl-shacl-fuseki/images/download.svg) ](https://bintray.com/opencaesar/owl-tools/owl-shacl-fuseki/_latestVersion)
+## [OWL Shacl Fuseki](owl-shacl-fuseki/README.md)
 
 A tool to send SHACL queries to a Fuseki database endpoint and save the result

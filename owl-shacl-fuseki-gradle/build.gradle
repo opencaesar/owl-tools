@@ -1,4 +1,4 @@
-ext.title = 'OWL SHACL Fuseki Task'
+ext.title = 'OWL SHACL Fuseki Gradle'
 description = 'A gradle task to invoke owl shacl fuseki'
 
 dependencies {

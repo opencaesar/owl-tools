@@ -1,18 +1,16 @@
 # OWL Load
 
-[ ![Download](https://api.bintray.com/packages/opencaesar/owl-tools/owl-load/images/download.svg) ](https://bintray.com/opencaesar/owl-tools/owl-load/_latestVersion)
+[![Release](https://img.shields.io/github/v/tag/opencaesar/owl-tools?label=release)](https://github.com/opencaesar/owl-tools/releases/latest)
 
 A tool to clear and load a Fuseki dataset with the transitive closure of all imported ontologies from a set of Catalog-resolved IRIs.
 
 ## Run as CLI
 MacOS/Linux:
 ```
-cd owl-tools
 ./gradlew owl-load:run --args="..."
 ```
 Windows:
 ```
-cd owl-tools
 gradlew.bat owl-load:run --args="..."
 ```
 Args:
@@ -28,9 +26,7 @@ Note: The dataset (database) must have been created prior to execution
 ```
 buildscript {
 	repositories {
-		maven { url 'https://dl.bintray.com/opencaesar/owl-tools' }
   		mavenCentral()
-		jcenter()
 	}
 	dependencies {
 		classpath 'io.opencaesar.owl:owl-load-gradle:+'

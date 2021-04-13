@@ -6,15 +6,20 @@ mainClassName = 'io.opencaesar.owl.reason.OwlReasonApp'
 applicationName = 'owl-reason'
 
 dependencies {
-	implementation "xml-resolver:xml-resolver:${versions.xmlresolver}"
-	implementation "com.github.galigator.openllet:openllet-owlapi:${versions.openllet}"
-	implementation "com.github.galigator.openllet:openllet-explanation:${versions.openllet}"
-	implementation "com.github.galigator.openllet:openllet-jena:${versions.openllet}"
- }
+	implementation "com.beust:jcommander:${versions.jcommander}"
+	implementation "log4j:log4j:${versions.log4j}"
+	implementation "org.slf4j:slf4j-simple:${versions.slf4j}"
+	testImplementation "junit:junit:${versions.junit}"
 
-configurations.all {
-	resolutionStrategy {
+	implementation "xml-resolver:xml-resolver:${versions.xmlresolver}"
+	implementation("com.github.galigator.openllet:openllet-owlapi:${versions.openllet}") {
 		exclude group: 'org.antlr', module: 'antlr-runtime'
 	}
-}
+	implementation("com.github.galigator.openllet:openllet-explanation:${versions.openllet}") {
+		exclude group: 'org.antlr', module: 'antlr-runtime'
+	}
+	implementation("com.github.galigator.openllet:openllet-jena:${versions.openllet}") {
+		exclude group: 'org.antlr', module: 'antlr-runtime'
+	}
+ }
  

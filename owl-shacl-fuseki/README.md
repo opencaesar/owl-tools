@@ -1,6 +1,6 @@
 # OWL Shacl Fuseki
 
-[ ![Download](https://api.bintray.com/packages/opencaesar/owl-tools/owl-shacl-fuseki/images/download.svg) ](https://bintray.com/opencaesar/owl-tools/owl-shacl-fuseki/_latestVersion)
+[![Release](https://img.shields.io/github/v/tag/opencaesar/owl-tools?label=release)](https://github.com/opencaesar/owl-tools/releases/latest)
 
 A tool to execute a SHACL query on a given Fuseki+SHACL endpoint. 
 
@@ -8,12 +8,10 @@ A tool to execute a SHACL query on a given Fuseki+SHACL endpoint.
 
 MacOS/Linux:
 ```
-cd owl-tools
 ./gradlew owl-shacl-fuseki:run --args="..."
 ```
 Windows:
 ```
-cd owl-tools
 gradlew.bat owl-shacl-fuseki:run --args="..."
 ```
 Args:
@@ -31,9 +29,7 @@ Args:
 ```
 buildscript {
 	repositories {
-		maven { url 'https://dl.bintray.com/opencaesar/owl-tools' }
   		mavenCentral()
-		jcenter()
 	}
 	dependencies {
 		classpath 'io.opencaesar.owl:owl-shacl-fuseki-gradle:+'

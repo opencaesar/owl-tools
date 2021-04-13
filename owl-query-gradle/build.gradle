@@ -1,4 +1,4 @@
-ext.title = 'OWL Query Task'
+ext.title = 'OWL Query Gradle'
 description = 'A gradle task to invoke owl query'
 
 dependencies {

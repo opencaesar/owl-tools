@@ -2,13 +2,11 @@ ext.title = 'OWL Close World'
 description = 'A library of algorithms to close the world in OWL ontologies'
 
 dependencies {
+	implementation "com.beust:jcommander:${versions.jcommander}"
+	implementation "log4j:log4j:${versions.log4j}"
+	implementation "org.slf4j:slf4j-simple:${versions.slf4j}"
+	testImplementation "junit:junit:${versions.junit}"
+
 	implementation "net.sourceforge.owlapi:owlapi-distribution:${versions.owl}"
 	implementation "org.jgrapht:jgrapht-core:${versions.jgrapht}"
 }
-
-configurations.all {
-	resolutionStrategy {
-		exclude group: 'org.antlr', module: 'antlr-runtime'
-	}
-}
- 

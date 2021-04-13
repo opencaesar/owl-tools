@@ -144,7 +144,7 @@ public class FusekiApp {
      * @param outputDirectory Path to an output directory that, if it exists, will be cleaned, and that will have:
      *                        - fuseki.log the combination of standard output and error.
      *                        - fuseki.pid the ID of the fuseki process.
-     * @throws IOException
+     * @throws IOException if the 'fuseki.pid' file could not be written to 
      * @throws IllegalArgumentException If there exists a process whose ID matches 'fuseki.pid' from the output directory.
      */
     public static void startFuseki(File config, File outputDirectory) throws IOException {
@@ -179,7 +179,7 @@ public class FusekiApp {
      *
      * @param outputDirectory Directory where the 'fuseki.pid' file is located.
      * @return The ProcessHandle retrieved from the process whose ID matches the 'fuseki.pid' file if it exists and is readable.
-     * @throws IOException
+     * @throws IOException if the 'fuseki.pid' file could be read
      */
     public static Optional<ProcessHandle> findFusekiProcess(File outputDirectory) throws IOException {
         File f = outputDirectory.toPath().resolve("fuseki.pid").toFile();
@@ -200,7 +200,7 @@ public class FusekiApp {
      * Stops a background Fuseki server.
      *
      * @param fusekiDir The directory containing the fuseki.pid file with the ID of the Fuseki server process to kill.
-     * @throws IOException
+     * @throws IOException if the 'fuseki.pid' file could be read
      */
     public static void stopFuseki(File fusekiDir) throws IOException {
         Optional<ProcessHandle> ph = findFusekiProcess(fusekiDir);

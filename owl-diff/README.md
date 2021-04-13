@@ -1,6 +1,6 @@
 # OWL Diff
 
-[ ![Download](https://api.bintray.com/packages/opencaesar/owl-tools/owl-diff/images/download.svg) ](https://bintray.com/opencaesar/owl-tools/owl-diff/_latestVersion)
+[![Release](https://img.shields.io/github/v/tag/opencaesar/owl-tools?label=release)](https://github.com/opencaesar/owl-tools/releases/latest)
 
 A tool to produce a difference report between two OWL datasets
 
@@ -8,12 +8,10 @@ A tool to produce a difference report between two OWL datasets
 
 MacOS/Linux:
 ```
-cd owl-tools
 ./gradlew owl-diff:run --args="..."
 ```
 Windows:
 ```
-cd owl-tools
 gradlew.bat owl-diff:run --args="..."
 ```
 Args:

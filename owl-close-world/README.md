@@ -1,6 +1,6 @@
 # OWL Close World
 
-[ ![Download](https://api.bintray.com/packages/opencaesar/owl-tools/owl-close-world/images/download.svg) ](https://bintray.com/opencaesar/owl-tools/owl-close-world/_latestVersion)
+[![Release](https://img.shields.io/github/v/tag/opencaesar/owl-tools?label=release)](https://github.com/opencaesar/owl-tools/releases/latest)
 
 A library of different algorithms to close the world on OWL ontologies
 

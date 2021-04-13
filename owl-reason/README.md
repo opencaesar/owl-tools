@@ -1,6 +1,6 @@
 # OWL Reason
 
-[ ![Download](https://api.bintray.com/packages/opencaesar/owl-tools/owl-reason/images/download.svg) ](https://bintray.com/opencaesar/owl-tools/owl-reason/_latestVersion)
+[![Release](https://img.shields.io/github/v/tag/opencaesar/owl-tools?label=release)](https://github.com/opencaesar/owl-tools/releases/latest)
 
 A tool to analyze an OWL dataset for satisfiability and consistency with an OWL2-DL reasoner
 
@@ -8,12 +8,10 @@ A tool to analyze an OWL dataset for satisfiability and consistency with an OWL2
 
 MacOS/Linux:
 ```
-cd owl-tools
 ./gradlew owl-reason:run --args="..."
 ```
 Windows:
 ```
-cd owl-tools
 gradlew.bat owl-reason:run --args="..."
 ```
 Args:
@@ -34,9 +32,7 @@ Args:
 ```
 buildscript {
 	repositories {
-		maven { url 'https://dl.bintray.com/opencaesar/owl-tools' }
   		mavenCentral()
-		jcenter()
 	}
 	dependencies {
 		classpath 'io.opencaesar.owl:owl-reason-gradle:+'

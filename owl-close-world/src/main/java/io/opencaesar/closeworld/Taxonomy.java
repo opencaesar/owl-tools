@@ -315,9 +315,10 @@ public class Taxonomy extends DirectedAcyclicGraph<ClassExpression, Taxonomy.Tax
 	/**
 	 * Generate closure axioms.
 	 *
-	 * @return List<Axiom>
+	 * @param axiomType The axiom type to generate closure for
+	 * @return A set of axioms
 	 */
-	public Set<Axiom> generateClosureAxioms(io.opencaesar.closeworld.Axiom.AxiomType axiomType) throws UnconnectedTaxonomyException, InvalidTreeException {
+	public Set<Axiom> generateClosureAxioms(Axiom.AxiomType axiomType) throws UnconnectedTaxonomyException, InvalidTreeException {
 
 		ensureConnected();
 		final Taxonomy tree = treeify();

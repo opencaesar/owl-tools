@@ -1,18 +1,16 @@
 # OWL Fuseki
 
-[ ![Download](https://api.bintray.com/packages/opencaesar/owl-tools/owl-fuseki/images/download.svg) ](https://bintray.com/opencaesar/owl-tools/owl-fuseki/_latestVersion)
+[![Release](https://img.shields.io/github/v/tag/opencaesar/owl-tools?label=release)](https://github.com/opencaesar/owl-tools/releases/latest)
 
-A tool to start and stop a UU-less Fuseki server with a given configuration file
+A tool to start and stop a UI-less Fuseki server with a given configuration file
 
 ## Run as CLI
 MacOS/Linux:
 ```
-cd owl-tools
 ./gradlew owl-fuseki:run --args="..."
 ```
 Windows:
 ```
-cd owl-tools
 gradlew.bat owl-fuseki:run --args="..."
 ```
 Args:
@@ -26,9 +24,7 @@ Args:
 ```
 buildscript {
 	repositories {
-		maven { url 'https://dl.bintray.com/opencaesar/owl-tools' }
   		mavenCentral()
-		jcenter()
 	}
 	dependencies {
 		classpath 'io.opencaesar.owl:owl-fuseki-gradle:+'
