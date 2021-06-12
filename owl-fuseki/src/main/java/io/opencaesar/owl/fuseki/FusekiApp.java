@@ -10,7 +10,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.nio.file.Path;
 import java.util.Optional;
 
@@ -146,7 +148,7 @@ public class FusekiApp {
      * @throws IOException if the 'fuseki.pid' file could not be written to 
      * @throws IllegalArgumentException If there exists a process whose ID matches 'fuseki.pid' from the output directory.
      */
-    public static void startFuseki(File config, File outputDirectory) throws IOException {
+    public static void startFuseki(File config, File outputDirectory) throws IOException, URISyntaxException {
         Optional<ProcessHandle> ph = findFusekiProcess(outputDirectory);
         if (ph.isPresent()) {
             throw new IllegalArgumentException("There is already a fuseki server running with pid="+ph.get().pid());
@@ -217,14 +219,15 @@ public class FusekiApp {
      *
      * @param qualifiedClassName The qualified name of a class from a Jar on the classpath.
      * @return The location of the Jar on the classpath that provides the class.
+     * @throws URISyntaxException
      * @see ClassLoader#getResource(String) about using '/' as a separator for resource paths.
      */
-    public static String findJar(String qualifiedClassName) {
+    public static String findJar(String qualifiedClassName) throws URISyntaxException {
         String resourceName = qualifiedClassName.replaceAll("\\.", "/") + ".class";
         URL classURL = FusekiApp.class.getClassLoader().getResource(resourceName);
         if (null == classURL)
             throw new IllegalArgumentException("Cannot find " + qualifiedClassName + " on the classpath.");
-        String path = classURL.getPath().replaceFirst("file:", "");
+        String path = Paths.get(classURL.toURI()).toFile().getAbsolutePath();
         String jar = path.substring(0, path.indexOf('!'));
         File f = new File(jar);
         if (!f.exists() || !f.canRead())
