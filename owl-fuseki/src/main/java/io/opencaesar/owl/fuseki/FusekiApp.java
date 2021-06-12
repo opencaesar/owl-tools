@@ -236,12 +236,10 @@ public class FusekiApp {
         System.out.println("jar url="+jarURL);
         Path jarPath = Paths.get(jarURL.toURI());
         System.out.println("class path="+jarPath);
-        String path = jarPath.toFile().getAbsolutePath();
-        String jar = path.substring(0, path.indexOf('!'));
-        File f = new File(jar);
+        File f = jarPath.toFile();
         if (!f.exists() || !f.canRead())
-            throw new IllegalArgumentException("Cannot find jar of " + qualifiedClassName + " at: " + jar);
-        return jar;
+            throw new IllegalArgumentException("Cannot find jar of " + qualifiedClassName + " at: " + f);
+        return f.getAbsolutePath();
     }
 
     /**
