@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
@@ -220,17 +221,20 @@ public class FusekiApp {
      * @param qualifiedClassName The qualified name of a class from a Jar on the classpath.
      * @return The location of the Jar on the classpath that provides the class.
      * @throws URISyntaxException
+     * @throws MalformedURLException
      * @see ClassLoader#getResource(String) about using '/' as a separator for resource paths.
      */
-    public static String findJar(String qualifiedClassName) throws URISyntaxException {
+    public static String findJar(String qualifiedClassName) throws URISyntaxException, MalformedURLException {
         String resourceName = qualifiedClassName.replaceAll("\\.", "/") + ".class";
         URL classURL = FusekiApp.class.getClassLoader().getResource(resourceName);
         if (null == classURL)
             throw new IllegalArgumentException("Cannot find " + qualifiedClassName + " on the classpath.");
         System.out.println("class url="+classURL);
-        Path classPath = Paths.get(classURL.toURI());
-        System.out.println("class path="+classPath);
-        String path = classPath.toFile().getAbsolutePath();
+        URL jarURL = new URL(classURL.getProtocol(), classURL.getHost(), classURL.getPort(), classURL.getPath());
+        System.out.println("jar url="+jarURL);
+        Path jarPath = Paths.get(jarURL.toURI());
+        System.out.println("class path="+jarPath);
+        String path = jarPath.toFile().getAbsolutePath();
         String jar = path.substring(0, path.indexOf('!'));
         File f = new File(jar);
         if (!f.exists() || !f.canRead())
