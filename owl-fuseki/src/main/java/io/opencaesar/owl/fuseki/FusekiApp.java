@@ -227,7 +227,10 @@ public class FusekiApp {
         URL classURL = FusekiApp.class.getClassLoader().getResource(resourceName);
         if (null == classURL)
             throw new IllegalArgumentException("Cannot find " + qualifiedClassName + " on the classpath.");
-        String path = Paths.get(classURL.toURI()).toFile().getAbsolutePath();
+        System.out.println("class url="+classURL);
+        Path classPath = Paths.get(classURL.toURI());
+        System.out.println("class path="+classPath);
+        String path = classPath.toFile().getAbsolutePath();
         String jar = path.substring(0, path.indexOf('!'));
         File f = new File(jar);
         if (!f.exists() || !f.canRead())
