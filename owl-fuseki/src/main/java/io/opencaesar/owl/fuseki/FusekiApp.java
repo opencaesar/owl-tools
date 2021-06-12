@@ -230,7 +230,7 @@ public class FusekiApp {
         if (null == classURL)
             throw new IllegalArgumentException("Cannot find " + qualifiedClassName + " on the classpath.");
         System.out.println("class url="+classURL);
-        URL jarURL = new URL(classURL.getProtocol(), classURL.getHost(), classURL.getPort(), classURL.getPath());
+        URL jarURL = new URL(classURL.getProtocol(), classURL.getHost(), classURL.getPort(), classURL.getPath().substring(0, classURL.getPath().indexOf('!')));
         System.out.println("jar url="+jarURL);
         Path jarPath = Paths.get(jarURL.toURI());
         System.out.println("class path="+jarPath);
