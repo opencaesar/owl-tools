@@ -148,7 +148,7 @@ public class FusekiApp {
      *                        - fuseki.log the combination of standard output and error.
      *                        - fuseki.pid the ID of the fuseki process.
      * @throws IOException if the 'fuseki.pid' file could not be written to 
-     * @throws IllegalArgumentException If there exists a process whose ID matches 'fuseki.pid' from the output directory.
+     * @throws URISyntaxException If there is a problem retrieving the location of the fuseki jar.
      */
     public static void startFuseki(File config, File outputDirectory) throws IOException, URISyntaxException {
         Optional<ProcessHandle> ph = findFusekiProcess(outputDirectory);
@@ -221,8 +221,8 @@ public class FusekiApp {
      *
      * @param qualifiedClassName The qualified name of a class from a Jar on the classpath.
      * @return The location of the Jar on the classpath that provides the class.
-     * @throws URISyntaxException
-     * @throws IOException
+     * @throws URISyntaxException if there is a problem retrieving the location of the fuseki jar.
+     * @throws IOException if there is a problem retrieving the location of the fuseki jar.
      * @see ClassLoader#getResource(String) about using '/' as a separator for resource paths.
      */
     public static String findJar(String qualifiedClassName) throws URISyntaxException, IOException {
