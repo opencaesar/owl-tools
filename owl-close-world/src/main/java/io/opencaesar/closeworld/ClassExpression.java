@@ -373,7 +373,7 @@ import java.util.stream.Collectors;
 		 */
 		@Override
 		public String toString() {
-			return e.toAtom() + "′";
+			return e.toAtom() + "\u2032";
 		}
 		
 		/**

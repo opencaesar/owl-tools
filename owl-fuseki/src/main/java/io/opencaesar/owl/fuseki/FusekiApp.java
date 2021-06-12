@@ -10,7 +10,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.net.JarURLConnection;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.nio.file.Path;
 import java.util.Optional;
 
@@ -144,9 +148,9 @@ public class FusekiApp {
      *                        - fuseki.log the combination of standard output and error.
      *                        - fuseki.pid the ID of the fuseki process.
      * @throws IOException if the 'fuseki.pid' file could not be written to 
-     * @throws IllegalArgumentException If there exists a process whose ID matches 'fuseki.pid' from the output directory.
+     * @throws URISyntaxException If there is a problem retrieving the location of the fuseki jar.
      */
-    public static void startFuseki(File config, File outputDirectory) throws IOException {
+    public static void startFuseki(File config, File outputDirectory) throws IOException, URISyntaxException {
         Optional<ProcessHandle> ph = findFusekiProcess(outputDirectory);
         if (ph.isPresent()) {
             throw new IllegalArgumentException("There is already a fuseki server running with pid="+ph.get().pid());
@@ -217,19 +221,22 @@ public class FusekiApp {
      *
      * @param qualifiedClassName The qualified name of a class from a Jar on the classpath.
      * @return The location of the Jar on the classpath that provides the class.
+     * @throws URISyntaxException if there is a problem retrieving the location of the fuseki jar.
+     * @throws IOException if there is a problem retrieving the location of the fuseki jar.
      * @see ClassLoader#getResource(String) about using '/' as a separator for resource paths.
      */
-    public static String findJar(String qualifiedClassName) {
+    public static String findJar(String qualifiedClassName) throws URISyntaxException, IOException {
         String resourceName = qualifiedClassName.replaceAll("\\.", "/") + ".class";
         URL classURL = FusekiApp.class.getClassLoader().getResource(resourceName);
         if (null == classURL)
             throw new IllegalArgumentException("Cannot find " + qualifiedClassName + " on the classpath.");
-        String path = classURL.getPath().replaceFirst("file:", "");
-        String jar = path.substring(0, path.indexOf('!'));
-        File f = new File(jar);
+        JarURLConnection c = (JarURLConnection) classURL.openConnection();
+        URL jarURL = c.getJarFileURL();
+        Path jarPath = Paths.get(jarURL.toURI());
+        File f = jarPath.toFile();
         if (!f.exists() || !f.canRead())
-            throw new IllegalArgumentException("Cannot find jar of " + qualifiedClassName + " at: " + jar);
-        return jar;
+            throw new IllegalArgumentException("Cannot find jar of " + qualifiedClassName + " at: " + f);
+        return f.getAbsolutePath();
     }
 
     /**
