@@ -18,6 +18,7 @@ package io.opencaesar.owl.shacl.fuseki;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,7 +28,12 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.jena.ext.com.google.common.io.CharStreams;
 import org.apache.jena.query.QueryException;
@@ -92,7 +98,7 @@ public class OwlShaclFusekiApp {
 		DOMConfigurator.configure(ClassLoader.getSystemClassLoader().getResource("log4j.xml"));
 	}
 
-	public static void main(final String... args) {
+	public static void main(final String... args) throws Exception {
 		final OwlShaclFusekiApp app = new OwlShaclFusekiApp();
 		final JCommander builder = JCommander.newBuilder().addObject(app).build();
 		builder.parse(args);
@@ -107,7 +113,7 @@ public class OwlShaclFusekiApp {
 		app.run();
 	}
 
-	private void run() {
+	private void run() throws Exception {
 		LOGGER.info("=================================================================");
 		LOGGER.info("                        S T A R T");
 		LOGGER.info("                     OWL Query " + getAppVersion());
@@ -131,46 +137,51 @@ public class OwlShaclFusekiApp {
 			System.exit(10);
 		}
 
-		// Execute the queries in parallel
-		ArrayList<Thread> threads = new ArrayList<>();
-		queries.forEach((name, query) -> {
-			// For every query, execute it in parallel
-			Thread thread = new Thread(() -> executeQuery(name, query));
-			threads.add(thread);
-			thread.start();
-		});
-		threads.forEach(it -> {
-			try {
-				it.join();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		});
+        final ExecutorService pool = Executors.newWorkStealingPool();
+        CompletableFuture<Void> allExecuted= CompletableFuture.allOf(queries.entrySet().stream().map(e -> executeQuery(e.getKey(), e.getValue())).toArray(CompletableFuture[]::new));
+        allExecuted.get();
+        LOGGER.info("All queries executed.");
+        shutdownAndAwaitTermination(pool);
 
 		LOGGER.info("=================================================================");
 		LOGGER.info("                          E N D");
 		LOGGER.info("=================================================================");
 	}
 
-	/**
-	 * Get application version id from properties file.
-	 * 
-	 * @return version string from build.properties or UNKNOWN
-	 */
-	private String getAppVersion() {
-		String version = "UNKNOWN";
-		try {
-			InputStream input = Thread.currentThread().getContextClassLoader().getResourceAsStream("version.txt");
-			if (null != input) {
-				InputStreamReader reader = new InputStreamReader(input);
-				version = CharStreams.toString(reader);
+    /**
+     * @param pool An ExecutionService
+     * @see <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/concurrent/ExecutorService.html">ExecutorService Usage</a>
+     */
+   private void shutdownAndAwaitTermination(ExecutorService pool) {
+        pool.shutdown(); // Disable new tasks from being submitted
+        try {
+            // Wait a while for existing tasks to terminate
+            if (!pool.awaitTermination(60, TimeUnit.SECONDS)) {
+                pool.shutdownNow(); // Cancel currently executing tasks
+                // Wait a while for tasks to respond to being cancelled
+                if (!pool.awaitTermination(60, TimeUnit.SECONDS))
+                    System.err.println("Pool did not terminate");
+            }
+        } catch (InterruptedException ie) {
+            // (Re-)Cancel if current thread also interrupted
+            pool.shutdownNow();
+            // Preserve interrupt status
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    private String getAppVersion() throws Exception {
+		InputStream input = Thread.currentThread().getContextClassLoader().getResourceAsStream("version.txt");
+		if (input != null) {
+			InputStreamReader reader = new InputStreamReader(input);
+			String version = CharStreams.toString(reader);
+			if (version != null && !version.isEmpty()) {
+				return version;
 			}
-		} catch (IOException e) {
-			String errorMsg = "Could not read version.txt file." + e;
-			LOGGER.error(errorMsg, e);
+			throw new IllegalArgumentException("File version.txt is empty");
 		}
-		return version;
-	}
+		throw new FileNotFoundException("version.txt");
+    }
 
 	/**
 	 * Executes a given query and outputs the result to result/outputName.frame
@@ -178,35 +189,35 @@ public class OwlShaclFusekiApp {
 	 * @param outputName name of the output file
 	 * @param query      query to be executed
 	 */
-	private void executeQuery(String outputName, File query) {
-
-		var client = HttpClient.newHttpClient();
-
-		try {
-			var request = HttpRequest.newBuilder(URI.create(endpointURL+"/shacl?graph=default")).header("Content-Type", "text/turtle")
-					.header("Accept", "text/turtle")
-					.POST(HttpRequest.BodyPublishers.ofInputStream(Suppliers.ofInstance(new FileInputStream(query))))
-					.build();
-
-			final HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-			final Model model = ModelFactory.createDefaultModel();
-			LOGGER.info("Parfsing result of " + query + "\n" + response.body());
-			RDFParser.create().fromString(response.body()).lang(RDFLanguages.TURTLE).build().parse(model);
-			LOGGER.info("Finished parsing result: " + model);
-
-			File output = new File(resultPath + File.separator + outputName + ".ttl");
-
-			if (output.exists()) {
-				output.delete();
+	private CompletableFuture<Void> executeQuery (String outputName, File query) {
+        return CompletableFuture.runAsync(() -> {
+			var client = HttpClient.newHttpClient();
+			try {
+				var request = HttpRequest.newBuilder(URI.create(endpointURL+"/shacl?graph=default")).header("Content-Type", "text/turtle")
+						.header("Accept", "text/turtle")
+						.POST(HttpRequest.BodyPublishers.ofInputStream(Suppliers.ofInstance(new FileInputStream(query))))
+						.build();
+	
+				final HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+	
+				final Model model = ModelFactory.createDefaultModel();
+				LOGGER.info("Parfsing result of " + query + "\n" + response.body());
+				RDFParser.create().fromString(response.body()).lang(RDFLanguages.TURTLE).build().parse(model);
+				LOGGER.info("Finished parsing result: " + model);
+	
+				File output = new File(resultPath + File.separator + outputName + ".ttl");
+	
+				if (output.exists()) {
+					output.delete();
+				}
+				output.createNewFile();
+				FileOutputStream res = new FileOutputStream(output);
+	
+				model.getWriter("turtle").write(model, res, null);
+			} catch (IOException | InterruptedException e) {
+				throw new RuntimeException(e);
 			}
-			output.createNewFile();
-			FileOutputStream res = new FileOutputStream(output);
-
-			model.getWriter("turtle").write(model, res, null);
-		} catch (IOException | InterruptedException ex) {
-			LOGGER.error(ex.getMessage(), ex);
-		}
+        });
 	}
 
 	// Modified from owl-diff

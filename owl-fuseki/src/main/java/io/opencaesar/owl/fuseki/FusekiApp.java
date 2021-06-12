@@ -3,6 +3,7 @@ package io.opencaesar.owl.fuseki;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -109,19 +110,17 @@ public class FusekiApp {
     	LOGGER.info("=================================================================");
     }
 
-    private String getAppVersion() {
-        String version = "UNKNOWN";
-        try {
-            InputStream input = Thread.currentThread().getContextClassLoader().getResourceAsStream("version.txt");
-            if (null != input) {
-                InputStreamReader reader = new InputStreamReader(input);
-                version = CharStreams.toString(reader);
-            }
-        } catch (IOException e) {
-            String errorMsg = "Could not read version.txt file." + e;
-            LOGGER.error(errorMsg, e);
-        }
-        return version;
+    private String getAppVersion() throws Exception {
+		InputStream input = Thread.currentThread().getContextClassLoader().getResourceAsStream("version.txt");
+		if (input != null) {
+			InputStreamReader reader = new InputStreamReader(input);
+			String version = CharStreams.toString(reader);
+			if (version != null && !version.isEmpty()) {
+				return version;
+			}
+			throw new IllegalArgumentException("File version.txt is empty");
+		}
+		throw new FileNotFoundException("version.txt");
     }
 
     public class CommandConverter implements IStringConverter<Command> {

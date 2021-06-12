@@ -17,14 +17,18 @@
 package io.opencaesar.owl.query;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.jena.ext.com.google.common.io.CharStreams;
 import org.apache.jena.query.Query;
@@ -49,9 +53,7 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 
 public class OwlQueryApp {
-	final static int DEFAULT_STATUS=0;
-	final static int ERROR_STATUS=1;
-
+	
 	@Parameter(
 		names = {"--endpoint-url", "-e"},
 		description = "Sparql Endpoint URL (Required)",
@@ -106,24 +108,16 @@ public class OwlQueryApp {
 		final JCommander builder = JCommander.newBuilder().addObject(app).build();
 		//final File queryFile = new File(app.queryPath);
 
-		int status=DEFAULT_STATUS;
-
 		builder.parse(args);
 		if (app.help) {
 			builder.usage();
-			return; // should be an error too?
+			return;
 		}
 		if (app.debug) {
 			final Appender appender = LogManager.getRootLogger().getAppender("stdout");
 			((AppenderSkeleton) appender).setThreshold(Level.DEBUG);
 		}
-		try {
-			app.run();
-		} catch (Exception e) {
-			status=ERROR_STATUS;
-			LOGGER.error(e);
-		}
-		System.exit(status);
+		app.run(); // exceptions are not caught to allow the Gradle task to handle
 	}
 
 	private void run() throws Exception {
@@ -135,6 +129,7 @@ public class OwlQueryApp {
 		LOGGER.info("Query path: " + queryPath);
 		LOGGER.info("Result location: " + resultPath);
 		LOGGER.info("Format Type: " + format);
+		
 		final File queryFile = new File(queryPath);
 		
 		// Collect the queries (single file and directory handled the same way) 
@@ -145,161 +140,151 @@ public class OwlQueryApp {
 			throw new Exception("No .sparql queries found");
 		}
 		
-		// Execute the queries in parallel 
-		//ArrayList<Thread> threads = new ArrayList<Thread>();
-		queries.forEach((name, query) -> {
-			// For every query, execute it in parallel 
-			//Thread thread = new Thread(new Runnable() {
-				//public void run() {
-			try {
-					executeQuery(name, query);
-			} catch (Exception e) {
-				// can't throw checked exception from a closure
-				throw new RuntimeException(e); 
-			}
-				//}
-			//});
-			//threads.add(thread); 
-			//thread.start();
-		}
-		);
-		
-		
-		//threads.forEach(it -> {
-			//try {
-				//it.join();
-			//} catch (InterruptedException e) {
-			//	e.printStackTrace();
-			//}
-		//});
-		
+        final ExecutorService pool = Executors.newWorkStealingPool();
+        CompletableFuture<Void> allExecuted= CompletableFuture.allOf(queries.entrySet().stream().map(e -> executeQuery(e.getKey(), e.getValue())).toArray(CompletableFuture[]::new));
+        allExecuted.get();
+        LOGGER.info("All queries executed.");
+        shutdownAndAwaitTermination(pool);
+
 	    LOGGER.info("=================================================================");
 		LOGGER.info("                          E N D");
 		LOGGER.info("=================================================================");
 	}
 	
-	
-	
-	/**
-	 * Get application version id from properties file.
-	 * 
-	 * @return version string from build.properties or UNKNOWN
-	 */
-	private String getAppVersion() throws Exception {
-		String version = "UNKNOWN";
-		//try {
-			InputStream input = Thread.currentThread().getContextClassLoader().getResourceAsStream("version.txt");
+    /**
+     * @param pool An ExecutionService
+     * @see <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/concurrent/ExecutorService.html">ExecutorService Usage</a>
+     */
+    private void shutdownAndAwaitTermination(ExecutorService pool) {
+        pool.shutdown(); // Disable new tasks from being submitted
+        try {
+            // Wait a while for existing tasks to terminate
+            if (!pool.awaitTermination(60, TimeUnit.SECONDS)) {
+                pool.shutdownNow(); // Cancel currently executing tasks
+                // Wait a while for tasks to respond to being cancelled
+                if (!pool.awaitTermination(60, TimeUnit.SECONDS))
+                    System.err.println("Pool did not terminate");
+            }
+        } catch (InterruptedException ie) {
+            // (Re-)Cancel if current thread also interrupted
+            pool.shutdownNow();
+            // Preserve interrupt status
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    private String getAppVersion() throws Exception {
+		InputStream input = Thread.currentThread().getContextClassLoader().getResourceAsStream("version.txt");
+		if (input != null) {
 			InputStreamReader reader = new InputStreamReader(input);
-			version = CharStreams.toString(reader);
-		//} catch (IOException e) {
-		//	String errorMsg = "Could not read version.txt file." + e;
-		//	LOGGER.error(errorMsg, e);
-		//}
-		return version;
-	}
+			String version = CharStreams.toString(reader);
+			if (version != null && !version.isEmpty()) {
+				return version;
+			}
+			throw new IllegalArgumentException("File version.txt is empty");
+		}
+		throw new FileNotFoundException("version.txt");
+    }
 	
 	/**
 	 * Executes a given query and outputs the result to result/outputName.frame
 	 * @param outputName name of the output file 
 	 * @param query query to be executed
 	 */
-	private void executeQuery (String outputName, Query query) throws Exception {
-		// Create remote connection to query endpoint
-		RDFConnectionRemoteBuilder builder = RDFConnectionFuseki.create()
-				.updateEndpoint("update")
-				.queryEndpoint("sparql")
-				.destination(endpointURL);
-		
-		File output = new File(resultPath + File.separator + outputName + ".frame");
-		
-		// Execute queries on the endpoint
-		try (
-				RDFConnection conn = builder.build();
-				FileOutputStream res = new FileOutputStream(output)
-			) {
-			
+	private CompletableFuture<Void> executeQuery (String outputName, Query query) {
+        return CompletableFuture.runAsync(() -> {
+			// Create remote connection to query endpoint
+			RDFConnectionRemoteBuilder builder = RDFConnectionFuseki.create()
+					.updateEndpoint("update")
+					.queryEndpoint("sparql")
+					.destination(endpointURL);
+				
+			File output = new File(resultPath + File.separator + outputName + ".frame");
 			if (output.exists()) {
 				output.delete(); 
 			}
-			output.createNewFile(); 
-			
-			QueryType type = query.queryType();
-			//Given the type of query, execute it
-			switch (type) {
-				case ASK:
-					LOGGER.info("Query Type: Ask");
-					//ResultSetFormatter.out(res, conn.queryAsk(query));
-					byte b[] = Boolean.toString(conn.queryAsk(query)).getBytes();
-					res.write(b); 
-					break; 
-				case CONSTRUCT_JSON:
-				case CONSTRUCT_QUADS:
-				case CONSTRUCT:
-					LOGGER.info("Query Type: Construct");
-					String constructFmt = getOutType(format); 
-					conn.queryConstruct(query).write(res, constructFmt); 
-					break; 
-				case DESCRIBE:
-					LOGGER.info("Query Type: Describe");
-					String describeFmt = getOutType(format); 
-					conn.queryDescribe(query).write(res, describeFmt);
-					break; 
-				case SELECT:
-					LOGGER.info("Query Type: Select");
-					// Certain formats call the function directly for better better formatting 
-					// EX: Calling the xml function directly gives W3 standard format
-					switch (format.toLowerCase()) {
-						case "xml":
-							conn.queryResultSet(query, (resultSet)-> {
-								ResultSetFormatter.outputAsXML(res, resultSet);
-							});
-							break;
-						case "tsv":
-							conn.queryResultSet(query, (resultSet)-> {
-								ResultSetFormatter.outputAsTSV(res, resultSet);
-							});
-							break;	
-						case "csv":
-							conn.queryResultSet(query, (resultSet)-> {
-								ResultSetFormatter.outputAsCSV(res, resultSet);
-							});
-							break;	
-						case "json":
-							conn.queryResultSet(query, (resultSet)-> {
-								ResultSetFormatter.outputAsJSON(res, resultSet);
-							});
-							break;	 
-						case "n-triple": 
-							conn.queryResultSet(query, (resultSet)-> {
-								ResultSetFormatter.output(res, resultSet, ResultsFormat.FMT_RDF_NT);
-							});
-							break;
-						case "ttl":
-							conn.queryResultSet(query, (resultSet)-> {
-								ResultSetFormatter.output(res, resultSet, ResultsFormat.FMT_RDF_TURTLE);
-							});
-							break;
-						default:
-							throw new Exception(format + " is not a valid output format for select queries. Please use one of the listed formats: xml, ttl, csv, json, tsv");
-							//LOGGER.error(format + " is not a valid output format for select queries. Please use one of the listed formats: xml, ttl, csv, json, tsv");
-							//System.exit(1);
-					}
-					break; 
-				case UNKNOWN:
-					LOGGER.info("Unknown query. Please reformat");
-					break;
-				default:
-					LOGGER.info("Default reached? Please reformat query");
-					break;
-			}
-			
-			LOGGER.info("Result saved at: " + resultPath + File.separator + outputName + ".frame");
-//		} catch (IOException e) {
-//			LOGGER.info("Failed to create open file"); 
-//			e.printStackTrace(); 
-		} 
+			try {
+				output.createNewFile();
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			} 
 
-		// ideally, we should check to ensure that output was created...
+			// Execute queries on the endpoint
+			try (RDFConnection conn = builder.build();
+				 FileOutputStream res = new FileOutputStream(output)) {
+	
+				QueryType type = query.queryType();
+				//Given the type of query, execute it
+				switch (type) {
+					case ASK:
+						LOGGER.info("Query Type: Ask");
+						byte b[] = Boolean.toString(conn.queryAsk(query)).getBytes();
+						res.write(b); 
+						break; 
+					case CONSTRUCT_JSON:
+					case CONSTRUCT_QUADS:
+					case CONSTRUCT:
+						LOGGER.info("Query Type: Construct");
+						String constructFmt = getOutType(format); 
+						conn.queryConstruct(query).write(res, constructFmt); 
+						break; 
+					case DESCRIBE:
+						LOGGER.info("Query Type: Describe");
+						String describeFmt = getOutType(format); 
+						conn.queryDescribe(query).write(res, describeFmt);
+						break; 
+					case SELECT:
+						LOGGER.info("Query Type: Select");
+						// Certain formats call the function directly for better formatting 
+						// EX: Calling the xml function directly gives W3 standard format
+						switch (format.toLowerCase()) {
+							case "xml":
+								conn.queryResultSet(query, (resultSet)-> {
+									ResultSetFormatter.outputAsXML(res, resultSet);
+								});
+								break;
+							case "tsv":
+								conn.queryResultSet(query, (resultSet)-> {
+									ResultSetFormatter.outputAsTSV(res, resultSet);
+								});
+								break;	
+							case "csv":
+								conn.queryResultSet(query, (resultSet)-> {
+									ResultSetFormatter.outputAsCSV(res, resultSet);
+								});
+								break;	
+							case "json":
+								conn.queryResultSet(query, (resultSet)-> {
+									ResultSetFormatter.outputAsJSON(res, resultSet);
+								});
+								break;	 
+							case "n-triple": 
+								conn.queryResultSet(query, (resultSet)-> {
+									ResultSetFormatter.output(res, resultSet, ResultsFormat.FMT_RDF_NT);
+								});
+								break;
+							case "ttl":
+								conn.queryResultSet(query, (resultSet)-> {
+									ResultSetFormatter.output(res, resultSet, ResultsFormat.FMT_RDF_TURTLE);
+								});
+								break;
+							default:
+								throw new RuntimeException(format + " is not a valid output format for select queries. Please use one of the listed formats: xml, ttl, csv, json, tsv");
+						}
+						break; 
+					case UNKNOWN:
+						LOGGER.info("Unknown query. Please reformat");
+						break;
+					default:
+						LOGGER.info("Default reached? Please reformat query");
+						break;
+				}
+				LOGGER.info("Result saved at: " + resultPath + File.separator + outputName + ".frame");
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+			// ideally, we should check to ensure that output was created...
+        });
 	}
 
 	//Modified from owl-diff
@@ -326,8 +311,6 @@ public class OwlQueryApp {
 					return null; 
 				}
 			} else {
-				//LOGGER.error("Please give an input query of type .sparql");
-				//return null;
 				throw new ParameterException("Please give an input query of type .sparql");
 			}
 		} else if (file.isDirectory()) {
@@ -335,8 +318,6 @@ public class OwlQueryApp {
 		} else {
 			//Neither file nor directory? 
 			throw new ParameterException("Given input is not valid (not a file nor directory");
-			//LOGGER.error("Given input is not valid (not a file nor directory");
-			//return null;
 		}
 	}
 	
@@ -351,8 +332,6 @@ public class OwlQueryApp {
 					try {
 						queries.put(getFileName(file), QueryFactory.read(file.toURI().getPath()));
 					} catch (QueryException e) {
-						//String errorMsg = "File: " + file.getName() + " . Error with parsing this file's query: " + e;
-						//LOGGER.error(errorMsg, e);
 						throw new QueryException("File: " + file.getName() + " . Error with parsing this file's query: ", e);
 					}
 				}
@@ -385,9 +364,6 @@ public class OwlQueryApp {
 			default:
 				//Not a valid output type for describe/construct queries 
 				throw new ParameterException(formatType + " is not a valid output type for describe/construct queries. Please use xml, n3, n-triple or ttl");
-//LOGGER.error(formatType + " is not a valid output type for describe/construct queries. Please use xml, n3, n-triple or ttl");
-//				System.exit(1);
-//				return "NULL";
 		}
 	}
 

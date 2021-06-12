@@ -17,8 +17,8 @@
 package io.opencaesar.owl.reason;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
@@ -413,12 +413,9 @@ public class OwlReasonApp {
         transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", ""+indent);
         DOMSource source = new DOMSource(doc);
         File reportFile = new File(options.reportPath);
-        FileOutputStream stream = new FileOutputStream(reportFile);
-        try {
+        try (FileOutputStream stream = new FileOutputStream(reportFile)) {
 	        StreamResult console = new StreamResult(stream);
 	        transformer.transform(source, console);
-        } finally {
-        	stream.close();
         }
 	}
 	
@@ -535,18 +532,18 @@ public class OwlReasonApp {
 	 * 
 	 * @return version string from build.properties or UNKNOWN
 	 */
-	public String getAppVersion() {
-		String version = "UNKNOWN";
-		try {
-			InputStream input = Thread.currentThread().getContextClassLoader().getResourceAsStream("version.txt");
+	private String getAppVersion() throws Exception {
+		InputStream input = Thread.currentThread().getContextClassLoader().getResourceAsStream("version.txt");
+		if (input != null) {
 			InputStreamReader reader = new InputStreamReader(input);
-			version = CharStreams.toString(reader);
-		} catch (IOException e) {
-			String errorMsg = "Could not read version.txt file." + e;
-			LOGGER.error(errorMsg, e);
+			String version = CharStreams.toString(reader);
+			if (version != null && !version.isEmpty()) {
+				return version;
+			}
+			throw new IllegalArgumentException("File version.txt is empty");
 		}
-		return version;
-	}
+		throw new FileNotFoundException("version.txt");
+    }
 
 	public static class CatalogPath implements IParameterValidator {
 		@Override

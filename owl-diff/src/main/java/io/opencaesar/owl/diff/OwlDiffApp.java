@@ -1,7 +1,7 @@
 package io.opencaesar.owl.diff;
 
 import java.io.File;
-import java.io.IOException;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -78,7 +78,7 @@ public class OwlDiffApp {
         DOMConfigurator.configure(ClassLoader.getSystemClassLoader().getResource("log4j.xml"));
 	}
 
-	public static void main(final String... args) {
+	public static void main(final String... args) throws Exception {
 		final OwlDiffApp app = new OwlDiffApp();
 		final JCommander builder = JCommander.newBuilder().addObject(app).build();
 		builder.parse(args);
@@ -90,11 +90,7 @@ public class OwlDiffApp {
 			final Appender appender = Logger.getRootLogger().getAppender("stdout");
 			((AppenderSkeleton) appender).setThreshold(Level.DEBUG);
 		}
-		try {
-			app.run();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		app.run();
 	}
 
 	public void run() throws Exception {
@@ -219,23 +215,18 @@ public class OwlDiffApp {
         	return "";
 	}
 
-	/**
-	 * Get application version id from properties file.
-	 * 
-	 * @return version string from build.properties or UNKNOWN
-	 */
-	public String getAppVersion() {
-		String version = "UNKNOWN";
-		try {
-			InputStream input = Thread.currentThread().getContextClassLoader().getResourceAsStream("version.txt");
+	private String getAppVersion() throws Exception {
+		InputStream input = Thread.currentThread().getContextClassLoader().getResourceAsStream("version.txt");
+		if (input != null) {
 			InputStreamReader reader = new InputStreamReader(input);
-			version = CharStreams.toString(reader);
-		} catch (IOException e) {
-			String errorMsg = "Could not read version.txt file." + e;
-			LOGGER.error(errorMsg, e);
+			String version = CharStreams.toString(reader);
+			if (version != null && !version.isEmpty()) {
+				return version;
+			}
+			throw new IllegalArgumentException("File version.txt is empty");
 		}
-		return version;
-	}
+		throw new FileNotFoundException("version.txt");
+    }
 
 	public static class CatalogPath implements IParameterValidator {
 		@Override
