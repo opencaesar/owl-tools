@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.net.JarURLConnection;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -221,16 +222,17 @@ public class FusekiApp {
      * @param qualifiedClassName The qualified name of a class from a Jar on the classpath.
      * @return The location of the Jar on the classpath that provides the class.
      * @throws URISyntaxException
-     * @throws MalformedURLException
+     * @throws IOException
      * @see ClassLoader#getResource(String) about using '/' as a separator for resource paths.
      */
-    public static String findJar(String qualifiedClassName) throws URISyntaxException, MalformedURLException {
+    public static String findJar(String qualifiedClassName) throws URISyntaxException, IOException {
         String resourceName = qualifiedClassName.replaceAll("\\.", "/") + ".class";
         URL classURL = FusekiApp.class.getClassLoader().getResource(resourceName);
         if (null == classURL)
             throw new IllegalArgumentException("Cannot find " + qualifiedClassName + " on the classpath.");
         System.out.println("class url="+classURL);
-        URL jarURL = new URL(classURL.getProtocol(), classURL.getHost(), classURL.getPort(), classURL.getPath().substring(0, classURL.getPath().indexOf('!')));
+        JarURLConnection c = (JarURLConnection) classURL.openConnection();
+        URL jarURL = c.getJarFileURL();
         System.out.println("jar url="+jarURL);
         Path jarPath = Paths.get(jarURL.toURI());
         System.out.println("class path="+jarPath);
