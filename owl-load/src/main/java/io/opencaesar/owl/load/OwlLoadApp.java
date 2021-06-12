@@ -17,11 +17,18 @@
 package io.opencaesar.owl.load;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.apache.jena.ext.com.google.common.io.CharStreams;
@@ -115,31 +122,6 @@ public class OwlLoadApp {
         app.run();
     }
 
-    private CompletableFuture<Void> loadOntology(final OWLOntology ont, final ExecutorService pool) {
-        return CompletableFuture.runAsync(() -> {
-            //Create remote connection to Fuseki server
-            RDFConnectionRemoteBuilder builder = RDFConnectionRemote.create()
-                    .updateEndpoint("update")
-                    .queryEndpoint("sparql")
-                    .destination(endpointURL);
-            RDFConnection conn = builder.build();
-            try {
-                IRI documentIRI = ont.getOWLOntologyManager().getOntologyDocumentIRI(ont);
-                String documentFile = documentIRI.toURI().toURL().getFile();
-                Optional<IRI> defaultDocumentIRI = ont.getOntologyID().getDefaultDocumentIRI();
-                assert(defaultDocumentIRI.isPresent());
-                String graphName = defaultDocumentIRI.get().getIRIString();
-                conn.load(graphName, documentFile);
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                conn.commit();
-                conn.close();
-                conn.end();
-            }
-        }, pool);
-    }
-
     private void run() throws Exception {
         LOGGER.info("=================================================================");
         LOGGER.info("                        S T A R T");
@@ -160,8 +142,8 @@ public class OwlLoadApp {
             List<String> names = new ArrayList<>();
             ds.listNames().forEachRemaining(names::add);
             names.forEach(conn::delete);
-        } finally {
             conn.commit();
+        } finally {
             conn.close();
             conn.end();
         }
@@ -183,7 +165,7 @@ public class OwlLoadApp {
                     throw new RuntimeException("couldn't load ontology at IRI=" + iri);
                 }
             } catch (OWLOntologyCreationException e) {
-                e.printStackTrace();
+            	throw new RuntimeException(e);
             }
         });
 
@@ -208,7 +190,7 @@ public class OwlLoadApp {
      * @param pool An ExecutionService
      * @see <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/concurrent/ExecutorService.html">ExecutorService Usage</a>
      */
-    void shutdownAndAwaitTermination(ExecutorService pool) {
+    private void shutdownAndAwaitTermination(ExecutorService pool) {
         pool.shutdown(); // Disable new tasks from being submitted
         try {
             // Wait a while for existing tasks to terminate
@@ -226,24 +208,42 @@ public class OwlLoadApp {
         }
     }
 
-    /**
-     * Get application version id from properties file.
-     *
-     * @return version string from build.properties or UNKNOWN
-     */
-    private String getAppVersion() {
-        String version = "UNKNOWN";
-        try {
-            InputStream input = Thread.currentThread().getContextClassLoader().getResourceAsStream("version.txt");
-            if (null != input) {
-                InputStreamReader reader = new InputStreamReader(input);
-                version = CharStreams.toString(reader);
+    private CompletableFuture<Void> loadOntology(final OWLOntology ont, final ExecutorService pool) {
+        return CompletableFuture.runAsync(() -> {
+            //Create remote connection to Fuseki server
+            RDFConnectionRemoteBuilder builder = RDFConnectionRemote.create()
+                    .updateEndpoint("update")
+                    .queryEndpoint("sparql")
+                    .destination(endpointURL);
+            RDFConnection conn = builder.build();
+            try {
+                IRI documentIRI = ont.getOWLOntologyManager().getOntologyDocumentIRI(ont);
+                String documentFile = documentIRI.toURI().toURL().getFile();
+                Optional<IRI> defaultDocumentIRI = ont.getOntologyID().getDefaultDocumentIRI();
+                assert(defaultDocumentIRI.isPresent());
+                String graphName = defaultDocumentIRI.get().getIRIString();
+                conn.load(graphName, documentFile);
+                conn.commit();
+           } catch (IOException e) {
+				throw new RuntimeException(e);
+            } finally {
+                conn.end();
+                conn.close();
             }
-        } catch (IOException e) {
-            String errorMsg = "Could not read version.txt file." + e;
-            LOGGER.error(errorMsg, e);
-        }
-        return version;
+        }, pool);
+    }
+
+    private String getAppVersion() throws Exception {
+		InputStream input = Thread.currentThread().getContextClassLoader().getResourceAsStream("version.txt");
+		if (input != null) {
+			InputStreamReader reader = new InputStreamReader(input);
+			String version = CharStreams.toString(reader);
+			if (version != null && !version.isEmpty()) {
+				return version;
+			}
+			throw new IllegalArgumentException("File version.txt is empty");
+		}
+		throw new FileNotFoundException("version.txt");
     }
 
     public static class CatalogPath implements IParameterValidator {
