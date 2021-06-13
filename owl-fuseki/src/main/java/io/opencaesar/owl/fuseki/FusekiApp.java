@@ -11,11 +11,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.JarURLConnection;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.Paths;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
 
 import org.apache.jena.ext.com.google.common.io.CharStreams;
@@ -151,25 +150,32 @@ public class FusekiApp {
      * @throws URISyntaxException If there is a problem retrieving the location of the fuseki jar.
      */
     public static void startFuseki(File config, File outputDirectory) throws IOException, URISyntaxException {
-        Optional<ProcessHandle> ph = findFusekiProcess(outputDirectory);
-        if (ph.isPresent()) {
-            throw new IllegalArgumentException("There is already a fuseki server running with pid="+ph.get().pid());
+        Optional<Long> pid = findFusekiProcessId(outputDirectory);
+        if (pid.isPresent()) {
+	        Optional<ProcessHandle> ph = findProcess(pid.get());
+	        if (ph.isPresent()) {
+	            throw new IllegalArgumentException("There is already a Fuseki server running with pid="+ph.get().pid());
+	        }
         }
         outputDirectory.mkdirs();
         Path output = outputDirectory.toPath();
-        File log = output.resolve("fuseki.log").toFile();
-        File pid = output.resolve("fuseki.pid").toFile();
+        File logFile = output.resolve("fuseki.log").toFile();
+        File pidFile = output.resolve("fuseki.pid").toFile();
 
         String java = getJavaCommandPath();
         String jar = findJar("org.apache.jena.fuseki.main.cmds.FusekiMainCmd");
         ProcessBuilder pb = new ProcessBuilder(java, "-jar", jar, "--config=" + config.getAbsolutePath());
         pb.directory(output.toFile());
         pb.redirectErrorStream(true);
-        pb.redirectOutput(log);
+        pb.redirectOutput(logFile);
 
         Process p = pb.start();
+        if (!p.isAlive())
+            throw new IllegalArgumentException("Failed to start a Fuseki server");
+        else
+            System.out.print("A Fuseki server started with pid="+p.pid());
 
-        OutputStreamWriter os = new OutputStreamWriter(new FileOutputStream(pid));
+        OutputStreamWriter os = new OutputStreamWriter(new FileOutputStream(pidFile));
         BufferedWriter w = new BufferedWriter(os);
         w.write(Long.toString(p.pid()));
         w.newLine();
@@ -178,21 +184,30 @@ public class FusekiApp {
     }
 
     /**
-     * Find the process handle of a fuseki server process from a 'fuseki.pid' file, if possible.
+     * Find the fuseki process id from the '.fuseki.pid' file in the given directory
      *
-     * @param outputDirectory Directory where the 'fuseki.pid' file is located.
-     * @return The ProcessHandle retrieved from the process whose ID matches the 'fuseki.pid' file if it exists and is readable.
-     * @throws IOException if the 'fuseki.pid' file could be read
-     */
-    public static Optional<ProcessHandle> findFusekiProcess(File outputDirectory) throws IOException {
-        File f = outputDirectory.toPath().resolve("fuseki.pid").toFile();
+     * @param directory Directory where the 'fuseki.pid' file is located.
+     * @return An optional containing the process id
+      * @throws IOException if the 'fuseki.pid' file could not be read
+    */
+    public static Optional<Long> findFusekiProcessId(File directory) throws IOException {
+        File f = directory.toPath().resolve("fuseki.pid").toFile();
         if (!f.exists() || !f.canRead())
             return Optional.empty();
-
         BufferedReader r = new BufferedReader(new FileReader(f));
         String s = r.readLine();
         r.close();
         long pid = Long.parseLong(s);
+        return Optional.of(Long.valueOf(pid));
+    }
+
+    /**
+     * Find a process handle given a process id.
+     *
+     * @param pid The process id
+     * @return The process handle of the given process id
+     */
+    public static Optional<ProcessHandle> findProcess(long pid) {
         return ProcessHandle
                 .allProcesses()
                 .filter(p -> p.pid() == pid)
@@ -206,13 +221,16 @@ public class FusekiApp {
      * @throws IOException if the 'fuseki.pid' file could be read
      */
     public static void stopFuseki(File fusekiDir) throws IOException {
-        Optional<ProcessHandle> ph = findFusekiProcess(fusekiDir);
-        if (ph.isEmpty())
+        Optional<Long> pid = findFusekiProcessId(fusekiDir);
+        if (pid.isEmpty())
             throw new IllegalArgumentException("Cannot find the 'fuseki.pid' file in the fuseki directory: " + fusekiDir);
+        Optional<ProcessHandle> ph = findProcess(pid.get());
+        if (ph.isEmpty())
+            throw new IllegalArgumentException("There is no Fuseki server running with pid="+pid.get());
         ProcessHandle p = ph.get();
         boolean ok = p.destroyForcibly();
         if (!ok)
-            throw new IllegalArgumentException("Failed to kill fuseki process with pid=" + p.pid());
+            throw new IllegalArgumentException("Failed to kill Fuseki server process with pid=" + p.pid());
         deleteDirectoryRecursively(fusekiDir);
    }
 
