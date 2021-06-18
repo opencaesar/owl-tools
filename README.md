@@ -1,6 +1,6 @@
 # OWL Tools
 
-[![Build Status](https://travis-ci.org/opencaesar/owl-tools.svg?branch=master)](https://travis-ci.org/opencaesar/owl-tools)
+[![Build Status](https://travis-ci.com/opencaesar/owl-tools.svg?branch=master)](https://travis-ci.com/opencaesar/owl-tools)
 [![Release](https://img.shields.io/github/v/tag/opencaesar/owl-tools?label=release)](https://github.com/opencaesar/owl-tools/releases/latest)
 
 A set of OWL based analysis tools
