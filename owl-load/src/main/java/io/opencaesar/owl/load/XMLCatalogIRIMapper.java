@@ -16,7 +16,11 @@ import org.semanticweb.owlapi.model.OWLOntologyIRIMapper;
 public class XMLCatalogIRIMapper implements OWLOntologyIRIMapper {
 
     private static CatalogManager manager = new CatalogManager();
-
+    static {
+        manager.setUseStaticCatalog(false);
+        manager.setIgnoreMissingProperties(true);
+    }
+    
     private Catalog catalog;
 
 	private final List<String> extensions;
