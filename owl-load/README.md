@@ -15,10 +15,10 @@ gradlew.bat owl-load:run --args="..."
 ```
 Args:
 ```
---iri | -i <IRI>                                        [Required, at least one]
---catalog-path | -c path/to/owl/catalog.xml             [Required]
---endpoint-url | -e http://fusekiURL/dataset            [Required]
---file-extensions | -f extension                       [Optional, default: -f ttl -f owl]
+-c | --catalog-path path/to/owl/catalog.xml             [Required]
+-e | --endpoint-url http://fusekiURL/dataset            [Required]
+-f | --file-extensions extension                        [Optional, default: -f ttl -f owl]
+-i | --iri <IRI>                                        [Required, at least one]
 ```
 Note: The dataset (database) must have been created prior to execution
 
@@ -36,5 +36,6 @@ task owlLoad(type:io.opencaesar.owl.load.OwlLoadTask) {
 	catalogPath = file('path/to/catalog.xml') [Required]
 	endpointURL = 'url-of-sparql-endpoint' [Required]
     fileExtensions = ['owl', 'ttl'] [Optional, default is owl]
+    iris = ['iri1',...] [One or more]
 }               
 ```

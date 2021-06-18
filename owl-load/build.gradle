@@ -13,6 +13,7 @@ dependencies {
 	implementation "org.slf4j:slf4j-simple:${versions.slf4j}"
 	testImplementation "junit:junit:${versions.junit}"
 
+    implementation "xml-resolver:xml-resolver:${versions.xmlresolver}"
 	implementation "org.apache.jena:jena-rdfconnection:${versions.jena}"
     implementation "net.sourceforge.owlapi:owlapi-distribution:${versions.owl}"
 }

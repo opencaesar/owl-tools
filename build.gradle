@@ -1,6 +1,6 @@
 subprojects {
 	group = 'io.opencaesar.owl'
-	version = '0.9.3'
+	version = '0.9.4'
 	
 	ext.versions = [
 		owl: '5.1.15',
