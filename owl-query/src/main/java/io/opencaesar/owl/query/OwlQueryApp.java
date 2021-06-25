@@ -199,7 +199,7 @@ public class OwlQueryApp {
 					.queryEndpoint("sparql")
 					.destination(endpointURL);
 				
-			File output = new File(resultPath + File.separator + outputName + ".frame");
+			File output = new File(resultPath + File.separator + outputName + "."+format);
 			if (output.exists()) {
 				output.delete(); 
 			}
@@ -279,7 +279,7 @@ public class OwlQueryApp {
 						LOGGER.info("Default reached? Please reformat query");
 						break;
 				}
-				LOGGER.info("Result saved at: " + resultPath + File.separator + outputName + ".frame");
+				LOGGER.info("Result saved at: " + output);
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
