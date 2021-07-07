@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.gradle.api.DefaultTask;
+import org.gradle.api.GradleException;
 import org.gradle.api.tasks.TaskAction;
-import org.gradle.api.tasks.TaskExecutionException;
 
 public class OwlReasonTask extends DefaultTask {
 
@@ -74,7 +74,7 @@ public class OwlReasonTask extends DefaultTask {
 		try {
 			OwlReasonApp.main(args.toArray(new String[args.size()]));
 		} catch (Exception e) {
-			throw new TaskExecutionException(this, e);
+			throw new GradleException(e.getLocalizedMessage(), e);
 		}
 	}
 

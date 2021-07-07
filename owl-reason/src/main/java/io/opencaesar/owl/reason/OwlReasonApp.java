@@ -286,12 +286,12 @@ public class OwlReasonApp {
 		// Check Results
 		
 		if (!isConsistent) {
-			LOGGER.error("check file "+options.reportPath+" for more details.");
-			throw new ReasoningException("ontology "+inputOntologyIri+" is inconsistent");
+			LOGGER.error("Check "+options.reportPath+" for more details.");
+			throw new ReasoningException("Ontology is inconsistent. Check "+options.reportPath+" for more details.");
 	    }
 		if (!isSatisfiable) {
-			LOGGER.error("check file "+options.reportPath+" for more details.");
-			throw new ReasoningException("ntology "+inputOntologyIri+" is insatisfiable");
+			LOGGER.error("Check "+options.reportPath+" for more details.");
+			throw new ReasoningException("Ontology has insatisfiabilities. Check "+options.reportPath+" for more details.");
 	    }
 	    
 	    // Iterate over specs and extract entailments.
@@ -309,9 +309,9 @@ public class OwlReasonApp {
 
 		boolean success = reasoner.isConsistent();
     	if (success) {
-    		LOGGER.info("ontology "+ontologyIri+" is consistent");
+    		LOGGER.info("Ontology "+ontologyIri+" is consistent");
     	} else {
-    		LOGGER.error("ontology "+ontologyIri+" is inconsistent");
+    		LOGGER.error("Ontology "+ontologyIri+" is inconsistent");
     	}
     	
     	Result result = new Result();
@@ -362,7 +362,7 @@ public class OwlReasonApp {
     	    }
     	}
     	if (numOfUnsat > 0) {
-    		LOGGER.error("ontology "+ontologyIri+" has "+numOfUnsat+" insatisfiabilities");
+    		LOGGER.error("Ontology "+ontologyIri+" has "+numOfUnsat+" insatisfiabilities");
     	}
 
     	return results;

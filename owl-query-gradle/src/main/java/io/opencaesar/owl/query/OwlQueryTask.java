@@ -3,8 +3,8 @@ package io.opencaesar.owl.query;
 import java.util.ArrayList;
 
 import org.gradle.api.DefaultTask;
+import org.gradle.api.GradleException;
 import org.gradle.api.tasks.TaskAction;
-import org.gradle.api.tasks.TaskExecutionException;
 
 public class OwlQueryTask extends DefaultTask {
 
@@ -43,7 +43,7 @@ public class OwlQueryTask extends DefaultTask {
 		try {
 			OwlQueryApp.main(args.toArray(new String[args.size()]));
 		} catch (Exception e) {
-			throw new TaskExecutionException(this, e);
+			throw new GradleException(e.getLocalizedMessage(), e);
 		}
     }
 }
