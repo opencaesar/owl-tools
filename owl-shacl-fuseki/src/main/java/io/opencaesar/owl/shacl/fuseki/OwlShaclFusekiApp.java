@@ -18,11 +18,8 @@ package io.opencaesar.owl.shacl.fuseki;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
@@ -35,7 +32,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.jena.ext.com.google.common.io.CharStreams;
 import org.apache.jena.query.QueryException;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
@@ -171,16 +167,8 @@ public class OwlShaclFusekiApp {
     }
 
     private String getAppVersion() throws Exception {
-		InputStream input = Thread.currentThread().getContextClassLoader().getResourceAsStream("version.txt");
-		if (input != null) {
-			InputStreamReader reader = new InputStreamReader(input);
-			String version = CharStreams.toString(reader);
-			if (version != null && !version.isEmpty()) {
-				return version;
-			}
-			throw new IllegalArgumentException("File version.txt is empty");
-		}
-		throw new FileNotFoundException("version.txt");
+    	var version = this.getClass().getPackage().getImplementationVersion();
+    	return (version != null) ? version : "<SNAPSHOT>";
     }
 
 	/**

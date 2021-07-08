@@ -17,10 +17,7 @@
 package io.opencaesar.owl.load;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -31,7 +28,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import org.apache.jena.ext.com.google.common.io.CharStreams;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.rdfconnection.RDFConnection;
 import org.apache.jena.rdfconnection.RDFConnectionRemote;
@@ -234,16 +230,8 @@ public class OwlLoadApp {
     }
 
     private String getAppVersion() throws Exception {
-		InputStream input = Thread.currentThread().getContextClassLoader().getResourceAsStream("version.txt");
-		if (input != null) {
-			InputStreamReader reader = new InputStreamReader(input);
-			String version = CharStreams.toString(reader);
-			if (version != null && !version.isEmpty()) {
-				return version;
-			}
-			throw new IllegalArgumentException("File version.txt is empty");
-		}
-		throw new FileNotFoundException("version.txt");
+    	var version = this.getClass().getPackage().getImplementationVersion();
+    	return (version != null) ? version : "<SNAPSHOT>";
     }
 
     public static class CatalogPath implements IParameterValidator {

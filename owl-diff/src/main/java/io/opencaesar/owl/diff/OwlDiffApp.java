@@ -1,9 +1,6 @@
 package io.opencaesar.owl.diff;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -32,7 +29,6 @@ import com.beust.jcommander.IStringConverter;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
-import com.google.common.io.CharStreams;
 
 public class OwlDiffApp {
 
@@ -216,16 +212,8 @@ public class OwlDiffApp {
 	}
 
 	private String getAppVersion() throws Exception {
-		InputStream input = Thread.currentThread().getContextClassLoader().getResourceAsStream("version.txt");
-		if (input != null) {
-			InputStreamReader reader = new InputStreamReader(input);
-			String version = CharStreams.toString(reader);
-			if (version != null && !version.isEmpty()) {
-				return version;
-			}
-			throw new IllegalArgumentException("File version.txt is empty");
-		}
-		throw new FileNotFoundException("version.txt");
+    	var version = this.getClass().getPackage().getImplementationVersion();
+    	return (version != null) ? version : "<SNAPSHOT>";
     }
 
 	public static class CatalogPath implements IParameterValidator {

@@ -3,12 +3,9 @@ package io.opencaesar.owl.fuseki;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.JarURLConnection;
 import java.net.URISyntaxException;
@@ -17,7 +14,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 
-import org.apache.jena.ext.com.google.common.io.CharStreams;
 import org.apache.log4j.Appender;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Level;
@@ -114,16 +110,8 @@ public class FusekiApp {
     }
 
     private String getAppVersion() throws Exception {
-		InputStream input = Thread.currentThread().getContextClassLoader().getResourceAsStream("version.txt");
-		if (input != null) {
-			InputStreamReader reader = new InputStreamReader(input);
-			String version = CharStreams.toString(reader);
-			if (version != null && !version.isEmpty()) {
-				return version;
-			}
-			throw new IllegalArgumentException("File version.txt is empty");
-		}
-		throw new FileNotFoundException("version.txt");
+    	var version = this.getClass().getPackage().getImplementationVersion();
+    	return (version != null) ? version : "<SNAPSHOT>";
     }
 
     public class CommandConverter implements IStringConverter<Command> {
