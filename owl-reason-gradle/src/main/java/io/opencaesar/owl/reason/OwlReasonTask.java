@@ -17,7 +17,9 @@ public class OwlReasonTask extends DefaultTask {
 	
 	public String reportPath;
 
-	public String format;
+	public List<String> inputFileExtensions;
+
+	public String outputFileExtension;
 
 	public boolean removeUnsats;
 
@@ -50,9 +52,15 @@ public class OwlReasonTask extends DefaultTask {
 			args.add("-r");
 			args.add(reportPath);
 		}
-		if (format != null) {
-			args.add("-f");
-			args.add(format);
+		if (inputFileExtensions != null) {
+            inputFileExtensions.forEach((String ext) -> {
+                args.add("-if");
+                args.add(ext);
+            });
+		}
+		if (outputFileExtension != null) {
+			args.add("-of");
+			args.add(outputFileExtension);
 		}
 		if (removeUnsats) {
 			args.add("-ru");

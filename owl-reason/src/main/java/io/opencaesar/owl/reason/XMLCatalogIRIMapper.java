@@ -2,7 +2,7 @@ package io.opencaesar.owl.reason;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
+import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -14,10 +14,14 @@ import org.semanticweb.owlapi.model.OWLOntologyIRIMapper;
 @SuppressWarnings("serial")
 public class XMLCatalogIRIMapper implements OWLOntologyIRIMapper {
 
-	private Catalog catalog;
+	private final Catalog catalog;
 
-	public XMLCatalogIRIMapper(String catalogPath) throws MalformedURLException, IOException {
-		final File catalogFile = new File(catalogPath);
+	private final List<String> extensions;
+
+	public XMLCatalogIRIMapper(File catalogFile, List<String> extensions) throws IOException {
+		this.extensions = extensions;
+		if (null == catalogFile || !catalogFile.isFile() || !catalogFile.isAbsolute())
+			throw new IllegalArgumentException("The catalogFile must exists and be an absolute path: " + catalogFile);
 		CatalogManager manager = new CatalogManager();
 		manager.setUseStaticCatalog(false);
 		manager.setIgnoreMissingProperties(true);
@@ -30,11 +34,16 @@ public class XMLCatalogIRIMapper implements OWLOntologyIRIMapper {
 	public IRI getDocumentIRI(IRI originalIri) {
 		try {
 			String documentUri = catalog.resolveURI(originalIri.toString());
-			if (documentUri != null) {
+			if (documentUri != null && documentUri.startsWith("file:")) {
 				String extension = FilenameUtils.getExtension(documentUri);
-				// add ".owl" to the end of import paths
-				if (extension == null || extension.isEmpty() || StringUtils.isNumeric(extension)) {
-					documentUri = documentUri+".owl";
+				if (extension.isEmpty() || StringUtils.isNumeric(extension)) {
+					String documentPath = documentUri.substring(5);
+					for ( String ext : extensions ) {
+						String uri = (ext.startsWith(".")) ? documentPath+ext : documentPath+"." + ext;
+						File f = new File(uri);
+						if (f.exists() && f.isFile())
+							return IRI.create("file:" + uri);
+					}
 				}
 				return IRI.create(documentUri);
 			}

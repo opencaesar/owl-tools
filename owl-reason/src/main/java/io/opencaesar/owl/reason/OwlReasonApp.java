@@ -123,52 +123,63 @@ public class OwlReasonApp {
 		String reportPath;
 
 		@Parameter(
-			names = {"--format", "-f"},
-			description = "output ontology format",
-			converter = LanguageConverter.class,
+			names = {"--input-file-extension", "-if"},
+			description = "input file extension (owl by default, options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, fss)",
+			validateWith = FileExtensionValidator.class,
 			required = false,
 			order = 5)
-		String format = "ttl";
+	    private List<String> inputFileExtensions = new ArrayList<>();
+	    {
+	    	inputFileExtensions.add("owl");
+	    }
 		
+		@Parameter(
+			names = {"--output-file-extension", "-of"},
+			description = "output file extension (ttl by default, options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, fss)",
+			validateWith = FileExtensionValidator.class,
+			required = false,
+			order = 6)
+	    private String outputFileExtension = "ttl";
+
 		@Parameter(
 			names = {"--remove-unsats", "-ru"},
 			description = "remove entailments due to unsatisfiability",
 			required = false,
-			order = 6)
+			order = 7)
 		boolean removeUnsats = true;
 		
 		@Parameter(
 			names = {"--remove-backbone", "-rb"},
 			description = "remove axioms on the backhone from entailments",
 			required = false,
-			order = 7)
+			order = 8)
 		boolean removeBackbone = true;
 
 		@Parameter(
 			names = {"--backbone-iri", "-b"},
 			description = "iri of backbone ontology",
 			required = false,
-			order = 8)
+			order = 9)
 		String backboneIri = "http://opencaesar.io/oml";
 				
 		@Parameter(
 			names = {"--indent", "-n"},
 			description = "indent of the JUnit XML elements",
 			required = false,
-			order = 9)
+			order = 10)
 		int indent = 2;
 
 		@Parameter(
 			names = {"--debug", "-d"},
 			description = "Shows debug logging statements",
-			order = 10)
+			order = 11)
 		private boolean debug;
 
 		@Parameter(
 			names = {"--help", "-h"},
 			description = "Displays summary of options",
 			help = true,
-			order =11)
+			order =12)
 		private boolean help;
 	}
 		
@@ -217,7 +228,7 @@ public class OwlReasonApp {
 	    	throw new RuntimeException("couldn't create owl ontology manager");
 	    }
 	    LOGGER.debug("add location mappers");
-		manager.getIRIMappers().add((new XMLCatalogIRIMapper(options.catalogPath)));
+		manager.getIRIMappers().add((new XMLCatalogIRIMapper(new File(options.catalogPath), options.inputFileExtensions)));
 
 	    // Get Pellete reasoner factory.
 
@@ -454,7 +465,7 @@ public class OwlReasonApp {
 		// Create an empty OWLAPI Ontology to get the ontology document IRI
 
 		LOGGER.info("get output filename from location mapping");
-		OWLOntology empty = manager.createOntology(IRI.create(outputOntologyIri+"."+options.format));
+		OWLOntology empty = manager.createOntology(IRI.create(outputOntologyIri+"."+options.outputFileExtension));
 		String filename = URI.create(manager.getOntologyDocumentIRI(empty).toString()).getPath();
 		manager.removeOntology(empty);
 		  
@@ -468,7 +479,7 @@ public class OwlReasonApp {
 		// Serialize Jena ontology model to output stream.
 		  
 		LOGGER.info("serialize "+entailments.size()+" entailments to "+filename);
-		model.write(outputFileStream, RDFLanguages.fileExtToLang(options.format).getName());
+		model.write(outputFileStream, RDFLanguages.fileExtToLang(options.outputFileExtension).getName());
 		LOGGER.info("finished serializing "+filename);
 	}
 	
@@ -564,11 +575,13 @@ public class OwlReasonApp {
 		
 	}
 
-	public static class LanguageConverter implements IStringConverter<String> {
+	public static class FileExtensionValidator implements IParameterValidator {
 		@Override
-		public String convert(String value) {
+		public void validate(final String name, final String value) throws ParameterException {
 			Lang lang = RDFLanguages.fileExtToLang(value);
-			return (lang != null) ? value : "ttl";
+			if (lang == null) {
+				throw new ParameterException("File extension " + name + " is not a valid one");
+			}
 		}
 		
 	}

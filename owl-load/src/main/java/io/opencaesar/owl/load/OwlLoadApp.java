@@ -32,6 +32,8 @@ import org.apache.jena.query.Dataset;
 import org.apache.jena.rdfconnection.RDFConnection;
 import org.apache.jena.rdfconnection.RDFConnectionRemote;
 import org.apache.jena.rdfconnection.RDFConnectionRemoteBuilder;
+import org.apache.jena.riot.Lang;
+import org.apache.jena.riot.RDFLanguages;
 import org.apache.log4j.Appender;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Level;
@@ -75,10 +77,11 @@ public class OwlLoadApp {
 
     @Parameter(
             names = {"--file-extensions", "-f"},
-            description = "File extensions of files that will be uploaded. Default is only .owl (Not Required)",
+            description = "File extensions of files that will be uploaded. Default is owl and ttl, options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, fss (Optional)",
+        	validateWith = FileExtensionValidator.class,
+        	required = false,
             order = 4)
     private List<String> fileExtensions = new ArrayList<>();
-
     {
         fileExtensions.add("owl");
         fileExtensions.add("ttl");
@@ -234,7 +237,18 @@ public class OwlLoadApp {
     	return (version != null) ? version : "<SNAPSHOT>";
     }
 
-    public static class CatalogPath implements IParameterValidator {
+	public static class FileExtensionValidator implements IParameterValidator {
+		@Override
+		public void validate(final String name, final String value) throws ParameterException {
+			Lang lang = RDFLanguages.fileExtToLang(value);
+			if (lang == null) {
+				throw new ParameterException("File extension " + name + " is not a valid one");
+			}
+		}
+		
+	}
+
+	public static class CatalogPath implements IParameterValidator {
         @Override
         public void validate(final String name, final String value) throws ParameterException {
             File file = new File(value);

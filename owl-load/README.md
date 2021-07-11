@@ -17,7 +17,7 @@ Args:
 ```
 -c | --catalog-path path/to/owl/catalog.xml             [Required]
 -e | --endpoint-url http://fusekiURL/dataset            [Required]
--f | --file-extensions extension                        [Optional, default: -f ttl -f owl]
+-f | --file-extensions extension                        [Optional, default: -f ttl -f owl], options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, fss]
 -i | --iri <IRI>                                        [Required, at least one]
 ```
 Note: The dataset (database) must have been created prior to execution
@@ -35,7 +35,7 @@ buildscript {
 task owlLoad(type:io.opencaesar.owl.load.OwlLoadTask) {
 	catalogPath = file('path/to/catalog.xml') [Required]
 	endpointURL = 'url-of-sparql-endpoint' [Required]
-    fileExtensions = ['owl', 'ttl'] [Optional, default is owl]
+    fileExtensions = ['owl', 'ttl'] [Optional, default=['owl', 'ttl'], options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, fss]
     iris = ['iri1',...] [One or more]
 }               
 ```
