@@ -77,7 +77,7 @@ public class OwlLoadApp {
 
     @Parameter(
             names = {"--file-extensions", "-f"},
-            description = "File extensions of files that will be uploaded. Default is owl and ttl, options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, fss (Optional)",
+            description = "File extensions of files that will be uploaded. Default is owl and ttl, options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss (Optional)",
         	validateWith = FileExtensionValidator.class,
         	required = false,
             order = 4)
@@ -129,6 +129,7 @@ public class OwlLoadApp {
         LOGGER.info(("Catalog path = " + catalogPath));
         LOGGER.info(("Endpoint URL = " + endpointURL));
         LOGGER.info(("File Extensions = " + fileExtensions));
+        LOGGER.info(("IRIs = " + iris));
 
         // Delete all existing models of the dataset before loading anything.
         RDFConnectionRemoteBuilder builder = RDFConnectionRemote.create()
@@ -221,11 +222,15 @@ public class OwlLoadApp {
                 Optional<IRI> defaultDocumentIRI = ont.getOntologyID().getDefaultDocumentIRI();
                 assert(defaultDocumentIRI.isPresent());
                 String graphName = defaultDocumentIRI.get().getIRIString();
-                conn.load(graphName, documentFile);
+                Lang lang = RDFLanguages.filenameToLang(documentFile);
+                if (RDFLanguages.isQuads(lang))
+                	conn.loadDataset(documentFile);
+                else
+            		conn.load(graphName, documentFile);
                 conn.commit();
            } catch (IOException e) {
 				throw new RuntimeException(e);
-            } finally {
+           } finally {
                 conn.end();
                 conn.close();
             }

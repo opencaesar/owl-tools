@@ -124,7 +124,7 @@ public class OwlReasonApp {
 
 		@Parameter(
 			names = {"--input-file-extension", "-if"},
-			description = "input file extension (owl by default, options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, fss)",
+			description = "input file extension (owl by default, options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss)",
 			validateWith = FileExtensionValidator.class,
 			required = false,
 			order = 5)
@@ -135,7 +135,7 @@ public class OwlReasonApp {
 		
 		@Parameter(
 			names = {"--output-file-extension", "-of"},
-			description = "output file extension (ttl by default, options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, fss)",
+			description = "output file extension (ttl by default, options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss)",
 			validateWith = FileExtensionValidator.class,
 			required = false,
 			order = 6)

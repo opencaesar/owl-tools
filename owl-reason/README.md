@@ -21,8 +21,8 @@ Args:
 --spec | -s 'output-ontology-iri=ALL_SUBCLASS'
 --spec | -s 'output-ontology-iri=INVERSE_PROPERTY | ALL_SUBPROPERTY'
 --spec | -s 'output-ontology-iri=ALL_INSTANCE | DATA_PROPERTY_VALUE | OBJECT_PROPERTY_VALUE | SAME_AS'
---input-file-extension | -if owl [Optional, default=owl, options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, fss]
---output-file-extension | -of ttl [Optional, default=ttl, options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, fss]
+--input-file-extension | -if owl [Optional, default=owl, options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss]
+--output-file-extension | -of ttl [Optional, default=ttl, options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss]
 --remove-unsats | -ru [Optional]
 --remove-backbone | -rb [Optional]
 --backbone-iri | -b http://opencaesar.io/oml [Optional]
@@ -47,8 +47,8 @@ task owlReason(type:io.opencaesar.owl.reason.OwlReasonTask) {
 		'output-ontology-iri=INVERSE_PROPERTY ALL_SUBPROPERTY',
 		'output-ontology-iri=ALL_INSTANCE DATA_PROPERTY_VALUE OBJECT_PROPERTY_VALUE SAME_AS'
 	] [Required]
-	inputFileExtensions = ['owl'] [Optional, default=['owl'], options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, fss]
-	outputFileExtension = 'ttl' [Optional, default=ttl, options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, fss]
+	inputFileExtensions = ['owl'] [Optional, default=['owl'], options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss]
+	outputFileExtension = 'ttl' [Optional, default=ttl, options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss]
 	removeUnsats = true [Optional]
 	removeBackbone = true [Optional]
 	backboneIri = 'http://opencaesar.io/oml' [Optional]

@@ -75,7 +75,7 @@ public class OwlQueryApp {
 	
 	@Parameter(
 		names = {"--format", "-f"},
-		description = "Format of the results. Must be either xml, json, csv, n3, ttl, n-triple or tsv (Required)",
+		description = "Format of the results. Default is xml. Options: xml, json, csv, n3, ttl, n-triple or tsv (Optional)",
 		validateWith = FormatType.class, 
 		required = false,
 		order = 4)
