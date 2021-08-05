@@ -20,12 +20,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.net.URI;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -136,7 +131,7 @@ public class OwlReasonApp {
 		@Parameter(
 			names = {"--output-file-extension", "-of"},
 			description = "output file extension (ttl by default, options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss)",
-			validateWith = FileExtensionValidator.class,
+			validateWith = OutputFileExtensionValidator.class,
 			required = false,
 			order = 6)
 	    private String outputFileExtension = "ttl";
@@ -479,7 +474,13 @@ public class OwlReasonApp {
 		// Serialize Jena ontology model to output stream.
 		  
 		LOGGER.info("serialize "+entailments.size()+" entailments to "+filename);
-		model.write(outputFileStream, RDFLanguages.fileExtToLang(options.outputFileExtension).getName());
+		Lang lang = RDFLanguages.fileExtToLang(options.outputFileExtension);
+		if (lang == null) {
+			String message = "No RDF writer available for extension: " + options.outputFileExtension;
+			LOGGER.error(message);
+			throw new IllegalArgumentException(message);
+		}
+		model.write(outputFileStream, lang.getName());
 		LOGGER.info("finished serializing "+filename);
 	}
 	
@@ -575,17 +576,47 @@ public class OwlReasonApp {
 		
 	}
 
+	// Must be in sync with io.opencaesar.oml2owl.Oml2OwlApp.FileExtensionValidator#extensions
+	public static HashSet<String> extensions = new HashSet<>();
+
+	static {
+		extensions.add("fss");
+		extensions.add("owl");
+		extensions.add("rdf");
+		extensions.add("xml");
+		extensions.add("n3");
+		extensions.add("ttl");
+		extensions.add("rj");
+		extensions.add("nt");
+		extensions.add("jsonld");
+		extensions.add("trig");
+		extensions.add("trix");
+		extensions.add("nq");
+	}
+
 	public static class FileExtensionValidator implements IParameterValidator {
 		@Override
 		public void validate(final String name, final String value) throws ParameterException {
-			Lang lang = RDFLanguages.fileExtToLang(value);
-			if (lang == null) {
-				throw new ParameterException("File extension " + name + " is not a valid one");
+			if (!extensions.contains(value)) {
+				throw new ParameterException("Parameter " + name + " should be a valid extension, got: " + value +
+						" recognized extensions are: " +
+						extensions.stream().reduce( (x,y) -> x + " " + y) );
 			}
 		}
 		
 	}
-	
+
+	public static class OutputFileExtensionValidator implements IParameterValidator {
+		@Override
+		public void validate(final String name, final String value) throws ParameterException {
+			Lang lang = RDFLanguages.fileExtToLang(value);
+			if (lang == null) {
+				throw new ParameterException("Parameter " + name + " should be a valid RDF output extension, got: " + value +
+						" recognized RDF extensions are: rdf, owl, xml, ttl, n3, nt, jsonld, rj, trig, trix, nq, rt");
+			}
+		}
+
+	}
 	public static class ReportPathValidator implements IParameterValidator {
 		@Override
 		public void validate(final String name, final String value) throws ParameterException {
