@@ -42,7 +42,11 @@ task stopFuseki(type: io.opencaesar.owl.fuseki.StopFusekiTask) {
 
 ```
 
-For starting Fuseki with the Web UI, the output folder must have a 'webapp' subfolder.
-The simplest way to get such a folder is to 
-download the [`apache-jena-fuseki-version>.zip`](https://jena.apache.org/download/) file, 
-unzip it, and copy its 'webapp' folder to the output folder.
+## Important
+* To start Fuseki with the UI, the output folder must have a `webapp` subfolder. The simplest way to get such a folder is to download the [`apache-jena-fuseki-version>.zip`](https://jena.apache.org/download/) file, unzip it, and copy its 'webapp' folder to the output folder.
+* When choosing the output folder to be in the same project folder managed in github, you can put the following rules in the `.gitignore` file:
+```
+path/to/output/folder/run
+path/to/output/folder/fuseki.pid
+path/to/output/folder/fuseki.log
+```
