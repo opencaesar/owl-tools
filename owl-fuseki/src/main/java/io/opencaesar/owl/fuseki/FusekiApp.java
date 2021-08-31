@@ -54,18 +54,24 @@ public class FusekiApp {
             required = true,
             order = 3)
     private String outputFolderPath;
-	
+
+    @Parameter(
+            names = {"--webui", "-ui"},
+            description = "Starts the Fuseki UI instead of the headless Fuseki server (Optional)",
+            order = 4)
+    private boolean webui;
+
     @Parameter(
             names = {"--debug", "-d"},
             description = "Shows debug logging statements",
-            order = 4)
+            order = 5)
     private boolean debug;
 
     @Parameter(
             names = {"--help", "-h"},
             description = "Displays summary of options",
             help = true,
-            order = 5)
+            order = 6)
     private boolean help;
 	
     private final static Logger LOGGER = Logger.getLogger(FusekiApp.class);
@@ -84,12 +90,14 @@ public class FusekiApp {
         }
         if (app.debug) {
             final Appender appender = LogManager.getRootLogger().getAppender("stdout");
-            ((AppenderSkeleton) appender).setThreshold(Level.DEBUG);
+            if (appender instanceof AppenderSkeleton)
+              ((AppenderSkeleton) appender).setThreshold(Level.DEBUG);
         }
-        app.run();
+
+        app.run(app.webui);
     }
 
-    private void run() throws Exception {
+    private void run(boolean webui) throws Exception {
     	LOGGER.info("=================================================================");
     	LOGGER.info("                        S T A R T");
     	LOGGER.info("                     OWL Fuseki " + getAppVersion());
@@ -97,9 +105,13 @@ public class FusekiApp {
     	LOGGER.info(("Command = " + command));
     	LOGGER.info(("Configuration path = " + configurationPath));
     	LOGGER.info(("Output folder path = " + outputFolderPath));
-        
+
     	if (command == Command.start) {
-    		startFuseki(new File(configurationPath), new File(outputFolderPath));
+          if (webui) {
+              startFuseki(new File(configurationPath), new File(outputFolderPath), "org.apache.jena.fuseki.cmd.FusekiCmd", "--localhost");
+          } else {
+              startFuseki(new File(configurationPath), new File(outputFolderPath), "org.apache.jena.fuseki.main.cmds.FusekiMainCmd");
+          }
     	} else {
     		stopFuseki(new File(outputFolderPath));
     	}
@@ -134,10 +146,12 @@ public class FusekiApp {
      * @param outputDirectory Path to an output directory that, if it exists, will be cleaned, and that will have:
      *                        - fuseki.log the combination of standard output and error.
      *                        - fuseki.pid the ID of the fuseki process.
+     * @param clazz Qualified name of the Fuseki server application (with or without Web UI)
+     * @param argv Additional arguments
      * @throws IOException if the 'fuseki.pid' file could not be written to 
      * @throws URISyntaxException If there is a problem retrieving the location of the fuseki jar.
      */
-    public static void startFuseki(File config, File outputDirectory) throws IOException, URISyntaxException {
+    public static void startFuseki(File config, File outputDirectory, String clazz, String... argv) throws IOException, URISyntaxException {
         Optional<Long> pid = findFusekiProcessId(outputDirectory);
         if (pid.isPresent()) {
 	        Optional<ProcessHandle> ph = findProcess(pid.get());
@@ -151,18 +165,30 @@ public class FusekiApp {
         File pidFile = output.resolve("fuseki.pid").toFile();
 
         String java = getJavaCommandPath();
-        String jar = findJar("org.apache.jena.fuseki.main.cmds.FusekiMainCmd");
-        ProcessBuilder pb = new ProcessBuilder(java, "-jar", jar, "--config=" + config.getAbsolutePath());
+        String jar = findJar(clazz);
+        String[] args = new String[4+argv.length];
+        args[0] = java;
+        args[1] = "-jar";
+        args[2] = jar;
+        args[3] = "--config=" + config.getAbsolutePath();
+        System.arraycopy(argv, 0, args, 4, argv.length);
+        ProcessBuilder pb = new ProcessBuilder(args);
         pb.directory(output.toFile());
         pb.redirectErrorStream(true);
         pb.redirectOutput(logFile);
 
         Process p = pb.start();
-        if (!p.isAlive())
-            throw new IllegalArgumentException("Failed to start a Fuseki server");
-        else
+        try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e) {
+			// do nothing
+		}
+        
+        if (!p.isAlive()) {
+            throw new IllegalArgumentException("Fuseki server failed to start and returned error code: " + p.exitValue() + ". See "+logFile+" for more details.");
+        } else {
             System.out.print("A Fuseki server started with pid="+p.pid());
-
+        }
         OutputStreamWriter os = new OutputStreamWriter(new FileOutputStream(pidFile));
         BufferedWriter w = new BufferedWriter(os);
         w.write(Long.toString(p.pid()));
@@ -219,7 +245,6 @@ public class FusekiApp {
         boolean ok = p.destroyForcibly();
         if (!ok)
             throw new IllegalArgumentException("Failed to kill Fuseki server process with pid=" + p.pid());
-        deleteDirectoryRecursively(fusekiDir);
    }
 
     /**
@@ -263,15 +288,4 @@ public class FusekiApp {
             throw new RuntimeException("Cannot find java executable at: " + javaExe);
     }
 
-    public static void deleteDirectoryRecursively(File dir) {
-        if (dir.isDirectory()) {
-            File[] files = dir.listFiles();
-            if (files != null && files.length > 0) {
-                for (File aFile : files) {
-                    deleteDirectoryRecursively(aFile);
-                }
-            }
-        }
-        dir.delete();
-    }
 }

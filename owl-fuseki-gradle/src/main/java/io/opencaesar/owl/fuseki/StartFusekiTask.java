@@ -15,6 +15,8 @@ public class StartFusekiTask extends DefaultTask {
 
     public boolean debug;
 
+    public boolean webui;
+
     @TaskAction
     public void run() throws IOException {
         final ArrayList<String> args = new ArrayList<String>();
@@ -27,6 +29,9 @@ public class StartFusekiTask extends DefaultTask {
         if (outputFolderPath != null) {
             args.add("-o");
             args.add(outputFolderPath);
+        }
+        if (webui) {
+            args.add("-ui");
         }
         if (debug) {
             args.add("-d");

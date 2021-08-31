@@ -1,11 +1,11 @@
 subprojects {
 	group = 'io.opencaesar.owl'
-	version = '0.9.12'
+	version = '0.9.13'
 	
 	ext.versions = [
 		owl: '5.1.17',
 		openllet: '2.6.5',
-		jena: '3.16.0',
+		jena: '4.1.0',
 		jgrapht: '1.1.0',
 		xmlcatalog: '1.0.4',
 		xmlresolver: '1.2',
