@@ -17,7 +17,6 @@
 package io.opencaesar.owl.load;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -216,8 +215,8 @@ public class OwlLoadApp {
                     .queryEndpoint("sparql")
                     .destination(endpointURL);
             RDFConnection conn = builder.build();
+            IRI documentIRI = ont.getOWLOntologyManager().getOntologyDocumentIRI(ont);
             try {
-                IRI documentIRI = ont.getOWLOntologyManager().getOntologyDocumentIRI(ont);
                 String documentFile = documentIRI.toURI().toURL().getFile();
                 Optional<IRI> defaultDocumentIRI = ont.getOntologyID().getDefaultDocumentIRI();
                 assert(defaultDocumentIRI.isPresent());
@@ -228,8 +227,8 @@ public class OwlLoadApp {
                 else
             		conn.load(graphName, documentFile);
                 conn.commit();
-           } catch (IOException e) {
-				throw new RuntimeException(e);
+           } catch (Exception e) {
+				throw new RuntimeException("Error occurred loading ontology '"+documentIRI+"'", e);
            } finally {
                 conn.end();
                 conn.close();

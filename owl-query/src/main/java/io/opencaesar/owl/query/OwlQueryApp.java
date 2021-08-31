@@ -269,7 +269,7 @@ public class OwlQueryApp {
 				}
 				LOGGER.info("Result saved at: " + output);
 			} catch (IOException e) {
-				throw new RuntimeException(e);
+				throw new RuntimeException("Error occurred executing query '"+outputName+"'", e);
 			}
 			// ideally, we should check to ensure that output was created...
         });
