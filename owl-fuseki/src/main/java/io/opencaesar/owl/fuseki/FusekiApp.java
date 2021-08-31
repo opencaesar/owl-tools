@@ -56,7 +56,7 @@ public class FusekiApp {
     private String outputFolderPath;
 
     @Parameter(
-            names = {"--webui"},
+            names = {"--webui", "-ui"},
             description = "Starts the Fuseki UI instead of the headless Fuseki server (Optional)",
             order = 4)
     private boolean webui;
@@ -178,11 +178,17 @@ public class FusekiApp {
         pb.redirectOutput(logFile);
 
         Process p = pb.start();
-        if (!p.isAlive())
-            throw new IllegalArgumentException("Failed to start a Fuseki server");
-        else
+        try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e) {
+			// do nothing
+		}
+        
+        if (!p.isAlive()) {
+            throw new IllegalArgumentException("Fuseki server failed to start and returned error code: " + p.exitValue() + ". See "+logFile+" for more details.");
+        } else {
             System.out.print("A Fuseki server started with pid="+p.pid());
-
+        }
         OutputStreamWriter os = new OutputStreamWriter(new FileOutputStream(pidFile));
         BufferedWriter w = new BufferedWriter(os);
         w.write(Long.toString(p.pid()));

@@ -31,7 +31,7 @@ public class StartFusekiTask extends DefaultTask {
             args.add(outputFolderPath);
         }
         if (webui) {
-            args.add("--webui");
+            args.add("-ui");
         }
         if (debug) {
             args.add("-d");

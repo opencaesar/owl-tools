@@ -18,7 +18,7 @@ Args:
 --command | -c start|stop								[Required]
 --configurationPath | -g path/to/.fuseki.ttl			[Required]
 --outputFolderPath | -i path/to/output/folder			[Required]
---webui                                                 [Optional]
+--webui | -ui                                           [Optional]
 ```
 
 ## Run as Gradle Task
@@ -42,7 +42,7 @@ task stopFuseki(type: io.opencaesar.owl.fuseki.StopFusekiTask) {
 
 ```
 
-For starting Fuseki with the Web UI, the output folder must have a proper 'webapp' subfolder.
+For starting Fuseki with the Web UI, the output folder must have a 'webapp' subfolder.
 The simplest way to get such a folder is to 
-[download the Fuseki UI](https://jena.apache.org/documentation/fuseki2/#download-fuseki) 
-application and copy its 'webapp' folder to the desired output folder.
+download the [apache-jena-fuseki-<version>.zip](https://jena.apache.org/download/) file, 
+unzip it, and copy its 'webapp' folder to the output folder.
