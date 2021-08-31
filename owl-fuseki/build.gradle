@@ -12,4 +12,5 @@ dependencies {
 	testImplementation "junit:junit:${versions.junit}"
 
 	implementation "org.apache.jena:jena-fuseki-server:${versions.jena}"
+	implementation "org.apache.jena:jena-fuseki-fulljar:${versions.jena}"
 }
