@@ -3,6 +3,7 @@ subprojects {
 	version = '0.9.13'
 	
 	ext.versions = [
+		oml: '1.0.+',
 		owl: '5.1.17',
 		openllet: '2.6.5',
 		jena: '4.1.0',
