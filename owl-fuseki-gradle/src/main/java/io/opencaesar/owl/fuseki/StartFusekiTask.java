@@ -1,43 +1,51 @@
 package io.opencaesar.owl.fuseki;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
+import org.gradle.api.file.RegularFileProperty;
+import org.gradle.api.provider.Property;
+import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.InputFile;
+import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
 
-public class StartFusekiTask extends DefaultTask {
+public abstract class StartFusekiTask extends DefaultTask {
 
-    public String configurationPath;
+    @InputFile
+    public abstract RegularFileProperty getConfigurationPath();
 
-    public String outputFolderPath;
+    @OutputDirectory
+    public abstract RegularFileProperty getOutputFolderPath();
 
-    public boolean debug;
+    @Input
+    public abstract Property<Boolean> getDebug();
 
-    public boolean webui;
+    @Input
+    public abstract Property<Boolean> getWebUI();
 
     @TaskAction
-    public void run() throws IOException {
-        final ArrayList<String> args = new ArrayList<String>();
+    public void run() {
+        final ArrayList<String> args = new ArrayList<>();
         args.add("-c");
         args.add(FusekiApp.Command.start.toString());
-        if (configurationPath != null) {
+        if (getConfigurationPath().isPresent()) {
             args.add("-g");
-            args.add(configurationPath);
+            args.add(getConfigurationPath().get().getAsFile().getAbsolutePath());
         }
-        if (outputFolderPath != null) {
+        if (getOutputFolderPath() != null) {
             args.add("-o");
-            args.add(outputFolderPath);
+            args.add(getOutputFolderPath().get().getAsFile().getAbsolutePath());
         }
-        if (webui) {
+        if (getWebUI().isPresent() && getWebUI().get()) {
             args.add("-ui");
         }
-        if (debug) {
+        if (getDebug().isPresent() && getDebug().get()) {
             args.add("-d");
         }
         try {
-        	FusekiApp.main(args.toArray(new String[args.size()]));
+        	FusekiApp.main(args.toArray(new String[0]));
         } catch (Exception e) {
 			throw new GradleException(e.getLocalizedMessage(), e);
         }
