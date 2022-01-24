@@ -4,4 +4,5 @@ description = 'A gradle interface to invoke Owl Reason'
 dependencies {
 	implementation gradleApi()
     implementation project (':owl-reason')
+    implementation "io.opencaesar.oml:io.opencaesar.oml:${versions.oml}"
 }

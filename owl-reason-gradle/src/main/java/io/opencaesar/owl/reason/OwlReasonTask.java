@@ -1,86 +1,137 @@
 package io.opencaesar.owl.reason;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
+import io.opencaesar.oml.util.OmlCatalog;
+import org.eclipse.emf.common.util.URI;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
-import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.file.ConfigurableFileCollection;
+import org.gradle.api.file.RegularFileProperty;
+import org.gradle.api.provider.ListProperty;
+import org.gradle.api.provider.Property;
+import org.gradle.api.tasks.*;
+import org.gradle.work.Incremental;
 
-public class OwlReasonTask extends DefaultTask {
+public abstract class OwlReasonTask extends DefaultTask {
 
-	public String catalogPath;
+	private File catalogPath;
 
-	public String inputOntologyIri;
+	@InputFile
+	public File getCatalogPath() {
+		return catalogPath;
+	}
 
-	public List<String> specs;
-	
-	public String reportPath;
+	public void setCatalogPath(File f) throws IOException, URISyntaxException {
+		catalogPath = f;
+		calculateInputFiles();
+	}
 
-	public List<String> inputFileExtensions;
+	private ListProperty<String> inputFileExtensions;
 
-	public String outputFileExtension;
+	@Input
+	public ListProperty<String> getInputFileExtensions() {
+		return inputFileExtensions;
+	}
 
-	public boolean removeUnsats;
+	public void setInputFileExtensions(ListProperty<String> fes) throws IOException, URISyntaxException {
+		inputFileExtensions = fes;
+		calculateInputFiles();
+	}
 
-	public boolean removeBackbone;
+	private void calculateInputFiles() throws IOException, URISyntaxException {
+		if (null != catalogPath) {
+			OmlCatalog inputCatalog = OmlCatalog.create(URI.createFileURI(catalogPath.getAbsolutePath()));
+			final ArrayList<File> owlFiles = new ArrayList<>();
+			for (URI uri : inputCatalog.getFileUris(inputFileExtensions.get())) {
+				File file = new File(new URL(uri.toString()).toURI().getPath());
+				owlFiles.add(file);
+			}
+			getInputFiles().setFrom(owlFiles);
+		}
+	}
 
-	public String backboneIri;
-			
-	public Integer indent;
+	@Incremental
+	@InputFiles
+	public abstract ConfigurableFileCollection getInputFiles();
+
+	@Input
+	public abstract Property<String> getInputOntologyIri();
+
+	@Input
+	public abstract Collection<String> getSpecs();
+
+	@OutputFile
+	public abstract RegularFileProperty getOutputReportPath();
+
+	@Input
+	public abstract Property<String> getOutputFileExtension();
+
+	@Input
+	public abstract Property<Boolean> getRemoveUnsats();
+
+	@Input
+	public abstract Property<Boolean> getRemoveBackbone();
+
+	@Input
+	public abstract Property<String> getBackboneIri();
+
+	@Input
+	public abstract Property<Integer> getIndent();
 
 	public boolean debug;
 
     @TaskAction
     public void run() {
-		final ArrayList<String> args = new ArrayList<String>();
+		final ArrayList<String> args = new ArrayList<>();
 		if (catalogPath != null) {
 			args.add("-c");
-			args.add(catalogPath);
+			args.add(catalogPath.getAbsolutePath());
 		}
-		if (inputOntologyIri != null) {
+		if (getInputOntologyIri().isPresent()) {
 			args.add("-i");
-			args.add(inputOntologyIri);
+			args.add(getInputOntologyIri().get());
 		}
-		if (specs != null) {
-			specs.forEach((String spec) -> {
-				args.add("-s");
-				args.add(spec);
-			});
-		}
-		if (reportPath != null) {
+		getSpecs().forEach((String spec) -> {
+			args.add("-s");
+			args.add(spec);
+		});
+		if (getOutputReportPath().isPresent()) {
 			args.add("-r");
-			args.add(reportPath);
+			args.add(getOutputReportPath().get().getAsFile().getAbsolutePath());
 		}
-		if (inputFileExtensions != null) {
-            inputFileExtensions.forEach((String ext) -> {
-                args.add("-if");
-                args.add(ext);
-            });
-		}
-		if (outputFileExtension != null) {
+		inputFileExtensions.get().forEach((String ext) -> {
+			args.add("-if");
+			args.add(ext);
+		});
+		if (getOutputFileExtension().isPresent()) {
 			args.add("-of");
-			args.add(outputFileExtension);
+			args.add(getOutputFileExtension().get());
 		}
-		if (removeUnsats) {
+		if (getRemoveUnsats().isPresent() && getRemoveUnsats().get()) {
 			args.add("-ru");
 		}
-		if (removeBackbone) {
+		if (getRemoveBackbone().isPresent() && getRemoveBackbone().get()) {
 			args.add("-rb");
 		}
-		if (backboneIri != null) {
+		if (getBackboneIri().isPresent()) {
 			args.add("-b");
-			args.add(backboneIri);
+			args.add(getBackboneIri().get());
 		}
-		if (indent != null) {
+		if (getIndent().isPresent()) {
 			args.add("-n");
-			args.add(indent.toString());
+			args.add(getIndent().get().toString());
 		}
 		if (debug) {
 			args.add("-d");
 		}
 		try {
-			OwlReasonApp.main(args.toArray(new String[args.size()]));
+			OwlReasonApp.main(args.toArray(new String[0]));
 		} catch (Exception e) {
 			throw new GradleException(e.getLocalizedMessage(), e);
 		}
