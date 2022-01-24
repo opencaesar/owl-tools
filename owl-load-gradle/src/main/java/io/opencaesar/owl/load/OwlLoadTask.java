@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 
 import io.opencaesar.oml.util.OmlCatalog;
 import org.eclipse.emf.common.util.URI;
@@ -13,10 +14,7 @@ import org.gradle.api.GradleException;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
-import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.InputFile;
-import org.gradle.api.tasks.InputFiles;
-import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.*;
 import org.gradle.work.Incremental;
 
 /**
@@ -43,23 +41,23 @@ public abstract class OwlLoadTask extends DefaultTask {
         calculateInputFiles();
     }
 
-    private ListProperty<String> fileExtensions;
+    private List<String> fileExtensions;
 
     @Input
-    public ListProperty<String> getFileExtensions() {
+    public List<String> getFileExtensions() {
         return fileExtensions;
     }
 
-    public void setFileExtensions(ListProperty<String> fes) throws IOException, URISyntaxException {
+    public void setFileExtensions(List<String> fes) throws IOException, URISyntaxException {
         fileExtensions = fes;
         calculateInputFiles();
     }
 
     private void calculateInputFiles() throws IOException, URISyntaxException {
-        if (null != catalogPath) {
+        if (null != catalogPath && null != fileExtensions) {
             OmlCatalog inputCatalog = OmlCatalog.create(URI.createFileURI(catalogPath.getAbsolutePath()));
             final ArrayList<File> owlFiles = new ArrayList<>();
-            for (URI uri : inputCatalog.getFileUris(fileExtensions.get())) {
+            for (URI uri : inputCatalog.getFileUris(fileExtensions)) {
                 File file = new File(new URL(uri.toString()).toURI().getPath());
                 owlFiles.add(file);
             }
@@ -72,6 +70,7 @@ public abstract class OwlLoadTask extends DefaultTask {
     public abstract ConfigurableFileCollection getInputFiles();
 
     @Input
+    @Optional
     public abstract Property<Boolean> getDebug();
 
     @TaskAction
@@ -90,7 +89,7 @@ public abstract class OwlLoadTask extends DefaultTask {
             args.add(getEndpointURL().get());
         }
         if (null != fileExtensions) {
-            fileExtensions.get().forEach((String ext) -> {
+            fileExtensions.forEach((String ext) -> {
                 args.add("-f");
                 args.add(ext);
             });

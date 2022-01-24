@@ -60,6 +60,7 @@ public abstract class OwlQueryTask extends DefaultTask {
 	public abstract Property<String> getFormat();
 
 	@Input
+	@Optional
 	public abstract Property<Boolean> getDebug();
     
     @TaskAction

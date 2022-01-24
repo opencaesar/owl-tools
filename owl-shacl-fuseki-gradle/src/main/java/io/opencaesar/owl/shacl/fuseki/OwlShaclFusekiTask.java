@@ -53,6 +53,7 @@ public abstract class OwlShaclFusekiTask extends DefaultTask {
 	public abstract RegularFileProperty getResultPath();
 
 	@Input
+	@Optional
 	public abstract Property<Boolean> getDebug();
     
     @TaskAction

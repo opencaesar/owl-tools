@@ -6,10 +6,7 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.Property;
-import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.InputFile;
-import org.gradle.api.tasks.OutputDirectory;
-import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.*;
 
 public abstract class StartFusekiTask extends DefaultTask {
 
@@ -20,9 +17,11 @@ public abstract class StartFusekiTask extends DefaultTask {
     public abstract RegularFileProperty getOutputFolderPath();
 
     @Input
+    @Optional
     public abstract Property<Boolean> getDebug();
 
     @Input
+    @Optional
     public abstract Property<Boolean> getWebUI();
 
     @TaskAction

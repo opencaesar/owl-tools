@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 
 import io.opencaesar.oml.util.OmlCatalog;
 import org.eclipse.emf.common.util.URI;
@@ -32,23 +32,23 @@ public abstract class OwlReasonTask extends DefaultTask {
 		calculateInputFiles();
 	}
 
-	private ListProperty<String> inputFileExtensions;
+	private List<String> inputFileExtensions;
 
 	@Input
-	public ListProperty<String> getInputFileExtensions() {
+	public List<String> getInputFileExtensions() {
 		return inputFileExtensions;
 	}
 
-	public void setInputFileExtensions(ListProperty<String> fes) throws IOException, URISyntaxException {
+	public void setInputFileExtensions(List<String> fes) throws IOException, URISyntaxException {
 		inputFileExtensions = fes;
 		calculateInputFiles();
 	}
 
 	private void calculateInputFiles() throws IOException, URISyntaxException {
-		if (null != catalogPath) {
+		if (null != catalogPath && null != inputFileExtensions) {
 			OmlCatalog inputCatalog = OmlCatalog.create(URI.createFileURI(catalogPath.getAbsolutePath()));
 			final ArrayList<File> owlFiles = new ArrayList<>();
-			for (URI uri : inputCatalog.getFileUris(inputFileExtensions.get())) {
+			for (URI uri : inputCatalog.getFileUris(inputFileExtensions)) {
 				File file = new File(new URL(uri.toString()).toURI().getPath());
 				owlFiles.add(file);
 			}
@@ -64,27 +64,32 @@ public abstract class OwlReasonTask extends DefaultTask {
 	public abstract Property<String> getInputOntologyIri();
 
 	@Input
-	public abstract Collection<String> getSpecs();
+	public abstract ListProperty<String> getSpecs();
 
 	@OutputFile
-	public abstract RegularFileProperty getOutputReportPath();
+	public abstract RegularFileProperty getReportPath();
 
 	@Input
 	public abstract Property<String> getOutputFileExtension();
 
 	@Input
+	@Optional
 	public abstract Property<Boolean> getRemoveUnsats();
 
 	@Input
+	@Optional
 	public abstract Property<Boolean> getRemoveBackbone();
 
 	@Input
+	@Optional
 	public abstract Property<String> getBackboneIri();
 
 	@Input
+	@Optional
 	public abstract Property<Integer> getIndent();
 
 	@Input
+	@Optional
 	public abstract Property<Boolean> getDebug();
 
     @TaskAction
@@ -98,18 +103,20 @@ public abstract class OwlReasonTask extends DefaultTask {
 			args.add("-i");
 			args.add(getInputOntologyIri().get());
 		}
-		getSpecs().forEach((String spec) -> {
+		getSpecs().get().forEach((String spec) -> {
 			args.add("-s");
 			args.add(spec);
 		});
-		if (getOutputReportPath().isPresent()) {
+		if (getReportPath().isPresent()) {
 			args.add("-r");
-			args.add(getOutputReportPath().get().getAsFile().getAbsolutePath());
+			args.add(getReportPath().get().getAsFile().getAbsolutePath());
 		}
-		inputFileExtensions.get().forEach((String ext) -> {
-			args.add("-if");
-			args.add(ext);
-		});
+		if (null != inputFileExtensions) {
+			inputFileExtensions.forEach((String ext) -> {
+				args.add("-if");
+				args.add(ext);
+			});
+		}
 		if (getOutputFileExtension().isPresent()) {
 			args.add("-of");
 			args.add(getOutputFileExtension().get());
