@@ -12,6 +12,8 @@ import java.util.List;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.file.ConfigurableFileCollection;
+import org.gradle.api.file.RegularFileProperty;
+import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.*;
 import org.gradle.work.Incremental;
 
@@ -22,7 +24,7 @@ import org.gradle.work.Incremental;
 public abstract class OwlQueryTask extends DefaultTask {
 
 	@Input
-	public String endpointURL;
+	public abstract Property<String> getEndpointURL();
 
 	private File queryPath;
 
@@ -52,33 +54,34 @@ public abstract class OwlQueryTask extends DefaultTask {
 	public abstract ConfigurableFileCollection getInputFiles();
 
 	@OutputDirectory
-	public String resultPath;
+	public abstract RegularFileProperty getResultPath();
 
 	@Input
-	public String format;
+	public abstract Property<String> getFormat();
 
-	public boolean debug;
+	@Input
+	public abstract Property<Boolean> getDebug();
     
     @TaskAction
     public void run() {
 		final ArrayList<String> args = new ArrayList<>();
-		if (endpointURL != null) {
+		if (getEndpointURL().isPresent()) {
 			args.add("-e");
-			args.add(endpointURL);
+			args.add(getEndpointURL().get());
 		}
-		if (queryPath != null) {
+		if (null != queryPath) {
 			args.add("-q");
 			args.add(queryPath.getAbsolutePath());
 		}
-		if (resultPath != null) {
+		if (getResultPath().isPresent()) {
 			args.add("-r");
-			args.add(resultPath);
+			args.add(getResultPath().get().getAsFile().getAbsolutePath());
 		}
-		if (format != null) {
+		if (getFormat().isPresent()) {
 			args.add("-f");
-			args.add(format);
+			args.add(getFormat().get());
 		}
-		if (debug) {
+		if (getDebug().isPresent() && getDebug().get()) {
 			args.add("-d");
 		}
 		try {

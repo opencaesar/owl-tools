@@ -84,7 +84,8 @@ public abstract class OwlReasonTask extends DefaultTask {
 	@Input
 	public abstract Property<Integer> getIndent();
 
-	public boolean debug;
+	@Input
+	public abstract Property<Boolean> getDebug();
 
     @TaskAction
     public void run() {
@@ -127,7 +128,7 @@ public abstract class OwlReasonTask extends DefaultTask {
 			args.add("-n");
 			args.add(getIndent().get().toString());
 		}
-		if (debug) {
+		if (getDebug().isPresent() && getDebug().get()) {
 			args.add("-d");
 		}
 		try {

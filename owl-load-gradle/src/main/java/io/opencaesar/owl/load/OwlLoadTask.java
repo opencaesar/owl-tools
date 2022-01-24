@@ -12,6 +12,7 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.provider.ListProperty;
+import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.InputFiles;
@@ -25,10 +26,10 @@ import org.gradle.work.Incremental;
 public abstract class OwlLoadTask extends DefaultTask {
 
     @Input
-    public ListProperty<String> iris;
+    public abstract ListProperty<String> getIris();
 
     @Input
-    public String endpointURL;
+    public abstract Property<String> getEndpointURL();
 
     private File catalogPath;
 
@@ -70,32 +71,31 @@ public abstract class OwlLoadTask extends DefaultTask {
     @InputFiles
     public abstract ConfigurableFileCollection getInputFiles();
 
-    public boolean debug;
+    @Input
+    public abstract Property<Boolean> getDebug();
 
     @TaskAction
     public void run() {
         final ArrayList<String> args = new ArrayList<>();
-        if (null != iris) {
-            iris.get().forEach(iri -> {
-                args.add("-i");
-                args.add(iri);
-            });
-        }
-        if (catalogPath != null) {
+        getIris().get().forEach(iri -> {
+            args.add("-i");
+            args.add(iri);
+        });
+        if (null != catalogPath) {
             args.add("-c");
             args.add(catalogPath.getAbsolutePath());
         }
-        if (endpointURL != null) {
+        if (getEndpointURL().isPresent()) {
             args.add("-e");
-            args.add(endpointURL);
+            args.add(getEndpointURL().get());
         }
-        if (fileExtensions != null) {
+        if (null != fileExtensions) {
             fileExtensions.get().forEach((String ext) -> {
                 args.add("-f");
                 args.add(ext);
             });
         }
-        if (debug) {
+        if (getDebug().isPresent() && getDebug().get()) {
             args.add("-d");
         }
         try {
