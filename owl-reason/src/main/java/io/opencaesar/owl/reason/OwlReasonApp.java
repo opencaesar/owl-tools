@@ -89,7 +89,7 @@ public class OwlReasonApp {
 	private static final String CONSISTENCY = "Consistency";
 	private static final String SATISFIABILITY = "Satisfiability";
 
-	private static HashSet<String> extensions = new HashSet<>();
+	private static final HashSet<String> extensions = new HashSet<>();
 	static {
 		extensions.add("fss");
 		extensions.add("owl");
@@ -105,9 +105,9 @@ public class OwlReasonApp {
 		extensions.add("nq");
 	}
 
-	private Options options = new Options();
+	private final Options options = new Options();
 	
-	private class Options {
+	private static class Options {
 		@Parameter(
 			names = { "--catalog-path", "-c"},
 			description = "path to the input OWL catalog (Required)",
@@ -129,7 +129,7 @@ public class OwlReasonApp {
 			converter = SpecConverter.class,
 			required = true,
 			order = 3)
-		List<Spec> specs = new ArrayList<Spec>();
+		List<Spec> specs = new ArrayList<>();
 		
 		@Parameter(
 			names = {"--report-path", "-r"},
@@ -143,8 +143,7 @@ public class OwlReasonApp {
 			names = {"--input-file-extension", "-if"},
 			description = "input file extension (owl by default, options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss)",
 			validateWith = FileExtensionValidator.class,
-			required = false,
-			order = 5)
+				order = 5)
 	    private List<String> inputFileExtensions = new ArrayList<>();
 	    {
 	    	inputFileExtensions.add("owl");
@@ -154,36 +153,31 @@ public class OwlReasonApp {
 			names = {"--output-file-extension", "-of"},
 			description = "output file extension (ttl by default, options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss)",
 			validateWith = OutputFileExtensionValidator.class,
-			required = false,
-			order = 6)
+				order = 6)
 	    private String outputFileExtension = "ttl";
 
 		@Parameter(
 			names = {"--remove-unsats", "-ru"},
 			description = "remove entailments due to unsatisfiability",
-			required = false,
-			order = 7)
+				order = 7)
 		boolean removeUnsats = true;
 		
 		@Parameter(
 			names = {"--remove-backbone", "-rb"},
 			description = "remove axioms on the backhone from entailments",
-			required = false,
-			order = 8)
+				order = 8)
 		boolean removeBackbone = true;
 
 		@Parameter(
 			names = {"--backbone-iri", "-b"},
 			description = "iri of backbone ontology",
-			required = false,
-			order = 9)
+				order = 9)
 		String backboneIri = "http://opencaesar.io/oml";
 				
 		@Parameter(
 			names = {"--indent", "-n"},
 			description = "indent of the JUnit XML elements",
-			required = false,
-			order = 10)
+				order = 10)
 		int indent = 2;
 
 		@Parameter(
@@ -212,7 +206,7 @@ public class OwlReasonApp {
 	}
 
 	private final static Logger LOGGER = Logger.getLogger(OwlReasonApp.class);
-	{
+	static {
         DOMConfigurator.configure(ClassLoader.getSystemClassLoader().getResource("log4j.xml"));
 	}
 
@@ -228,10 +222,10 @@ public class OwlReasonApp {
 			final Appender appender = LogManager.getRootLogger().getAppender("stdout");
 			((AppenderSkeleton) appender).setThreshold(Level.DEBUG);
 		}
-		app.run(args);
+		app.run();
 	}
 
-	private void run(final String... args) throws Exception {
+	private void run() throws Exception {
 		LOGGER.info("=================================================================");
 		LOGGER.info("                        S T A R T");
 		LOGGER.info("                     OWL Reason " + getAppVersion());
@@ -297,13 +291,13 @@ public class OwlReasonApp {
 
 	    // Check for consistency and satisfiability
 		
-		Map<String, List<Result>> allResults = new LinkedHashMap<String, List<Result>>();
+		Map<String, List<Result>> allResults = new LinkedHashMap<>();
 		allResults.put(CONSISTENCY, checkConsistency(inputOntologyIri, reasoner, explanation, functionalSyntaxFormat));
-		boolean isConsistent = !allResults.get(CONSISTENCY).stream().filter(r -> r.explanation != null).findFirst().isPresent();
+		boolean isConsistent = allResults.get(CONSISTENCY).stream().noneMatch(r -> r.explanation != null);
 		boolean isSatisfiable = false;
 		if (isConsistent) {
 	    	allResults.put(SATISFIABILITY, checkSatisfiability(inputOntologyIri, reasoner, explanation, functionalSyntaxFormat));
-	    	isSatisfiable = !allResults.get(SATISFIABILITY).stream().filter(r -> r.explanation != null).findFirst().isPresent();
+	    	isSatisfiable = allResults.get(SATISFIABILITY).stream().noneMatch(r -> r.explanation != null);
 	    }
 		writeResults(inputOntologyIri, allResults, options.indent);
 	    
@@ -311,11 +305,11 @@ public class OwlReasonApp {
 		
 		if (!isConsistent) {
 			LOGGER.error("Check "+options.reportPath+" for more details.");
-			throw new ReasoningException("Ontology is inconsistent. Check "+options.reportPath+" for more details.");
+			throw new ReasoningException("Ontology is inconsistent. Check " + options.reportPath + " for more details.");
 	    }
 		if (!isSatisfiable) {
 			LOGGER.error("Check "+options.reportPath+" for more details.");
-			throw new ReasoningException("Ontology has insatisfiabilities. Check "+options.reportPath+" for more details.");
+			throw new ReasoningException("Ontology has insatisfiabilities. Check " + options.reportPath + " for more details.");
 	    }
 	    
 	    // Iterate over specs and extract entailments.
@@ -329,7 +323,7 @@ public class OwlReasonApp {
 
 	private List<Result> checkConsistency(String ontologyIri, OpenlletReasoner reasoner, PelletExplanation explanation, FunctionalSyntaxDocumentFormat functionalSyntaxFormat) throws Exception {
     	LOGGER.info("test consistency on "+ontologyIri);
-    	List<Result> results = new ArrayList<Result>();
+    	List<Result> results = new ArrayList<>();
 
 		boolean success = reasoner.isConsistent();
     	if (success) {
@@ -353,12 +347,9 @@ public class OwlReasonApp {
 
 	private List<Result> checkSatisfiability(String ontologyIri, OpenlletReasoner reasoner, PelletExplanation explanation, FunctionalSyntaxDocumentFormat functionalSyntaxFormat) throws Exception {
     	LOGGER.info("test satisfiability on "+ontologyIri);
-    	List<Result> results = new ArrayList<Result>();
+    	List<Result> results = new ArrayList<>();
     	
 		Set<OWLClass> allClasses = reasoner.getRootOntology().classesInSignature(Imports.INCLUDED).collect(Collectors.toSet());
-		if (allClasses == null) {
-			throw new RuntimeException("can't get all classes");
-		}
 		
 		int numOfClasses = allClasses.size();   	
     	LOGGER.info(numOfClasses+" total classes");
@@ -443,6 +434,7 @@ public class OwlReasonApp {
         }
 	}
 	
+	@SuppressWarnings("ConstantConditions")
 	private void extractAndSaveEntailments(KnowledgeBase kb, String inputOntologyIri, String outputOntologyIri, EnumSet<StatementType> statementTypes, OWLOntologyManager manager) throws Exception {
 		// Create extractor.
 	  
@@ -490,6 +482,7 @@ public class OwlReasonApp {
 
 		LOGGER.info("open output stream "+filename);
 		File outputFile = new File(filename);
+		//noinspection ResultOfMethodCallIgnored
 		outputFile.getParentFile().mkdirs();
 		FileOutputStream outputFileStream = new FileOutputStream(outputFile);
 		  
@@ -515,7 +508,7 @@ public class OwlReasonApp {
 	 */
 	private Model removeTrivial(Model entailments, boolean removeUnsats) {
 		StmtIterator iterator = entailments.listStatements();
-		List<Statement> trivial = new ArrayList<Statement>();
+		List<Statement> trivial = new ArrayList<>();
 	    while (iterator.hasNext()) {
 	    	Statement statement = iterator.next();
 	    	Resource subject = statement.getSubject();
@@ -536,7 +529,7 @@ public class OwlReasonApp {
 	 */
 	private Model removeBackbone(Model entailments, String pattern) {
 		StmtIterator iterator = entailments.listStatements();
-		List<Statement> backbone = new ArrayList<Statement>();
+		List<Statement> backbone = new ArrayList<>();
 	    while (iterator.hasNext()) {
 	    	Statement statement = iterator.next();
 	    	Property predicate = statement.getPredicate();
@@ -558,7 +551,7 @@ public class OwlReasonApp {
 	 * 
 	 * @return version string from build.properties or UNKNOWN
 	 */
-	private String getAppVersion() throws Exception {
+	private String getAppVersion() {
     	var version = this.getClass().getPackage().getImplementationVersion();
     	return (version != null) ? version : "<SNAPSHOT>";
     }
@@ -583,11 +576,7 @@ public class OwlReasonApp {
 			for (String type : s[1].trim().split("\\|")) {
 				type = type.trim();
 				StatementType st = StatementType.valueOf(type);
-		        if (st != null) {
-		        	spec.statementTypes.add(st);
-		        } else {
-		  	    	throw new ParameterException("invalid entailment type "+type);
-		        }
+		        spec.statementTypes.add(st);
 			}
 			return spec;
 		}
@@ -612,7 +601,7 @@ public class OwlReasonApp {
 			Lang lang = RDFLanguages.fileExtToLang(value);
 			if (lang == null) {
 				throw new ParameterException("Parameter " + name + " should be a valid RDF output extension, got: " + value +
-						" recognized RDF extensions are: "+extensions.toString());
+						" recognized RDF extensions are: "+extensions);
 			}
 		}
 
@@ -627,13 +616,13 @@ public class OwlReasonApp {
 			}
 			File parentFile = file.getParentFile();
 			if (parentFile != null && !parentFile.exists()) {
+				//noinspection ResultOfMethodCallIgnored
 				parentFile.mkdirs();
 			}
 	  	}
 	}
-	
-	@SuppressWarnings("serial")
-	private class ReasoningException extends Exception {
+
+	private static class ReasoningException extends Exception {
 		public ReasoningException(String s) {
 			super(s);
 		}
