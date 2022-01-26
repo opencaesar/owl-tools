@@ -1,7 +1,6 @@
 package io.opencaesar.owl.load;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -15,6 +14,8 @@ import org.eclipse.emf.common.util.URI;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.file.ConfigurableFileCollection;
+import org.gradle.api.file.RegularFile;
+import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.*;
@@ -85,9 +86,31 @@ public abstract class OwlLoadTask extends DefaultTask {
     @InputFiles
     public abstract ConfigurableFileCollection getInputFiles();
 
+    /**
+     * Since this Gradle property is configured by the task constructor, it is not publicly exposed to users.
+     * @return The configured output file.
+     */
+    @OutputFile
+    protected abstract RegularFileProperty getOutputFile();
+
     @Input
     @Optional
     public abstract Property<Boolean> getDebug();
+
+    /**
+     * Use the task name as part of the output filename
+     * to ensure that each instance of OwlLoadTask
+     * has a corresponding unique output file
+     */
+    public OwlLoadTask() {
+        RegularFile f = getProject()
+                .getLayout()
+                .getBuildDirectory()
+                .file("owl-load." + getTaskIdentity().name + ".log")
+                .get();
+        LOGGER.info("Configure outputFile = "+f.getAsFile());
+        getOutputFile().value(f);
+    }
 
     @TaskAction
     public void run() {
@@ -115,6 +138,17 @@ public abstract class OwlLoadTask extends DefaultTask {
         }
         try {
             OwlLoadApp.main(args.toArray(new String[0]));
+
+            // Generate a unique output for gradle incremental execution support.
+            if (getOutputFile().isPresent()) {
+                File output = getOutputFile().get().getAsFile();
+                LOGGER.info("Generate output file: " + output);
+                try (PrintStream ps = new PrintStream(new FileOutputStream(output))) {
+                    for (File file : getInputFiles().getFiles()) {
+                        ps.println(file.getAbsolutePath());
+                    }
+                }
+            }
         } catch (Exception e) {
 			throw new GradleException(e.getLocalizedMessage(), e);
         }
