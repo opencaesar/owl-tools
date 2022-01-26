@@ -5,9 +5,12 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import io.opencaesar.oml.util.OmlCatalog;
+import org.apache.log4j.Logger;
+import org.apache.log4j.xml.DOMConfigurator;
 import org.eclipse.emf.common.util.URI;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
@@ -22,6 +25,12 @@ import org.gradle.work.Incremental;
  * derived from the catalogPath and fileExtension properties.
  */
 public abstract class OwlLoadTask extends DefaultTask {
+
+    private final static Logger LOGGER = Logger.getLogger(OwlLoadTask.class);
+
+    static {
+        DOMConfigurator.configure(ClassLoader.getSystemClassLoader().getResource("owlload.log4j2.properties"));
+    }
 
     @Input
     public abstract ListProperty<String> getIris();
@@ -53,6 +62,8 @@ public abstract class OwlLoadTask extends DefaultTask {
         calculateInputFiles();
     }
 
+    private static final Comparator<File> fileComparator = Comparator.comparing(File::getAbsolutePath);
+
     private void calculateInputFiles() throws IOException, URISyntaxException {
         if (null != catalogPath && null != fileExtensions) {
             OmlCatalog inputCatalog = OmlCatalog.create(URI.createFileURI(catalogPath.getAbsolutePath()));
@@ -60,6 +71,11 @@ public abstract class OwlLoadTask extends DefaultTask {
             for (URI uri : inputCatalog.getFileUris(fileExtensions)) {
                 File file = new File(new URL(uri.toString()).toURI().getPath());
                 owlFiles.add(file);
+            }
+            owlFiles.sort(fileComparator);
+            LOGGER.info("calculateInputFiles found: "+owlFiles.size());
+            for (File owlFile : owlFiles) {
+                LOGGER.info("input: "+owlFile);
             }
             getInputFiles().setFrom(owlFiles);
         }

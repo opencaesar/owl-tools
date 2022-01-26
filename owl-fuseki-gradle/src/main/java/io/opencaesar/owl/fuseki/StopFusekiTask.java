@@ -6,14 +6,11 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.Property;
-import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.InputFile;
-import org.gradle.api.tasks.Optional;
-import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.*;
 
 public abstract class StopFusekiTask extends DefaultTask {
 
-    @InputFile
+    @InputDirectory
     public abstract RegularFileProperty getOutputFolderPath();
 
     @Input

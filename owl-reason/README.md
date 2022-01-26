@@ -30,6 +30,14 @@ Args:
 ```
 
 ## Run as Gradle Task
+
+This is an incremental task; Gradle will determine whether to run this task 
+if any of the properties changed in values.
+
+Note that the calculation of Gradle input files for the `catalogPath` 
+depends on the `inputFileExtensions`, `specs` and `outputFileExtension`;
+the latter two being used to exclude the reasoner entailment outputs.
+
 ```
 buildscript {
 	repositories {

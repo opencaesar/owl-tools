@@ -6,14 +6,14 @@ subprojects {
 		oml: '1.0.+',
 		owl: '5.1.17',
 		openllet: '2.6.5',
-		jena: '4.1.0',
+		jena: '4.2.0', 			// cannot update to 4.3.+, see OwlLoadApp.
 		jgrapht: '1.1.0',
 		xmlcatalog: '1.0.4',
 		xmlresolver: '1.2',
-		jcommander: '1.72',
+		jcommander: '1.82',
 		log4j: '1.2.17',
-		slf4j: '1.7.30',
-		junit: '4.12'
+		slf4j: '1.7.33',
+		junit: '4.13.2'
 	]
 
 	repositories {

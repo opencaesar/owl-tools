@@ -57,6 +57,7 @@ public abstract class OwlQueryTask extends DefaultTask {
 	public abstract RegularFileProperty getResultPath();
 
 	@Input
+	@Optional
 	public abstract Property<String> getFormat();
 
 	@Input

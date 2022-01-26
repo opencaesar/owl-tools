@@ -23,6 +23,10 @@ Args:
 Note: The dataset (database) must have been created prior to execution
 
 ## Run as Gradle Task
+
+This is an incremental task; Gradle will determine whether to run this task
+if any of the properties changed in values.
+
 ```
 buildscript {
 	repositories {

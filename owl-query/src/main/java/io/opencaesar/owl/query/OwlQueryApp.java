@@ -76,8 +76,7 @@ public class OwlQueryApp {
 	@Parameter(
 		names = {"--format", "-f"},
 		description = "Format of the results. Default is xml. Options: xml, json, csv, n3, ttl, n-triple or tsv (Optional)",
-		validateWith = FormatType.class, 
-		required = false,
+		validateWith = FormatType.class,
 		order = 4)
 	private String format = "xml";
 
@@ -95,7 +94,7 @@ public class OwlQueryApp {
 	private boolean help;
 	
 	private static final Logger LOGGER = Logger.getLogger(OwlQueryApp.class);
-	{
+	static {
         DOMConfigurator.configure(ClassLoader.getSystemClassLoader().getResource("log4j.xml"));
 	}
 
@@ -169,7 +168,7 @@ public class OwlQueryApp {
         }
     }
 
-    private String getAppVersion() throws Exception {
+    private String getAppVersion() {
     	var version = this.getClass().getPackage().getImplementationVersion();
     	return (version != null) ? version : "<SNAPSHOT>";
     }
@@ -189,9 +188,11 @@ public class OwlQueryApp {
 				
 			File output = new File(resultPath + File.separator + outputName + "."+format);
 			if (output.exists()) {
-				output.delete(); 
+				//noinspection ResultOfMethodCallIgnored
+				output.delete();
 			}
 			try {
+				//noinspection ResultOfMethodCallIgnored
 				output.createNewFile();
 			} catch (IOException e) {
 				throw new RuntimeException(e);
@@ -206,11 +207,10 @@ public class OwlQueryApp {
 				switch (type) {
 					case ASK:
 						LOGGER.info("Query Type: Ask");
-						byte b[] = Boolean.toString(conn.queryAsk(query)).getBytes();
+						byte[] b = Boolean.toString(conn.queryAsk(query)).getBytes();
 						res.write(b); 
 						break; 
 					case CONSTRUCT_JSON:
-					case CONSTRUCT_QUADS:
 					case CONSTRUCT:
 						LOGGER.info("Query Type: Construct");
 						String constructFmt = getOutType(format); 
@@ -227,34 +227,22 @@ public class OwlQueryApp {
 						// EX: Calling the xml function directly gives W3 standard format
 						switch (format.toLowerCase()) {
 							case "xml":
-								conn.queryResultSet(query, (resultSet)-> {
-									ResultSetFormatter.outputAsXML(res, resultSet);
-								});
+								conn.queryResultSet(query, (resultSet)-> ResultSetFormatter.outputAsXML(res, resultSet));
 								break;
 							case "tsv":
-								conn.queryResultSet(query, (resultSet)-> {
-									ResultSetFormatter.outputAsTSV(res, resultSet);
-								});
+								conn.queryResultSet(query, (resultSet)-> ResultSetFormatter.outputAsTSV(res, resultSet));
 								break;	
 							case "csv":
-								conn.queryResultSet(query, (resultSet)-> {
-									ResultSetFormatter.outputAsCSV(res, resultSet);
-								});
+								conn.queryResultSet(query, (resultSet)-> ResultSetFormatter.outputAsCSV(res, resultSet));
 								break;	
 							case "json":
-								conn.queryResultSet(query, (resultSet)-> {
-									ResultSetFormatter.outputAsJSON(res, resultSet);
-								});
+								conn.queryResultSet(query, (resultSet)-> ResultSetFormatter.outputAsJSON(res, resultSet));
 								break;	 
 							case "n-triple": 
-								conn.queryResultSet(query, (resultSet)-> {
-									ResultSetFormatter.output(res, resultSet, ResultsFormat.FMT_RDF_NT);
-								});
+								conn.queryResultSet(query, (resultSet)-> ResultSetFormatter.output(res, resultSet, ResultsFormat.FMT_RDF_NT));
 								break;
 							case "ttl":
-								conn.queryResultSet(query, (resultSet)-> {
-									ResultSetFormatter.output(res, resultSet, ResultsFormat.FMT_RDF_TURTLE);
-								});
+								conn.queryResultSet(query, (resultSet)-> ResultSetFormatter.output(res, resultSet, ResultsFormat.FMT_RDF_TURTLE));
 								break;
 							default:
 								throw new RuntimeException(format + " is not a valid output format for select queries. Please use one of the listed formats: xml, ttl, csv, json, tsv");
@@ -284,13 +272,13 @@ public class OwlQueryApp {
         	return "";
 	}
 	
-	private HashMap<String, Query> getQueries(final File file) throws Exception {
+	private HashMap<String, Query> getQueries(final File file) {
 		if (file.isFile()) {
 			//Edited to accept any of the given file extensions 
 			if (getFileExtension(file).equals("sparql")) {
 				//Read query from file and add it to collection 
 				try {
-					HashMap<String, Query> queries = new HashMap<String, Query>();
+					HashMap<String, Query> queries = new HashMap<>();
 					queries.put(getFileName(file), QueryFactory.read(file.toURI().getPath()));
 					return queries;
 				} catch (QueryException e) {
@@ -311,22 +299,24 @@ public class OwlQueryApp {
 	
 	// Helper to getQueries: Given a File directory, return an HashMap of <FileName, Query> pairs
 	private HashMap<String, Query> collectQueries(final File directory) throws QueryException {
-		HashMap<String, Query> queries = new HashMap<String, Query>();
-		for (File file : directory.listFiles()) {
-			if (file.isFile()) {
-				//Edited to accept any of the given file extensions 
-				if (getFileExtension(file).equals("sparql")) {
-					//Read query from file and add it to collection 
-					try {
-						queries.put(getFileName(file), QueryFactory.read(file.toURI().getPath()));
-					} catch (QueryException e) {
-						throw new QueryException("File: " + file.getName() + " . Error with parsing this file's query: ", e);
+		HashMap<String, Query> queries = new HashMap<>();
+		final File[] files = directory.listFiles();
+		if (null != files)
+			for (File file : files) {
+				if (file.isFile()) {
+					//Edited to accept any of the given file extensions
+					if (getFileExtension(file).equals("sparql")) {
+						//Read query from file and add it to collection
+						try {
+							queries.put(getFileName(file), QueryFactory.read(file.toURI().getPath()));
+						} catch (QueryException e) {
+							throw new QueryException("File: " + file.getName() + " . Error with parsing this file's query: ", e);
+						}
 					}
+				} else if (file.isDirectory()) {
+					queries.putAll(collectQueries(file));
 				}
-			} else if (file.isDirectory()) {
-				queries.putAll(collectQueries(file));
 			}
-		}
 		return queries;
 	}
 	
@@ -373,6 +363,7 @@ public class OwlQueryApp {
 		public void validate(final String name, final String value) throws ParameterException {
 			File directory = new File(value);
 			if (!directory.exists()) {
+				//noinspection ResultOfMethodCallIgnored
 				directory.mkdirs();
 				if (!directory.isDirectory()) {
 					throw new ParameterException("Path '" + value + "' is not a valid folder path");

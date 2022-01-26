@@ -13,4 +13,5 @@ dependencies {
 
 	implementation "org.apache.jena:jena-fuseki-server:${versions.jena}"
 	implementation "org.apache.jena:jena-fuseki-fulljar:${versions.jena}"
+	implementation "org.apache.jena:jena-fuseki-war:${versions.jena}@war"
 }
