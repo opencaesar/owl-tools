@@ -24,6 +24,10 @@ import com.beust.jcommander.ParameterException;
 
 public class FusekiApp {
 
+    public static final String PID_FILENAME = "fuseki.pid";
+
+    public static final String STOPPED_FILENAME = "fuseki.stopped";
+
 	enum Command {
 		start,
 		stop
@@ -210,7 +214,7 @@ public class FusekiApp {
         outputDirectory.mkdirs();
         Path output = outputDirectory.toPath();
         File logFile = output.resolve("fuseki.log").toFile();
-        File pidFile = output.resolve("fuseki.pid").toFile();
+        File pidFile = output.resolve(PID_FILENAME).toFile();
 
         String java = getJavaCommandPath();
         String jar = findJar(clazz);
@@ -258,7 +262,7 @@ public class FusekiApp {
       * @throws IOException if the 'fuseki.pid' file could not be read
     */
     public static Optional<Long> findFusekiProcessId(File directory) throws IOException {
-        File f = directory.toPath().resolve("fuseki.pid").toFile();
+        File f = directory.toPath().resolve(PID_FILENAME).toFile();
         if (!f.exists() || !f.canRead())
             return Optional.empty();
         BufferedReader r = new BufferedReader(new FileReader(f));
