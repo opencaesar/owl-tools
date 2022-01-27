@@ -78,7 +78,7 @@ public abstract class OwlReasonTask extends DefaultTask {
 			URI catalogDir = catalogURI.trimSegments(1);
 			if (!catalogDir.hasTrailingPathSeparator())
 				catalogDir=catalogDir.appendSegment("");
-			LOGGER.info("catalog dir: "+catalogDir);
+			LOGGER.debug("OwlReason("+getName()+") catalog dir: "+catalogDir);
 			final ArrayList<File> owlFiles = new ArrayList<>();
 			for (URI uri : inputCatalog.getFileUris(inputFileExtensions)) {
 				final File file = new File(new URL(uri.toString()).toURI().getPath());
@@ -91,20 +91,16 @@ public abstract class OwlReasonTask extends DefaultTask {
 						final String entailment1 = entailment+"=";
 						final String entailment2 = entailment+" =";
 						if (specs.stream().anyMatch(s -> s.startsWith(entailment1) || s.startsWith(entailment2))) {
-							LOGGER.info("skip: " + rel);
+							LOGGER.debug("OwlReason("+getName()+") skip: " + rel);
 							add = false;
 						} else
-							LOGGER.info(" add: " + rel);
+							LOGGER.debug("OwlReason("+getName()+")  add: " + rel);
 					}
 					if (add)
 						owlFiles.add(file);
 				}
 			}
 			owlFiles.sort(fileComparator);
-			LOGGER.info("calculateInputFiles found: "+owlFiles.size());
-			for (File owlFile : owlFiles) {
-				LOGGER.info("input: "+owlFile);
-			}
 			getInputFiles().setFrom(owlFiles);
 		}
 	}
