@@ -248,10 +248,8 @@ public class OwlLoadApp {
                 String graphName = defaultDocumentIRI.get().getIRIString();
                 Lang lang = RDFLanguages.filenameToLang(documentFile);
                 if (RDFLanguages.isQuads(lang)) {
-                    LOGGER.info("Load dataset = "+documentFile);
                     conn.loadDataset(documentFile);
                 } else {
-                    LOGGER.info("Load file    = "+documentFile);
                     conn.load(graphName, documentFile);
                 }
                 conn.commit();

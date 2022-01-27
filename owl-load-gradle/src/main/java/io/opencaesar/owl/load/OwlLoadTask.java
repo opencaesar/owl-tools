@@ -74,9 +74,9 @@ public abstract class OwlLoadTask extends DefaultTask {
                 owlFiles.add(file);
             }
             owlFiles.sort(fileComparator);
-            LOGGER.info("calculateInputFiles found: "+owlFiles.size());
+            LOGGER.debug("OwlLoad("+getName()+") calculateInputFiles found: "+owlFiles.size());
             for (File owlFile : owlFiles) {
-                LOGGER.info("input: "+owlFile);
+                LOGGER.debug("OwlLoad("+getName()+") input: "+owlFile);
             }
             getInputFiles().setFrom(owlFiles);
         }
@@ -108,7 +108,7 @@ public abstract class OwlLoadTask extends DefaultTask {
                 .getBuildDirectory()
                 .file("owl-load." + getTaskIdentity().name + ".log")
                 .get();
-        LOGGER.info("Configure outputFile = "+f.getAsFile());
+        LOGGER.info("OwlLoad("+getName()+") Configure outputFile = "+f.getAsFile());
         getOutputFile().value(f);
     }
 
@@ -142,7 +142,7 @@ public abstract class OwlLoadTask extends DefaultTask {
             // Generate a unique output for gradle incremental execution support.
             if (getOutputFile().isPresent()) {
                 File output = getOutputFile().get().getAsFile();
-                LOGGER.info("Generate output file: " + output);
+                LOGGER.info("OwlLoad("+getName()+") Generate output file: " + output);
                 try (PrintStream ps = new PrintStream(new FileOutputStream(output))) {
                     for (File file : getInputFiles().getFiles()) {
                         ps.println(file.getAbsolutePath());
