@@ -106,7 +106,10 @@ public class OwlReasonApp {
 	}
 
 	private final Options options = new Options();
-	
+
+	public static final String DEFAULT_INPUT_FILE_EXTENSION = "owl";
+	public static final String DEFAULT_OUTPUT_FILE_EXTENSION = "ttl";
+
 	private static class Options {
 		@Parameter(
 			names = { "--catalog-path", "-c"},
@@ -146,7 +149,7 @@ public class OwlReasonApp {
 				order = 5)
 	    private List<String> inputFileExtensions = new ArrayList<>();
 	    {
-	    	inputFileExtensions.add("owl");
+	    	inputFileExtensions.add(DEFAULT_INPUT_FILE_EXTENSION);
 	    }
 		
 		@Parameter(
@@ -154,7 +157,7 @@ public class OwlReasonApp {
 			description = "output file extension (ttl by default, options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss)",
 			validateWith = OutputFileExtensionValidator.class,
 				order = 6)
-	    private String outputFileExtension = "ttl";
+	    private String outputFileExtension = DEFAULT_OUTPUT_FILE_EXTENSION;
 
 		@Parameter(
 			names = {"--remove-unsats", "-ru"},

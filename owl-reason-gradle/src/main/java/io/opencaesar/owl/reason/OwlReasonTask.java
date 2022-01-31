@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -134,6 +135,15 @@ public abstract class OwlReasonTask extends DefaultTask {
 	@Input
 	@Optional
 	public abstract Property<Boolean> getDebug();
+
+	public OwlReasonTask() throws IOException, URISyntaxException {
+		// default input file extensions: owl
+		if (null == inputFileExtensions)
+			setInputFileExtensions(Collections.singletonList(OwlReasonApp.DEFAULT_INPUT_FILE_EXTENSION));
+		// default output file extension: ttl
+		if (!getOutputFileExtension().isPresent())
+			getOutputFileExtension().set(OwlReasonApp.DEFAULT_OUTPUT_FILE_EXTENSION);
+	}
 
     @TaskAction
     public void run() {

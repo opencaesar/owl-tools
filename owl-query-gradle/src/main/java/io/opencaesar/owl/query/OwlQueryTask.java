@@ -9,6 +9,8 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+import org.apache.log4j.xml.DOMConfigurator;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.file.ConfigurableFileCollection;
@@ -23,29 +25,37 @@ import org.gradle.work.Incremental;
  */
 public abstract class OwlQueryTask extends DefaultTask {
 
+	private final static Logger LOGGER = Logger.getLogger(OwlQueryTask.class);
+
+	static {
+		DOMConfigurator.configure(ClassLoader.getSystemClassLoader().getResource("owlquery.log4j2.properties"));
+	}
+
 	@Input
 	public abstract Property<String> getEndpointURL();
 
 	private File queryPath;
 
-	@InputDirectory
 	public File getQueryPath() {
 		return queryPath;
 	}
 
 	public void setQueryPath(File path) throws IOException {
-		if (null == path || !path.exists() || !path.isDirectory() || !path.canExecute() || !path.canRead())
-			throw new GradleException("queryPath must be an existing, executable and readable input directory, got: " + path);
 		queryPath = path;
 		final List<File> files = new ArrayList<>();
-		// See https://docs.oracle.com/javase/8/docs/api/java/nio/file/DirectoryStream.html
-		try (DirectoryStream<Path> stream = Files.newDirectoryStream(path.toPath(), "*.sparql")) {
-			for (Path entry : stream) {
-				files.add(entry.toFile());
+		if (null == queryPath || !queryPath.exists() || !queryPath.canRead())
+			LOGGER.warn("OwlQuery("+getName()+"): queryPath is not an existing, readable input file or directory got: " + path);
+		else if (queryPath.isFile())
+			files.add(queryPath);
+		else
+			// See https://docs.oracle.com/javase/8/docs/api/java/nio/file/DirectoryStream.html
+			try (DirectoryStream<Path> stream = Files.newDirectoryStream(path.toPath(), "*.sparql")) {
+				for (Path entry : stream) {
+					files.add(entry.toFile());
+				}
+			} catch (DirectoryIteratorException ex) {
+				throw ex.getCause();
 			}
-		} catch (DirectoryIteratorException ex) {
-			throw ex.getCause();
-		}
 		getInputFiles().setFrom(files);
 	}
 
