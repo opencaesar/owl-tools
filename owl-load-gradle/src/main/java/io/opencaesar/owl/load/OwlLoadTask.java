@@ -39,7 +39,10 @@ public abstract class OwlLoadTask extends DefaultTask {
     @Input
     public abstract Property<String> getEndpointURL();
 
-    public File catalogPath;
+    private File catalogPath;
+
+    @Internal
+    public File getCatalogPath() { return catalogPath; }
 
     @SuppressWarnings("unused")
     public void setCatalogPath(File f) throws IOException, URISyntaxException {
@@ -47,7 +50,10 @@ public abstract class OwlLoadTask extends DefaultTask {
         calculateInputFiles();
     }
 
-    public List<String> fileExtensions;
+    private List<String> fileExtensions;
+
+    @Internal
+    public List<String> getFileExtensions() { return fileExtensions; }
 
     @SuppressWarnings("unused")
     public void setFileExtensions(List<String> fes) throws IOException, URISyntaxException {
@@ -58,10 +64,10 @@ public abstract class OwlLoadTask extends DefaultTask {
     private static final Comparator<File> fileComparator = Comparator.comparing(File::getAbsolutePath);
 
     private void calculateInputFiles() throws IOException, URISyntaxException {
-        if (null != catalogPath && null != fileExtensions) {
-            OmlCatalog inputCatalog = OmlCatalog.create(URI.createFileURI(catalogPath.getAbsolutePath()));
+        if (null != getCatalogPath() && null != getFileExtensions()) {
+            OmlCatalog inputCatalog = OmlCatalog.create(URI.createFileURI(getCatalogPath().getAbsolutePath()));
             final ArrayList<File> owlFiles = new ArrayList<>();
-            for (URI uri : inputCatalog.getFileUris(fileExtensions)) {
+            for (URI uri : inputCatalog.getFileUris(getFileExtensions())) {
                 File file = new File(new URL(uri.toString()).toURI().getPath());
                 owlFiles.add(file);
             }

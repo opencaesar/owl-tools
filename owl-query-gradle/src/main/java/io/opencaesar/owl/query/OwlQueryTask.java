@@ -34,8 +34,12 @@ public abstract class OwlQueryTask extends DefaultTask {
 	@Input
 	public abstract Property<String> getEndpointURL();
 
-	public File queryPath;
+	private File queryPath;
 
+	@Internal
+	public File getQueryPath() { return queryPath; }
+
+	@SuppressWarnings("unused")
 	public void setQueryPath(File path) throws IOException {
 		queryPath = path;
 		final List<File> files = new ArrayList<>();
@@ -77,9 +81,9 @@ public abstract class OwlQueryTask extends DefaultTask {
 			args.add("-e");
 			args.add(getEndpointURL().get());
 		}
-		if (null != queryPath) {
+		if (null != getQueryPath()) {
 			args.add("-q");
-			args.add(queryPath.getAbsolutePath());
+			args.add(getQueryPath().getAbsolutePath());
 		}
 		if (getResultPath().isPresent()) {
 			args.add("-r");

@@ -23,17 +23,17 @@ public abstract class StopFusekiTask extends DefaultTask {
 
     private File outputFolderPath;
 
-    @SuppressWarnings("unused")
+    @Internal
     public File getOutputFolderPath() { return outputFolderPath; }
 
-    @SuppressWarnings("unused")
     /*
       As a side effect, set the output file property to FusekiApp.STOPPED_FILENAME.
      */
+    @SuppressWarnings("unused")
     public void setOutputFolderPath(File path) {
         outputFolderPath = path;
-        if (null != outputFolderPath) {
-            File stopFile = outputFolderPath.toPath().resolve(FusekiApp.STOPPED_FILENAME).toFile();
+        if (null != getOutputFolderPath()) {
+            File stopFile = getOutputFolderPath().toPath().resolve(FusekiApp.STOPPED_FILENAME).toFile();
             LOGGER.info("StopFuseki(" + getName() + ") Configure outputFile = " + stopFile);
             getOutputFile().fileValue(stopFile);
         }

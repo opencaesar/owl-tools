@@ -29,14 +29,17 @@ public abstract class OwlReasonTask extends DefaultTask {
 		DOMConfigurator.configure(ClassLoader.getSystemClassLoader().getResource("owlreason.log4j2.properties"));
 	}
 
-	public File catalogPath;
+	private File catalogPath;
 
-	@SuppressWarnings("unused")
+	@Internal
+	public File getCatalogPath() { return catalogPath; }
+
 	public void setCatalogPath(File f) throws IOException, URISyntaxException {
 		catalogPath = f;
 		calculateInputFiles();
 	}
 
+	@Internal
 	public List<String> inputFileExtensions;
 
 	public void setInputFileExtensions(List<String> fes) throws IOException, URISyntaxException {
@@ -44,15 +47,20 @@ public abstract class OwlReasonTask extends DefaultTask {
 		calculateInputFiles();
 	}
 
-	public List<String> specs;
+	private List<String> specs;
 
-	@SuppressWarnings("unused")
+	@Internal
+	public List<String> getSpecs() { return specs; }
+
 	public void setSpecs(List<String> s) throws IOException, URISyntaxException {
 		specs = s;
 		calculateInputFiles();
 	}
 
-	public String outputFileExtension;
+	private String outputFileExtension;
+
+	@Internal
+	public String getOutputFileExtension() { return outputFileExtension; }
 
 	public void setOutputFileExtension(String s) throws IOException, URISyntaxException {
 		outputFileExtension = s;

@@ -19,21 +19,22 @@ public abstract class StartFusekiTask extends DefaultTask {
         DOMConfigurator.configure(ClassLoader.getSystemClassLoader().getResource("startfuseki.log4j2.properties"));
     }
 
+    @Internal
     public abstract RegularFileProperty getConfigurationPath();
 
     private File outputFolderPath;
 
-    @SuppressWarnings("unused")
+    @Internal
     public File getOutputFolderPath() { return outputFolderPath; }
 
-    @SuppressWarnings("unused")
     /*
       As a side effect, set the outputFile property to FusekiApp.PID_FILENAME.
      */
+    @SuppressWarnings("unused")
     public void setOutputFolderPath(File path) {
         outputFolderPath = path;
-        if (null != outputFolderPath) {
-            File pidFile = outputFolderPath.toPath().resolve(FusekiApp.PID_FILENAME).toFile();
+        if (null != getOutputFolderPath()) {
+            File pidFile = getOutputFolderPath().toPath().resolve(FusekiApp.PID_FILENAME).toFile();
             LOGGER.info("StartFuseki(" + getName() + ") Configure outputFile = " + pidFile);
             getOutputFile().fileValue(pidFile);
         }
