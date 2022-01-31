@@ -29,42 +29,35 @@ public abstract class OwlReasonTask extends DefaultTask {
 		DOMConfigurator.configure(ClassLoader.getSystemClassLoader().getResource("owlreason.log4j2.properties"));
 	}
 
-	private File catalogPath;
+	public File catalogPath;
 
-	@InputFile
-	public File getCatalogPath() {
-		return catalogPath;
-	}
-
+	@SuppressWarnings("unused")
 	public void setCatalogPath(File f) throws IOException, URISyntaxException {
 		catalogPath = f;
 		calculateInputFiles();
 	}
 
-	private List<String> inputFileExtensions;
-
-	@Input
-	public List<String> getInputFileExtensions() {
-		return inputFileExtensions;
-	}
+	public List<String> inputFileExtensions;
 
 	public void setInputFileExtensions(List<String> fes) throws IOException, URISyntaxException {
 		inputFileExtensions = fes;
 		calculateInputFiles();
 	}
 
-	private List<String> specs;
+	public List<String> specs;
 
-	@Input
-	public List<String> getSpecs() { return specs; }
-
+	@SuppressWarnings("unused")
 	public void setSpecs(List<String> s) throws IOException, URISyntaxException {
 		specs = s;
 		calculateInputFiles();
 	}
 
-	@Input
-	public abstract Property<String> getOutputFileExtension();
+	public String outputFileExtension;
+
+	public void setOutputFileExtension(String s) throws IOException, URISyntaxException {
+		outputFileExtension = s;
+		calculateInputFiles();
+	}
 
 	private static final Comparator<File> fileComparator = Comparator.comparing(File::getAbsolutePath);
 
@@ -72,8 +65,7 @@ public abstract class OwlReasonTask extends DefaultTask {
 	 * For gradle incremental task support, it is necessary to exclude the reasoner output files from the calculation.
 	 */
 	private void calculateInputFiles() throws IOException, URISyntaxException {
-		if (null != catalogPath && null != inputFileExtensions && null != specs && getOutputFileExtension().isPresent()) {
-			final String outputFileExtension = getOutputFileExtension().get();
+		if (null != catalogPath && null != inputFileExtensions && null != specs && null != outputFileExtension) {
 			final URI catalogURI = URI.createFileURI(catalogPath.getAbsolutePath());
 			final OmlCatalog inputCatalog = OmlCatalog.create(catalogURI);
 			URI catalogDir = catalogURI.trimSegments(1);
@@ -87,6 +79,7 @@ public abstract class OwlReasonTask extends DefaultTask {
 					boolean add = true;
 					if (outputFileExtension.equals(uri.fileExtension())) {
 						final URI rel = uri.deresolve(catalogDir, false, false, true).trimFileExtension();
+						//noinspection HttpUrlsUsage
 						final String entailment = "http://" + rel.toString();
 						// Appending a suffix prevents matching on a prefix of the entailment IRI.
 						final String entailment1 = entailment+"=";
@@ -141,8 +134,8 @@ public abstract class OwlReasonTask extends DefaultTask {
 		if (null == inputFileExtensions)
 			setInputFileExtensions(Collections.singletonList(OwlReasonApp.DEFAULT_INPUT_FILE_EXTENSION));
 		// default output file extension: ttl
-		if (!getOutputFileExtension().isPresent())
-			getOutputFileExtension().set(OwlReasonApp.DEFAULT_OUTPUT_FILE_EXTENSION);
+		if (null == outputFileExtension)
+			setOutputFileExtension(OwlReasonApp.DEFAULT_OUTPUT_FILE_EXTENSION);
 	}
 
     @TaskAction
@@ -172,9 +165,9 @@ public abstract class OwlReasonTask extends DefaultTask {
 				args.add(ext);
 			});
 		}
-		if (getOutputFileExtension().isPresent()) {
+		if (null != outputFileExtension) {
 			args.add("-of");
-			args.add(getOutputFileExtension().get());
+			args.add(outputFileExtension);
 		}
 		if (getRemoveUnsats().isPresent() && getRemoveUnsats().get()) {
 			args.add("-ru");

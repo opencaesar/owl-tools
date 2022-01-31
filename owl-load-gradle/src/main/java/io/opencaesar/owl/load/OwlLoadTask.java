@@ -39,25 +39,17 @@ public abstract class OwlLoadTask extends DefaultTask {
     @Input
     public abstract Property<String> getEndpointURL();
 
-    private File catalogPath;
+    public File catalogPath;
 
-    @InputFile
-    public File getCatalogPath() {
-        return catalogPath;
-    }
-
+    @SuppressWarnings("unused")
     public void setCatalogPath(File f) throws IOException, URISyntaxException {
         catalogPath = f;
         calculateInputFiles();
     }
 
-    private List<String> fileExtensions;
+    public List<String> fileExtensions;
 
-    @Input
-    public List<String> getFileExtensions() {
-        return fileExtensions;
-    }
-
+    @SuppressWarnings("unused")
     public void setFileExtensions(List<String> fes) throws IOException, URISyntaxException {
         fileExtensions = fes;
         calculateInputFiles();

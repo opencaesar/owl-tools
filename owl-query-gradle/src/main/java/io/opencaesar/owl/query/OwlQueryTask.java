@@ -34,11 +34,7 @@ public abstract class OwlQueryTask extends DefaultTask {
 	@Input
 	public abstract Property<String> getEndpointURL();
 
-	private File queryPath;
-
-	public File getQueryPath() {
-		return queryPath;
-	}
+	public File queryPath;
 
 	public void setQueryPath(File path) throws IOException {
 		queryPath = path;

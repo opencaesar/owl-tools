@@ -30,12 +30,9 @@ public abstract class OwlShaclFusekiTask extends DefaultTask {
 	@Input
 	public abstract Property<String> getEndpointURL();
 
-	private File queryPath;
+	public File queryPath;
 
-	public File getQueryPath() {
-		return queryPath;
-	}
-
+	@SuppressWarnings("unused")
 	public void setQueryPath(File path) throws IOException {
 		queryPath = path;
 		final List<File> files = new ArrayList<>();

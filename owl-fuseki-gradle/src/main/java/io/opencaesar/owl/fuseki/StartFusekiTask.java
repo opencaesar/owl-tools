@@ -27,6 +27,9 @@ public abstract class StartFusekiTask extends DefaultTask {
     public File getOutputFolderPath() { return outputFolderPath; }
 
     @SuppressWarnings("unused")
+    /*
+      As a side effect, set the outputFile property to FusekiApp.PID_FILENAME.
+     */
     public void setOutputFolderPath(File path) {
         outputFolderPath = path;
         if (null != outputFolderPath) {

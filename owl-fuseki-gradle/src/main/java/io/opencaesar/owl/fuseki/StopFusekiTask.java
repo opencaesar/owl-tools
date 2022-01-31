@@ -27,6 +27,9 @@ public abstract class StopFusekiTask extends DefaultTask {
     public File getOutputFolderPath() { return outputFolderPath; }
 
     @SuppressWarnings("unused")
+    /*
+      As a side effect, set the output file property to FusekiApp.STOPPED_FILENAME.
+     */
     public void setOutputFolderPath(File path) {
         outputFolderPath = path;
         if (null != outputFolderPath) {
