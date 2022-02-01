@@ -39,8 +39,10 @@ public abstract class OwlReasonTask extends DefaultTask {
 		calculateInputFiles();
 	}
 
+	private List<String> inputFileExtensions;
+
 	@Internal
-	public List<String> inputFileExtensions;
+	public List<String> getInputFileExtensions() { return inputFileExtensions; }
 
 	public void setInputFileExtensions(List<String> fes) throws IOException, URISyntaxException {
 		inputFileExtensions = fes;
