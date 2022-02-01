@@ -13,6 +13,7 @@ import org.apache.log4j.xml.DOMConfigurator;
 import org.eclipse.emf.common.util.URI;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
+import org.gradle.api.Task;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.RegularFile;
 import org.gradle.api.file.RegularFileProperty;
@@ -38,6 +39,10 @@ public abstract class OwlLoadTask extends DefaultTask {
 
     @Input
     public abstract Property<String> getEndpointURL();
+
+    @InputFiles
+    @Optional
+    public abstract Property<Task> getInferredTaskDependency();
 
     private File catalogPath;
 
