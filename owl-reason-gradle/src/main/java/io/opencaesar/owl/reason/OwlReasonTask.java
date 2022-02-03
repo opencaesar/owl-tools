@@ -2,23 +2,27 @@ package io.opencaesar.owl.reason;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import io.opencaesar.oml.util.OmlCatalog;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
-import org.eclipse.emf.common.util.URI;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.Property;
-import org.gradle.api.tasks.*;
+import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.InputFiles;
+import org.gradle.api.tasks.Internal;
+import org.gradle.api.tasks.Optional;
+import org.gradle.api.tasks.OutputFile;
+import org.gradle.api.tasks.TaskAction;
 import org.gradle.work.Incremental;
 
 public abstract class OwlReasonTask extends DefaultTask {
@@ -74,23 +78,23 @@ public abstract class OwlReasonTask extends DefaultTask {
 	/**
 	 * For gradle incremental task support, it is necessary to exclude the reasoner output files from the calculation.
 	 */
+	@SuppressWarnings("deprecation")
 	private void calculateInputFiles() throws IOException, URISyntaxException {
 		if (null != catalogPath && null != inputFileExtensions && null != specs && null != outputFileExtension) {
-			final URI catalogURI = URI.createFileURI(catalogPath.getAbsolutePath());
-			final OmlCatalog inputCatalog = OmlCatalog.create(catalogURI);
-			URI catalogDir = catalogURI.trimSegments(1);
-			if (!catalogDir.hasTrailingPathSeparator())
-				catalogDir=catalogDir.appendSegment("");
+			final URI catalogURI = catalogPath.toURI();
+			final OwlCatalog inputCatalog = OwlCatalog.create(catalogURI);
+			final File catalogDir = catalogPath.getParentFile();
 			LOGGER.debug("OwlReason("+getName()+") catalog dir: "+catalogDir);
 			final ArrayList<File> owlFiles = new ArrayList<>();
 			for (URI uri : inputCatalog.getFileUris(inputFileExtensions)) {
-				final File file = new File(new URL(uri.toString()).toURI().getPath());
+				final File file = new File(uri);
 				if (file.isFile()) {
 					boolean add = true;
-					if (outputFileExtension.equals(uri.fileExtension())) {
-						final URI rel = uri.deresolve(catalogDir, false, false, true).trimFileExtension();
+					if (outputFileExtension.equals(FilenameUtils.getExtension(uri.getPath()))) {
+						final URI relURI = catalogDir.toURI().relativize(file.toURI());
+						final String rel = FilenameUtils.removeExtension(relURI.toString());
 						//noinspection HttpUrlsUsage
-						final String entailment = "http://" + rel.toString();
+						final String entailment = "http://" + rel;
 						// Appending a suffix prevents matching on a prefix of the entailment IRI.
 						final String entailment1 = entailment+"=";
 						final String entailment2 = entailment+" =";

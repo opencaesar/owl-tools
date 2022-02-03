@@ -1,25 +1,29 @@
 package io.opencaesar.owl.load;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import io.opencaesar.oml.util.OmlCatalog;
 import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
-import org.eclipse.emf.common.util.URI;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
-import org.gradle.api.Task;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.RegularFile;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
-import org.gradle.api.tasks.*;
+import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.InputFiles;
+import org.gradle.api.tasks.Optional;
+import org.gradle.api.tasks.OutputFile;
+import org.gradle.api.tasks.TaskAction;
 import org.gradle.work.Incremental;
 
 /**
@@ -34,20 +38,16 @@ public abstract class OwlLoadTask extends DefaultTask {
         DOMConfigurator.configure(ClassLoader.getSystemClassLoader().getResource("owlload.log4j2.properties"));
     }
 
+    private static final Comparator<File> fileComparator = Comparator.comparing(File::getAbsolutePath);
+
     @Input
     public abstract ListProperty<String> getIris();
 
     @Input
     public abstract Property<String> getEndpointURL();
 
-    @InputFiles
-    @Optional
-    public abstract Property<Task> getInferredTaskDependency();
-
-    private File catalogPath;
-
-    @Internal
-    public File getCatalogPath() { return catalogPath; }
+    // contributes to the input files
+    public File catalogPath;
 
     @SuppressWarnings("unused")
     public void setCatalogPath(File f) throws IOException, URISyntaxException {
@@ -55,10 +55,8 @@ public abstract class OwlLoadTask extends DefaultTask {
         calculateInputFiles();
     }
 
-    private List<String> fileExtensions;
-
-    @Internal
-    public List<String> getFileExtensions() { return fileExtensions; }
+    // contributes to the input files
+    public List<String> fileExtensions;
 
     @SuppressWarnings("unused")
     public void setFileExtensions(List<String> fes) throws IOException, URISyntaxException {
@@ -66,14 +64,13 @@ public abstract class OwlLoadTask extends DefaultTask {
         calculateInputFiles();
     }
 
-    private static final Comparator<File> fileComparator = Comparator.comparing(File::getAbsolutePath);
-
-    private void calculateInputFiles() throws IOException, URISyntaxException {
-        if (null != getCatalogPath() && null != getFileExtensions()) {
-            OmlCatalog inputCatalog = OmlCatalog.create(URI.createFileURI(getCatalogPath().getAbsolutePath()));
+    @SuppressWarnings("deprecation")
+	private void calculateInputFiles() throws IOException, URISyntaxException {
+        if (null != catalogPath && null != fileExtensions) {
+            OwlCatalog inputCatalog = OwlCatalog.create(catalogPath.toURI());
             final ArrayList<File> owlFiles = new ArrayList<>();
-            for (URI uri : inputCatalog.getFileUris(getFileExtensions())) {
-                File file = new File(new URL(uri.toString()).toURI().getPath());
+            for (URI uri : inputCatalog.getFileUris(fileExtensions)) {
+                File file = new File(uri);
                 owlFiles.add(file);
             }
             owlFiles.sort(fileComparator);
@@ -87,7 +84,7 @@ public abstract class OwlLoadTask extends DefaultTask {
 
     @Incremental
     @InputFiles
-    public abstract ConfigurableFileCollection getInputFiles();
+    protected abstract ConfigurableFileCollection getInputFiles();
 
     /**
      * Since this Gradle property is configured by the task constructor, it is not publicly exposed to users.
@@ -105,7 +102,8 @@ public abstract class OwlLoadTask extends DefaultTask {
      * to ensure that each instance of OwlLoadTask
      * has a corresponding unique output file
      */
-    public OwlLoadTask() {
+    @SuppressWarnings("deprecation")
+	public OwlLoadTask() {
         RegularFile f = getProject()
                 .getLayout()
                 .getBuildDirectory()
@@ -115,7 +113,8 @@ public abstract class OwlLoadTask extends DefaultTask {
         getOutputFile().value(f);
     }
 
-    @TaskAction
+    @SuppressWarnings("deprecation")
+	@TaskAction
     public void run() {
         final ArrayList<String> args = new ArrayList<>();
         getIris().get().forEach(iri -> {

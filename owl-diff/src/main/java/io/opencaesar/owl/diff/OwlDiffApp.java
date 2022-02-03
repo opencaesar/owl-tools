@@ -190,17 +190,17 @@ public class OwlDiffApp {
 	}
 	
 	private Collection<File> collectOwlFiles(final File directory) {
-		ArrayList<File> omlFiles = new ArrayList<File>();
+		ArrayList<File> owlFiles = new ArrayList<File>();
 		for (File file : directory.listFiles()) {
 			if (file.isFile()) {
 				if (getFileExtension(file).equals("owl")) {
-					omlFiles.add(file);
+					owlFiles.add(file);
 				}
 			} else if (file.isDirectory()) {
-				omlFiles.addAll(collectOwlFiles(file));
+				owlFiles.addAll(collectOwlFiles(file));
 			}
 		}
-		return omlFiles;
+		return owlFiles;
 	}
 
 	private String getFileExtension(final File file) {

@@ -16,7 +16,11 @@ import org.gradle.api.GradleException;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.Property;
-import org.gradle.api.tasks.*;
+import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.InputFiles;
+import org.gradle.api.tasks.Optional;
+import org.gradle.api.tasks.OutputDirectory;
+import org.gradle.api.tasks.TaskAction;
 import org.gradle.work.Incremental;
 
 public abstract class OwlShaclFusekiTask extends DefaultTask {
@@ -30,12 +34,10 @@ public abstract class OwlShaclFusekiTask extends DefaultTask {
 	@Input
 	public abstract Property<String> getEndpointURL();
 
-	private File queryPath;
+    // contributes to the input files
+	public File queryPath;
 
-	@Internal
-	public File getQueryPath() { return queryPath; }
-
-	@SuppressWarnings("unused")
+	@SuppressWarnings({ "unused", "deprecation" })
 	public void setQueryPath(File path) throws IOException {
 		queryPath = path;
 		final List<File> files = new ArrayList<>();
@@ -57,7 +59,7 @@ public abstract class OwlShaclFusekiTask extends DefaultTask {
 
 	@Incremental
 	@InputFiles
-	public abstract ConfigurableFileCollection getInputFiles();
+	protected abstract ConfigurableFileCollection getInputFiles();
 
 	@OutputDirectory
 	public abstract RegularFileProperty getResultPath();
@@ -73,9 +75,9 @@ public abstract class OwlShaclFusekiTask extends DefaultTask {
 			args.add("-e");
 			args.add(getEndpointURL().get());
 		}
-		if (null != getQueryPath()) {
+		if (null != queryPath) {
 			args.add("-q");
-			args.add(getQueryPath().getAbsolutePath());
+			args.add(queryPath.getAbsolutePath());
 		}
 		if (getResultPath().isPresent()) {
 			args.add("-r");

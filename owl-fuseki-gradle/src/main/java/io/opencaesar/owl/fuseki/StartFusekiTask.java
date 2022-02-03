@@ -9,7 +9,11 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.Property;
-import org.gradle.api.tasks.*;
+import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.InputFile;
+import org.gradle.api.tasks.Optional;
+import org.gradle.api.tasks.OutputFile;
+import org.gradle.api.tasks.TaskAction;
 
 public abstract class StartFusekiTask extends DefaultTask {
 
@@ -19,34 +23,24 @@ public abstract class StartFusekiTask extends DefaultTask {
         DOMConfigurator.configure(ClassLoader.getSystemClassLoader().getResource("startfuseki.log4j2.properties"));
     }
 
-    @Internal
+    @InputFile
     public abstract RegularFileProperty getConfigurationPath();
 
-    private File outputFolderPath;
-
-    @Internal
-    public File getOutputFolderPath() { return outputFolderPath; }
+    // contributes to the output file property
+    public File outputFolderPath;
 
     /*
       As a side effect, set the outputFile property to FusekiApp.PID_FILENAME.
      */
-    @SuppressWarnings("unused")
+    @SuppressWarnings({ "unused", "deprecation" })
     public void setOutputFolderPath(File path) {
         outputFolderPath = path;
-        if (null != getOutputFolderPath()) {
-            File pidFile = getOutputFolderPath().toPath().resolve(FusekiApp.PID_FILENAME).toFile();
+        if (null != outputFolderPath) {
+            File pidFile = outputFolderPath.toPath().resolve(FusekiApp.PID_FILENAME).toFile();
             LOGGER.info("StartFuseki(" + getName() + ") Configure outputFile = " + pidFile);
             getOutputFile().fileValue(pidFile);
         }
     }
-
-    @Input
-    @Optional
-    public abstract Property<Boolean> getDebug();
-
-    @Input
-    @Optional
-    public abstract Property<Boolean> getWebUI();
 
     /**
      * Since this Gradle property is configured as a side effect of configuring the output folder, it is not publicly exposed to users.
@@ -55,7 +49,14 @@ public abstract class StartFusekiTask extends DefaultTask {
     @OutputFile
     protected abstract RegularFileProperty getOutputFile();
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")
+    @Input
+    @Optional
+    public abstract Property<Boolean> getWebUI();
+
+    @Input
+    @Optional
+    public abstract Property<Boolean> getDebug();
+
     @TaskAction
     public void run() {
         final ArrayList<String> args = new ArrayList<>();

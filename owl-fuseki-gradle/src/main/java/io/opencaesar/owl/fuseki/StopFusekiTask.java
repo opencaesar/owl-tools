@@ -11,7 +11,10 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.Property;
-import org.gradle.api.tasks.*;
+import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.Optional;
+import org.gradle.api.tasks.OutputFile;
+import org.gradle.api.tasks.TaskAction;
 
 public abstract class StopFusekiTask extends DefaultTask {
 
@@ -21,27 +24,21 @@ public abstract class StopFusekiTask extends DefaultTask {
         DOMConfigurator.configure(ClassLoader.getSystemClassLoader().getResource("stopfuseki.log4j2.properties"));
     }
 
-    private File outputFolderPath;
-
-    @Internal
-    public File getOutputFolderPath() { return outputFolderPath; }
+    // contributes to the output file property
+    public File outputFolderPath;
 
     /*
       As a side effect, set the output file property to FusekiApp.STOPPED_FILENAME.
      */
-    @SuppressWarnings("unused")
+    @SuppressWarnings({ "unused", "deprecation" })
     public void setOutputFolderPath(File path) {
         outputFolderPath = path;
-        if (null != getOutputFolderPath()) {
-            File stopFile = getOutputFolderPath().toPath().resolve(FusekiApp.STOPPED_FILENAME).toFile();
+        if (null != outputFolderPath) {
+            File stopFile = outputFolderPath.toPath().resolve(FusekiApp.STOPPED_FILENAME).toFile();
             LOGGER.info("StopFuseki(" + getName() + ") Configure outputFile = " + stopFile);
             getOutputFile().fileValue(stopFile);
         }
     }
-
-    @Input
-    @Optional
-    public abstract Property<Boolean> getDebug();
 
     /**
      * Since this Gradle property is configured as a side effect of configuring the output folder,
@@ -51,7 +48,11 @@ public abstract class StopFusekiTask extends DefaultTask {
     @OutputFile
     protected abstract RegularFileProperty getOutputFile();
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")
+    @Input
+    @Optional
+    public abstract Property<Boolean> getDebug();
+
+    @SuppressWarnings({ "deprecation" })
     @TaskAction
     public void run() {
         final ArrayList<String> args = new ArrayList<>();

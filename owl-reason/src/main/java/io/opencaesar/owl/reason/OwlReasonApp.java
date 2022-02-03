@@ -437,7 +437,6 @@ public class OwlReasonApp {
         }
 	}
 	
-	@SuppressWarnings("ConstantConditions")
 	private void extractAndSaveEntailments(KnowledgeBase kb, String inputOntologyIri, String outputOntologyIri, EnumSet<StatementType> statementTypes, OWLOntologyManager manager) throws Exception {
 		// Create extractor.
 	  
@@ -626,6 +625,8 @@ public class OwlReasonApp {
 	}
 
 	private static class ReasoningException extends Exception {
+		private static final long serialVersionUID = 1L;
+
 		public ReasoningException(String s) {
 			super(s);
 		}
