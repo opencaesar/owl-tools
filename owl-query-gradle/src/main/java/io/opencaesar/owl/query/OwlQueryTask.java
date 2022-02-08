@@ -42,7 +42,6 @@ public abstract class OwlQueryTask extends DefaultTask {
     // contributes to the input files
 	public File queryPath;
 
-	@SuppressWarnings({ "unused", "deprecation" })
 	public void setQueryPath(File path) throws IOException {
 		queryPath = path;
 		final List<File> files = new ArrayList<>();
