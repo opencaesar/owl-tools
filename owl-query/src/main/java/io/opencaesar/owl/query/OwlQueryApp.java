@@ -49,7 +49,9 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 
 public class OwlQueryApp {
-	
+
+	public static String DEFAULT_FORMAT = "xml";
+
 	@Parameter(
 		names = {"--endpoint-url", "-e"},
 		description = "Sparql Endpoint URL (Required)",
@@ -78,7 +80,7 @@ public class OwlQueryApp {
 		description = "Format of the results. Default is xml. Options: xml, json, csv, n3, ttl, n-triple or tsv (Optional)",
 		validateWith = FormatType.class,
 		order = 4)
-	private String format = "xml";
+	private String format = DEFAULT_FORMAT;
 
 	@Parameter(
 		names = {"--debug", "-d"},
