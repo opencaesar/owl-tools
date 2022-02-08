@@ -14,6 +14,7 @@ import org.apache.log4j.xml.DOMConfigurator;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.file.ConfigurableFileCollection;
+import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
@@ -66,7 +67,7 @@ public abstract class OwlQueryTask extends DefaultTask {
 	protected abstract ConfigurableFileCollection getInputFiles();
 
 	@OutputDirectory
-	public abstract RegularFileProperty getResultPath();
+	public abstract DirectoryProperty getResultPath();
 
 	@Input
 	@Optional
