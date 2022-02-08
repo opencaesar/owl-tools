@@ -1,52 +1,156 @@
 package io.opencaesar.owl.load;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+import org.apache.log4j.xml.DOMConfigurator;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
+import org.gradle.api.file.ConfigurableFileCollection;
+import org.gradle.api.file.RegularFile;
+import org.gradle.api.file.RegularFileProperty;
+import org.gradle.api.provider.ListProperty;
+import org.gradle.api.provider.Property;
+import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.InputFiles;
+import org.gradle.api.tasks.Optional;
+import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.work.Incremental;
 
-public class OwlLoadTask extends DefaultTask {
+/**
+ * Gradle incremental build support is available for an internal input file collection
+ * derived from the catalogPath and fileExtension properties.
+ */
+public abstract class OwlLoadTask extends DefaultTask {
 
-    public List<String> iris;
+    private final static Logger LOGGER = Logger.getLogger(OwlLoadTask.class);
 
-    public String catalogPath;
+    static {
+        DOMConfigurator.configure(ClassLoader.getSystemClassLoader().getResource("owlload.log4j2.properties"));
+    }
 
-    public String endpointURL;
+    private static final Comparator<File> fileComparator = Comparator.comparing(File::getAbsolutePath);
 
+    @Input
+    public abstract ListProperty<String> getIris();
+
+    @Input
+    public abstract Property<String> getEndpointURL();
+
+    // contributes to the input files
+    public File catalogPath;
+
+    @SuppressWarnings("unused")
+    public void setCatalogPath(File f) throws IOException, URISyntaxException {
+        catalogPath = f;
+        calculateInputFiles();
+    }
+
+    // contributes to the input files
     public List<String> fileExtensions;
 
-    public boolean debug;
+    @SuppressWarnings("unused")
+    public void setFileExtensions(List<String> fes) throws IOException, URISyntaxException {
+        fileExtensions = fes;
+        calculateInputFiles();
+    }
 
-    @TaskAction
+    @SuppressWarnings("deprecation")
+	private void calculateInputFiles() throws IOException, URISyntaxException {
+        if (null != catalogPath && null != fileExtensions) {
+            OwlCatalog inputCatalog = OwlCatalog.create(catalogPath.toURI());
+            final ArrayList<File> owlFiles = new ArrayList<>();
+            for (URI uri : inputCatalog.getFileUris(fileExtensions)) {
+                File file = new File(uri);
+                owlFiles.add(file);
+            }
+            owlFiles.sort(fileComparator);
+            LOGGER.debug("OwlLoad("+getName()+") calculateInputFiles found: "+owlFiles.size());
+            for (File owlFile : owlFiles) {
+                LOGGER.debug("OwlLoad("+getName()+") input: "+owlFile);
+            }
+            getInputFiles().setFrom(owlFiles);
+        }
+    }
+
+    @Incremental
+    @InputFiles
+    protected abstract ConfigurableFileCollection getInputFiles();
+
+    /**
+     * Since this Gradle property is configured by the task constructor, it is not publicly exposed to users.
+     * @return The configured output file.
+     */
+    @OutputFile
+    protected abstract RegularFileProperty getOutputFile();
+
+    @Input
+    @Optional
+    public abstract Property<Boolean> getDebug();
+
+    /**
+     * Use the task name as part of the output filename
+     * to ensure that each instance of OwlLoadTask
+     * has a corresponding unique output file
+     */
+    @SuppressWarnings("deprecation")
+	public OwlLoadTask() {
+        RegularFile f = getProject()
+                .getLayout()
+                .getBuildDirectory()
+                .file("owl-load." + getTaskIdentity().name + ".log")
+                .get();
+        LOGGER.info("OwlLoad("+getName()+") Configure outputFile = "+f.getAsFile());
+        getOutputFile().value(f);
+    }
+
+    @SuppressWarnings("deprecation")
+	@TaskAction
     public void run() {
-        final ArrayList<String> args = new ArrayList<String>();
-        if (null != iris) {
-            iris.forEach(iri -> {
-                args.add("-i");
-                args.add(iri);
-            });
-        }
-        if (catalogPath != null) {
+        final ArrayList<String> args = new ArrayList<>();
+        getIris().get().forEach(iri -> {
+            args.add("-i");
+            args.add(iri);
+        });
+        if (null != catalogPath) {
             args.add("-c");
-            args.add(catalogPath);
+            args.add(catalogPath.getAbsolutePath());
         }
-        if (endpointURL != null) {
+        if (getEndpointURL().isPresent()) {
             args.add("-e");
-            args.add(endpointURL);
+            args.add(getEndpointURL().get());
         }
-        if (fileExtensions != null) {
+        if (null != fileExtensions) {
             fileExtensions.forEach((String ext) -> {
                 args.add("-f");
                 args.add(ext);
             });
         }
-        if (debug) {
+        if (getDebug().isPresent() && getDebug().get()) {
             args.add("-d");
         }
         try {
-            OwlLoadApp.main(args.toArray(new String[args.size()]));
+            OwlLoadApp.main(args.toArray(new String[0]));
+
+            // Generate a unique output for gradle incremental execution support.
+            if (getOutputFile().isPresent()) {
+                File output = getOutputFile().get().getAsFile();
+                LOGGER.info("OwlLoad("+getName()+") Generate output file: " + output);
+                try (PrintStream ps = new PrintStream(new FileOutputStream(output))) {
+                    for (File file : getInputFiles().getFiles()) {
+                        ps.println(file.getAbsolutePath());
+                    }
+                }
+            }
         } catch (Exception e) {
 			throw new GradleException(e.getLocalizedMessage(), e);
         }

@@ -1,18 +1,14 @@
 package io.opencaesar.owl.fuseki;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.net.JarURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import org.apache.log4j.Appender;
 import org.apache.log4j.AppenderSkeleton;
@@ -27,6 +23,10 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 
 public class FusekiApp {
+
+    public static final String PID_FILENAME = "fuseki.pid";
+
+    public static final String STOPPED_FILENAME = "fuseki.stopped";
 
 	enum Command {
 		start,
@@ -44,7 +44,6 @@ public class FusekiApp {
     @Parameter(
             names = {"--configurationPath", "-g"},
             description = "A path to a configuration file (Required)",
-            required = false,
             order = 2)
     private String configurationPath;
 	
@@ -94,10 +93,10 @@ public class FusekiApp {
               ((AppenderSkeleton) appender).setThreshold(Level.DEBUG);
         }
 
-        app.run(app.webui);
+        app.run(app);
     }
 
-    private void run(boolean webui) throws Exception {
+    private void run(FusekiApp app) throws Exception {
     	LOGGER.info("=================================================================");
     	LOGGER.info("                        S T A R T");
     	LOGGER.info("                     OWL Fuseki " + getAppVersion());
@@ -107,10 +106,22 @@ public class FusekiApp {
     	LOGGER.info(("Output folder path = " + outputFolderPath));
 
     	if (command == Command.start) {
-          if (webui) {
-              startFuseki(new File(configurationPath), new File(outputFolderPath), "org.apache.jena.fuseki.cmd.FusekiCmd", "--localhost");
+          if (app.webui) {
+              final File webappFolder = new File(outputFolderPath).toPath().resolve("webapp").toFile();
+              //noinspection ResultOfMethodCallIgnored
+              webappFolder.mkdirs();
+              final URL fusekiWarPomURL = FusekiApp.class.getClassLoader().getResource("META-INF/maven/org.apache.jena/jena-fuseki-war/pom.xml");
+              if (null != fusekiWarPomURL && "jar".equals(fusekiWarPomURL.getProtocol())) {
+                final JarURLConnection connection = (JarURLConnection) fusekiWarPomURL.openConnection();
+                final URL jarURL = connection.getJarFileURL();
+                  try (InputStream is = jarURL.openStream()) {
+                      unzip(is, webappFolder);
+                  }
+              }
+              LOGGER.info("fusekiWarPomURL="+fusekiWarPomURL);
+              startFuseki(new File(configurationPath), new File(outputFolderPath), "org.apache.jena.fuseki.cmd.FusekiCmd", app, "--localhost");
           } else {
-              startFuseki(new File(configurationPath), new File(outputFolderPath), "org.apache.jena.fuseki.main.cmds.FusekiMainCmd");
+              startFuseki(new File(configurationPath), new File(outputFolderPath), "org.apache.jena.fuseki.main.cmds.FusekiMainCmd", app);
           }
     	} else {
     		stopFuseki(new File(outputFolderPath));
@@ -121,20 +132,59 @@ public class FusekiApp {
     	LOGGER.info("=================================================================");
     }
 
-    private String getAppVersion() throws Exception {
+    public static void unzip(InputStream source, File target) throws IOException {
+        final ZipInputStream zipStream = new ZipInputStream(source);
+        ZipEntry nextEntry;
+        while ((nextEntry = zipStream.getNextEntry()) != null) {
+            final String name = nextEntry.getName();
+            // only extract files
+            if (!name.endsWith("/")) {
+                final File nextFile = new File(target, name);
+
+                // create directories
+                final File parent = nextFile.getParentFile();
+                if (parent != null) {
+                    //noinspection ResultOfMethodCallIgnored
+                    parent.mkdirs();
+                }
+
+                // write file
+                // Skipping writing the file if it exists turns out to be a bad idea.
+                // - changes in the version of Fuseki could cause problems.
+                // - without changes, the webapp ui is not displaying properly.
+                // So it is better to always overwrite existing files.
+                try (OutputStream targetStream = new FileOutputStream(nextFile)) {
+                    LOGGER.info("Extracting: " + nextFile);
+                    copy(zipStream, targetStream);
+                }
+            }
+        }
+    }
+
+    private static void copy(final InputStream source, final OutputStream target) throws IOException {
+        final int bufferSize = 4 * 1024;
+        final byte[] buffer = new byte[bufferSize];
+
+        int nextCount;
+        while ((nextCount = source.read(buffer)) >= 0) {
+            target.write(buffer, 0, nextCount);
+        }
+    }
+
+    private String getAppVersion() {
     	var version = this.getClass().getPackage().getImplementationVersion();
     	return (version != null) ? version : "<SNAPSHOT>";
     }
 
-    public class CommandConverter implements IStringConverter<Command> {
+    public static class CommandConverter implements IStringConverter<Command> {
 
 		@Override
 		public Command convert(String value) {
-			Command c = Command.valueOf(value);
-			if (c == null) {
-				throw new ParameterException("Value "+value+" is not a valid (only start or stop)"); 
+			try {
+                return Command.valueOf(value);
+            } catch (IllegalArgumentException e) {
+				throw new ParameterException("Value "+value+" is not a valid (only start or stop)");
 			}
-			return c;
 		}
     	
     }
@@ -147,11 +197,12 @@ public class FusekiApp {
      *                        - fuseki.log the combination of standard output and error.
      *                        - fuseki.pid the ID of the fuseki process.
      * @param clazz Qualified name of the Fuseki server application (with or without Web UI)
+     * @param app Fuseki application
      * @param argv Additional arguments
-     * @throws IOException if the 'fuseki.pid' file could not be written to 
+     * @throws IOException if the 'fuseki.pid' file could not be written to
      * @throws URISyntaxException If there is a problem retrieving the location of the fuseki jar.
      */
-    public static void startFuseki(File config, File outputDirectory, String clazz, String... argv) throws IOException, URISyntaxException {
+    public static void startFuseki(File config, File outputDirectory, String clazz, FusekiApp app, String... argv) throws IOException, URISyntaxException {
         Optional<Long> pid = findFusekiProcessId(outputDirectory);
         if (pid.isPresent()) {
 	        Optional<ProcessHandle> ph = findProcess(pid.get());
@@ -159,19 +210,25 @@ public class FusekiApp {
 	            throw new IllegalArgumentException("There is already a Fuseki server running with pid="+ph.get().pid());
 	        }
         }
+        //noinspection ResultOfMethodCallIgnored
         outputDirectory.mkdirs();
         Path output = outputDirectory.toPath();
         File logFile = output.resolve("fuseki.log").toFile();
-        File pidFile = output.resolve("fuseki.pid").toFile();
+        File pidFile = output.resolve(PID_FILENAME).toFile();
 
         String java = getJavaCommandPath();
         String jar = findJar(clazz);
-        String[] args = new String[4+argv.length];
-        args[0] = java;
-        args[1] = "-jar";
-        args[2] = jar;
-        args[3] = "--config=" + config.getAbsolutePath();
-        System.arraycopy(argv, 0, args, 4, argv.length);
+        int argCount = 4 + argv.length + (app.webui ? 1 : 0);
+        String[] args = new String[argCount];
+        int pos = 0;
+        args[pos++] = java;
+        if (app.webui) {
+            args[pos++] = "-Dlog4j.configurationFile=webapp/log4j2.properties";
+        }
+        args[pos++] = "-jar";
+        args[pos++] = jar;
+        args[pos++] = "--config=" + config.getAbsolutePath();
+        System.arraycopy(argv, 0, args, pos, argv.length);
         ProcessBuilder pb = new ProcessBuilder(args);
         pb.directory(output.toFile());
         pb.redirectErrorStream(true);
@@ -205,14 +262,14 @@ public class FusekiApp {
       * @throws IOException if the 'fuseki.pid' file could not be read
     */
     public static Optional<Long> findFusekiProcessId(File directory) throws IOException {
-        File f = directory.toPath().resolve("fuseki.pid").toFile();
+        File f = directory.toPath().resolve(PID_FILENAME).toFile();
         if (!f.exists() || !f.canRead())
             return Optional.empty();
         BufferedReader r = new BufferedReader(new FileReader(f));
         String s = r.readLine();
         r.close();
         long pid = Long.parseLong(s);
-        return Optional.of(Long.valueOf(pid));
+        return Optional.of(pid);
     }
 
     /**

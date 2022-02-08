@@ -78,7 +78,6 @@ public class OwlLoadApp {
             names = {"--file-extensions", "-f"},
             description = "File extensions of files that will be uploaded. Default is owl and ttl, options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss (Optional)",
         	validateWith = FileExtensionValidator.class,
-        	required = false,
             order = 4)
     private List<String> fileExtensions = new ArrayList<>();
     {
@@ -172,6 +171,7 @@ public class OwlLoadApp {
         LOGGER.info("Loading "+allOntologies.size()+" ontologies...");
 
         // Creates a work-stealing thread pool using all available processors as its target parallelism level.
+        // For debugging, use Executors.newSingleThreadExecutor();
         final ExecutorService pool = Executors.newWorkStealingPool();
         CompletableFuture<Void> allLoaded = CompletableFuture.allOf(allOntologies.stream().map(ont -> loadOntology(ont, pool)).toArray(CompletableFuture[]::new));
 
@@ -216,16 +216,42 @@ public class OwlLoadApp {
                     .destination(endpointURL);
             RDFConnection conn = builder.build();
             IRI documentIRI = ont.getOWLOntologyManager().getOntologyDocumentIRI(ont);
+            //noinspection CommentedOutCode
             try {
                 String documentFile = documentIRI.toURI().toURL().getFile();
+                // With Jena 4.3.+, it is necessary to remove the ':' character otherwise there is an illegal path exception.
+                // Unfortunately, this is still not sufficient as we get an exception like this:
+                //         ... 95 more
+                //Caused by: java.lang.RuntimeException: Error occurred loading ontology 'file:/C:/opt/local/github.opencaesar/metrology-vocabularies/build/owl/iso.org/iso-80000-4.3.owl'
+                //        at io.opencaesar.owl.load.OwlLoadApp.lambda$loadOntology$3(OwlLoadApp.java:243)
+                //Caused by: org.apache.jena.atlas.web.HttpException: 400 - Bad Request
+                //        at org.apache.jena.http.HttpLib.exception(HttpLib.java:231)
+                //        at org.apache.jena.http.HttpLib.handleHttpStatusCode(HttpLib.java:161)
+                //        at org.apache.jena.http.HttpLib.handleResponseNoBody(HttpLib.java:199)
+                //        at org.apache.jena.http.HttpLib.httpPushData(HttpLib.java:578)
+                //        at org.apache.jena.sparql.exec.http.GSP.pushFile(GSP.java:605)
+                //        at org.apache.jena.sparql.exec.http.GSP.uploadTriples(GSP.java:546)
+                //        at org.apache.jena.sparql.exec.http.GSP.POST(GSP.java:309)
+                //        at org.apache.jena.rdflink.RDFLinkHTTP.load(RDFLinkHTTP.java:407)
+                //        at org.apache.jena.rdflink.RDFConnectionAdapter.load(RDFConnectionAdapter.java:146)
+
+//                LOGGER.info("orig. documentFile = "+documentFile);
+//                if (documentFile.startsWith("/C:")) {
+//                    documentFile = documentFile.replace("/C:", "//C");
+//                    LOGGER.info("fixed documentFile = "+documentFile);
+//                } else if (documentFile.startsWith("/D:")) {
+//                    documentFile = documentFile.replace("/D:", "//D");
+//                    LOGGER.info("fixed documentFile = "+documentFile);
+//                }
                 Optional<IRI> defaultDocumentIRI = ont.getOntologyID().getDefaultDocumentIRI();
                 assert(defaultDocumentIRI.isPresent());
                 String graphName = defaultDocumentIRI.get().getIRIString();
                 Lang lang = RDFLanguages.filenameToLang(documentFile);
-                if (RDFLanguages.isQuads(lang))
-                	conn.loadDataset(documentFile);
-                else
-            		conn.load(graphName, documentFile);
+                if (RDFLanguages.isQuads(lang)) {
+                    conn.loadDataset(documentFile);
+                } else {
+                    conn.load(graphName, documentFile);
+                }
                 conn.commit();
            } catch (Exception e) {
 				throw new RuntimeException("Error occurred loading ontology '"+documentIRI+"'", e);
@@ -236,7 +262,7 @@ public class OwlLoadApp {
         }, pool);
     }
 
-    private String getAppVersion() throws Exception {
+    private String getAppVersion() {
     	var version = this.getClass().getPackage().getImplementationVersion();
     	return (version != null) ? version : "<SNAPSHOT>";
     }

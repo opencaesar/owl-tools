@@ -4,4 +4,6 @@ description = 'A gradle interface to OWL Load'
 dependencies {
 	implementation gradleApi()
     implementation project (':owl-load')
+ 	implementation "xml-resolver:xml-resolver:${versions.xmlresolver}"
+ 	implementation "commons-io:commons-io:${versions.commonsIo}"
 }
