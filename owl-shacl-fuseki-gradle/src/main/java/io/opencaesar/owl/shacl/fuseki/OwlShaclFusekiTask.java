@@ -73,7 +73,8 @@ public abstract class OwlShaclFusekiTask extends DefaultTask {
 			Path outputFolder = resultPath.toPath();
 			inputFiles.forEach(f -> {
 				String ifn = f.getName();
-				String ofn = ifn.substring(0, ifn.length() - 5) + OwlShaclFusekiApp.OUTPUT_FORMAT;
+				int i = ifn.lastIndexOf('.');
+				String ofn = ((i> 0) ? ifn.substring(0, i+1) : ifn+'.') + OwlShaclFusekiApp.OUTPUT_FORMAT;
 				outputFiles.add(outputFolder.resolve(ofn).toFile());
 			});
 			getOutputFiles().setFrom(outputFiles);

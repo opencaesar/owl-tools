@@ -85,7 +85,8 @@ public abstract class OwlQueryTask extends DefaultTask {
 			Path outputFolder = resultPath.toPath();
 			inputFiles.forEach(f -> {
 				String ifn = f.getName();
-				String ofn = ifn.substring(0, ifn.length() - 6) + format;
+				int i = ifn.lastIndexOf('.');
+				String ofn = ((i> 0) ? ifn.substring(0, i+1) : ifn+'.') + format;
 				outputFiles.add(outputFolder.resolve(ofn).toFile());
 			});
 			getOutputFiles().setFrom(outputFiles);
