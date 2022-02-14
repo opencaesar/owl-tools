@@ -9,6 +9,8 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+import org.apache.log4j.xml.DOMConfigurator;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.file.ConfigurableFileCollection;
@@ -21,6 +23,12 @@ import org.gradle.work.Incremental;
  * derived from the queryPath property.
  */
 public abstract class OwlQueryTask extends DefaultTask {
+
+	private final static Logger LOGGER = Logger.getLogger(OwlQueryTask.class);
+
+	static {
+		DOMConfigurator.configure(ClassLoader.getSystemClassLoader().getResource("owlquery.log4j2.properties"));
+	}
 
 	@Input
 	public abstract Property<String> getEndpointURL();
@@ -78,7 +86,7 @@ public abstract class OwlQueryTask extends DefaultTask {
 						inputFiles.add(entry.toFile());
 					}
 				} catch (DirectoryIteratorException|IOException ex) {
-					// Ignore: no input.
+					LOGGER.warn(getName()+": WARNING: ignoring non-existent or unreadable queryPath:"+queryPath.toString());
 				}
 			}
 			getInputFiles().setFrom(inputFiles);
