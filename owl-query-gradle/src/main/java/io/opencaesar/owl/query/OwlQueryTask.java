@@ -9,18 +9,11 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
-import org.apache.log4j.xml.DOMConfigurator;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.file.ConfigurableFileCollection;
-import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.Property;
-import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.InputFiles;
-import org.gradle.api.tasks.Optional;
-import org.gradle.api.tasks.OutputDirectory;
-import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.*;
 import org.gradle.work.Incremental;
 
 /**
@@ -29,48 +22,77 @@ import org.gradle.work.Incremental;
  */
 public abstract class OwlQueryTask extends DefaultTask {
 
-	private final static Logger LOGGER = Logger.getLogger(OwlQueryTask.class);
-
-	static {
-		DOMConfigurator.configure(ClassLoader.getSystemClassLoader().getResource("owlquery.log4j2.properties"));
-	}
-
 	@Input
 	public abstract Property<String> getEndpointURL();
 
-    // contributes to the input files
-	public File queryPath;
+	private File queryPath;
 
-	@SuppressWarnings({ "unused", "deprecation" })
+	@Input
+	public File getQueryPath() { return queryPath; }
+
 	public void setQueryPath(File path) throws IOException {
 		queryPath = path;
-		final List<File> files = new ArrayList<>();
-		if (null == queryPath || !queryPath.exists() || !queryPath.canRead())
-			LOGGER.warn("OwlQuery("+getName()+"): queryPath is not an existing, readable input file or directory got: " + path);
-		else if (queryPath.isFile())
-			files.add(queryPath);
-		else
-			// See https://docs.oracle.com/javase/8/docs/api/java/nio/file/DirectoryStream.html
-			try (DirectoryStream<Path> stream = Files.newDirectoryStream(path.toPath(), "*.sparql")) {
-				for (Path entry : stream) {
-					files.add(entry.toFile());
-				}
-			} catch (DirectoryIteratorException ex) {
-				throw ex.getCause();
-			}
-		getInputFiles().setFrom(files);
+		calculateInputOutputFiles();
+	}
+
+	private File resultPath;
+
+	@Internal
+	public File getResultPath() { return resultPath; }
+
+	@SuppressWarnings("unused")
+	public void setResultPath(File p) throws IOException {
+		resultPath = p;
+		calculateInputOutputFiles();
+	}
+
+	private String format = OwlQueryApp.DEFAULT_FORMAT;
+
+	@Input
+	@Optional
+	public String getFormat() { return format; }
+
+	public void setFormat(String f) throws IOException {
+		format=f;
+		calculateInputOutputFiles();
 	}
 
 	@Incremental
 	@InputFiles
 	protected abstract ConfigurableFileCollection getInputFiles();
 
-	@OutputDirectory
-	public abstract RegularFileProperty getResultPath();
+	@Incremental
+	@OutputFiles
+	protected abstract ConfigurableFileCollection getOutputFiles();
 
-	@Input
-	@Optional
-	public abstract Property<String> getFormat();
+	protected void calculateInputOutputFiles() throws IOException {
+		if (null != queryPath && null != resultPath && null != format) {
+			final List<File> inputFiles = new ArrayList<>();
+			final List<File> outputFiles = new ArrayList<>();
+			if (queryPath.isFile()) {
+				inputFiles.add(queryPath);
+			} else {
+				// See https://docs.oracle.com/javase/8/docs/api/java/nio/file/DirectoryStream.html
+				try (DirectoryStream<Path> stream = Files.newDirectoryStream(queryPath.toPath(), "*.sparql")) {
+					for (Path entry : stream) {
+						inputFiles.add(entry.toFile());
+					}
+				} catch (DirectoryIteratorException ex) {
+					throw new GradleException(ex.getMessage(), ex.getCause());
+				}
+			}
+			getInputFiles().setFrom(inputFiles);
+			Path outputFolder = resultPath.toPath();
+			inputFiles.forEach(f -> {
+				String ifn = f.getName();
+				int i = ifn.lastIndexOf('.');
+				String ofn = ((i> 0) ? ifn.substring(0, i+1) : ifn+'.') + format;
+				outputFiles.add(outputFolder.resolve(ofn).toFile());
+			});
+			getOutputFiles().setFrom(outputFiles);
+		}
+	}
+
 
 	@Input
 	@Optional
@@ -87,13 +109,13 @@ public abstract class OwlQueryTask extends DefaultTask {
 			args.add("-q");
 			args.add(queryPath.getAbsolutePath());
 		}
-		if (getResultPath().isPresent()) {
+		if (null != resultPath) {
 			args.add("-r");
-			args.add(getResultPath().get().getAsFile().getAbsolutePath());
+			args.add(resultPath.getAbsolutePath());
 		}
-		if (getFormat().isPresent()) {
+		if (null != format) {
 			args.add("-f");
-			args.add(getFormat().get());
+			args.add(format);
 		}
 		if (getDebug().isPresent() && getDebug().get()) {
 			args.add("-d");

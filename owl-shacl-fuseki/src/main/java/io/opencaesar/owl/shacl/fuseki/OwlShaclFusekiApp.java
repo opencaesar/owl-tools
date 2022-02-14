@@ -171,6 +171,8 @@ public class OwlShaclFusekiApp {
     	return (version != null) ? version : "<SNAPSHOT>";
     }
 
+	public static String OUTPUT_FORMAT = "ttl";
+
 	/**
 	 * Executes a given query and outputs the result to result/outputName.frame
 	 * 
@@ -193,7 +195,7 @@ public class OwlShaclFusekiApp {
 				RDFParser.create().fromString(response.body()).lang(RDFLanguages.TURTLE).build().parse(model);
 				LOGGER.info("Finished parsing result: " + model);
 	
-				File output = new File(resultPath + File.separator + outputName + ".ttl");
+				File output = new File(resultPath + File.separator + outputName + "." + OUTPUT_FORMAT);
 	
 				if (output.exists()) {
 					output.delete();

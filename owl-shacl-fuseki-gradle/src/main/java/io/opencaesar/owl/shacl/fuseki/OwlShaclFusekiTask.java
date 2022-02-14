@@ -9,60 +9,77 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
-import org.apache.log4j.xml.DOMConfigurator;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
+import org.gradle.api.ProjectConfigurationException;
 import org.gradle.api.file.ConfigurableFileCollection;
-import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.Property;
-import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.InputFiles;
-import org.gradle.api.tasks.Optional;
-import org.gradle.api.tasks.OutputDirectory;
-import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.*;
 import org.gradle.work.Incremental;
 
 public abstract class OwlShaclFusekiTask extends DefaultTask {
 
-	private final static Logger LOGGER = Logger.getLogger(OwlShaclFusekiTask.class);
-
-	static {
-		DOMConfigurator.configure(ClassLoader.getSystemClassLoader().getResource("owlshacl.log4j2.properties"));
-	}
-
 	@Input
 	public abstract Property<String> getEndpointURL();
 
-    // contributes to the input files
-	public File queryPath;
+	private File queryPath;
 
-	@SuppressWarnings({ "unused", "deprecation" })
-	public void setQueryPath(File path) throws IOException {
+	@Input
+	public File getQueryPath() { return queryPath; }
+
+	public void setQueryPath(File path) {
 		queryPath = path;
-		final List<File> files = new ArrayList<>();
-		if (null == queryPath || !queryPath.exists() || !queryPath.canRead())
-			LOGGER.warn("OwlShacl("+getName()+"): queryPath is not an existing, readable input file or directory got: " + path);
-		else if (queryPath.isFile())
-			files.add(queryPath);
-		else
-			// See https://docs.oracle.com/javase/8/docs/api/java/nio/file/DirectoryStream.html
-			try (DirectoryStream<Path> stream = Files.newDirectoryStream(path.toPath(), "*.shacl")) {
-				for (Path entry : stream) {
-					files.add(entry.toFile());
-				}
-			} catch (DirectoryIteratorException ex) {
-				throw ex.getCause();
-			}
-		getInputFiles().setFrom(files);
+		calculateInputOutputFiles();
+	}
+
+	private File resultPath;
+
+	@Internal
+	public File getResultPath() { return resultPath; }
+
+	@SuppressWarnings("unused")
+	public void setResultPath(File p) {
+		resultPath = p;
+		calculateInputOutputFiles();
 	}
 
 	@Incremental
 	@InputFiles
 	protected abstract ConfigurableFileCollection getInputFiles();
 
-	@OutputDirectory
-	public abstract RegularFileProperty getResultPath();
+	@Incremental
+	@OutputFiles
+	protected abstract ConfigurableFileCollection getOutputFiles();
+
+	protected void calculateInputOutputFiles() {
+		if (null != queryPath && null != resultPath) {
+			final List<File> inputFiles = new ArrayList<>();
+			final List<File> outputFiles = new ArrayList<>();
+			if (queryPath.isFile()) {
+				inputFiles.add(queryPath);
+			} else {
+				// See https://docs.oracle.com/javase/8/docs/api/java/nio/file/DirectoryStream.html
+				try (DirectoryStream<Path> stream = Files.newDirectoryStream(queryPath.toPath(), "*.shacl")) {
+					for (Path entry : stream) {
+						inputFiles.add(entry.toFile());
+					}
+				} catch (DirectoryIteratorException ex) {
+					throw new ProjectConfigurationException(ex.getCause().getMessage(), ex.getCause());
+				} catch (IOException e) {
+					throw new ProjectConfigurationException(e.getMessage(), e);
+				}
+			}
+			getInputFiles().setFrom(inputFiles);
+			Path outputFolder = resultPath.toPath();
+			inputFiles.forEach(f -> {
+				String ifn = f.getName();
+				int i = ifn.lastIndexOf('.');
+				String ofn = ((i> 0) ? ifn.substring(0, i+1) : ifn+'.') + OwlShaclFusekiApp.OUTPUT_FORMAT;
+				outputFiles.add(outputFolder.resolve(ofn).toFile());
+			});
+			getOutputFiles().setFrom(outputFiles);
+		}
+	}
 
 	@Input
 	@Optional
@@ -79,9 +96,9 @@ public abstract class OwlShaclFusekiTask extends DefaultTask {
 			args.add("-q");
 			args.add(queryPath.getAbsolutePath());
 		}
-		if (getResultPath().isPresent()) {
+		if (null != resultPath) {
 			args.add("-r");
-			args.add(getResultPath().get().getAsFile().getAbsolutePath());
+			args.add(resultPath.getAbsolutePath());
 		}
 		if (getDebug().isPresent() && getDebug().get()) {
 			args.add("-d");
