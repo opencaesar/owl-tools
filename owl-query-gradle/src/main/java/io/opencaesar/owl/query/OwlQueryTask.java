@@ -30,7 +30,7 @@ public abstract class OwlQueryTask extends DefaultTask {
 	@Input
 	public File getQueryPath() { return queryPath; }
 
-	public void setQueryPath(File path) throws IOException {
+	public void setQueryPath(File path) {
 		queryPath = path;
 		calculateInputOutputFiles();
 	}
@@ -41,7 +41,7 @@ public abstract class OwlQueryTask extends DefaultTask {
 	public File getResultPath() { return resultPath; }
 
 	@SuppressWarnings("unused")
-	public void setResultPath(File p) throws IOException {
+	public void setResultPath(File p) {
 		resultPath = p;
 		calculateInputOutputFiles();
 	}
@@ -52,7 +52,7 @@ public abstract class OwlQueryTask extends DefaultTask {
 	@Optional
 	public String getFormat() { return format; }
 
-	public void setFormat(String f) throws IOException {
+	public void setFormat(String f) {
 		format=f;
 		calculateInputOutputFiles();
 	}
@@ -65,7 +65,7 @@ public abstract class OwlQueryTask extends DefaultTask {
 	@OutputFiles
 	protected abstract ConfigurableFileCollection getOutputFiles();
 
-	protected void calculateInputOutputFiles() throws IOException {
+	protected void calculateInputOutputFiles() {
 		if (null != queryPath && null != resultPath && null != format) {
 			final List<File> inputFiles = new ArrayList<>();
 			final List<File> outputFiles = new ArrayList<>();
@@ -77,8 +77,8 @@ public abstract class OwlQueryTask extends DefaultTask {
 					for (Path entry : stream) {
 						inputFiles.add(entry.toFile());
 					}
-				} catch (DirectoryIteratorException ex) {
-					throw new GradleException(ex.getMessage(), ex.getCause());
+				} catch (DirectoryIteratorException|IOException ex) {
+					// Ignore: no input.
 				}
 			}
 			getInputFiles().setFrom(inputFiles);

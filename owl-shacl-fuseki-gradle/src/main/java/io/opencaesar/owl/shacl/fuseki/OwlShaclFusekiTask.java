@@ -11,7 +11,6 @@ import java.util.List;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
-import org.gradle.api.ProjectConfigurationException;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.*;
@@ -63,10 +62,8 @@ public abstract class OwlShaclFusekiTask extends DefaultTask {
 					for (Path entry : stream) {
 						inputFiles.add(entry.toFile());
 					}
-				} catch (DirectoryIteratorException ex) {
-					throw new ProjectConfigurationException(ex.getCause().getMessage(), ex.getCause());
-				} catch (IOException e) {
-					throw new ProjectConfigurationException(e.getMessage(), e);
+				} catch (DirectoryIteratorException|IOException ex) {
+					// Ignore: no input.
 				}
 			}
 			getInputFiles().setFrom(inputFiles);
