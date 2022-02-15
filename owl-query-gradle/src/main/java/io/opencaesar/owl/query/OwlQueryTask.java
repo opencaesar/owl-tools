@@ -9,6 +9,8 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+import org.apache.log4j.xml.DOMConfigurator;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.file.ConfigurableFileCollection;
@@ -22,6 +24,12 @@ import org.gradle.work.Incremental;
  */
 public abstract class OwlQueryTask extends DefaultTask {
 
+	private final static Logger LOGGER = Logger.getLogger(OwlQueryTask.class);
+
+	static {
+		DOMConfigurator.configure(ClassLoader.getSystemClassLoader().getResource("owlquery.log4j2.properties"));
+	}
+
 	@Input
 	public abstract Property<String> getEndpointURL();
 
@@ -30,7 +38,7 @@ public abstract class OwlQueryTask extends DefaultTask {
 	@Input
 	public File getQueryPath() { return queryPath; }
 
-	public void setQueryPath(File path) throws IOException {
+	public void setQueryPath(File path) {
 		queryPath = path;
 		calculateInputOutputFiles();
 	}
@@ -41,7 +49,7 @@ public abstract class OwlQueryTask extends DefaultTask {
 	public File getResultPath() { return resultPath; }
 
 	@SuppressWarnings("unused")
-	public void setResultPath(File p) throws IOException {
+	public void setResultPath(File p) {
 		resultPath = p;
 		calculateInputOutputFiles();
 	}
@@ -52,7 +60,7 @@ public abstract class OwlQueryTask extends DefaultTask {
 	@Optional
 	public String getFormat() { return format; }
 
-	public void setFormat(String f) throws IOException {
+	public void setFormat(String f) {
 		format=f;
 		calculateInputOutputFiles();
 	}
@@ -65,7 +73,7 @@ public abstract class OwlQueryTask extends DefaultTask {
 	@OutputFiles
 	protected abstract ConfigurableFileCollection getOutputFiles();
 
-	protected void calculateInputOutputFiles() throws IOException {
+	protected void calculateInputOutputFiles() {
 		if (null != queryPath && null != resultPath && null != format) {
 			final List<File> inputFiles = new ArrayList<>();
 			final List<File> outputFiles = new ArrayList<>();
@@ -77,8 +85,8 @@ public abstract class OwlQueryTask extends DefaultTask {
 					for (Path entry : stream) {
 						inputFiles.add(entry.toFile());
 					}
-				} catch (DirectoryIteratorException ex) {
-					throw new GradleException(ex.getMessage(), ex.getCause());
+				} catch (DirectoryIteratorException|IOException ex) {
+					LOGGER.warn(getName()+": WARNING: ignoring non-existent or unreadable queryPath:"+queryPath.toString());
 				}
 			}
 			getInputFiles().setFrom(inputFiles);
