@@ -22,7 +22,7 @@ import java.net.URI;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,10 +59,20 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.formats.FunctionalSyntaxDocumentFormat;
+import org.semanticweb.owlapi.formats.N3DocumentFormat;
+import org.semanticweb.owlapi.formats.NQuadsDocumentFormat;
+import org.semanticweb.owlapi.formats.NTriplesDocumentFormat;
+import org.semanticweb.owlapi.formats.RDFJsonDocumentFormat;
+import org.semanticweb.owlapi.formats.RDFJsonLDDocumentFormat;
+import org.semanticweb.owlapi.formats.RDFXMLDocumentFormat;
+import org.semanticweb.owlapi.formats.RioTurtleDocumentFormat;
+import org.semanticweb.owlapi.formats.TrigDocumentFormat;
+import org.semanticweb.owlapi.formats.TrixDocumentFormat;
 import org.semanticweb.owlapi.io.StringDocumentTarget;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLClass;
+import org.semanticweb.owlapi.model.OWLDocumentFormat;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.model.parameters.Imports;
@@ -88,28 +98,31 @@ public class OwlReasonApp {
   
 	private static final String CONSISTENCY = "Consistency";
 	private static final String SATISFIABILITY = "Satisfiability";
-
-	private static final HashSet<String> extensions = new HashSet<>();
+	
+	private static final Map<String, OWLDocumentFormat> extensions = new HashMap<>();
 	static {
-		extensions.add("fss");
-		extensions.add("owl");
-		extensions.add("rdf");
-		extensions.add("xml");
-		extensions.add("n3");
-		extensions.add("ttl");
-		extensions.add("rj");
-		extensions.add("nt");
-		extensions.add("jsonld");
-		extensions.add("trig");
-		extensions.add("trix");
-		extensions.add("nq");
+		extensions.put("fss", new FunctionalSyntaxDocumentFormat());
+		// triple formats
+		extensions.put("owl", new RDFXMLDocumentFormat());
+		extensions.put("rdf", new RDFXMLDocumentFormat());
+		extensions.put("xml", new RDFXMLDocumentFormat());
+		extensions.put("n3", new N3DocumentFormat());
+		extensions.put("ttl", new RioTurtleDocumentFormat());
+		extensions.put("rj", new RDFJsonDocumentFormat());
+		extensions.put("nt", new NTriplesDocumentFormat());
+		// quad formats
+		extensions.put("jsonld", new RDFJsonLDDocumentFormat());
+		extensions.put("trig", new TrigDocumentFormat());
+		extensions.put("trix", new TrixDocumentFormat());
+		extensions.put("nq", new NQuadsDocumentFormat());
 	}
-
+	
 	private final Options options = new Options();
-
+	
 	public static final String DEFAULT_INPUT_FILE_EXTENSION = "owl";
 	public static final String DEFAULT_OUTPUT_FILE_EXTENSION = "ttl";
-
+	public static final String DEFAULT_EXPLANATION_FORMAT = "fss";
+	
 	private static class Options {
 		@Parameter(
 			names = { "--catalog-path", "-c"},
@@ -117,22 +130,22 @@ public class OwlReasonApp {
 			validateWith = CatalogPath.class,
 			required = true,
 			order = 1)
-		String catalogPath;
+		private String catalogPath;
 		
 		@Parameter(
 			names = { "--input-ontology-iri", "-i"},
 			description = "iri of input OWL ontology (Required)",
 			required = true,
 			order = 2)
-		String inputOntologyIri;
-
+		private String inputOntologyIri;
+		
 		@Parameter(
 			names = {"--spec", "-s"},
 			description = "output-ontology-iri= list of entailment statement types separarted by | (Required)",
 			converter = SpecConverter.class,
 			required = true,
 			order = 3)
-		List<Spec> specs = new ArrayList<>();
+		private List<Spec> specs = new ArrayList<>();
 		
 		@Parameter(
 			names = {"--report-path", "-r"},
@@ -140,13 +153,13 @@ public class OwlReasonApp {
 			validateWith = ReportPathValidator.class,
 			required = true,
 			order = 4)
-		String reportPath;
-
+		private String reportPath;
+		
 		@Parameter(
 			names = {"--input-file-extension", "-if"},
 			description = "input file extension (owl by default, options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss)",
 			validateWith = FileExtensionValidator.class,
-				order = 5)
+			order = 5)
 	    private List<String> inputFileExtensions = new ArrayList<>();
 	    {
 	    	inputFileExtensions.add(DEFAULT_INPUT_FILE_EXTENSION);
@@ -156,44 +169,51 @@ public class OwlReasonApp {
 			names = {"--output-file-extension", "-of"},
 			description = "output file extension (ttl by default, options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss)",
 			validateWith = OutputFileExtensionValidator.class,
-				order = 6)
+			order = 6)
 	    private String outputFileExtension = DEFAULT_OUTPUT_FILE_EXTENSION;
-
+		
+		@Parameter(
+			names = {"--explanation-format", "-ef"},
+			description = "Explanation format (ttl by default, options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss)",
+			validateWith = ExplanationFormatValidator.class,
+			order = 7)
+	    private String explanationFormat = DEFAULT_EXPLANATION_FORMAT;
+		
 		@Parameter(
 			names = {"--remove-unsats", "-ru"},
 			description = "remove entailments due to unsatisfiability",
-				order = 7)
-		boolean removeUnsats = true;
+			order = 8)
+		private boolean removeUnsats = true;
 		
 		@Parameter(
 			names = {"--remove-backbone", "-rb"},
 			description = "remove axioms on the backhone from entailments",
-				order = 8)
-		boolean removeBackbone = true;
-
+			order = 9)
+		private boolean removeBackbone = true;
+		
 		@Parameter(
 			names = {"--backbone-iri", "-b"},
 			description = "iri of backbone ontology",
-				order = 9)
-		String backboneIri = "http://opencaesar.io/oml";
-				
+			order = 10)
+		private String backboneIri = "http://opencaesar.io/oml";
+		
 		@Parameter(
 			names = {"--indent", "-n"},
 			description = "indent of the JUnit XML elements",
-				order = 10)
-		int indent = 2;
-
+			order = 11)
+		private int indent = 2;
+		
 		@Parameter(
 			names = {"--debug", "-d"},
 			description = "Shows debug logging statements",
-			order = 11)
+			order = 12)
 		private boolean debug;
-
+		
 		@Parameter(
 			names = {"--help", "-h"},
 			description = "Displays summary of options",
 			help = true,
-			order =12)
+			order =13)
 		private boolean help;
 	}
 		
@@ -249,19 +269,19 @@ public class OwlReasonApp {
 	    LOGGER.info("create pellet reasoner factory");
 		final OpenlletReasonerFactory reasonerFactory = OpenlletReasonerFactory.getInstance();
 
-	    // Create FunctionalSyntaxDocumentFormat.
+	    // Create explanation format
 
-	    FunctionalSyntaxDocumentFormat functionalSyntaxFormat = new FunctionalSyntaxDocumentFormat();
+	    OWLDocumentFormat explanationFormat = extensions.get(options.explanationFormat);
 
 	    // Check the input ontology
-    	check(manager, reasonerFactory, functionalSyntaxFormat, options.inputOntologyIri);
+    	check(manager, reasonerFactory, explanationFormat, options.inputOntologyIri);
 
     	LOGGER.info("=================================================================");
 		LOGGER.info("                          E N D");
 		LOGGER.info("=================================================================");
 	}
 	
-	private void check(final OWLOntologyManager manager, OpenlletReasonerFactory reasonerFactory, FunctionalSyntaxDocumentFormat functionalSyntaxFormat, String inputOntologyIri) throws Exception {
+	private void check(final OWLOntologyManager manager, OpenlletReasonerFactory reasonerFactory, OWLDocumentFormat explanationFormat, String inputOntologyIri) throws Exception {
 	    // Load input ontology.
 	    
 	    LOGGER.info("load ontology "+inputOntologyIri);
@@ -295,11 +315,11 @@ public class OwlReasonApp {
 	    // Check for consistency and satisfiability
 		
 		Map<String, List<Result>> allResults = new LinkedHashMap<>();
-		allResults.put(CONSISTENCY, checkConsistency(inputOntologyIri, reasoner, explanation, functionalSyntaxFormat));
+		allResults.put(CONSISTENCY, checkConsistency(inputOntologyIri, reasoner, explanation, explanationFormat));
 		boolean isConsistent = allResults.get(CONSISTENCY).stream().noneMatch(r -> r.explanation != null);
 		boolean isSatisfiable = false;
 		if (isConsistent) {
-	    	allResults.put(SATISFIABILITY, checkSatisfiability(inputOntologyIri, reasoner, explanation, functionalSyntaxFormat));
+	    	allResults.put(SATISFIABILITY, checkSatisfiability(inputOntologyIri, reasoner, explanation, explanationFormat));
 	    	isSatisfiable = allResults.get(SATISFIABILITY).stream().noneMatch(r -> r.explanation != null);
 	    }
 		writeResults(inputOntologyIri, allResults, options.indent);
@@ -324,7 +344,7 @@ public class OwlReasonApp {
 	    }
 	}
 
-	private List<Result> checkConsistency(String ontologyIri, OpenlletReasoner reasoner, PelletExplanation explanation, FunctionalSyntaxDocumentFormat functionalSyntaxFormat) throws Exception {
+	private List<Result> checkConsistency(String ontologyIri, OpenlletReasoner reasoner, PelletExplanation explanation, OWLDocumentFormat explanationFormat) throws Exception {
     	LOGGER.info("test consistency on "+ontologyIri);
     	List<Result> results = new ArrayList<>();
 
@@ -341,14 +361,14 @@ public class OwlReasonApp {
         	//TODO: consider using explanation.getInconsistencyExplanations()
         	Set<OWLAxiom> axioms = explanation.getInconsistencyExplanation();
         	result.message = reasoner.getKB().getExplanation();
-        	result.explanation = createExplanationOntology(axioms, functionalSyntaxFormat);
+        	result.explanation = createExplanationOntology(axioms, explanationFormat);
         }
 	    results.add(result);
     
 	    return results;
 	}
 
-	private List<Result> checkSatisfiability(String ontologyIri, OpenlletReasoner reasoner, PelletExplanation explanation, FunctionalSyntaxDocumentFormat functionalSyntaxFormat) throws Exception {
+	private List<Result> checkSatisfiability(String ontologyIri, OpenlletReasoner reasoner, PelletExplanation explanation, OWLDocumentFormat explanationFormat) throws Exception {
     	LOGGER.info("test satisfiability on "+ontologyIri);
     	List<Result> results = new ArrayList<>();
     	
@@ -362,7 +382,8 @@ public class OwlReasonApp {
     	for (OWLClass klass : allClasses) {
     		if (options.removeBackbone && klass.getIRI().getIRIString().startsWith(options.backboneIri))
     			continue;
-    		
+    		if (klass.isOWLNothing()) // owl:Nothing should not be checked
+    			continue;
     		String className = klass.getIRI().getIRIString();
     	    LOGGER.info(className+" "+ ++count+" of "+numOfClasses);
 
@@ -375,7 +396,7 @@ public class OwlReasonApp {
     	    
     	    if (!success) {
     	    	result.message = "class "+className+" is insatisfiable";
-    	    	result.explanation = createExplanationOntology(explanation.getUnsatisfiableExplanation(klass), functionalSyntaxFormat);
+    	    	result.explanation = createExplanationOntology(explanation.getUnsatisfiableExplanation(klass), explanationFormat);
     	    	numOfUnsat += 1;
     	    }
     	}
@@ -386,7 +407,7 @@ public class OwlReasonApp {
     	return results;
 	}
 
-	private String createExplanationOntology(Set<OWLAxiom> axioms, FunctionalSyntaxDocumentFormat format) throws Exception {
+	private String createExplanationOntology(Set<OWLAxiom> axioms, OWLDocumentFormat format) throws Exception {
 	    OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
 	    if (manager == null ) {
 	    	throw new RuntimeException("couldn't create owl ontology manager");
@@ -588,10 +609,10 @@ public class OwlReasonApp {
 	public static class FileExtensionValidator implements IParameterValidator {
 		@Override
 		public void validate(final String name, final String value) throws ParameterException {
-			if (!extensions.contains(value)) {
+			if (!extensions.containsKey(value)) {
 				throw new ParameterException("Parameter " + name + " should be a valid extension, got: " + value +
 						" recognized extensions are: " +
-						extensions.stream().reduce( (x,y) -> x + " " + y) );
+						extensions.keySet().stream().reduce( (x,y) -> x + " " + y) );
 			}
 		}
 		
@@ -609,6 +630,18 @@ public class OwlReasonApp {
 
 	}
 	
+	public static class ExplanationFormatValidator implements IParameterValidator {
+		@Override
+		public void validate(final String name, final String value) throws ParameterException {
+			Lang lang = RDFLanguages.fileExtToLang(value);
+			if (lang == null) {
+				throw new ParameterException("Parameter " + name + " should be a valid RDF format, got: " + value +
+						" recognized RDF formats are: "+extensions);
+			}
+		}
+
+	}
+
 	public static class ReportPathValidator implements IParameterValidator {
 		@Override
 		public void validate(final String name, final String value) throws ParameterException {

@@ -120,6 +120,10 @@ public abstract class OwlReasonTask extends DefaultTask {
 	@Input
 	public abstract Property<String> getInputOntologyIri();
 
+	@Input
+	@Optional
+	public abstract Property<String> getExplanationFormat();
+
 	@OutputFile
 	public abstract RegularFileProperty getReportPath();
 
@@ -182,6 +186,10 @@ public abstract class OwlReasonTask extends DefaultTask {
 		if (null != outputFileExtension) {
 			args.add("-of");
 			args.add(outputFileExtension);
+		}
+		if (getExplanationFormat().isPresent()) {
+			args.add("-ef");
+			args.add(getExplanationFormat().get());
 		}
 		if (getRemoveUnsats().isPresent() && getRemoveUnsats().get()) {
 			args.add("-ru");
