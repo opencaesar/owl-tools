@@ -227,18 +227,23 @@ public class FusekiApp {
 		}
         
         if (!p.isAlive()) {
-            throw new IllegalArgumentException("Fuseki server failed to start and returned error code: " + p.exitValue() + ". See "+logFile+" for more details.");
+            throw new IllegalArgumentException("Fuseki server failed to start and returned exit code: " + p.exitValue() + ". See "+logFile+" for more details.");
         } else {
-        	if (pingServer()) {
-        		System.out.print("Started a Fuseki server with pid="+p.pid());
-        	} else {
+        	int times = 3;
+        	while (times-- > 0) {
+        		if (pingServer()) {
+            		System.out.print("Started a Fuseki server with pid="+p.pid());
+            		break;
+            	} 
+        	}
+        	if (times < 0) {
                 p.destroyForcibly();
                 try {
         			Thread.sleep(2000);
         		} catch (InterruptedException e) {
         			// do nothing
         		}
-                throw new IllegalArgumentException("Fuseki server failed to start and returned error code: " + p.exitValue() + ". See "+logFile+" for more details.");
+                throw new IllegalArgumentException("Fuseki server failed to start and returned exit code: " + p.exitValue() + ". See "+logFile+" for more details.");
         	}
         }
         OutputStreamWriter os = new OutputStreamWriter(new FileOutputStream(pidFile));
@@ -281,7 +286,7 @@ public class FusekiApp {
 	        con.setReadTimeout(5000);
 	        responseCode = con.getResponseCode();
         } catch (Exception e) {
-        	LOGGER.error(e);
+        	LOGGER.error("Failed to ping server (" + responseCode + " - " + con.getResponseMessage() + ")");
         } finally {
 	        con.disconnect();
         }
