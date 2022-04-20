@@ -2,173 +2,122 @@ package io.opencaesar.owl.reason;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.stream.Collectors;
 
-import org.apache.commons.io.FilenameUtils;
-import org.apache.log4j.Logger;
-import org.apache.log4j.xml.DOMConfigurator;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.RegularFileProperty;
+import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
-import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.OutputFile;
+import org.gradle.api.tasks.OutputFiles;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.work.Incremental;
 
 public abstract class OwlReasonTask extends DefaultTask {
 
-	private final static Logger LOGGER = Logger.getLogger(OwlReasonTask.class);
+	@Input
+    public abstract Property<File> getCatalogPath();
 
-	static {
-		DOMConfigurator.configure(ClassLoader.getSystemClassLoader().getResource("owlreason.log4j2.properties"));
-	}
+	@Input
+	public abstract ListProperty<String> getInputFileExtensions();
 
-	private File catalogPath;
+	@Input
+	public abstract ListProperty<String> getSpecs();
 
-	@Internal
-	public File getCatalogPath() { return catalogPath; }
-
-	public void setCatalogPath(File f) throws IOException, URISyntaxException {
-		catalogPath = f;
-		calculateInputFiles();
-	}
-
-	private List<String> inputFileExtensions;
-
-	@Internal
-	public List<String> getInputFileExtensions() { return inputFileExtensions; }
-
-	public void setInputFileExtensions(List<String> fes) throws IOException, URISyntaxException {
-		inputFileExtensions = fes;
-		calculateInputFiles();
-	}
-
-	private List<String> specs;
-
-	@Internal
-	public List<String> getSpecs() { return specs; }
-
-	public void setSpecs(List<String> s) throws IOException, URISyntaxException {
-		specs = s;
-		calculateInputFiles();
-	}
-
-	private String outputFileExtension;
-
-	@Internal
-	public String getOutputFileExtension() { return outputFileExtension; }
-
-	public void setOutputFileExtension(String s) throws IOException, URISyntaxException {
-		outputFileExtension = s;
-		calculateInputFiles();
-	}
-
-	private static final Comparator<File> fileComparator = Comparator.comparing(File::getAbsolutePath);
-
-	/**
-	 * For gradle incremental task support, it is necessary to exclude the reasoner output files from the calculation.
-	 */
-	@SuppressWarnings("deprecation")
-	private void calculateInputFiles() throws IOException, URISyntaxException {
-		if (null != catalogPath && null != inputFileExtensions && null != specs && null != outputFileExtension) {
-			final URI catalogURI = catalogPath.toURI();
-			final OwlCatalog inputCatalog = OwlCatalog.create(catalogURI);
-			final File catalogDir = catalogPath.getParentFile();
-			LOGGER.debug("OwlReason("+getName()+") catalog dir: "+catalogDir);
-			final ArrayList<File> owlFiles = new ArrayList<>();
-			for (URI uri : inputCatalog.getFileUris(inputFileExtensions)) {
-				final File file = new File(uri);
-				if (file.isFile()) {
-					boolean add = true;
-					if (outputFileExtension.equals(FilenameUtils.getExtension(uri.getPath()))) {
-						final URI relURI = catalogDir.toURI().relativize(file.toURI());
-						final String rel = FilenameUtils.removeExtension(relURI.toString());
-						//noinspection HttpUrlsUsage
-						final String entailment = "http://" + rel;
-						// Appending a suffix prevents matching on a prefix of the entailment IRI.
-						final String entailment1 = entailment+"=";
-						final String entailment2 = entailment+" =";
-						if (specs.stream().anyMatch(s -> s.startsWith(entailment1) || s.startsWith(entailment2))) {
-							LOGGER.debug("OwlReason("+getName()+") skip: " + rel);
-							add = false;
-						} else
-							LOGGER.debug("OwlReason("+getName()+")  add: " + rel);
-					}
-					if (add)
-						owlFiles.add(file);
-				}
-			}
-			owlFiles.sort(fileComparator);
-			getInputFiles().setFrom(owlFiles);
-		}
-	}
-
-	@Incremental
-	@InputFiles
-	public abstract ConfigurableFileCollection getInputFiles();
+    @Optional
+    @Input
+    public abstract Property<String> getOutputFileExtension();
 
 	@Input
 	public abstract Property<String> getInputOntologyIri();
 
-	@Input
 	@Optional
+	@Input
 	public abstract Property<String> getExplanationFormat();
 
 	@OutputFile
 	public abstract RegularFileProperty getReportPath();
 
-	@Input
 	@Optional
+	@Input
 	public abstract Property<Boolean> getRemoveUnsats();
 
-	@Input
 	@Optional
+	@Input
 	public abstract Property<Boolean> getRemoveBackbone();
 
-	@Input
 	@Optional
+	@Input
 	public abstract Property<String> getBackboneIri();
 
-	@Input
 	@Optional
+	@Input
 	public abstract Property<Integer> getIndent();
 
-	@Input
 	@Optional
+	@Input
 	public abstract Property<Boolean> getDebug();
 
-	public OwlReasonTask() throws IOException, URISyntaxException {
-		// default input file extensions: owl
-		if (null == inputFileExtensions)
-			setInputFileExtensions(Collections.singletonList(OwlReasonApp.DEFAULT_INPUT_FILE_EXTENSION));
-		// default output file extension: ttl
-		if (null == outputFileExtension)
-			setOutputFileExtension(OwlReasonApp.DEFAULT_OUTPUT_FILE_EXTENSION);
+	@Incremental
+	@InputFiles
+	@SuppressWarnings("deprecation")
+	protected ConfigurableFileCollection getInputFiles() throws IOException, URISyntaxException {
+		if (getCatalogPath().isPresent() && getCatalogPath().get().exists() && !getSpecs().get().isEmpty()) {
+			final var catalogURI = getCatalogPath().get().toURI();
+			final var inputCatalog = OwlCatalog.create(catalogURI);
+			
+			final var inputFileExtensions = !getInputFileExtensions().get().isEmpty() ? getInputFileExtensions().get() : Collections.singletonList(OwlReasonApp.DEFAULT_INPUT_FILE_EXTENSION);
+			final var inputFiles = inputCatalog.getFileUris(inputFileExtensions).stream().map(f-> new File(f)).collect(Collectors.toList());
+			
+			final var outputFileExtension = getOutputFileExtension().getOrElse(OwlReasonApp.DEFAULT_OUTPUT_FILE_EXTENSION);
+			final var outputIris = getSpecs().get().stream().map(s-> s.split("=")[0].trim()+"."+outputFileExtension).collect(Collectors.toList());
+			final var outputFiles = outputIris.stream().map(i-> new File(inputCatalog.resolve(i))).collect(Collectors.toList());
+			
+			inputFiles.removeAll(outputFiles);
+			inputFiles.add(new File(catalogURI));
+			
+			return getProject().files(inputFiles);
+		}
+		return getProject().files(Collections.EMPTY_LIST);
 	}
 
-    @TaskAction
+	@OutputFiles
+	@SuppressWarnings("deprecation")
+	protected ConfigurableFileCollection getOutputFiles() throws IOException, URISyntaxException {
+		if (getCatalogPath().isPresent() && getCatalogPath().get().exists() && !getSpecs().get().isEmpty()) {
+			final var catalogURI = getCatalogPath().get().toURI();
+			final var inputCatalog = OwlCatalog.create(catalogURI);
+			
+			final var outputFileExtension = getOutputFileExtension().getOrElse(OwlReasonApp.DEFAULT_OUTPUT_FILE_EXTENSION);
+			final var outputIris = getSpecs().get().stream().map(s-> s.split("=")[0].trim()+"."+outputFileExtension).collect(Collectors.toList());
+			final var outputFiles = outputIris.stream().map(i-> new File(inputCatalog.resolve(i))).collect(Collectors.toList());
+			
+			return getProject().files(outputFiles);
+		}
+		return getProject().files(Collections.EMPTY_LIST);
+	}
+
+	@TaskAction
     public void run() {
 		final ArrayList<String> args = new ArrayList<>();
-		if (null != catalogPath) {
+		if (getCatalogPath().isPresent()) {
 			args.add("-c");
-			args.add(catalogPath.getAbsolutePath());
+			args.add(getCatalogPath().get().getAbsolutePath());
 		}
 		if (getInputOntologyIri().isPresent()) {
 			args.add("-i");
 			args.add(getInputOntologyIri().get());
 		}
-		if (null != specs) {
-			specs.forEach((String spec) -> {
+		if (getSpecs().isPresent()) {
+			getSpecs().get().forEach((String spec) -> {
 				args.add("-s");
 				args.add(spec);
 			});
@@ -177,15 +126,15 @@ public abstract class OwlReasonTask extends DefaultTask {
 			args.add("-r");
 			args.add(getReportPath().get().getAsFile().getAbsolutePath());
 		}
-		if (null != inputFileExtensions) {
-			inputFileExtensions.forEach((String ext) -> {
+		if (getInputFileExtensions().isPresent()) {
+			getInputFileExtensions().get().forEach((String ext) -> {
 				args.add("-if");
 				args.add(ext);
 			});
 		}
-		if (null != outputFileExtension) {
+		if (getOutputFileExtension().isPresent()) {
 			args.add("-of");
-			args.add(outputFileExtension);
+			args.add(getOutputFileExtension().get());
 		}
 		if (getExplanationFormat().isPresent()) {
 			args.add("-ef");

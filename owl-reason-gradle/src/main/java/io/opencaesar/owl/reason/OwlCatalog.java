@@ -155,6 +155,15 @@ public final class OwlCatalog {
 		return uris;
     }
     
+    public URI resolve(String uri) {
+    	try {
+    		return new URI(catalog.resolveURI(uri));
+    	} catch (Exception e) {
+    		System.out.println(e);
+    		return null;
+    	}
+    }
+    
     private static class CatalogEx extends Catalog {
         Vector<?> getCatalogEntries() {
             return catalogEntries;

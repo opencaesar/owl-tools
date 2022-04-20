@@ -18,13 +18,10 @@ package io.opencaesar.owl.load;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.apache.jena.query.Dataset;
@@ -52,6 +49,8 @@ import com.beust.jcommander.ParameterException;
 
 public class OwlLoadApp {
 
+	public static String[] DEFAULT_EXTENSIONS = { "owl", "ttl" };
+	
     @Parameter(
             names = {"--iri", "-i"},
             description = "IRIs to load (Required)",
@@ -81,8 +80,7 @@ public class OwlLoadApp {
             order = 4)
     private List<String> fileExtensions = new ArrayList<>();
     {
-        fileExtensions.add("owl");
-        fileExtensions.add("ttl");
+        fileExtensions.addAll(Arrays.asList(DEFAULT_EXTENSIONS));
     }
 
     @Parameter(
@@ -135,17 +133,20 @@ public class OwlLoadApp {
                 .queryEndpoint("sparql")
                 .destination(endpointURL);
         RDFConnection conn = builder.build();
+       
+        // Fetch the dataset, and delete its named graphs
         try {
             Dataset ds = conn.fetchDataset();
             List<String> names = new ArrayList<>();
             ds.listNames().forEachRemaining(names::add);
             names.forEach(conn::delete);
             conn.commit();
-        } finally {
-            conn.close();
-            conn.end();
+        } catch (Exception e) {
+        	LOGGER.error("Error fetching and deleting dataset '"+endpointURL+"'", e);
+        	throw e;
         }
 
+        // Load the ontology manager and configure it with catalog-based IRI mapper
         LOGGER.info("create ontology manager");
         final OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
         if (manager == null) {
@@ -155,6 +156,7 @@ public class OwlLoadApp {
         XMLCatalogIRIMapper mapper = new XMLCatalogIRIMapper(new File(catalogPath), fileExtensions);
         manager.getIRIMappers().add(mapper);
 
+        // Load the input ontologies in memory
         iris.forEach(iri -> {
             LOGGER.info("load ontology " + iri);
             try {
@@ -167,99 +169,42 @@ public class OwlLoadApp {
             }
         });
 
+        // Upload the input ontologies to dataset
         final Set<OWLOntology> allOntologies = manager.ontologies().flatMap(manager::importsClosure).collect(Collectors.toUnmodifiableSet());
         LOGGER.info("Loading "+allOntologies.size()+" ontologies...");
-
-        // Creates a work-stealing thread pool using all available processors as its target parallelism level.
-        // For debugging, use Executors.newSingleThreadExecutor();
-        final ExecutorService pool = Executors.newWorkStealingPool();
-        CompletableFuture<Void> allLoaded = CompletableFuture.allOf(allOntologies.stream().map(ont -> loadOntology(ont, pool)).toArray(CompletableFuture[]::new));
-
-        allLoaded.get();
+        for (OWLOntology ont : allOntologies) {
+        	loadOntology(conn, ont);
+        }
+        
+        //allLoaded.get();
         LOGGER.info("All ontologies loaded.");
 
-        shutdownAndAwaitTermination(pool);
+        // Close connection
+        conn.close();
+        conn.end();
 
         LOGGER.info("=================================================================");
         LOGGER.info("                          E N D");
         LOGGER.info("=================================================================");
     }
 
-    /**
-     * @param pool An ExecutionService
-     * @see <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/concurrent/ExecutorService.html">ExecutorService Usage</a>
-     */
-    private void shutdownAndAwaitTermination(ExecutorService pool) {
-        pool.shutdown(); // Disable new tasks from being submitted
+    private void loadOntology(RDFConnection conn, final OWLOntology ont) {
+        IRI documentIRI = ont.getOWLOntologyManager().getOntologyDocumentIRI(ont);
         try {
-            // Wait a while for existing tasks to terminate
-            if (!pool.awaitTermination(60, TimeUnit.SECONDS)) {
-                pool.shutdownNow(); // Cancel currently executing tasks
-                // Wait a while for tasks to respond to being cancelled
-                if (!pool.awaitTermination(60, TimeUnit.SECONDS))
-                    System.err.println("Pool did not terminate");
+            String documentFile = documentIRI.toURI().toURL().getFile();
+            Optional<IRI> defaultDocumentIRI = ont.getOntologyID().getDefaultDocumentIRI();
+            assert(defaultDocumentIRI.isPresent());
+            String graphName = defaultDocumentIRI.get().getIRIString();
+            Lang lang = RDFLanguages.filenameToLang(documentFile);
+            if (RDFLanguages.isQuads(lang)) {
+                conn.loadDataset(documentFile);
+            } else {
+                conn.load(graphName, documentFile);
             }
-        } catch (InterruptedException ie) {
-            // (Re-)Cancel if current thread also interrupted
-            pool.shutdownNow();
-            // Preserve interrupt status
-            Thread.currentThread().interrupt();
-        }
-    }
-
-    private CompletableFuture<Void> loadOntology(final OWLOntology ont, final ExecutorService pool) {
-        return CompletableFuture.runAsync(() -> {
-            //Create remote connection to Fuseki server
-            RDFConnectionRemoteBuilder builder = RDFConnectionRemote.create()
-                    .updateEndpoint("update")
-                    .queryEndpoint("sparql")
-                    .destination(endpointURL);
-            RDFConnection conn = builder.build();
-            IRI documentIRI = ont.getOWLOntologyManager().getOntologyDocumentIRI(ont);
-            //noinspection CommentedOutCode
-            try {
-                String documentFile = documentIRI.toURI().toURL().getFile();
-                // With Jena 4.3.+, it is necessary to remove the ':' character otherwise there is an illegal path exception.
-                // Unfortunately, this is still not sufficient as we get an exception like this:
-                //         ... 95 more
-                //Caused by: java.lang.RuntimeException: Error occurred loading ontology 'file:/C:/opt/local/github.opencaesar/metrology-vocabularies/build/owl/iso.org/iso-80000-4.3.owl'
-                //        at io.opencaesar.owl.load.OwlLoadApp.lambda$loadOntology$3(OwlLoadApp.java:243)
-                //Caused by: org.apache.jena.atlas.web.HttpException: 400 - Bad Request
-                //        at org.apache.jena.http.HttpLib.exception(HttpLib.java:231)
-                //        at org.apache.jena.http.HttpLib.handleHttpStatusCode(HttpLib.java:161)
-                //        at org.apache.jena.http.HttpLib.handleResponseNoBody(HttpLib.java:199)
-                //        at org.apache.jena.http.HttpLib.httpPushData(HttpLib.java:578)
-                //        at org.apache.jena.sparql.exec.http.GSP.pushFile(GSP.java:605)
-                //        at org.apache.jena.sparql.exec.http.GSP.uploadTriples(GSP.java:546)
-                //        at org.apache.jena.sparql.exec.http.GSP.POST(GSP.java:309)
-                //        at org.apache.jena.rdflink.RDFLinkHTTP.load(RDFLinkHTTP.java:407)
-                //        at org.apache.jena.rdflink.RDFConnectionAdapter.load(RDFConnectionAdapter.java:146)
-
-//                LOGGER.info("orig. documentFile = "+documentFile);
-//                if (documentFile.startsWith("/C:")) {
-//                    documentFile = documentFile.replace("/C:", "//C");
-//                    LOGGER.info("fixed documentFile = "+documentFile);
-//                } else if (documentFile.startsWith("/D:")) {
-//                    documentFile = documentFile.replace("/D:", "//D");
-//                    LOGGER.info("fixed documentFile = "+documentFile);
-//                }
-                Optional<IRI> defaultDocumentIRI = ont.getOntologyID().getDefaultDocumentIRI();
-                assert(defaultDocumentIRI.isPresent());
-                String graphName = defaultDocumentIRI.get().getIRIString();
-                Lang lang = RDFLanguages.filenameToLang(documentFile);
-                if (RDFLanguages.isQuads(lang)) {
-                    conn.loadDataset(documentFile);
-                } else {
-                    conn.load(graphName, documentFile);
-                }
-                conn.commit();
-           } catch (Exception e) {
-				throw new RuntimeException("Error occurred loading ontology '"+documentIRI+"'", e);
-           } finally {
-                conn.end();
-                conn.close();
-            }
-        }, pool);
+            conn.commit();
+       } catch (Exception e) {
+			throw new RuntimeException("Error occurred loading ontology '"+documentIRI+"'", e);
+       }
     }
 
     private String getAppVersion() {

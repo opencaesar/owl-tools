@@ -2,94 +2,81 @@ package io.opencaesar.owl.shacl.fuseki;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.DirectoryIteratorException;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-import org.apache.log4j.Logger;
-import org.apache.log4j.xml.DOMConfigurator;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.provider.Property;
-import org.gradle.api.tasks.*;
+import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.InputFiles;
+import org.gradle.api.tasks.Optional;
+import org.gradle.api.tasks.OutputFiles;
+import org.gradle.api.tasks.TaskAction;
 import org.gradle.work.Incremental;
 
 public abstract class OwlShaclFusekiTask extends DefaultTask {
 
-	private final static Logger LOGGER = Logger.getLogger(OwlShaclFusekiTask.class);
-
-	static {
-		DOMConfigurator.configure(ClassLoader.getSystemClassLoader().getResource("owlshacl.log4j2.properties"));
-	}
-
 	@Input
 	public abstract Property<String> getEndpointURL();
 
-	private File queryPath;
+	@Input
+	public abstract Property<File> getQueryPath();
 
 	@Input
-	public File getQueryPath() { return queryPath; }
-
-	public void setQueryPath(File path) {
-		queryPath = path;
-		calculateInputOutputFiles();
-	}
-
-	private File resultPath;
-
-	@Internal
-	public File getResultPath() { return resultPath; }
-
-	@SuppressWarnings("unused")
-	public void setResultPath(File p) {
-		resultPath = p;
-		calculateInputOutputFiles();
-	}
-
-	@Incremental
-	@InputFiles
-	protected abstract ConfigurableFileCollection getInputFiles();
-
-	@Incremental
-	@OutputFiles
-	protected abstract ConfigurableFileCollection getOutputFiles();
-
-	protected void calculateInputOutputFiles() {
-		if (null != queryPath && null != resultPath) {
-			final List<File> inputFiles = new ArrayList<>();
-			final List<File> outputFiles = new ArrayList<>();
-			if (queryPath.isFile()) {
-				inputFiles.add(queryPath);
-			} else {
-				// See https://docs.oracle.com/javase/8/docs/api/java/nio/file/DirectoryStream.html
-				try (DirectoryStream<Path> stream = Files.newDirectoryStream(queryPath.toPath(), "*.shacl")) {
-					for (Path entry : stream) {
-						inputFiles.add(entry.toFile());
-					}
-				} catch (DirectoryIteratorException|IOException ex) {
-					LOGGER.warn(getName()+": WARNING: ignoring non-existent or unreadable queryPath:"+queryPath.toString());
-				}
-			}
-			getInputFiles().setFrom(inputFiles);
-			Path outputFolder = resultPath.toPath();
-			inputFiles.forEach(f -> {
-				String ifn = f.getName();
-				int i = ifn.lastIndexOf('.');
-				String ofn = ((i> 0) ? ifn.substring(0, i+1) : ifn+'.') + OwlShaclFusekiApp.OUTPUT_FORMAT;
-				outputFiles.add(outputFolder.resolve(ofn).toFile());
-			});
-			getOutputFiles().setFrom(outputFiles);
-		}
-	}
+	public abstract Property<File> getResultPath();
 
 	@Input
 	@Optional
 	public abstract Property<Boolean> getDebug();
-    
+
+	@Incremental
+	@InputFiles
+	@SuppressWarnings("deprecation")
+	protected ConfigurableFileCollection getInputFiles() throws IOException {
+		if (getQueryPath().isPresent()) {
+			final List<File> inputFiles = new ArrayList<>();
+			if (getQueryPath().get().isFile()) {
+				inputFiles.add(getQueryPath().get());
+			} else {
+				for (Path entry : Files.newDirectoryStream(getQueryPath().get().toPath(), "*.shacl")) {
+					inputFiles.add(entry.toFile());
+				}
+			}
+			return getProject().files(inputFiles);
+		}
+		return getProject().files(Collections.EMPTY_LIST);
+	}
+
+	@OutputFiles
+	@SuppressWarnings("deprecation")
+	protected ConfigurableFileCollection getOutputFiles() throws IOException {
+		if (getQueryPath().isPresent() && getResultPath().isPresent()) {
+			String extension = OwlShaclFusekiApp.OUTPUT_FORMAT;
+			final List<File> outputFiles = new ArrayList<>();
+			if (getQueryPath().get().isFile()) {
+				outputFiles.add(replacePathAndExtension(getQueryPath().get(), getResultPath().get(), extension));
+			} else {
+				for (Path entry : Files.newDirectoryStream(getQueryPath().get().toPath(), "*.sparql")) {
+					outputFiles.add(replacePathAndExtension(entry.toFile(), getResultPath().get(), extension));
+				}
+			}
+			return getProject().files(outputFiles);
+		}
+		return getProject().files(Collections.EMPTY_LIST);
+	}
+
+	private File replacePathAndExtension(File file, File newPath, String newExt) {
+		String name = file.getName();
+		int index = name.lastIndexOf('.');
+		String newName = name.substring(0, index) + "." + newExt;
+		return new File(newPath + File.separator + newName);
+	}
+
     @TaskAction
     public void run() {
 		final ArrayList<String> args = new ArrayList<>();
@@ -97,13 +84,13 @@ public abstract class OwlShaclFusekiTask extends DefaultTask {
 			args.add("-e");
 			args.add(getEndpointURL().get());
 		}
-		if (null != queryPath) {
+		if (getQueryPath().isPresent()) {
 			args.add("-q");
-			args.add(queryPath.getAbsolutePath());
+			args.add(getQueryPath().get().getAbsolutePath());
 		}
-		if (null != resultPath) {
+		if (getResultPath().isPresent()) {
 			args.add("-r");
-			args.add(resultPath.getAbsolutePath());
+			args.add(getResultPath().get().getAbsolutePath());
 		}
 		if (getDebug().isPresent() && getDebug().get()) {
 			args.add("-d");
