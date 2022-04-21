@@ -71,16 +71,23 @@ public class FusekiApp {
     private boolean webui;
 
     @Parameter(
+            names = {"--max-pings", "-p"},
+            description = "Maximum number (10 by default) of pings to the server before giving up",
+            help = true,
+            order = 5)
+    private int maxPings = 10;
+
+    @Parameter(
             names = {"--debug", "-d"},
             description = "Shows debug logging statements",
-            order = 5)
+            order = 6)
     private boolean debug;
 
     @Parameter(
             names = {"--help", "-h"},
             description = "Displays summary of options",
             help = true,
-            order = 6)
+            order = 7)
     private boolean help;
 	
     private final static Logger LOGGER = Logger.getLogger(FusekiApp.class);
@@ -128,9 +135,9 @@ public class FusekiApp {
                   }
               }
               LOGGER.info("fusekiWarPomURL="+fusekiWarPomURL);
-              startFuseki(new File(configurationPath), new File(outputFolderPath), "org.apache.jena.fuseki.cmd.FusekiCmd", app, "--localhost");
+              startFuseki(new File(configurationPath), new File(outputFolderPath), app.maxPings, "org.apache.jena.fuseki.cmd.FusekiCmd", app, "--localhost");
           } else {
-              startFuseki(new File(configurationPath), new File(outputFolderPath), "org.apache.jena.fuseki.main.cmds.FusekiMainCmd", app);
+              startFuseki(new File(configurationPath), new File(outputFolderPath), app.maxPings, "org.apache.jena.fuseki.main.cmds.FusekiMainCmd", app);
           }
     	} else {
     		stopFuseki(new File(outputFolderPath));
@@ -177,13 +184,14 @@ public class FusekiApp {
      * @param fusekiDir Path to an output directory that, if it exists, will be cleaned, and that will have:
      *                        - fuseki.log the combination of standard output and error.
      *                        - fuseki.pid the ID of the fuseki process.
+     * @param maxPings The maximum number of pings to try before giving up
      * @param clazz Qualified name of the Fuseki server application (with or without Web UI)
      * @param app Fuseki application
      * @param argv Additional arguments
      * @throws IOException if the 'fuseki.pid' file could not be written to
      * @throws URISyntaxException If there is a problem retrieving the location of the fuseki jar.
      */
-    public static void startFuseki(File config, File fusekiDir, String clazz, FusekiApp app, String... argv) throws IOException, URISyntaxException {
+    public static void startFuseki(File config, File fusekiDir, int maxPings, String clazz, FusekiApp app, String... argv) throws IOException, URISyntaxException {
         Path output = fusekiDir.toPath();
         File pidFile = output.resolve(PID_FILENAME).toFile();
         File logFile = output.resolve(LOG_FILENAME).toFile();
@@ -230,25 +238,29 @@ public class FusekiApp {
         
         // Check that the newly started server is alive
         if (!p.isAlive()) {
-            throw new RuntimeException("Fuseki server has failed to start and returned exit code: " + p.exitValue() + ". See "+logFile+" for more details.");
+            throw new RuntimeException("Fuseki server has failed to start with exit code: " + p.exitValue() + ". See "+logFile+" for more details.");
         } else {
         	// Ping the server a max number of times until it responds
-        	int maxAttempts = 3;
-        	int attempt = 0;
-        	while (++attempt<=maxAttempts) {
+        	int ping = 0;
+        	while (++ping<=maxPings) {
         		if (pingServer()) {
-            		System.out.print("Fuseki server has started with pid="+p.pid());
+            		System.out.print("Fuseki server has now successfully started with pid="+p.pid());
             		break;
             	}
+                try {
+        			Thread.sleep(2000); // wait before the next ping
+        		} catch (InterruptedException e) {
+        			// do nothing
+        		}
         	}
         	// if the server has failed to respond, kill it 
-        	if (attempt > maxAttempts) {
+        	if (ping > maxPings) {
                 try {
                     p.destroyForcibly().waitFor();
         		} catch (InterruptedException e) {
         			// do nothing
         		}
-                throw new IllegalArgumentException("Fuseki server has failed to respond to ping after "+maxAttempts+" attempts and now been killed");
+                throw new IllegalArgumentException("Fuseki server has failed to respond after "+maxPings+" pings and now been killed");
         	}
         }
         
@@ -289,14 +301,9 @@ public class FusekiApp {
         int responseCode = HttpURLConnection.HTTP_NOT_FOUND;
         try {
 	        con.setRequestMethod("GET");
-	        con.setConnectTimeout(5000);
-	        con.setReadTimeout(5000);
 	        responseCode = con.getResponseCode();
-	        if (responseCode != HttpURLConnection.HTTP_OK) {
-	        	LOGGER.error("Fuseki server has failed to respond to ping (" + responseCode + " - " + con.getResponseMessage() + ")");
-	        }
         } catch (Exception e) {
-        	LOGGER.error(e);
+        	LOGGER.error("Fuseki server has not yet responded to ping");
         } finally {
 	        con.disconnect();
         }

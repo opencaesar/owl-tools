@@ -32,6 +32,10 @@ public abstract class StartFusekiTask extends DefaultTask {
 
     @Optional
     @Input
+    public abstract Property<Integer> getMaxPings();
+
+    @Optional
+    @Input
     public abstract Property<Boolean> getDebug();
 
     @OutputFile
@@ -66,8 +70,13 @@ public abstract class StartFusekiTask extends DefaultTask {
             args.add("-o");
             args.add(getOutputFolderPath().get().getAsFile().getAbsolutePath());
         }
-        if (getWebUI().isPresent() && getWebUI().get()) {
-            args.add("-ui");
+        if (getWebUI().isPresent()) {
+        	if (getWebUI().get())
+        		args.add("-ui");
+        }
+        if (getMaxPings().isPresent()) {
+            args.add("-p");
+            args.add(getMaxPings().get().toString());
         }
         if (getDebug().isPresent() && getDebug().get()) {
             args.add("-d");

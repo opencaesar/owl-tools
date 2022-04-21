@@ -19,6 +19,7 @@ Args:
 --configurationPath | -g path/to/.fuseki.ttl			[Required]
 --outputFolderPath | -i path/to/output/folder			[Required]
 --webui | -ui                                           [Optional]
+--max-pings | -p                                        [Optional]
 ```
 
 ## Run as Gradle Task
@@ -38,7 +39,8 @@ buildscript {
 task startFuseki(type: io.opencaesar.owl.fuseki.StartFusekiTask) {
 	configurationPath = file('path/to/.fuseki.ttl')
 	outputFolderPath = file('path/to/output/folder') // with webui, there must be a 'webapp' subfolder for the Fuseki UI
-	webui = true
+	webui = true // optional
+	maxPings = 10 // optional
 }
 task stopFuseki(type: io.opencaesar.owl.fuseki.StopFusekiTask) {
 	outputFolderPath = file('path/to/output/folder')
