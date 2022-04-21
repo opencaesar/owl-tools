@@ -188,17 +188,19 @@ public class FusekiApp {
         File pidFile = output.resolve(PID_FILENAME).toFile();
         File logFile = output.resolve(LOG_FILENAME).toFile();
        
+        // Check if the server is already running
         Optional<Long> pid = findFusekiProcessId(pidFile);
         if (pid.isPresent()) {
 	        Optional<ProcessHandle> ph = findProcess(pid.get());
 	        if (ph.isPresent()) {
-	        	System.out.print("Found a Fuseki server already running with pid="+ph.get().pid());
+	        	System.out.print("Fuseki server is already running with pid="+ph.get().pid());
 	        	return;
 	        }
 	        pidFile.delete();
         }
         
-        fusekiDir.mkdirs();
+        // Start the server
+       fusekiDir.mkdirs();
 
         String java = getJavaCommandPath();
         String jar = findJar(clazz);
@@ -221,31 +223,36 @@ public class FusekiApp {
 
         Process p = pb.start();
         try {
-			Thread.sleep(2000);
+			Thread.sleep(2000); // give server a bit of time to start
 		} catch (InterruptedException e) {
 			// do nothing
 		}
         
+        // Check that the newly started server is alive
         if (!p.isAlive()) {
-            throw new IllegalArgumentException("Fuseki server failed to start and returned exit code: " + p.exitValue() + ". See "+logFile+" for more details.");
+            throw new RuntimeException("Fuseki server has failed to start and returned exit code: " + p.exitValue() + ". See "+logFile+" for more details.");
         } else {
-        	int times = 3;
-        	while (times-- > 0) {
+        	// Ping the server a max number of times until it responds
+        	int maxAttempts = 3;
+        	int attempt = 0;
+        	while (++attempt<=maxAttempts) {
         		if (pingServer()) {
-            		System.out.print("Started a Fuseki server with pid="+p.pid());
+            		System.out.print("Fuseki server has started with pid="+p.pid());
             		break;
-            	} 
+            	}
         	}
-        	if (times < 0) {
-                p.destroyForcibly();
+        	// if the server has failed to respond, kill it 
+        	if (attempt > maxAttempts) {
                 try {
-        			Thread.sleep(2000);
+                    p.destroyForcibly().waitFor();
         		} catch (InterruptedException e) {
         			// do nothing
         		}
-                throw new IllegalArgumentException("Fuseki server failed to start and returned exit code: " + p.exitValue() + ". See "+logFile+" for more details.");
+                throw new IllegalArgumentException("Fuseki server has failed to respond to ping after "+maxAttempts+" attempts and now been killed");
         	}
         }
+        
+        // Create the pid file and record the pid of the server in it
         OutputStreamWriter os = new OutputStreamWriter(new FileOutputStream(pidFile));
         BufferedWriter w = new BufferedWriter(os);
         w.write(Long.toString(p.pid()));
@@ -269,7 +276,7 @@ public class FusekiApp {
                 if (!ph.get().destroyForcibly()) {
                     throw new IllegalArgumentException("Failed to kill a Fuseki server process with pid=" + pid.get());
                 } else {
-                	System.out.println("Stopped a Fuseki server process with pid=" + pid.get());
+                	System.out.println("Fuseki server with pid=" + pid.get() + " has been stopped");
                 }
             }
 	        pidFile.delete();
@@ -285,8 +292,11 @@ public class FusekiApp {
 	        con.setConnectTimeout(5000);
 	        con.setReadTimeout(5000);
 	        responseCode = con.getResponseCode();
+	        if (responseCode != HttpURLConnection.HTTP_OK) {
+	        	LOGGER.error("Fuseki server has failed to respond to ping (" + responseCode + " - " + con.getResponseMessage() + ")");
+	        }
         } catch (Exception e) {
-        	LOGGER.error("Failed to ping server (" + responseCode + " - " + con.getResponseMessage() + ")");
+        	LOGGER.error(e);
         } finally {
 	        con.disconnect();
         }
