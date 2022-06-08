@@ -103,7 +103,7 @@ public class OwlDiffApp {
 		final File folder1 = new File(catalogPath1).getParentFile();
 		final Collection<File> files1 = collectOwlFiles(folder1);
 		final OWLOntologyManager manager1 = OWLManager.createOWLOntologyManager();
-		manager1.getIRIMappers().add((new XMLCatalogIRIMapper(catalogPath1)));
+		manager1.getIRIMappers().add((new XMLCatalogIRIMapper(new File(catalogPath1))));
         for(File file :	files1) {
    			String relativePath = folder1.toURI().relativize(file.toURI()).getPath();
    			index.put(relativePath, new Pair(file, null));
@@ -113,7 +113,7 @@ public class OwlDiffApp {
 		final File folder2 = new File(catalogPath2).getParentFile();
 		final Collection<File> files2 = collectOwlFiles(folder2);
 		final OWLOntologyManager manager2 = OWLManager.createOWLOntologyManager();
-		manager2.getIRIMappers().add((new XMLCatalogIRIMapper(catalogPath2)));
+		manager2.getIRIMappers().add((new XMLCatalogIRIMapper(new File(catalogPath2))));
         for(File file :	files2) {
    			String relativePath = folder2.toURI().relativize(file.toURI()).getPath();
    			Pair pair = index.get(relativePath);

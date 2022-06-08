@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.xml.resolver.Catalog;
 import org.apache.xml.resolver.CatalogManager;
 import org.semanticweb.owlapi.model.IRI;
@@ -35,22 +33,22 @@ public class XMLCatalogIRIMapper implements OWLOntologyIRIMapper {
 		try {
 			String documentUri = catalog.resolveURI(originalIri.toString());
 			if (documentUri != null && documentUri.startsWith("file:")) {
-				String extension = FilenameUtils.getExtension(documentUri);
-				if (extension.isEmpty() || StringUtils.isNumeric(extension)) {
-					String documentPath = documentUri.substring(5);
+				String filePath = documentUri.substring(5); // remove 'file:'
+				File f = new File(filePath);
+				if (!f.exists() || !f.isFile()) {
 					for ( String ext : extensions ) {
-						String uri = (ext.startsWith(".")) ? documentPath+ext : documentPath+"." + ext;
-						File f = new File(uri);
+						String fileWithExtensionPath = (ext.startsWith(".")) ? filePath+ext : filePath+"." + ext;
+						f = new File(fileWithExtensionPath);
 						if (f.exists() && f.isFile())
-							return IRI.create("file:" + uri);
+							return IRI.create("file:" + fileWithExtensionPath);
 					}
 				}
-				return IRI.create(documentUri);
 			}
+			return IRI.create(documentUri);
 		} catch (Exception e) {
 			System.out.println(e);
+			return null;
 		}
-		return null;
 	}
 
 }
