@@ -151,10 +151,8 @@ public class FusekiApp {
                                 throw new RuntimeException(e);
                             }
                         }).toArray(URL[]::new);
-                System.out.println("warURLs: "+Arrays.toString(warURLs));
                 warCL = new URLClassLoader(warURLs);
                 cpEntries = classpath.toArray(String[]::new);
-                System.out.println("cpEntries: "+Arrays.toString(cpEntries));
             }
             if (app.webui) {
                 final File webappFolder = new File(outputFolderPath).toPath().resolve("webapp").toFile();
@@ -273,7 +271,6 @@ public class FusekiApp {
         args[pos++] = "--config=" + config.getAbsolutePath();
 
         System.arraycopy(argv, 0, args, pos, argv.length);
-        System.out.println("Fuseki server command arguments: " + Arrays.toString(args));
         ProcessBuilder pb = new ProcessBuilder(args);
         pb.directory(output.toFile());
         pb.redirectErrorStream(true);
