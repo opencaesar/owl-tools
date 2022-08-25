@@ -3,14 +3,15 @@ package io.opencaesar.owl.fuseki;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
-import org.gradle.api.file.DirectoryProperty;
-import org.gradle.api.file.RegularFile;
-import org.gradle.api.file.RegularFileProperty;
+import org.gradle.api.file.*;
+import org.gradle.api.internal.file.FileCollectionFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.tasks.Classpath;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.Optional;
@@ -19,6 +20,15 @@ import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 
 public abstract class StartFusekiTask extends DefaultTask {
+    private FileCollection classpath;
+    @Classpath
+    public FileCollection getClasspath() {
+        return classpath;
+    }
+    public StartFusekiTask setClasspath(FileCollection classpath) {
+        this.classpath = classpath;
+        return this;
+    }
 
     @InputFile
     public abstract RegularFileProperty getConfigurationPath();
@@ -29,6 +39,9 @@ public abstract class StartFusekiTask extends DefaultTask {
     @Optional
     @Input
     public abstract Property<Boolean> getWebUI();
+
+    @Input
+    public abstract Property<Integer> getPort();
 
     @Optional
     @Input
@@ -60,8 +73,13 @@ public abstract class StartFusekiTask extends DefaultTask {
     @TaskAction
     public void run() {
         final ArrayList<String> args = new ArrayList<>();
-        args.add("-c");
         args.add(FusekiApp.Command.start.toString());
+        if (!getClasspath().isEmpty()) {
+            getClasspath().forEach(cp -> {
+                args.add("-cp");
+                args.add(cp.getAbsolutePath());
+            });
+        }
         if (getConfigurationPath().isPresent()) {
             args.add("-g");
             args.add(getConfigurationPath().get().getAsFile().getAbsolutePath());
@@ -70,9 +88,12 @@ public abstract class StartFusekiTask extends DefaultTask {
             args.add("-o");
             args.add(getOutputFolderPath().get().getAsFile().getAbsolutePath());
         }
+        args.add("--port");
+        args.add(getPort().get().toString());
         if (getWebUI().isPresent()) {
-        	if (getWebUI().get())
-        		args.add("-ui");
+        	if (getWebUI().get()) {
+                args.add("-ui");
+            }
         }
         if (getMaxPings().isPresent()) {
             args.add("-p");
@@ -82,7 +103,8 @@ public abstract class StartFusekiTask extends DefaultTask {
             args.add("-d");
         }
         try {
-        	FusekiApp.main(args.toArray(new String[0]));
+            String[] a = args.toArray(new String[0]);
+        	FusekiApp.main(a);
 
             // Delete the 'fuseki.stopped' file to enable stopFuseki again.
             if (getOutputFolderPath().isPresent()) {

@@ -27,32 +27,35 @@ Args:
 This is an incremental task; Gradle will determine whether to run this task
 if any of the properties changed in values.
 
+It is important to define the Fuseki dependencies on a dedicated Gradle configuration like `fuseki` shown below.
+
 ```
-buildscript {
-	repositories {
-  		mavenCentral()
-	}
-	dependencies {
-		classpath 'io.opencaesar.owl:owl-fuseki-gradle:+'
-	}
+repositories {
+    mavenLocal() 
+    mavenCentral()
 }
+
+configurations {
+    fuseki
+}
+
+dependencies {
+	implementation 'io.opencaesar.owl:owl-fuseki-gradle:+'
+	 
+    fuseki 'org.apache.jena:jena-fuseki-server:4.5.0'
+    fuseki 'org.apache.jena:jena-fuseki-war:4.5.0'
+}
+
 task startFuseki(type: io.opencaesar.owl.fuseki.StartFusekiTask) {
+	classpath = project.files().from(configurations.getByName("fuseki").resolve().toList())
 	configurationPath = file('path/to/.fuseki.ttl')
-	outputFolderPath = file('path/to/output/folder') // with webui, there must be a 'webapp' subfolder for the Fuseki UI
+	port = 3030
+	outputFolderPath = file('path/to/output/folder') // with webui, a 'webapp' subfolder will be created
 	webui = true // optional
 	maxPings = 10 // optional
 }
+
 task stopFuseki(type: io.opencaesar.owl.fuseki.StopFusekiTask) {
 	outputFolderPath = file('path/to/output/folder')
 }
-
-```
-
-## Important
-* To start Fuseki with the UI, the output folder must have a `webapp` subfolder. The simplest way to get such a folder is to download the [`apache-jena-fuseki-version>.zip`](https://jena.apache.org/download/) file, unzip it, and copy its 'webapp' folder to the output folder.
-* When choosing the output folder to be in the same project folder managed in github, you can put the following rules in the `.gitignore` file:
-```
-path/to/output/folder/run
-path/to/output/folder/fuseki.pid
-path/to/output/folder/fuseki.log
 ```
