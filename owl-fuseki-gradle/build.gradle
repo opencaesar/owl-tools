@@ -1,7 +1,11 @@
-ext.title = 'OWL Fuseki Gradle'
-description = 'A gradle task to invoke owl fuseki'
+
+plugins {
+    id 'java'
+}
 
 dependencies {
 	implementation gradleApi()
-    implementation project (':owl-fuseki')
 }
+
+ext.title = 'OWL Fuseki Gradle'
+description = 'A gradle task to start/stop Apache Jena Fuseki as a background process.'

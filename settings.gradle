@@ -1,6 +1,5 @@
 include 'owl-close-world'
 include 'owl-diff'
-include 'owl-fuseki'
 include 'owl-fuseki-gradle'
 include 'owl-load'
 include 'owl-load-gradle'
