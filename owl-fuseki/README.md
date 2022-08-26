@@ -42,8 +42,8 @@ configurations {
 dependencies {
 	implementation 'io.opencaesar.owl:owl-fuseki-gradle:+'
 	 
-    fuseki 'org.apache.jena:jena-fuseki-server:4.5.0'
-    fuseki 'org.apache.jena:jena-fuseki-war:4.5.0'
+    fuseki 'org.apache.jena:jena-fuseki-fulljar:4.6.0'
+    fuseki 'org.apache.jena:jena-fuseki-war:4.6.0'
 }
 
 task startFuseki(type: io.opencaesar.owl.fuseki.StartFusekiTask) {
@@ -51,7 +51,7 @@ task startFuseki(type: io.opencaesar.owl.fuseki.StartFusekiTask) {
 	configurationPath = file('path/to/.fuseki.ttl')
 	port = 3030
 	outputFolderPath = file('path/to/output/folder') // with webui, a 'webapp' subfolder will be created
-	webui = true // optional
+	webUI = true // optional
 	maxPings = 10 // optional
 }
 

@@ -253,13 +253,10 @@ public class FusekiApp {
         fusekiDir.mkdirs();
 
         String java = getJavaCommandPath();
-        int argCount = 7 + argv.length + (pingArg ? 1 : 0) + (app.webui ? 1 : 0);
+        int argCount = 7 + argv.length + (pingArg ? 1 : 0);
         String[] args = new String[argCount];
         int pos = 0;
         args[pos++] = java;
-        if (app.webui) {
-            args[pos++] = "-Dlog4j.configurationFile=webapp/log4j2.properties";
-        }
         args[pos++] = "-cp";
         args[pos++] = String.join(File.pathSeparator, cpEntries);
         args[pos++] = clazz;
