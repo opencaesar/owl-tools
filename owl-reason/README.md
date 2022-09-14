@@ -16,17 +16,17 @@ gradlew.bat owl-reason:run --args="..."
 ```
 Args:
 ```
--c, --catalog-path PATH					Path/to/owl/catalog.xml [required]
+-c, --catalog-path PATH				Path/to/owl/catalog.xml [required]
 -i, --input-ontology-iri IRI			Iri of the root ontology to analyze [required]
--s, --spec IRI=ALGORITHM|ALGORITHM... 	Iri of an output ontology to hold the inferred entailments. Algorithms: ALL_SUBCLASS, INVERSE_PROPERTY, ALL_SUBPROPERTY, ALL_INSTANCE, DATA_PROPERTY_VALUE, OBJECT_PROPERTY_VALUE, SAME_AS [required, multiple]
--if, --input-file-extension EXTENSION 	Extensions: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss [optional, multiple, default=owl]
--of, --output-file-extension EXTENSION	Extension: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss [optional, default=ttl]
+-s, --spec IRI=ALGORITHM|ALGORITHM... 		Iri of an output ontology to hold the inferred entailments. Algorithms: ALL_SUBCLASS, INVERSE_PROPERTY, ALL_SUBPROPERTY, ALL_INSTANCE, DATA_PROPERTY_VALUE, OBJECT_PROPERTY_VALUE, SAME_AS [required, multiple]
+-if, --input-file-extension EXTENSION 		Extensions: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss [optional, multiple, default=owl]
+-of, --output-file-extension EXTENSION		Extension: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss [optional, default=ttl]
 -ef, --explanation-format FORMAT		Format: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss [optional, default=fss]
--ru, --remove-unsats  					[optional)
--rb, --remove-backbone 					[optional]
--b, --backbone-iri IRI					Iris to ignore [optional, default=http://opencaesar.io/oml]
--n, --indent NUMBER 					Number of spaces to indent by [optional, default=2]
--r, --report-path PATH					Path/to/reasoning.xml [required]
+-ru, --remove-unsats  				[optional)
+-rb, --remove-backbone 				[optional]
+-b, --backbone-iri IRI				Iris to ignore [optional, default=http://opencaesar.io/oml]
+-n, --indent NUMBER 				Number of spaces to indent by [optional, default=2]
+-r, --report-path PATH				Path/to/reasoning.xml [required]
 ```
 
 Note: the | char separating algorithms in the `spec` argument is not a logical OR; it is just a list delimiter.
@@ -43,17 +43,17 @@ buildscript {
 	}
 }
 task owlReason(type:io.opencaesar.owl.reason.OwlReasonTask) {
-	catalogPath 			= file('path/to/owl/catalog.xml') [required]
-	inputOntologyIri 		= 'root/ontology/iri' [required]
-	specs 					= [ 'output/ontology/iri=algorithm1|algorithm2...' ] [required, multiple, algorithms: ALL_SUBCLASS, INVERSE_PROPERTY, ALL_SUBPROPERTY, ALL_INSTANCE, DATA_PROPERTY_VALUE, OBJECT_PROPERTY_VALUE, SAME_AS]
+	catalogPath 		= file('path/to/owl/catalog.xml') [required]
+	inputOntologyIri 	= 'root/ontology/iri' [required]
+	specs 			= [ 'output/ontology/iri=algorithm1|algorithm2...' ] [required, multiple, algorithms: ALL_SUBCLASS, INVERSE_PROPERTY, ALL_SUBPROPERTY, ALL_INSTANCE, DATA_PROPERTY_VALUE, OBJECT_PROPERTY_VALUE, SAME_AS]
 	inputFileExtensions 	= ['extension'] [optional, multiple, default=owl, options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss]
 	outputFileExtension 	= 'extension' [optional, default=ttl, options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss]
-	explanationFormat 		= 'fss' [optional, default=fss, options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss]
-	removeUnsats 			= boolean [optional]
-	removeBackbone 			= boolean [optional]
-	backboneIri 			= 'backbone-iri' [optional, default=http://opencaesar.io/oml]
-	indent 					= number [optional, default=2]
-	reportPath				= file('path/to/reasoning.xml') [required]
+	explanationFormat 	= 'fss' [optional, default=fss, options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss]
+	removeUnsats 		= boolean [optional]
+	removeBackbone 		= boolean [optional]
+	backboneIri 		= 'backbone-iri' [optional, default=http://opencaesar.io/oml]
+	indent 			= number [optional, default=2]
+	reportPath		= file('path/to/reasoning.xml') [required]
 }
 ```
 
