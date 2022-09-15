@@ -648,12 +648,11 @@ public class OwlReasonApp {
 		@Override
 		public void validate(final String name, final String value) throws ParameterException {
 			File file = new File(value);
-			if (!file.exists() || !file.getName().endsWith(".xml")) {
+			if (!file.getName().endsWith(".xml")) {
 				throw new ParameterException("Parameter " + name + " should be a valid XML path");
 			}
 			File parentFile = file.getParentFile();
 			if (parentFile != null && !parentFile.exists()) {
-				//noinspection ResultOfMethodCallIgnored
 				parentFile.mkdirs();
 			}
 	  	}
