@@ -22,8 +22,8 @@ Args:
 -if, --input-file-extension EXTENSION 		Extensions: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss [optional, multiple, default=owl]
 -of, --output-file-extension EXTENSION		Extension: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss [optional, default=ttl]
 -ef, --explanation-format FORMAT		Format: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss [optional, default=fss]
--ru, --remove-unsats  				[optional)
--rb, --remove-backbone 				[optional]
+-ru, --remove-unsats BOOLEAN 		Whether to remove entailments due to unsatisfiability [optional, default=true)
+-rb, --remove-backbone BOOLEAN 		Whether to remove axioms on the backhone from entailments [optional, default=true]
 -b, --backbone-iri IRI				Iris to ignore [optional, default=http://opencaesar.io/oml]
 -n, --indent NUMBER 				Number of spaces to indent by [optional, default=2]
 -r, --report-path PATH				Path/to/reasoning.xml [required]
@@ -49,8 +49,8 @@ task owlReason(type:io.opencaesar.owl.reason.OwlReasonTask) {
 	inputFileExtensions 	= ['extension'] [optional, multiple, default=owl, options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss]
 	outputFileExtension 	= 'extension' [optional, default=ttl, options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss]
 	explanationFormat 	= 'fss' [optional, default=fss, options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss]
-	removeUnsats 		= boolean [optional]
-	removeBackbone 		= boolean [optional]
+	removeUnsats 		= boolean [optional, default=true]
+	removeBackbone 		= boolean [optional, default=true]
 	backboneIri 		= 'backbone-iri' [optional, default=http://opencaesar.io/oml]
 	indent 			= number [optional, default=2]
 	reportPath		= file('path/to/reasoning.xml') [required]

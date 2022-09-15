@@ -181,13 +181,15 @@ public class OwlReasonApp {
 		
 		@Parameter(
 			names = {"--remove-unsats", "-ru"},
-			description = "remove entailments due to unsatisfiability",
+			description = "boolean indicating whether to remove entailments due to unsatisfiability (optional, default=true)",
+			arity = 1,
 			order = 8)
 		private boolean removeUnsats = true;
 		
 		@Parameter(
 			names = {"--remove-backbone", "-rb"},
-			description = "remove axioms on the backhone from entailments",
+			description = "boolean indicating whether to remove axioms on the backhone from entailments (optional, default=true)",
+			arity = 1,
 			order = 9)
 		private boolean removeBackbone = true;
 		
