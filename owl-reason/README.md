@@ -22,8 +22,8 @@ Args:
 -if, --input-file-extension EXTENSION 		Extensions: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss [optional, multiple, default=owl]
 -of, --output-file-extension EXTENSION		Extension: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss [optional, default=ttl]
 -ef, --explanation-format FORMAT		Format: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss [optional, default=fss]
--ru, --remove-unsats BOOLEAN 		Whether to remove entailments due to unsatisfiability [optional, default=true)
--rb, --remove-backbone BOOLEAN 		Whether to remove axioms on the backhone from entailments [optional, default=true]
+-ru, --remove-unsats BOOLEAN 			Whether to remove entailments due to unsatisfiability [optional, default=true)
+-rb, --remove-backbone BOOLEAN 			Whether to remove axioms on the backhone from entailments [optional, default=true]
 -b, --backbone-iri IRI				Iris to ignore [optional, default=http://opencaesar.io/oml]
 -n, --indent NUMBER 				Number of spaces to indent by [optional, default=2]
 -r, --report-path PATH				Path/to/reasoning.xml [required]
