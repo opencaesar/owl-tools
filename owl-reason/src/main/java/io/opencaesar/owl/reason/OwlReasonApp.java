@@ -121,7 +121,7 @@ public class OwlReasonApp {
 	
 	public static final String DEFAULT_INPUT_FILE_EXTENSION = "owl";
 	public static final String DEFAULT_OUTPUT_FILE_EXTENSION = "ttl";
-	public static final String DEFAULT_EXPLANATION_FORMAT = "fss";
+	public static final String DEFAULT_EXPLANATION_FORMAT = "owl";
 	
 	private static class Options {
 		@Parameter(
@@ -174,7 +174,7 @@ public class OwlReasonApp {
 		
 		@Parameter(
 			names = {"--explanation-format", "-ef"},
-			description = "Explanation format (ttl by default, options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss)",
+			description = "Explanation format (owl by default, options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss)",
 			validateWith = ExplanationFormatValidator.class,
 			order = 7)
 	    private String explanationFormat = DEFAULT_EXPLANATION_FORMAT;
@@ -635,8 +635,7 @@ public class OwlReasonApp {
 	public static class ExplanationFormatValidator implements IParameterValidator {
 		@Override
 		public void validate(final String name, final String value) throws ParameterException {
-			Lang lang = RDFLanguages.fileExtToLang(value);
-			if (lang == null) {
+			if (!extensions.containsKey(value)) {
 				throw new ParameterException("Parameter " + name + " should be a valid RDF format, got: " + value +
 						" recognized RDF formats are: "+extensions);
 			}
