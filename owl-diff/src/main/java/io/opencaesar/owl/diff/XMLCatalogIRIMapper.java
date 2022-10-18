@@ -33,8 +33,8 @@ public class XMLCatalogIRIMapper implements OWLOntologyIRIMapper {
 				File f = new File(new URI(documentUri));
 				if (!f.exists() || !f.isFile()) {
 					String fileWithExtensionPath = f.toString()+".owl";
-					f = new File(fileWithExtensionPath);
-					if (f.exists() && f.isFile())
+					File f_ext = new File(fileWithExtensionPath);
+					if (f_ext.exists() && f_ext.isFile())
 						return IRI.create("file:" + fileWithExtensionPath);
 				}
 			}
