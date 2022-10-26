@@ -121,7 +121,7 @@ public class OwlReasonApp {
 	
 	public static final String DEFAULT_INPUT_FILE_EXTENSION = "owl";
 	public static final String DEFAULT_OUTPUT_FILE_EXTENSION = "ttl";
-	public static final String DEFAULT_EXPLANATION_FORMAT = "fss";
+	public static final String DEFAULT_EXPLANATION_FORMAT = "owl";
 	
 	private static class Options {
 		@Parameter(
@@ -174,20 +174,22 @@ public class OwlReasonApp {
 		
 		@Parameter(
 			names = {"--explanation-format", "-ef"},
-			description = "Explanation format (ttl by default, options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss)",
+			description = "Explanation format (owl by default, options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss)",
 			validateWith = ExplanationFormatValidator.class,
 			order = 7)
 	    private String explanationFormat = DEFAULT_EXPLANATION_FORMAT;
 		
 		@Parameter(
 			names = {"--remove-unsats", "-ru"},
-			description = "remove entailments due to unsatisfiability",
+			description = "boolean indicating whether to remove entailments due to unsatisfiability (optional, default=true)",
+			arity = 1,
 			order = 8)
 		private boolean removeUnsats = true;
 		
 		@Parameter(
 			names = {"--remove-backbone", "-rb"},
-			description = "remove axioms on the backhone from entailments",
+			description = "boolean indicating whether to remove axioms on the backhone from entailments (optional, default=true)",
+			arity = 1,
 			order = 9)
 		private boolean removeBackbone = true;
 		
@@ -583,7 +585,7 @@ public class OwlReasonApp {
 		@Override
 		public void validate(final String name, final String value) throws ParameterException {
 			File file = new File(value);
-			if (!file.getName().endsWith("catalog.xml")) {
+			if (!file.exists() || !file.getName().endsWith("catalog.xml")) {
 				throw new ParameterException("Parameter " + name + " should be a valid OWL catalog path");
 			}
 		}
@@ -633,8 +635,7 @@ public class OwlReasonApp {
 	public static class ExplanationFormatValidator implements IParameterValidator {
 		@Override
 		public void validate(final String name, final String value) throws ParameterException {
-			Lang lang = RDFLanguages.fileExtToLang(value);
-			if (lang == null) {
+			if (!extensions.containsKey(value)) {
 				throw new ParameterException("Parameter " + name + " should be a valid RDF format, got: " + value +
 						" recognized RDF formats are: "+extensions);
 			}
@@ -651,7 +652,6 @@ public class OwlReasonApp {
 			}
 			File parentFile = file.getParentFile();
 			if (parentFile != null && !parentFile.exists()) {
-				//noinspection ResultOfMethodCallIgnored
 				parentFile.mkdirs();
 			}
 	  	}

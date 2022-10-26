@@ -43,6 +43,6 @@ task owlQuery(type:io.opencaesar.owl.query.OwlQueryTask) {
 	endpointURL = 'url-of-sparql-endpoint' [Required]
 	queryPath = file('path/to/query.sparql') [Required, path to file or folder]
 	resultPath = file('path/to/result/folder') [Required]
-    format = 'xml' [Optional, default is xml, other options: json, csv, n3, ttl, n-triple, or tsv]
+	format = 'xml' [Optional, default is xml, other options: json, csv, n3, ttl, n-triple, or tsv]
 }               
 ```

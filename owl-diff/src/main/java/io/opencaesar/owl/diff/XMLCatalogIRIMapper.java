@@ -2,6 +2,7 @@ package io.opencaesar.owl.diff;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 
 import org.apache.xml.resolver.Catalog;
 import org.apache.xml.resolver.CatalogManager;
@@ -29,13 +30,12 @@ public class XMLCatalogIRIMapper implements OWLOntologyIRIMapper {
 		try {
 			String documentUri = catalog.resolveURI(originalIri.toString());
 			if (documentUri != null && documentUri.startsWith("file:")) {
-				String filePath = documentUri.substring(5); // remove 'file:'
-				File f = new File(filePath);
+				File f = new File(new URI(documentUri));
 				if (!f.exists() || !f.isFile()) {
-					String fileWithExtensionPath = filePath+".owl";
-					f = new File(fileWithExtensionPath);
-					if (f.exists() && f.isFile())
-						return IRI.create("file:" + fileWithExtensionPath);
+					String fileWithExtensionPath = f.toString()+".owl";
+					File f_ext = new File(fileWithExtensionPath);
+					if (f_ext.exists() && f_ext.isFile())
+						return IRI.create(documentUri+".owl");
 				}
 			}
 			return IRI.create(documentUri);
