@@ -188,10 +188,25 @@ public class OwlLoadApp {
         LOGGER.info("=================================================================");
     }
 
+    private static String OS = System.getProperty("os.name").toLowerCase();
+    public static boolean isWindows() {
+        return (OS.indexOf("win") >= 0);
+    }
     private void loadOntology(RDFConnection conn, final OWLOntology ont) {
         IRI documentIRI = ont.getOWLOntologyManager().getOntologyDocumentIRI(ont);
         try {
+            if (!"file".equals(documentIRI.getScheme()))
+                throw new RuntimeException("Cannot load an ontology whose IRI scheme is not file: "+documentIRI);
+
             String documentFile = documentIRI.toURI().toURL().getFile();
+
+            // The Apache Jena 4.6.0 library uses Java's Path.of(filename) to resolve a filename string to a path.
+            // This API does not work on Windows where the filename string like this: file:/C:/....
+            // On Windows, we have to strip the 'file:/' prefix so that the Path.of API sees a Windows drive, e.g. C:/...
+            // The toURL().getFile() above has effectively stripped the file: scheme so the string begins with /C:/....
+            if (isWindows() && documentFile.startsWith("/"))
+                documentFile = documentFile.substring(1);
+
             Optional<IRI> defaultDocumentIRI = ont.getOntologyID().getDefaultDocumentIRI();
             assert(defaultDocumentIRI.isPresent());
             String graphName = defaultDocumentIRI.get().getIRIString();
