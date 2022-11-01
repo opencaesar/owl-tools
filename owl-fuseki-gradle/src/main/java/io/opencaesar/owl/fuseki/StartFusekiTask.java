@@ -20,15 +20,13 @@ import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 
 public abstract class StartFusekiTask extends DefaultTask {
-    private FileCollection classpath;
-    @Classpath
-    public FileCollection getClasspath() {
-        return classpath;
-    }
-    public StartFusekiTask setClasspath(FileCollection classpath) {
-        this.classpath = classpath;
-        return this;
-    }
+    @Optional
+    @Input
+    public abstract Property<String> getFusekiVersion();
+
+    @Optional
+    @Input
+    public abstract Property<String> getMavenCentralURL();
 
     @InputFile
     public abstract RegularFileProperty getConfigurationPath();
@@ -74,11 +72,13 @@ public abstract class StartFusekiTask extends DefaultTask {
     public void run() {
         final ArrayList<String> args = new ArrayList<>();
         args.add(FusekiApp.Command.start.toString());
-        if (!getClasspath().isEmpty()) {
-            getClasspath().forEach(cp -> {
-                args.add("-cp");
-                args.add(cp.getAbsolutePath());
-            });
+        if (getFusekiVersion().isPresent()) {
+            args.add("--fuseki-version");
+            args.add(getFusekiVersion().get());
+        }
+        if (getMavenCentralURL().isPresent()) {
+            args.add("--maven-central");
+            args.add(getMavenCentralURL().get());
         }
         if (getConfigurationPath().isPresent()) {
             args.add("-g");

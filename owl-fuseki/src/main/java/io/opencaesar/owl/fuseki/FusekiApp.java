@@ -1,20 +1,10 @@
 package io.opencaesar.owl.fuseki;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.net.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -29,6 +19,34 @@ import com.beust.jcommander.IStringConverter;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
+
+import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
+import org.apache.maven.resolver.owl.fuseki.ConsoleRepositoryListener;
+import org.apache.maven.resolver.owl.fuseki.ConsoleTransferListener;
+import org.apache.maven.resolver.owl.fuseki.ManualRepositorySystemFactory;
+import org.eclipse.aether.DefaultRepositorySystemSession;
+import org.eclipse.aether.RepositorySystem;
+import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.artifact.DefaultArtifact;
+import org.eclipse.aether.artifact.DefaultArtifactType;
+import org.eclipse.aether.collection.*;
+import org.eclipse.aether.graph.Dependency;
+import org.eclipse.aether.graph.DependencyNode;
+import org.eclipse.aether.graph.DependencyVisitor;
+import org.eclipse.aether.repository.LocalRepository;
+import org.eclipse.aether.repository.RemoteRepository;
+import org.eclipse.aether.resolution.ArtifactRequest;
+import org.eclipse.aether.resolution.ArtifactResolutionException;
+import org.eclipse.aether.resolution.ArtifactResult;
+import org.eclipse.aether.util.artifact.DefaultArtifactTypeRegistry;
+import org.eclipse.aether.util.graph.manager.ClassicDependencyManager;
+import org.eclipse.aether.util.graph.selector.AndDependencySelector;
+import org.eclipse.aether.util.graph.selector.ExclusionDependencySelector;
+import org.eclipse.aether.util.graph.selector.OptionalDependencySelector;
+import org.eclipse.aether.util.graph.selector.ScopeDependencySelector;
+import org.eclipse.aether.util.graph.transformer.*;
+import org.eclipse.aether.util.graph.traverser.FatArtifactTraverser;
+import org.eclipse.aether.util.repository.SimpleArtifactDescriptorPolicy;
 
 public class FusekiApp {
 
@@ -50,12 +68,11 @@ public class FusekiApp {
     private Command command;
 
     @Parameter(
-            names = {"--classpath", "-cp"},
-            description = "One or more classpath files (Required)",
+            names = {"--fuseki-version"},
+            description = "Version of Fuseki, defaults to 4.6.0",
             required = false,
             order = 2)
-    private List<String> classpath;
-
+    private String fusekiVersion = "4.6.0";
 
     @Parameter(
             names = {"--configurationPath", "-g"},
@@ -103,6 +120,14 @@ public class FusekiApp {
             order = 9)
     private boolean help;
 
+
+    @Parameter(
+            names = {"--maven-central"},
+            description = "URL for Maven Central repository, defaults to: https://repo.maven.apache.org/maven2/",
+            required = false,
+            order = 10)
+    private String mavenCentralURL = "https://repo.maven.apache.org/maven2/";
+
     private final static Logger LOGGER = Logger.getLogger(FusekiApp.class);
 
     static {
@@ -132,42 +157,37 @@ public class FusekiApp {
         LOGGER.info("                     OWL Fuseki " + getAppVersion());
         LOGGER.info("=================================================================");
         LOGGER.info(("Command = " + command));
-        if (null != classpath) {
-            LOGGER.info(("Classpath with = " + classpath.size() + " entries"));
-        }
-        LOGGER.info(("Configuration path = " + configurationPath));
+        LOGGER.info(("Fuseki version = " + fusekiVersion));
         LOGGER.info(("Output folder path = " + outputFolderPath));
 
         if (command == Command.start) {
-            ClassLoader warCL = FusekiApp.class.getClassLoader();
-            String[] cpEntries = new String[0];
-            if (!classpath.isEmpty()) {
-                URL[] warURLs = classpath.stream()
-                        .filter(cp -> cp.endsWith(".war"))
-                        .map(cp -> {
-                            try {
-                                return new File(cp).toURI().toURL();
-                            } catch (MalformedURLException e) {
-                                throw new RuntimeException(e);
-                            }
-                        }).toArray(URL[]::new);
-                warCL = new URLClassLoader(warURLs);
-                cpEntries = classpath.toArray(String[]::new);
-            }
+             RepositorySystem repositorySystem = ManualRepositorySystemFactory.newRepositorySystem();
+            DefaultRepositorySystemSession session = newRepositorySystemSession(repositorySystem);
+            List<RemoteRepository> repositories = newRepositories(mavenCentralURL);
+            final List<String> deps = new ArrayList<>();
+            collectDependencies(repositorySystem, session, repositories, newFusekiServerArtifact(fusekiVersion), deps);
+
             if (app.webui) {
+                collectDependencies(repositorySystem, session, repositories, newFusekiWebAppArtifact(fusekiVersion), deps);
+
                 final File webappFolder = new File(outputFolderPath).toPath().resolve("webapp").toFile();
                 webappFolder.mkdirs();
-                final URL fusekiWarPomURL = warCL.getResource("META-INF/maven/org.apache.jena/jena-fuseki-war/pom.xml");
-                if (null != fusekiWarPomURL && "jar".equals(fusekiWarPomURL.getProtocol())) {
-                    final JarURLConnection connection = (JarURLConnection) fusekiWarPomURL.openConnection();
-                    final URL jarURL = connection.getJarFileURL();
-                    try (InputStream is = jarURL.openStream()) {
-                        unzip(is, webappFolder);
-                    }
+                ArtifactResult fusekiWar = resolveArtifact(
+                        repositorySystem,
+                        session,
+                        repositories,
+                        newFusekiWarArtifact(fusekiVersion));
+                if (!fusekiWar.isResolved())
+                    throw new IllegalArgumentException("Failed to resolve Fuseki War version "+fusekiVersion);
+                final File fusekiWarFile = fusekiWar.getArtifact().getFile();
+                try (InputStream is = new FileInputStream(fusekiWarFile)) {
+                    unzip(is, webappFolder);
                 }
-                LOGGER.info("fusekiWarPomURL=" + fusekiWarPomURL);
+
+                String[] cpEntries = deps.toArray(new String[0]);
                 startFuseki(cpEntries, new File(configurationPath), new File(outputFolderPath), app.port, false, app.maxPings, "org.apache.jena.fuseki.cmd.FusekiCmd", app, "--localhost");
             } else {
+                String[] cpEntries = deps.toArray(new String[0]);
                 startFuseki(cpEntries, new File(configurationPath), new File(outputFolderPath), app.port, true, app.maxPings, "org.apache.jena.fuseki.main.cmds.FusekiMainCmd", app);
             }
         } else {
@@ -178,6 +198,7 @@ public class FusekiApp {
         LOGGER.info("                          E N D");
         LOGGER.info("=================================================================");
     }
+
 
     public static void unzip(InputStream source, File target) throws IOException {
         final ZipInputStream zipStream = new ZipInputStream(source);
@@ -243,7 +264,7 @@ public class FusekiApp {
         if (pid.isPresent()) {
             Optional<ProcessHandle> ph = findProcess(pid.get());
             if (ph.isPresent()) {
-                System.out.print("Fuseki server is already running with pid=" + ph.get().pid());
+                LOGGER.warn("Fuseki server is already running with pid=" + ph.get().pid());
                 return;
             }
             pidFile.delete();
@@ -288,7 +309,7 @@ public class FusekiApp {
             int ping = 0;
             while (++ping <= maxPings) {
                 if (pingServer(port)) {
-                    System.out.print("Fuseki server has now successfully started with pid=" + p.pid() + ", listening on http://localhost:" + port);
+                    LOGGER.warn("Fuseki server has now successfully started with pid=" + p.pid() + ", listening on http://localhost:" + port);
                     break;
                 }
                 try {
@@ -332,7 +353,7 @@ public class FusekiApp {
                 if (!ph.get().destroyForcibly()) {
                     throw new IllegalArgumentException("Failed to kill a Fuseki server process with pid=" + pid.get());
                 } else {
-                    System.out.println("Fuseki server with pid=" + pid.get() + " has been stopped");
+                    LOGGER.warn("Fuseki server with pid=" + pid.get() + " has been stopped");
                 }
             }
             pidFile.delete();
@@ -430,4 +451,107 @@ public class FusekiApp {
             throw new RuntimeException("Cannot find java executable at: " + javaExe);
     }
 
+    public static Artifact newFusekiServerArtifact(String version) {
+        return new DefaultArtifact("org.apache.jena:jena-fuseki-server:"+version);
+    }
+
+    public static Artifact newFusekiWebAppArtifact(String version) {
+        return new DefaultArtifact("org.apache.jena:jena-fuseki-webapp:"+version);
+    }
+
+    public static Artifact newFusekiWarArtifact(String version) {
+        return new DefaultArtifact("org.apache.jena:jena-fuseki-war:war:"+version);
+    }
+
+    private static void collectDependencies(RepositorySystem system,
+                                            DefaultRepositorySystemSession session,
+                                            List<RemoteRepository> repositories,
+                                            Artifact artifact,
+                                            List<String> deps) throws DependencyCollectionException {
+        CollectResult fusekiDeps = resolveDependencies(
+                system,
+                session,
+                repositories,
+                artifact);
+
+        fusekiDeps.getRoot().accept(new DependencyVisitor() {
+            @Override
+            public boolean visitEnter(DependencyNode node) {
+                Artifact a = node.getArtifact();
+                try {
+                    ArtifactResult r = resolveArtifact(system, session, repositories, a);
+                    deps.add(r.getArtifact().getFile().getAbsolutePath());
+                } catch (ArtifactResolutionException e) {
+                    throw new RuntimeException(e);
+                }
+                return true;
+            }
+
+            @Override
+            public boolean visitLeave(DependencyNode node) {
+                return true;
+            }
+        });
+    }
+    private static CollectResult resolveDependencies(RepositorySystem system,
+                                                     DefaultRepositorySystemSession session,
+                                                     List<RemoteRepository> repositories,
+                                                     Artifact artifact) throws DependencyCollectionException {
+        CollectRequest collectRequest = new CollectRequest();
+        collectRequest.setRoot(new Dependency(artifact, ""));
+        collectRequest.setRepositories(repositories);
+        CollectResult result = system.collectDependencies(session, collectRequest);
+        return result;
+    }
+
+    private static ArtifactResult resolveArtifact(RepositorySystem system,
+                                                  DefaultRepositorySystemSession session,
+                                                  List<RemoteRepository> repositories,
+                                                  Artifact artifact) throws ArtifactResolutionException {
+        ArtifactRequest req = new ArtifactRequest();
+        req.setArtifact(artifact);
+        req.setRepositories(repositories);
+        ArtifactResult res = system.resolveArtifact( session, req);
+        return res;
+    }
+
+    /*
+     * Similar to https://github.com/apache/maven-resolver/blob/0572277e23f5c2f2643dacf8bc8b8ea1ba031dea/maven-resolver-demos/maven-resolver-demo-snippets/src/main/java/org/apache/maven/resolver/examples/util/Booter.java#L71
+     * The difference is that the local repository is ~/.m2/repository
+     */
+    private static DefaultRepositorySystemSession newRepositorySystemSession(RepositorySystem system) throws IOException {
+        DefaultRepositorySystemSession session = MavenRepositorySystemUtils.newSession();
+
+        File home = new File(System.getProperty("user.home"));
+        if (!home.isDirectory() || !home.canExecute())
+            throw new IllegalArgumentException("user.home is not a directory: "+home);
+        File m2 = home.toPath().resolve(".m2").toFile();
+        if (!m2.exists())
+            m2.mkdirs();
+        if (!m2.exists())
+            throw new IllegalArgumentException("Cannot create ~/.m2");
+        File local = m2.toPath().resolve("repository").toFile();
+        if (!local.exists())
+            local.mkdirs();
+        if (!local.exists())
+            throw new IllegalArgumentException("Cannot create ~/.m2/repository");
+
+        LocalRepository localRepo = new LocalRepository( local );
+        session.setLocalRepositoryManager( system.newLocalRepositoryManager( session, localRepo ) );
+
+        session.setTransferListener( new ConsoleTransferListener() );
+        session.setRepositoryListener( new ConsoleRepositoryListener() );
+
+        return session;
+    }
+
+    private static List<RemoteRepository> newRepositories(String mavenCentralURL)
+    {
+        return new ArrayList<>( Collections.singletonList( newCentralRepository(mavenCentralURL) ) );
+    }
+
+    private static RemoteRepository newCentralRepository(String mavenCentralURL)
+    {
+        return new RemoteRepository.Builder( "central", "default", mavenCentralURL).build();
+    }
 }
