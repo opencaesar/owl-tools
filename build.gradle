@@ -28,8 +28,8 @@ subprojects {
 	apply plugin: 'idea'
 	apply from: "${rootDir}/gradle/maven-deployment.gradle"
 		
-	sourceCompatibility = '17'
-	targetCompatibility = '17'
+	sourceCompatibility = '11'
+	targetCompatibility = '11'
 
 	java {
 	    withJavadocJar()
