@@ -33,6 +33,8 @@ import org.slf4j.LoggerFactory;
 /**
  * A factory for repository system instances that employs Maven Artifact Resolver's built-in service locator
  * infrastructure to wire up the system's components.
+ *
+ * This is based on the Maven Resolver 'demo.snippets'.
  */
 public class ManualRepositorySystemFactory
 {

@@ -2,7 +2,6 @@ package io.opencaesar.owl.fuseki;
 
 import java.io.*;
 import java.net.*;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.zip.ZipEntry;
@@ -21,14 +20,11 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
-import org.apache.maven.resolver.owl.fuseki.ConsoleRepositoryListener;
-import org.apache.maven.resolver.owl.fuseki.ConsoleTransferListener;
 import org.apache.maven.resolver.owl.fuseki.ManualRepositorySystemFactory;
 import org.eclipse.aether.DefaultRepositorySystemSession;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.artifact.DefaultArtifact;
-import org.eclipse.aether.artifact.DefaultArtifactType;
 import org.eclipse.aether.collection.*;
 import org.eclipse.aether.graph.Dependency;
 import org.eclipse.aether.graph.DependencyNode;
@@ -38,15 +34,6 @@ import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.aether.resolution.ArtifactRequest;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.aether.resolution.ArtifactResult;
-import org.eclipse.aether.util.artifact.DefaultArtifactTypeRegistry;
-import org.eclipse.aether.util.graph.manager.ClassicDependencyManager;
-import org.eclipse.aether.util.graph.selector.AndDependencySelector;
-import org.eclipse.aether.util.graph.selector.ExclusionDependencySelector;
-import org.eclipse.aether.util.graph.selector.OptionalDependencySelector;
-import org.eclipse.aether.util.graph.selector.ScopeDependencySelector;
-import org.eclipse.aether.util.graph.transformer.*;
-import org.eclipse.aether.util.graph.traverser.FatArtifactTraverser;
-import org.eclipse.aether.util.repository.SimpleArtifactDescriptorPolicy;
 
 public class FusekiApp {
 
@@ -72,7 +59,7 @@ public class FusekiApp {
             description = "Version of Fuseki, defaults to 4.6.0",
             required = false,
             order = 2)
-    private String fusekiVersion = "4.6.0";
+    private String fusekiVersion = "4.6.1";
 
     @Parameter(
             names = {"--configurationPath", "-g"},
@@ -122,11 +109,11 @@ public class FusekiApp {
 
 
     @Parameter(
-            names = {"--maven-central"},
-            description = "URL for Maven Central repository, defaults to: https://repo.maven.apache.org/maven2/",
+            names = {"--remote-repository-url", "-url"},
+            description = "URL for a remote repository like Maven Central, defaults to: https://repo.maven.apache.org/maven2/",
             required = false,
             order = 10)
-    private String mavenCentralURL = "https://repo.maven.apache.org/maven2/";
+    private String remoteRepositoryURL = "https://repo.maven.apache.org/maven2/";
 
     private final static Logger LOGGER = Logger.getLogger(FusekiApp.class);
 
@@ -163,7 +150,7 @@ public class FusekiApp {
         if (command == Command.start) {
              RepositorySystem repositorySystem = ManualRepositorySystemFactory.newRepositorySystem();
             DefaultRepositorySystemSession session = newRepositorySystemSession(repositorySystem);
-            List<RemoteRepository> repositories = newRepositories(mavenCentralURL);
+            List<RemoteRepository> repositories = newRepositories(remoteRepositoryURL);
             final List<String> deps = new ArrayList<>();
             collectDependencies(repositorySystem, session, repositories, newFusekiServerArtifact(fusekiVersion), deps);
 

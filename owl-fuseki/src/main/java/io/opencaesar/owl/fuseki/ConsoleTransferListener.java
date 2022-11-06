@@ -1,4 +1,4 @@
-package org.apache.maven.resolver.owl.fuseki;
+package io.opencaesar.owl.fuseki;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one

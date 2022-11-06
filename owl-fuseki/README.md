@@ -45,7 +45,7 @@ task startFuseki(type: io.opencaesar.owl.fuseki.StartFusekiTask) {
 	outputFolderPath = file('path/to/output/folder') // with webui, a 'webapp' subfolder will be created
 	webUI = true // optional, default is false.
 	maxPings = 10 // optional
-	mavenCentralURL = 'https://internal/artifactory/maven-remote-virtual' // if unset, defaults to https://repo.maven.apache.org/maven2/
+	remoteRepositoryURL = 'https://internal/artifactory/maven-remote-virtual' // if unset, defaults to https://repo.maven.apache.org/maven2/
 }
 
 task stopFuseki(type: io.opencaesar.owl.fuseki.StopFusekiTask) {

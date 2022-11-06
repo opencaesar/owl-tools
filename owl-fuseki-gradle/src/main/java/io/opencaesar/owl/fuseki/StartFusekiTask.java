@@ -3,15 +3,12 @@ package io.opencaesar.owl.fuseki;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.file.*;
-import org.gradle.api.internal.file.FileCollectionFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
-import org.gradle.api.tasks.Classpath;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.Optional;
@@ -26,7 +23,7 @@ public abstract class StartFusekiTask extends DefaultTask {
 
     @Optional
     @Input
-    public abstract Property<String> getMavenCentralURL();
+    public abstract Property<String> getRemoteRepositoryURL();
 
     @InputFile
     public abstract RegularFileProperty getConfigurationPath();
@@ -76,9 +73,9 @@ public abstract class StartFusekiTask extends DefaultTask {
             args.add("--fuseki-version");
             args.add(getFusekiVersion().get());
         }
-        if (getMavenCentralURL().isPresent()) {
-            args.add("--maven-central");
-            args.add(getMavenCentralURL().get());
+        if (getRemoteRepositoryURL().isPresent()) {
+            args.add("-url");
+            args.add(getRemoteRepositoryURL().get());
         }
         if (getConfigurationPath().isPresent()) {
             args.add("-g");
