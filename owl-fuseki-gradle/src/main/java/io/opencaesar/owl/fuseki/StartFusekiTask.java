@@ -35,6 +35,7 @@ public abstract class StartFusekiTask extends DefaultTask {
     @Input
     public abstract Property<Boolean> getWebUI();
 
+    @Optional
     @Input
     public abstract Property<Integer> getPort();
 

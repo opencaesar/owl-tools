@@ -85,7 +85,7 @@ public class FusekiApp {
             names = {"--webui", "-ui"},
             description = "Starts the Fuseki UI instead of the headless Fuseki server (Optional)",
             order = 6)
-    private boolean webui;
+    private boolean webui = false;
 
     @Parameter(
             names = {"--max-pings", "-p"},
@@ -98,14 +98,14 @@ public class FusekiApp {
             names = {"--debug", "-d"},
             description = "Shows debug logging statements",
             order = 8)
-    private boolean debug;
+    private boolean debug = false;
 
     @Parameter(
             names = {"--help", "-h"},
             description = "Displays summary of options",
             help = true,
             order = 9)
-    private boolean help;
+    private boolean help = false;
 
 
     @Parameter(
