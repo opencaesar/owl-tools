@@ -76,10 +76,10 @@ public class FusekiApp {
 
     @Parameter(
             names = {"--port"},
-            description = "Fuseki server port",
+            description = "Fuseki server port (defaults to 3030)",
             help = true,
             order = 5)
-    private int port;
+    private int port = 3030;
 
     @Parameter(
             names = {"--webui", "-ui"},
