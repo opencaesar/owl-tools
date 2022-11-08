@@ -40,7 +40,8 @@ public class ManualRepositorySystemFactory
 {
     private static final Logger LOGGER = LoggerFactory.getLogger( ManualRepositorySystemFactory.class );
 
-    public static RepositorySystem newRepositorySystem()
+    @SuppressWarnings("deprecation")
+	public static RepositorySystem newRepositorySystem()
     {
         /*
          * Aether's components implement org.eclipse.aether.spi.locator.Service to ease manual wiring and using the
@@ -65,6 +66,7 @@ public class ManualRepositorySystemFactory
         return locator.getService( RepositorySystem.class );
     }
 
+    @SuppressWarnings("deprecation")
     public static DefaultServiceLocator newServiceLocator() {
         DefaultServiceLocator locator = new DefaultServiceLocator();
         locator.addService(ArtifactDescriptorReader.class, DefaultArtifactDescriptorReader.class);

@@ -203,7 +203,7 @@ public class OwlShaclFusekiApp {
 				output.createNewFile();
 				FileOutputStream res = new FileOutputStream(output);
 	
-				model.getWriter("turtle").write(model, res, null);
+				model.write(res, "turtle");
 			} catch (IOException | InterruptedException e) {
 				throw new RuntimeException(e);
 			}
