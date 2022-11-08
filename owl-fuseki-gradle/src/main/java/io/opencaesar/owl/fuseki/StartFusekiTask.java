@@ -86,8 +86,10 @@ public abstract class StartFusekiTask extends DefaultTask {
             args.add("-o");
             args.add(getOutputFolderPath().get().getAsFile().getAbsolutePath());
         }
-        args.add("--port");
-        args.add(getPort().get().toString());
+        if (getPort().isPresent()) {
+        	args.add("--port");
+        	args.add(getPort().get().toString());
+        }
         if (getWebUI().isPresent()) {
         	if (getWebUI().get()) {
                 args.add("-ui");
