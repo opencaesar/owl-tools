@@ -6,12 +6,22 @@ mainClassName = 'io.opencaesar.owl.fuseki.OwlFusekiApp'
 applicationName = 'owl-fuseki'
 
 dependencies {
+	// Note: In principle, this dependency should suffice because it declares dependencies to the libraries below.
+	// Unfortunately, this dependency alone is not sufficient to resolve the source code dependencies.
+	//
+	// implementation "org.apache.maven:maven-resolver:${versions.mavenProvider}"
+	//
+	// Below are the dependencies required to properly resolve the fuseki-related jars.
+	implementation "org.apache.maven:maven-resolver-provider:${versions.mavenProvider}"
+	implementation "org.apache.maven.resolver:maven-resolver-api:${versions.mavenResolver}"
+	implementation "org.apache.maven.resolver:maven-resolver-connector-basic:${versions.mavenResolver}"
+	implementation "org.apache.maven.resolver:maven-resolver-impl:${versions.mavenResolver}"
+	implementation "org.apache.maven.resolver:maven-resolver-transport-file:${versions.mavenResolver}"
+	implementation "org.apache.maven.resolver:maven-resolver-transport-http:${versions.mavenResolver}"
+	implementation "org.apache.maven.resolver:maven-resolver-util:${versions.mavenResolver}"
+
 	implementation "com.beust:jcommander:${versions.jcommander}"
 	implementation "log4j:log4j:${versions.log4j}"
 	implementation "org.slf4j:slf4j-simple:${versions.slf4j}"
 	testImplementation "junit:junit:${versions.junit}"
-
-	implementation "org.apache.jena:jena-fuseki-server:${versions.jena}"
-	implementation "org.apache.jena:jena-fuseki-fulljar:${versions.jena}"
-	implementation "org.apache.jena:jena-fuseki-war:${versions.jena}@war"
 }
