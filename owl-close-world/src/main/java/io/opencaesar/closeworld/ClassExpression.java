@@ -254,20 +254,23 @@ import java.util.stream.Collectors;
 
 	/**
 	 * Singleton implements methods for ClassExpressions that encapsulate an arbitrary
-	 * object representing a single class.
+	 * object representing a single OWL2-DL class.
 	
 	 * @author		Steven Jenkins j.s.jenkins@jpl.nasa.gov
 	 * @version		0.0.1
 	 * @since		0.0.1
 	 */
 	public static class Singleton extends ClassExpression {
-		
+
+		/**
+		 * An arbitrary object representing a single OWL2-DL class.
+		 */
 		protected Object encapsulatedClass;
 
 		/**
 		 * A Singleton encapsulating the specified class
 		 *
-		 * @param		encapsulatedClass An arbitrary object representing a class
+		 * @param		encapsulatedClass An arbitrary object representing a single OWL2-DL class.
 		 */
 		public Singleton(Object encapsulatedClass) {
 			this.encapsulatedClass = encapsulatedClass;
@@ -318,7 +321,10 @@ import java.util.stream.Collectors;
 	 * @since		0.0.1
 	 */
 	protected static abstract class Unary extends ClassExpression {
-		
+
+		/**
+		 * A ClassExpression
+		 */
 		protected ClassExpression e;
 		
 		/**
@@ -404,8 +410,14 @@ import java.util.stream.Collectors;
 	 * @since		0.0.1
 	 */
 	protected static abstract class Binary extends ClassExpression {
-		
+
+		/**
+		 * A ClassExpression
+		 */
 		protected ClassExpression a;
+		/**
+		 * A ClassExpression
+		 */
 		protected ClassExpression b;
 		
 		/**
@@ -503,7 +515,10 @@ import java.util.stream.Collectors;
 	 * @since		0.0.1
 	 */
 	protected static abstract class Nary extends ClassExpression {
-		
+
+		/**
+		 * A set of class expressions.
+		 */
 		protected Set<ClassExpression> s;
 		
 		/**
