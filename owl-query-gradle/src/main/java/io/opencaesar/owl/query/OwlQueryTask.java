@@ -25,23 +25,44 @@ import org.gradle.work.Incremental;
  */
 public abstract class OwlQueryTask extends DefaultTask {
 
+	/**
+	 * @return The required gradle task input Fuseki endpoint URL.
+	 */
 	@Input
 	public abstract Property<String> getEndpointURL();
 
+	/**
+	 * @return The required gradle task input query path where to search for *.sparql files.
+	 */
 	@Input
 	public abstract Property<File> getQueryPath();
 
+	/**
+	 * @return The required gradle task output result path where to save query results.
+	 */
 	@Input
 	public abstract Property<File> getResultPath();
 
+
+	/**
+	 * @return The optional gradle task query output file format property (default is xml).
+	 *         Options: xml, json, csv, n3, ttl, n-triple, or tsv.
+	 */
 	@Optional
 	@Input
 	public abstract Property<String> getFormat();
 
+	/**
+	 * @return The optional gradle task debug property (default is false).
+	 */
 	@Input
 	@Optional
 	public abstract Property<Boolean> getDebug();
 
+	/**
+	 * @return the collection of *.sparql files found in the query folder.
+	 * @throws IOException error
+	 */
 	@Incremental
 	@InputFiles
 	@SuppressWarnings("deprecation")
@@ -60,6 +81,10 @@ public abstract class OwlQueryTask extends DefaultTask {
 		return getProject().files(Collections.EMPTY_LIST);
 	}
 
+	/**
+	 * @return the collection of query result files corresponding to each *.sparql file found in the query folder.
+	 * @throws IOException error
+	 */
 	@OutputFiles
 	@SuppressWarnings("deprecation")
 	protected ConfigurableFileCollection getOutputFiles() throws IOException {
@@ -84,7 +109,10 @@ public abstract class OwlQueryTask extends DefaultTask {
 		String newName = name.substring(0, index) + "." + newExt;
 		return new File(newPath + File.separator + newName);
 	}
-	
+
+	/**
+	 * The gradle task action logic.
+	 */
     @TaskAction
     public void run() {
 		final ArrayList<String> args = new ArrayList<>();

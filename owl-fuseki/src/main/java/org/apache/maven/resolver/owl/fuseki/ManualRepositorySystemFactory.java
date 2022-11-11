@@ -40,6 +40,9 @@ public class ManualRepositorySystemFactory
 {
     private static final Logger LOGGER = LoggerFactory.getLogger( ManualRepositorySystemFactory.class );
 
+    /**
+     * @return A Maven RepositorySystem.
+     */
     @SuppressWarnings("deprecation")
 	public static RepositorySystem newRepositorySystem()
     {
@@ -66,6 +69,9 @@ public class ManualRepositorySystemFactory
         return locator.getService( RepositorySystem.class );
     }
 
+    /**
+     * @return A Maven DefaultServiceLocator
+     */
     @SuppressWarnings("deprecation")
     public static DefaultServiceLocator newServiceLocator() {
         DefaultServiceLocator locator = new DefaultServiceLocator();

@@ -11,15 +11,27 @@ import org.gradle.api.tasks.InputDirectory;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.TaskAction;
 
+/**
+ * Gradle task for stopping an Apache Fuseki server by killing the process based on the fuseki pid file.
+ */
 public abstract class StopFusekiTask extends DefaultTask {
 
+    /**
+     * @return The required gradle task output folder property.
+     */
     @InputDirectory
     public abstract DirectoryProperty getOutputFolderPath();
 
+    /**
+     * @return The optional gradle task debug property (default is false).
+     */
     @Optional
     @Input
     public abstract Property<Boolean> getDebug();
 
+    /**
+     * The gradle task action logic.
+     */
     @SuppressWarnings({ "deprecation" })
     @TaskAction
     public void run() {

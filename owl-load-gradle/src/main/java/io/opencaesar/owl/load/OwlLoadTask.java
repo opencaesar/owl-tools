@@ -30,23 +30,44 @@ import org.gradle.work.Incremental;
  */
 public abstract class OwlLoadTask extends DefaultTask {
 
+    /**
+     * @return The required gradle task list of ontology IRIs property.
+     */
     @Input
     public abstract ListProperty<String> getIris();
 
+    /**
+     * @return The required gradle task Fuseki server endpoint URL property.
+     */
     @Input
     public abstract Property<String> getEndpointURL();
 
+    /**
+     * @return The required gradle task OASIS XML catalog path property.
+     */
 	@Input
     public abstract Property<File> getCatalogPath();
 
+    /**
+     * @return The optional gradle task ontology file extensions property (default list is owl and ttl).
+     */
     @Optional
 	@Input
     public abstract ListProperty<String> getFileExtensions();
 
+    /**
+     * @return The optional gradle task debug property (default is false).
+     */
     @Optional
     @Input
     public abstract Property<Boolean> getDebug();
 
+    /**
+     * @return The list of gradle task input files derived from all the files in
+     *         the input catalog that have one of the file extensions.
+     * @throws IOException error
+     * @throws URISyntaxException error
+     */
     @Incremental
     @InputFiles
 	@SuppressWarnings("deprecation")
@@ -63,6 +84,9 @@ public abstract class OwlLoadTask extends DefaultTask {
 		return getProject().files(Collections.EMPTY_LIST);
     }
 
+    /**
+     * @return The gradle output file property derived from the task name with a `.log` suffix in the gradle build folder.
+     */
 	@OutputFile
     @SuppressWarnings("deprecation")
     protected Provider<RegularFile> getOutputFile() {
@@ -72,6 +96,9 @@ public abstract class OwlLoadTask extends DefaultTask {
                 .file("log/" + getTaskIdentity().name + ".log");
     }
 
+    /**
+     * The gradle task action logic.
+     */
     @TaskAction
     public void run() {
         final ArrayList<String> args = new ArrayList<>();

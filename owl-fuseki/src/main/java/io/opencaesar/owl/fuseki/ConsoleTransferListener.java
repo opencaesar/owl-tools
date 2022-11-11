@@ -34,7 +34,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import static java.util.Objects.requireNonNull;
 
 /**
- * A simplistic transfer listener that logs uploads/downloads to the console.
+ * A simplistic Maven transfer listener that logs uploads/downloads to the console.
  */
 public class ConsoleTransferListener
     extends AbstractTransferListener
@@ -46,8 +46,14 @@ public class ConsoleTransferListener
 
     private int lastLength;
 
+    /**
+     * Monitor Maven transfers to the logger.
+     */
     public ConsoleTransferListener() {}
 
+    /**
+     * @param event The event details, must not be {@code null}.
+     */
     @Override
     public void transferInitiated( TransferEvent event )
     {
@@ -57,6 +63,9 @@ public class ConsoleTransferListener
         LOGGER.debug( message + ": " + event.getResource().getRepositoryUrl() + event.getResource().getResourceName() );
     }
 
+    /**
+     * @param event The event details, must not be {@code null}.
+     */
     @Override
     public void transferProgressed( TransferEvent event )
     {
@@ -113,6 +122,9 @@ public class ConsoleTransferListener
         }
     }
 
+    /**
+     * @param event The event details, must not be {@code null}.
+     */
     @Override
     public void transferSucceeded( TransferEvent event )
     {
@@ -141,6 +153,9 @@ public class ConsoleTransferListener
         }
     }
 
+    /**
+     * @param event The event details, must not be {@code null}.
+     */
     @Override
     public void transferFailed( TransferEvent event )
     {
@@ -164,12 +179,20 @@ public class ConsoleTransferListener
         LOGGER.info( buffer );
     }
 
+    /**
+     * @param event The event details, must not be {@code null}.
+     */
     public void transferCorrupted( TransferEvent event )
     {
         requireNonNull( event, "event cannot be null" );
         LOGGER.error(event.toString(), event.getException());
     }
 
+    /**
+     * convertion to kilobytes
+     * @param bytes bytes
+     * @return the bytes in kilobytes units
+     */
     protected long toKB( long bytes )
     {
         return ( bytes + 1023 ) / 1024;

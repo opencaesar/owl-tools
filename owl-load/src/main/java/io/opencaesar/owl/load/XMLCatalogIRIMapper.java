@@ -10,13 +10,28 @@ import org.apache.xml.resolver.CatalogManager;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLOntologyIRIMapper;
 
+/**
+ * An ontology IRI mapper based on an OASIS XML catalog.
+ */
 @SuppressWarnings("serial")
 public class XMLCatalogIRIMapper implements OWLOntologyIRIMapper {
 
+	/**
+	 * The OASIS XML catalog defining the scope for searching ontology files.
+	 */
 	private final Catalog catalog;
 
+	/**
+	 * The file extensions to search ontology files in scope of the catalog.
+	 */
 	private final List<String> extensions;
 
+	/**
+	 * Construct
+	 * @param catalogFile OASIS XML catalog file
+	 * @param extensions ontology file extensions
+	 * @throws IOException error
+	 */
 	public XMLCatalogIRIMapper(File catalogFile, List<String> extensions) throws IOException {
 		this.extensions = extensions;
 		if (null == catalogFile || !catalogFile.isFile() || !catalogFile.isAbsolute())

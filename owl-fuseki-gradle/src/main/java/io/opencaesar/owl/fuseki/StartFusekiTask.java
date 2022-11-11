@@ -16,14 +16,23 @@ import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 
+/**
+ * Gradle task for starting a background Apache Fuseki server that stays running beyond the gradle session.
+ */
 public abstract class StartFusekiTask extends DefaultTask {
 
 	@InputFile
     public abstract RegularFileProperty getConfigurationPath();
 
+    /**
+     * @return The required gradle task fuseki output folder property.
+     */
     @OutputDirectory
     public abstract DirectoryProperty getOutputFolderPath();
 
+    /**
+     * @return The optional gradle task fuseki web ui property (default is false).
+     */
     @Optional
     @Input
     public abstract Property<String> getRemoteRepositoryURL();
@@ -32,10 +41,16 @@ public abstract class StartFusekiTask extends DefaultTask {
     @Input
     public abstract Property<String> getFusekiVersion();
 
+    /**
+     * @return The optional gradle task fuseki port property (default is 3030).
+     */
     @Optional
     @Input
     public abstract Property<Integer> getPort();
 
+    /**
+     * @return The optional gradle task fuseki maximum pings property (default is 10).
+     */
     @Optional
     @Input
     public abstract Property<Boolean> getWebUI();
@@ -44,10 +59,18 @@ public abstract class StartFusekiTask extends DefaultTask {
     @Input
     public abstract Property<Integer> getMaxPings();
 
+    /**
+     * @return The optional gradle task debug property (default is false).
+     */
     @Optional
     @Input
     public abstract Property<Boolean> getDebug();
 
+    /**
+     * @return The gradle output file, after checking whether the fuseki pid file can be deleted
+     *         if the process no longer exists.
+     * @throws IOException error
+     */
     @OutputFile
     protected Provider<RegularFile> getOutputFile() throws IOException {
         if (getOutputFolderPath().isPresent()) {
@@ -67,6 +90,9 @@ public abstract class StartFusekiTask extends DefaultTask {
         return null;
     }
 
+    /**
+     * The gradle task action logic.
+     */
     @TaskAction
     public void run() {
         final ArrayList<String> args = new ArrayList<>();
@@ -106,13 +132,6 @@ public abstract class StartFusekiTask extends DefaultTask {
         try {
             String[] a = args.toArray(new String[0]);
         	FusekiApp.main(a);
-
-            // Delete the 'fuseki.stopped' file to enable stopFuseki again.
-            if (getOutputFolderPath().isPresent()) {
-                File stoppedFile = getOutputFolderPath().get().getAsFile().toPath().resolve(FusekiApp.STOPPED_FILENAME).toFile();
-                if (stoppedFile.exists())
-                    stoppedFile.delete();
-            }
         } catch (Exception e) {
 			throw new GradleException(e.getLocalizedMessage(), e);
         }

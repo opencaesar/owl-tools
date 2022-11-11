@@ -30,6 +30,10 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 
+/**
+ * Ontology comparison utility to print differences in terms of ontology import declaration and other axioms
+ * between two ontologies.
+ */
 public class OwlDiffApp {
 
 	@Parameter(
@@ -74,6 +78,11 @@ public class OwlDiffApp {
         DOMConfigurator.configure(ClassLoader.getSystemClassLoader().getResource("log4j.xml"));
 	}
 
+	/**
+	 * Application for the ontology comparison tool.
+	 * @param args Application arguments.
+	 * @throws Exception Error
+	 */
 	public static void main(final String... args) throws Exception {
 		final OwlDiffApp app = new OwlDiffApp();
 		final JCommander builder = JCommander.newBuilder().addObject(app).build();
@@ -89,6 +98,10 @@ public class OwlDiffApp {
 		app.run();
 	}
 
+	/**
+	 * Runs the ontology comparison utility.
+	 * @throws Exception Error
+	 */
 	public void run() throws Exception {
 		LOGGER.info("=================================================================");
 		LOGGER.info("                        S T A R T");
@@ -148,6 +161,13 @@ public class OwlDiffApp {
 		LOGGER.info("=================================================================");
 	}
 
+	/**
+	 * Print the differences between two ontologies (1 and 2) in terms of:
+	 * - import declaration axioms in 2 but not in 1
+	 * - axioms in 2 but not in 1
+	 * @param ontology1 an ontology 1
+	 * @param ontology2 an ontology 2
+	 */
 	public void check(final OWLOntology ontology1, final OWLOntology ontology2) {
 		Set<OWLImportsDeclaration> imports1 = ontology1.importsDeclarations().collect(Collectors.toSet());
 		Set<OWLImportsDeclaration> imports2 = ontology2.importsDeclarations().collect(Collectors.toSet());
@@ -162,6 +182,13 @@ public class OwlDiffApp {
 		printAxiomsInRightButNotLeft(axioms2, axioms1, "Axioms in ontology 2 only:");			
 	}
 
+	/**
+	 * Utility for printing import declaration axioms in the right set that are not in the left set.
+	 *
+	 * @param left a set of import declaration axioms
+	 * @param right a set of import declaration axioms
+	 * @param label A label prefixed for each import declaration axiom to print.
+	 */
 	public void printImportsInRightButNotLeft(final Set<OWLImportsDeclaration> left, final Set<OWLImportsDeclaration> right, final String label) {
 		left.stream().
 			sorted().
@@ -169,6 +196,13 @@ public class OwlDiffApp {
 			forEach(it -> LOGGER.info('\t'+label+' '+it.toString().replace('\n', ' ')));
 	}
 
+	/**
+	 * Utility for printing axioms in the right set that are not in the left set.
+	 *
+	 * @param left a set of axioms
+	 * @param right a set of axioms
+	 * @param label A label prefixed for each axiom to print.
+	 */
 	public void printAxiomsInRightButNotLeft(final Set<OWLAxiom> left, final Set<OWLAxiom> right, final String label) {
 		left.stream().
 			sorted().
@@ -216,6 +250,9 @@ public class OwlDiffApp {
     	return (version != null) ? version : "<SNAPSHOT>";
     }
 
+	/**
+	 * A parameter validator for an OASIS XML catalog path.
+	 */
 	public static class CatalogPath implements IParameterValidator {
 		@Override
 		public void validate(final String name, final String value) throws ParameterException {
@@ -226,6 +263,9 @@ public class OwlDiffApp {
 		}
 	}
 
+	/**
+	 * A parameter validator for an output file path.
+	 */
 	public static class OutputFilePath implements IParameterValidator {
 		@Override
 		public void validate(final String name, final String value) throws ParameterException {
@@ -236,6 +276,9 @@ public class OwlDiffApp {
 		}
 	}
 
+	/**
+	 * A converter for a set of IRIs.
+	 */
 	public static class SetOfIris implements IStringConverter<Set<String>>  {
 		@Override
 		public Set<String> convert(final String value) {

@@ -154,8 +154,12 @@ public final class OwlCatalog {
 		}
 		return uris;
     }
-    
-    public URI resolve(String uri) {
+
+	/**
+	 * @param uri an ontology iri
+	 * @return the catalog-mapped file corresponding to the given ontology iri
+	 */
+	public URI resolve(String uri) {
     	try {
     		return new URI(catalog.resolveURI(uri));
     	} catch (Exception e) {

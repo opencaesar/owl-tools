@@ -19,21 +19,40 @@ import org.gradle.api.tasks.OutputFiles;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.work.Incremental;
 
+/**
+ * Gradle task for querying a fuseki endpoint using *.shacl queries.
+ */
 public abstract class OwlShaclFusekiTask extends DefaultTask {
 
+	/**
+	 * @return The required gradle task input Fuseki endpoint URL.
+	 */
 	@Input
 	public abstract Property<String> getEndpointURL();
 
+	/**
+	 * @return The required gradle task input query path where to search for *.shacl files.
+	 */
 	@Input
 	public abstract Property<File> getQueryPath();
 
+	/**
+	 * @return The required gradle task output result path where to save query results.
+	 */
 	@Input
 	public abstract Property<File> getResultPath();
 
+	/**
+	 * @return The optional gradle task debug property (default is false).
+	 */
 	@Input
 	@Optional
 	public abstract Property<Boolean> getDebug();
 
+	/**
+	 * @return the collection of *.shacl files found in the query folder.
+	 * @throws IOException error
+	 */
 	@Incremental
 	@InputFiles
 	@SuppressWarnings("deprecation")
@@ -52,6 +71,10 @@ public abstract class OwlShaclFusekiTask extends DefaultTask {
 		return getProject().files(Collections.EMPTY_LIST);
 	}
 
+	/**
+	 * @return the collection of query result files corresponding to each *.shacl file found in the query folder.
+	 * @throws IOException error
+	 */
 	@OutputFiles
 	@SuppressWarnings("deprecation")
 	protected ConfigurableFileCollection getOutputFiles() throws IOException {
@@ -77,6 +100,9 @@ public abstract class OwlShaclFusekiTask extends DefaultTask {
 		return new File(newPath + File.separator + newName);
 	}
 
+	/**
+	 * The gradle task action logic.
+	 */
     @TaskAction
     public void run() {
 		final ArrayList<String> args = new ArrayList<>();

@@ -48,8 +48,14 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 
+/**
+ * Utility for querying a Fuseki server using SPARQL queries.
+ */
 public class OwlQueryApp {
 
+	/**
+	 * The default query result file extension.
+	 */
 	public static String DEFAULT_FORMAT = "xml";
 
 	@Parameter(
@@ -100,6 +106,11 @@ public class OwlQueryApp {
         DOMConfigurator.configure(ClassLoader.getSystemClassLoader().getResource("log4j.xml"));
 	}
 
+	/**
+	 * Application for querying a Fuseki server.
+	 * @param args Application arguments.
+	 * @throws Exception Error
+	 */
 	public static void main(final String... args) throws Exception {
 		final OwlQueryApp app = new OwlQueryApp();
 		final JCommander builder = JCommander.newBuilder().addObject(app).build();
@@ -321,7 +332,11 @@ public class OwlQueryApp {
 			}
 		return queries;
 	}
-	
+
+	/**
+	 * @param file a file
+	 * @return the file extension without the period.
+	 */
 	public String getFileExtension(final File file) {
         String fileName = file.getName();
         if (fileName.lastIndexOf(".") != -1)
@@ -348,8 +363,11 @@ public class OwlQueryApp {
 	}
 
 	//------------
-	
 
+
+	/**
+	 * A parameter validator for the query result output format (one of xml, json, csv, tsv, n3, ttl, or n-triple).
+	 */
 	public static class FormatType implements IParameterValidator {
 		@Override
 		public void validate(final String name, final String value) throws ParameterException {
@@ -359,7 +377,10 @@ public class OwlQueryApp {
 			}
 		}
 	}
-	
+
+	/**
+	 * A parameter validator for an output result folder path.
+	 */
 	public static class ResultFolderPath implements IParameterValidator {
 		@Override
 		public void validate(final String name, final String value) throws ParameterException {
@@ -373,13 +394,16 @@ public class OwlQueryApp {
 			}
 	  	}
 	}
-	
+
+	/**
+	 * A parameter validator for an existing query file.
+	 */
 	public static class QueryPath implements IParameterValidator {
 		@Override
 		public void validate(final String name, final String value) throws ParameterException {
 			File input = new File(value);
 			if (!input.exists()) {
-				throw new ParameterException("Paramter " + name + " does not exist at " + value
+				throw new ParameterException("Parameter " + name + " does not exist at " + value
 						+ "\n Please give an existing input");
 			}
 		}

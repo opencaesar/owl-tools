@@ -94,6 +94,9 @@ import openllet.owlapi.OpenlletReasoner;
 import openllet.owlapi.OpenlletReasonerFactory;
 import openllet.owlapi.explanation.PelletExplanation;
 
+/**
+ * A utility for running a reasoner on the set of ontologies in scope of an OASIS XML catalog.
+ */
 public class OwlReasonApp {
   
 	private static final String CONSISTENCY = "Consistency";
@@ -118,9 +121,20 @@ public class OwlReasonApp {
 	}
 	
 	private final Options options = new Options();
-	
+
+	/**
+	 * default input ontology file extension.
+	 */
 	public static final String DEFAULT_INPUT_FILE_EXTENSION = "owl";
+
+	/**
+	 * default reasoner output file extension.
+	 */
 	public static final String DEFAULT_OUTPUT_FILE_EXTENSION = "ttl";
+
+	/**
+	 * default reasoner output explanation file extension.
+	 */
 	public static final String DEFAULT_EXPLANATION_FORMAT = "owl";
 	
 	private static class Options {
@@ -235,6 +249,11 @@ public class OwlReasonApp {
         DOMConfigurator.configure(ClassLoader.getSystemClassLoader().getResource("log4j.xml"));
 	}
 
+	/**
+	 * Application for running a reasoner on the set of ontologies in scope of an OASIS XML catalog.
+	 * @param args Application arguments.
+	 * @throws Exception Error
+	 */
 	public static void main(final String... args) throws Exception {
 		final OwlReasonApp app = new OwlReasonApp();
 		final JCommander builder = JCommander.newBuilder().addObject(app.options).build();
@@ -581,6 +600,9 @@ public class OwlReasonApp {
     	return (version != null) ? version : "<SNAPSHOT>";
     }
 
+	/**
+	 * A parameter validator for an OASIS XML catalog path.
+	 */
 	public static class CatalogPath implements IParameterValidator {
 		@Override
 		public void validate(final String name, final String value) throws ParameterException {
@@ -590,7 +612,10 @@ public class OwlReasonApp {
 			}
 		}
 	}
-	
+
+	/**
+	 * A string converter for specifying types of reasoning statements.
+	 */
 	public static class SpecConverter implements IStringConverter<Spec> {
 		@Override
 		public Spec convert(String value) {
@@ -608,6 +633,9 @@ public class OwlReasonApp {
 		
 	}
 
+	/**
+	 * A parameter validator for a file with one of the supported extensions
+	 */
 	public static class FileExtensionValidator implements IParameterValidator {
 		@Override
 		public void validate(final String name, final String value) throws ParameterException {
@@ -620,6 +648,9 @@ public class OwlReasonApp {
 		
 	}
 
+	/**
+	 * A parameter validator for an output RDF file.
+	 */
 	public static class OutputFileExtensionValidator implements IParameterValidator {
 		@Override
 		public void validate(final String name, final String value) throws ParameterException {
@@ -631,7 +662,10 @@ public class OwlReasonApp {
 		}
 
 	}
-	
+
+	/**
+	 * A parameter validator for an output explanation file.
+	 */
 	public static class ExplanationFormatValidator implements IParameterValidator {
 		@Override
 		public void validate(final String name, final String value) throws ParameterException {
@@ -643,6 +677,9 @@ public class OwlReasonApp {
 
 	}
 
+	/**
+	 * A parameter validator for an output XML report file.
+	 */
 	public static class ReportPathValidator implements IParameterValidator {
 		@Override
 		public void validate(final String name, final String value) throws ParameterException {

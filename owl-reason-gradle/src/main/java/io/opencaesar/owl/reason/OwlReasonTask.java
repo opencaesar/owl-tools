@@ -21,51 +21,99 @@ import org.gradle.api.tasks.OutputFiles;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.work.Incremental;
 
+/**
+ * Gradle task for reasoning about an input ontology and all of the ontologies whose import IRIs
+ * can be resolved using an OASIS XML catalog.
+ */
 public abstract class OwlReasonTask extends DefaultTask {
 
+	/**
+	 * @return The required gradle task input file for the OASIS XML catalog.
+	 */
 	@Input
     public abstract Property<File> getCatalogPath();
 
+	/**
+	 * @return The required gradle task input list of input file extensions;
+	 *         owl by default, options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss
+	 */
 	@Input
 	public abstract ListProperty<String> getInputFileExtensions();
 
+	/**
+	 * @return The required gradle task input list of output ontologies for different sets of entailment statement types.
+	 */
 	@Input
 	public abstract ListProperty<String> getSpecs();
 
+	/**
+	 * @return The optional gradle task output string property for the reasoner entailment results (default is ttl).
+	 *         options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss
+	 */
     @Optional
     @Input
     public abstract Property<String> getOutputFileExtension();
 
+	/**
+	 * @return The required gradle task input string property for the ontology IRI.
+	 */
 	@Input
 	public abstract Property<String> getInputOntologyIri();
 
+	/**
+	 * @return The optional gradle task input string property for the reasoner explanation format (default is owl).
+	 *         options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss
+	 */
 	@Optional
 	@Input
 	public abstract Property<String> getExplanationFormat();
 
+	/**
+	 * @return The required gradle task output file property for the reasoner reports.
+	 */
 	@OutputFile
 	public abstract RegularFileProperty getReportPath();
 
+	/**
+	 * @return The optional gradle task input boolean property for removing entailments due to unsatisfiability (default is true).
+	 */
 	@Optional
 	@Input
 	public abstract Property<Boolean> getRemoveUnsats();
 
+	/**
+	 * @return The optional gradle task input boolean property for removing the backbone ontology (default is true).
+	 */
 	@Optional
 	@Input
 	public abstract Property<Boolean> getRemoveBackbone();
 
+	/**
+	 * @return The optional gradle task backbone ontology input property (default is http://opencaesar.io/oml).
+	 */
 	@Optional
 	@Input
 	public abstract Property<String> getBackboneIri();
 
+	/**
+	 * @return The optional gradle task indent property (default is 2).
+	 */
 	@Optional
 	@Input
 	public abstract Property<Integer> getIndent();
 
+	/**
+	 * @return The optional gradle task debug property (default is false).
+	 */
 	@Optional
 	@Input
 	public abstract Property<Boolean> getDebug();
 
+	/**
+	 * @return Calculate the reasoner input files based on the OASIS XML catalog.
+	 * @throws IOException error
+	 * @throws URISyntaxException error
+	 */
 	@Incremental
 	@InputFiles
 	@SuppressWarnings("deprecation")
@@ -89,6 +137,11 @@ public abstract class OwlReasonTask extends DefaultTask {
 		return getProject().files(Collections.EMPTY_LIST);
 	}
 
+	/**
+	 * @return Calculate the output files that the reasoner will generate.
+	 * @throws IOException error
+	 * @throws URISyntaxException error
+	 */
 	@OutputFiles
 	@SuppressWarnings("deprecation")
 	protected ConfigurableFileCollection getOutputFiles() throws IOException, URISyntaxException {
@@ -105,6 +158,9 @@ public abstract class OwlReasonTask extends DefaultTask {
 		return getProject().files(Collections.EMPTY_LIST);
 	}
 
+	/**
+	 * The gradle task action logic.
+	 */
 	@TaskAction
     public void run() {
 		final ArrayList<String> args = new ArrayList<>();
