@@ -17,15 +17,8 @@ import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 
 public abstract class StartFusekiTask extends DefaultTask {
-    @Optional
-    @Input
-    public abstract Property<String> getFusekiVersion();
 
-    @Optional
-    @Input
-    public abstract Property<String> getRemoteRepositoryURL();
-
-    @InputFile
+	@InputFile
     public abstract RegularFileProperty getConfigurationPath();
 
     @OutputDirectory
@@ -33,11 +26,19 @@ public abstract class StartFusekiTask extends DefaultTask {
 
     @Optional
     @Input
-    public abstract Property<Boolean> getWebUI();
+    public abstract Property<String> getRemoteRepositoryURL();
+
+    @Optional
+    @Input
+    public abstract Property<String> getFusekiVersion();
 
     @Optional
     @Input
     public abstract Property<Integer> getPort();
+
+    @Optional
+    @Input
+    public abstract Property<Boolean> getWebUI();
 
     @Optional
     @Input

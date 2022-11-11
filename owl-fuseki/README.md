@@ -17,7 +17,10 @@ Args:
 ```
 --command | -c start|stop								[Required]
 --configurationPath | -g path/to/.fuseki.ttl			[Required]
---outputFolderPath | -i path/to/output/folder			[Required]
+--outputFolderPath | -o path/to/output/folder			[Required]
+--remote-repository-url | url							[Optional, default: https://repo.maven.apache.org/maven2/]
+--fuseki-version | -fv  <version>						[Optional, default: 4.6.1]
+--port | -p	<port>										[Optional, default: 3030)
 --webui | -ui                                           [Optional]
 --max-pings | -p                                        [Optional]
 ```
@@ -40,16 +43,17 @@ dependencies {
 }
 
 task startFuseki(type: io.opencaesar.owl.fuseki.StartFusekiTask) {
-	configurationPath = file('path/to/.fuseki.ttl')
-	port = 3030
-	outputFolderPath = file('path/to/output/folder') // with webui, a 'webapp' subfolder will be created
-	webUI = true // optional, default is false.
-	maxPings = 10 // optional
-	remoteRepositoryURL = 'https://internal/artifactory/maven-remote-virtual' // if unset, defaults to https://repo.maven.apache.org/maven2/
+	configurationPath = file('path/to/.fuseki.ttl') // required
+	outputFolderPath = file('path/to/output/folder') // required
+	remoteRepositoryURL = 'some-url' // optional, default: 'https://repo.maven.apache.org/maven2/'
+	fusekiVersion = '4.6.1' // optional, default: '4.6.1'
+	port = 3030 // optional, default: 3030
+	webUI = true // optional, default: false [creates a 'webapp' subfolder under outputFolderPath]
+	maxPings = 10 // optional, default: 10
 }
 
 task stopFuseki(type: io.opencaesar.owl.fuseki.StopFusekiTask) {
-	outputFolderPath = file('path/to/output/folder')
+	outputFolderPath = file('path/to/output/folder') // required
 }
 ```
 

@@ -48,6 +48,7 @@ public class FusekiApp {
     }
 
     @Parameter(
+            names = {"--command", "-c"},
             description = "An enumerated command: start or stop (Required)",
             converter = CommandConverter.class,
             required = true,
@@ -55,65 +56,67 @@ public class FusekiApp {
     private Command command;
 
     @Parameter(
-            names = {"--fuseki-version"},
-            description = "Version of Fuseki, defaults to 4.6.0",
-            required = false,
-            order = 2)
-    private String fusekiVersion = "4.6.1";
-
-    @Parameter(
             names = {"--configurationPath", "-g"},
             description = "A path to a configuration file (Required)",
-            order = 3)
+            required = true,
+            order = 2)
     private String configurationPath;
 
     @Parameter(
             names = {"--outputFolderPath", "-o"},
             description = "A path to an output folder (Required)",
             required = true,
-            order = 4)
+            order = 3)
     private String outputFolderPath;
 
     @Parameter(
-            names = {"--port"},
-            description = "Fuseki server port (defaults to 3030)",
-            help = true,
+            names = {"--remote-repository-url", "-url"},
+            description = "URL for a remote repository like Maven Central, defaults to: https://repo.maven.apache.org/maven2/",
+            required = false,
+            order = 4)
+    private String remoteRepositoryURL = "https://repo.maven.apache.org/maven2/";
+
+    @Parameter(
+            names = {"--fuseki-version", "-fv"},
+            description = "Version of Fuseki, defaults to 4.6.0",
+            required = false,
             order = 5)
+    private String fusekiVersion = "4.6.1";
+
+    @Parameter(
+            names = {"--port, -p"},
+            description = "Fuseki server port (defaults to 3030)",
+            required = false,
+            order = 6)
     private int port = 3030;
 
     @Parameter(
             names = {"--webui", "-ui"},
             description = "Starts the Fuseki UI instead of the headless Fuseki server (Optional)",
-            order = 6)
+            required = false,
+            order = 7)
     private boolean webui = false;
 
     @Parameter(
             names = {"--max-pings", "-p"},
             description = "Maximum number (10 by default) of pings to the server before giving up",
             help = true,
-            order = 7)
+            required = false,
+            order = 8)
     private int maxPings = 10;
 
     @Parameter(
             names = {"--debug", "-d"},
             description = "Shows debug logging statements",
-            order = 8)
+            order = 9)
     private boolean debug = false;
 
     @Parameter(
             names = {"--help", "-h"},
             description = "Displays summary of options",
             help = true,
-            order = 9)
-    private boolean help = false;
-
-
-    @Parameter(
-            names = {"--remote-repository-url", "-url"},
-            description = "URL for a remote repository like Maven Central, defaults to: https://repo.maven.apache.org/maven2/",
-            required = false,
             order = 10)
-    private String remoteRepositoryURL = "https://repo.maven.apache.org/maven2/";
+    private boolean help = false;
 
     private final static Logger LOGGER = Logger.getLogger(FusekiApp.class);
 
