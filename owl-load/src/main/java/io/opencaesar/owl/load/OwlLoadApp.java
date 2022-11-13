@@ -128,6 +128,12 @@ public class OwlLoadApp {
         app.run();
     }
 
+    /**
+     * Creates a new OwlLoadApp object
+     */
+    public OwlLoadApp() {
+    }
+    
     private void run() throws Exception {
         LOGGER.info("=================================================================");
         LOGGER.info("                        S T A R T");
@@ -204,7 +210,7 @@ public class OwlLoadApp {
     /**
      * @return true if the operating system is Windows.
      */
-    public static boolean isWindows() {
+    private static boolean isWindows() {
         return (OS.indexOf("win") >= 0);
     }
     private void loadOntology(RDFConnection conn, final OWLOntology ont) {
@@ -247,6 +253,11 @@ public class OwlLoadApp {
      * A parameter validator for a file extension for an RDF language syntax.
      */
 	public static class FileExtensionValidator implements IParameterValidator {
+		/**
+		 * Creates a new FileExtensionValidator object
+		 */
+		public FileExtensionValidator() {
+		}
 		@Override
 		public void validate(final String name, final String value) throws ParameterException {
 			Lang lang = RDFLanguages.fileExtToLang(value);
@@ -261,6 +272,11 @@ public class OwlLoadApp {
      * A parameter validator for an OASIS XML catalog path.
      */
 	public static class CatalogPath implements IParameterValidator {
+		/**
+		 * Creates a new FileExtensionValidator object
+		 */
+		public CatalogPath() {
+		}
         @Override
         public void validate(final String name, final String value) throws ParameterException {
             File file = new File(value);

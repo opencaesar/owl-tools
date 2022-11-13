@@ -28,89 +28,121 @@ import org.gradle.work.Incremental;
 public abstract class OwlReasonTask extends DefaultTask {
 
 	/**
-	 * @return The required gradle task input file for the OASIS XML catalog.
+	 * Creates a new OwlReasonTask object
+	 */
+	public OwlReasonTask() {
+	}
+
+	/**
+	 * The required gradle task input file for the OASIS XML catalog.
+	 * 
+	 * @return File Property
 	 */
 	@Input
     public abstract Property<File> getCatalogPath();
 
 	/**
-	 * @return The required gradle task input list of input file extensions;
+	 * The required gradle task input list of input file extensions;
 	 *         owl by default, options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss
+	 *         
+	 * @return List of Strings Proprty
 	 */
 	@Input
 	public abstract ListProperty<String> getInputFileExtensions();
 
 	/**
-	 * @return The required gradle task input list of output ontologies for different sets of entailment statement types.
+	 * The required gradle task input list of output ontologies for different sets of entailment statement types.
+	 * 
+	 * @return List of Strings Property
 	 */
 	@Input
 	public abstract ListProperty<String> getSpecs();
 
 	/**
-	 * @return The optional gradle task output string property for the reasoner entailment results (default is ttl).
+	 * The optional gradle task output string property for the reasoner entailment results (default is ttl).
 	 *         options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss
+	 *         
+	 * @return String Property
 	 */
     @Optional
     @Input
     public abstract Property<String> getOutputFileExtension();
 
 	/**
-	 * @return The required gradle task input string property for the ontology IRI.
+	 * The required gradle task input string property for the ontology IRI.
+	 * 
+	 * @return String Property
 	 */
 	@Input
 	public abstract Property<String> getInputOntologyIri();
 
 	/**
-	 * @return The optional gradle task input string property for the reasoner explanation format (default is owl).
+	 * The optional gradle task input string property for the reasoner explanation format (default is owl).
 	 *         options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss
+	 *         
+	 * @return String Property
 	 */
 	@Optional
 	@Input
 	public abstract Property<String> getExplanationFormat();
 
 	/**
-	 * @return The required gradle task output file property for the reasoner reports.
+	 * The required gradle task output file property for the reasoner reports.
+	 * 
+	 * @return RegularFile Property
 	 */
 	@OutputFile
 	public abstract RegularFileProperty getReportPath();
 
 	/**
-	 * @return The optional gradle task input boolean property for removing entailments due to unsatisfiability (default is true).
+	 * The optional gradle task input boolean property for removing entailments due to unsatisfiability (default is true).
+	 * 
+	 * @return Boolean Property
 	 */
 	@Optional
 	@Input
 	public abstract Property<Boolean> getRemoveUnsats();
 
 	/**
-	 * @return The optional gradle task input boolean property for removing the backbone ontology (default is true).
+	 * The optional gradle task input boolean property for removing the backbone ontology (default is true).
+	 * 
+	 * @return Boolean Proeprty
 	 */
 	@Optional
 	@Input
 	public abstract Property<Boolean> getRemoveBackbone();
 
 	/**
-	 * @return The optional gradle task backbone ontology input property (default is http://opencaesar.io/oml).
+	 * The optional gradle task backbone ontology input property (default is http://opencaesar.io/oml).
+	 * 
+	 * @return String Property
 	 */
 	@Optional
 	@Input
 	public abstract Property<String> getBackboneIri();
 
 	/**
-	 * @return The optional gradle task indent property (default is 2).
+	 * The optional gradle task indent property (default is 2).
+	 * 
+	 * @return Integer Property
 	 */
 	@Optional
 	@Input
 	public abstract Property<Integer> getIndent();
 
 	/**
-	 * @return The optional gradle task debug property (default is false).
+	 * The optional gradle task debug property (default is false).
+	 * 
+	 * @return Boolean Property
 	 */
 	@Optional
 	@Input
 	public abstract Property<Boolean> getDebug();
 
 	/**
-	 * @return Calculate the reasoner input files based on the OASIS XML catalog.
+	 * Returns the reasoner input files based on the OASIS XML catalog.
+	 * 
+	 * @return ConfigurableFileCollection
 	 * @throws IOException error
 	 * @throws URISyntaxException error
 	 */
@@ -138,7 +170,9 @@ public abstract class OwlReasonTask extends DefaultTask {
 	}
 
 	/**
-	 * @return Calculate the output files that the reasoner will generate.
+	 * Returns the output files that the reasoner will generate.
+	 * 
+	 * @return ConfigurableFileCollection
 	 * @throws IOException error
 	 * @throws URISyntaxException error
 	 */

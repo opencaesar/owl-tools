@@ -25,32 +25,48 @@ import org.gradle.work.Incremental;
 public abstract class OwlShaclFusekiTask extends DefaultTask {
 
 	/**
-	 * @return The required gradle task input Fuseki endpoint URL.
+	 * Creates a new OwlShaclFusekiTask object
+	 */
+	public OwlShaclFusekiTask() {
+	}
+
+	/**
+	 * The required gradle task input Fuseki endpoint URL.
+	 * 
+	 * @return String Property
 	 */
 	@Input
 	public abstract Property<String> getEndpointURL();
 
 	/**
-	 * @return The required gradle task input query path where to search for *.shacl files.
+	 * The required gradle task input query path where to search for *.shacl files.
+	 * 
+	 * @return File Property
 	 */
 	@Input
 	public abstract Property<File> getQueryPath();
 
 	/**
-	 * @return The required gradle task output result path where to save query results.
+	 * The required gradle task output result path where to save query results.
+	 * 
+	 * @return File Property
 	 */
 	@Input
 	public abstract Property<File> getResultPath();
 
 	/**
-	 * @return The optional gradle task debug property (default is false).
+	 * The optional gradle task debug property (default is false).
+	 * 
+	 * @return Boolean Property
 	 */
 	@Input
 	@Optional
 	public abstract Property<Boolean> getDebug();
 
 	/**
-	 * @return the collection of *.shacl files found in the query folder.
+	 * The collection of *.shacl files found in the query folder.
+	 * 
+	 * @return ConfigurableFileCollection.
 	 * @throws IOException error
 	 */
 	@Incremental
@@ -72,7 +88,9 @@ public abstract class OwlShaclFusekiTask extends DefaultTask {
 	}
 
 	/**
-	 * @return the collection of query result files corresponding to each *.shacl file found in the query folder.
+	 * The collection of query result files corresponding to each *.shacl file found in the query folder.
+	 * 
+	 * @return ConfigurableFileCollection
 	 * @throws IOException error
 	 */
 	@OutputFiles

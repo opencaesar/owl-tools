@@ -8,6 +8,12 @@ import java.util.Set;
  */
 public abstract class Axiom {
 
+	/**
+	 * Creates a new Axiom object
+	 */
+	public Axiom() {
+	}
+	
     /**
      * The different kinds of OWL2-DL axioms that the bundle closure algorithm can generate.
      */
@@ -35,6 +41,7 @@ public abstract class Axiom {
 
         /**
          * Constructs a ClassExpressionSetAxiom
+         * 
          * @param set The set of class expressions for this axiom.
          */
         protected ClassExpressionSetAxiom(Set<ClassExpression> set) {
@@ -44,6 +51,7 @@ public abstract class Axiom {
 
         /**
          * The class expressions in scope of the axiom.
+         * 
          * @return Class expressions.
          */
         protected Set<ClassExpression> getSet() {
@@ -61,6 +69,7 @@ public abstract class Axiom {
 
         /**
          * Produces a readable description of the axiom.
+         * 
          * @param type Axiom type
          * @return A human-readable descrition of the axiom.
          */
@@ -76,6 +85,7 @@ public abstract class Axiom {
 
             /**
              * Constructs an OWL2-DL Disjoint Classes axiom.
+             * 
              * @param set The set of class expressions asserted to be pairwise disjoint.
              */
             protected DisjointClassesAxiom(Set<ClassExpression> set) {
@@ -131,6 +141,7 @@ public abstract class Axiom {
 
             /**
              * Constructs an OWL2-DL Disjoint Union of Class Expressions actions.
+             * 
              * @param c The single class that is the disjoint union of class expressions.
              * @param set The class expressions asserted to be pairwise disjoint.
              */
@@ -140,7 +151,9 @@ public abstract class Axiom {
             }
 
             /**
-             * @return The single class that is the disjoint union of class expressions.
+             * The single class that is the disjoint union of class expressions.
+             * 
+             * @return a ClassExpression.Singleton
              */
             protected ClassExpression.Singleton getC() {
                 return c;

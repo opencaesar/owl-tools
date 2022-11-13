@@ -26,41 +26,59 @@ import org.gradle.work.Incremental;
 public abstract class OwlQueryTask extends DefaultTask {
 
 	/**
-	 * @return The required gradle task input Fuseki endpoint URL.
+	 * Creates a new OwlQueryTask object
+	 */
+	public OwlQueryTask() {
+	}
+
+	/**
+	 * The required gradle task input Fuseki endpoint URL.
+	 * 
+	 * @return String Property
 	 */
 	@Input
 	public abstract Property<String> getEndpointURL();
 
 	/**
-	 * @return The required gradle task input query path where to search for *.sparql files.
+	 * The required gradle task input query path where to search for *.sparql files.
+	 * 
+	 * @return File Property
 	 */
 	@Input
 	public abstract Property<File> getQueryPath();
 
 	/**
-	 * @return The required gradle task output result path where to save query results.
+	 * The required gradle task output result path where to save query results.
+	 * 
+	 * @return File Property
 	 */
 	@Input
 	public abstract Property<File> getResultPath();
 
 
 	/**
-	 * @return The optional gradle task query output file format property (default is xml).
+	 * The optional gradle task query output file format property (default is xml).
 	 *         Options: xml, json, csv, n3, ttl, n-triple, or tsv.
+	 *         
+	 * @return String Property
 	 */
 	@Optional
 	@Input
 	public abstract Property<String> getFormat();
 
 	/**
-	 * @return The optional gradle task debug property (default is false).
+	 * The optional gradle task debug property (default is false).
+	 * 
+	 * @return Boolan Property
 	 */
 	@Input
 	@Optional
 	public abstract Property<Boolean> getDebug();
 
 	/**
-	 * @return the collection of *.sparql files found in the query folder.
+	 * The collection of *.sparql files found in the query folder.
+	 * 
+	 * @return ConfigurableFileCollection
 	 * @throws IOException error
 	 */
 	@Incremental
@@ -82,7 +100,9 @@ public abstract class OwlQueryTask extends DefaultTask {
 	}
 
 	/**
-	 * @return the collection of query result files corresponding to each *.sparql file found in the query folder.
+	 * The collection of query result files corresponding to each *.sparql file found in the query folder.
+	 * 
+	 * @return ConfigurableFileCollection
 	 * @throws IOException error
 	 */
 	@OutputFiles

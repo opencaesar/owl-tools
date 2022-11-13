@@ -41,7 +41,15 @@ public class ManualRepositorySystemFactory
     private static final Logger LOGGER = LoggerFactory.getLogger( ManualRepositorySystemFactory.class );
 
     /**
-     * @return A Maven RepositorySystem.
+     * Creagtes a new ManualRepositorySystemFactory object
+     */
+    public ManualRepositorySystemFactory() {
+    }
+    
+    /**
+     * Returns a new Maven RepositorySystem.
+     * 
+     * @return RepositorySystem
      */
     @SuppressWarnings("deprecation")
 	public static RepositorySystem newRepositorySystem()
@@ -70,7 +78,9 @@ public class ManualRepositorySystemFactory
     }
 
     /**
-     * @return A Maven DefaultServiceLocator
+     * Returns a new Maven DefaultServiceLocator
+     * 
+     * @return DefaultServiceLocator
      */
     @SuppressWarnings("deprecation")
     public static DefaultServiceLocator newServiceLocator() {

@@ -128,6 +128,12 @@ public class OwlQueryApp {
 		app.run(); // exceptions are not caught to allow the Gradle task to handle
 	}
 
+	/**
+	 * Creates a new OwlQueryApp object
+	 */
+	public OwlQueryApp() {
+	}
+	
 	private void run() throws Exception {
 		LOGGER.info("=================================================================");
 		LOGGER.info("                        S T A R T");
@@ -337,7 +343,7 @@ public class OwlQueryApp {
 	 * @param file a file
 	 * @return the file extension without the period.
 	 */
-	public String getFileExtension(final File file) {
+	private String getFileExtension(final File file) {
         String fileName = file.getName();
         if (fileName.lastIndexOf(".") != -1)
         	return fileName.substring(fileName.lastIndexOf(".")+1);
@@ -369,6 +375,11 @@ public class OwlQueryApp {
 	 * A parameter validator for the query result output format (one of xml, json, csv, tsv, n3, ttl, or n-triple).
 	 */
 	public static class FormatType implements IParameterValidator {
+		/**
+		 * Creates a new FormatType object
+		 */
+		public FormatType() {
+		}
 		@Override
 		public void validate(final String name, final String value) throws ParameterException {
 			final List<String> formatTypes = Arrays.asList("xml", "json", "csv", "tsv", "n3", "ttl", "n-triple");
@@ -382,6 +393,11 @@ public class OwlQueryApp {
 	 * A parameter validator for an output result folder path.
 	 */
 	public static class ResultFolderPath implements IParameterValidator {
+		/**
+		 * Creates a new ResultFolderPath object
+		 */
+		public ResultFolderPath() {
+		}
 		@Override
 		public void validate(final String name, final String value) throws ParameterException {
 			File directory = new File(value);
@@ -399,6 +415,11 @@ public class OwlQueryApp {
 	 * A parameter validator for an existing query file.
 	 */
 	public static class QueryPath implements IParameterValidator {
+		/**
+		 * Creates a new QueryPath object
+		 */
+		public QueryPath() {
+		}
 		@Override
 		public void validate(final String name, final String value) throws ParameterException {
 			File input = new File(value);

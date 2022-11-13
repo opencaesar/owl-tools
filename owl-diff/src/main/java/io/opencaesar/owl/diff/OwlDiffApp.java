@@ -36,6 +36,12 @@ import com.beust.jcommander.ParameterException;
  */
 public class OwlDiffApp {
 
+	/**
+	 * Creates a new OwlDiffApp object
+	 */
+	public OwlDiffApp() {
+	}
+
 	@Parameter(
 		names = { "--catalog1", "-c1" },
 		description = "Path to the OWL catalog 1 file (Required)",
@@ -254,6 +260,13 @@ public class OwlDiffApp {
 	 * A parameter validator for an OASIS XML catalog path.
 	 */
 	public static class CatalogPath implements IParameterValidator {
+		
+		/**
+		 * Creates a new CatalogPath object
+		 */
+		public CatalogPath() {
+		}
+		
 		@Override
 		public void validate(final String name, final String value) throws ParameterException {
 			File file = new File(value);
@@ -267,6 +280,13 @@ public class OwlDiffApp {
 	 * A parameter validator for an output file path.
 	 */
 	public static class OutputFilePath implements IParameterValidator {
+
+		/**
+		 * Creates a new OutputFilePath object
+		 */
+		public OutputFilePath() {
+		}
+
 		@Override
 		public void validate(final String name, final String value) throws ParameterException {
 			File folder = new File(value).getParentFile();
@@ -280,6 +300,13 @@ public class OwlDiffApp {
 	 * A converter for a set of IRIs.
 	 */
 	public static class SetOfIris implements IStringConverter<Set<String>>  {
+
+		/**
+		 * Creates a new SetOfIris object
+		 */
+		public SetOfIris() {
+		}
+
 		@Override
 		public Set<String> convert(final String value) {
 			return new HashSet<String>(Arrays.asList(value.split(",")));

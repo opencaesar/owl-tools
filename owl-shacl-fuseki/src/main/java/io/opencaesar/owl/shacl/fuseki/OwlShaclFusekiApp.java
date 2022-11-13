@@ -117,6 +117,12 @@ public class OwlShaclFusekiApp {
 		app.run();
 	}
 
+	/**
+	 * Creates a new OwlShaclFusekiApp object
+	 */
+	public OwlShaclFusekiApp() {
+	}
+
 	private void run() throws Exception {
 		LOGGER.info("=================================================================");
 		LOGGER.info("                        S T A R T");
@@ -284,7 +290,7 @@ public class OwlShaclFusekiApp {
 	 * @param file a file
 	 * @return the file extension without the period.
 	 */
-	public String getFileExtension(final File file) {
+	private String getFileExtension(final File file) {
 		String fileName = file.getName();
 		if (fileName.lastIndexOf(".") != -1)
 			return fileName.substring(fileName.lastIndexOf(".") + 1);
@@ -298,6 +304,11 @@ public class OwlShaclFusekiApp {
 	 * A parameter validator for an URI string
 	 */
 	public static class URIValidator implements IParameterValidator {
+		/**
+		 * Creates a new URIValidator object
+		 */
+		public URIValidator() {
+		}
 		@Override
 		public void validate(final String name, final String value) throws ParameterException {
 			try {
@@ -312,6 +323,11 @@ public class OwlShaclFusekiApp {
 	 * A parameter validator for an output result folder path.
 	 */
 	public static class ResultFolderPath implements IParameterValidator {
+		/**
+		 * Creates a new ResultFolderPath object
+		 */
+		public ResultFolderPath() {
+		}
 		@Override
 		public void validate(final String name, final String value) throws ParameterException {
 			File directory = new File(value);
@@ -325,6 +341,11 @@ public class OwlShaclFusekiApp {
 	 * A parameter validator for an existing query file.
 	 */
 	public static class QueryPath implements IParameterValidator {
+		/**
+		 * Creates a new QueryPath object
+		 */
+		public QueryPath() {
+		}
 		@Override
 		public void validate(final String name, final String value) throws ParameterException {
 			File input = new File(value);

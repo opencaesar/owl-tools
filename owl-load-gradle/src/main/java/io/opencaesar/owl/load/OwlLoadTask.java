@@ -30,41 +30,59 @@ import org.gradle.work.Incremental;
  */
 public abstract class OwlLoadTask extends DefaultTask {
 
+	/**
+	 * Creates a new OwlLoadTask object
+	 */
+	public OwlLoadTask() {
+	}
+	
     /**
-     * @return The required gradle task list of ontology IRIs property.
+     * The required gradle task list of ontology IRIs property.
+     * 
+     * @return List of Strings
      */
     @Input
     public abstract ListProperty<String> getIris();
 
     /**
-     * @return The required gradle task Fuseki server endpoint URL property.
+     * The required gradle task Fuseki server endpoint URL property.
+     * 
+     * @return String Property
      */
     @Input
     public abstract Property<String> getEndpointURL();
 
     /**
-     * @return The required gradle task OASIS XML catalog path property.
+     * The required gradle task OASIS XML catalog path property.
+     * 
+     * @return File Property
      */
 	@Input
     public abstract Property<File> getCatalogPath();
 
     /**
-     * @return The optional gradle task ontology file extensions property (default list is owl and ttl).
+     * The optional gradle task ontology file extensions property (default list is owl and ttl).
+     * 
+     * @return List of Strings Property
      */
     @Optional
 	@Input
     public abstract ListProperty<String> getFileExtensions();
 
     /**
-     * @return The optional gradle task debug property (default is false).
+     * The optional gradle task debug property (default is false).
+     * 
+     * @return Boolean Property
      */
     @Optional
     @Input
     public abstract Property<Boolean> getDebug();
 
     /**
-     * @return The list of gradle task input files derived from all the files in
+     * The list of gradle task input files derived from all the files in
      *         the input catalog that have one of the file extensions.
+     *         
+     * @return ConfigurableFileCollection
      * @throws IOException error
      * @throws URISyntaxException error
      */
@@ -85,7 +103,9 @@ public abstract class OwlLoadTask extends DefaultTask {
     }
 
     /**
-     * @return The gradle output file property derived from the task name with a `.log` suffix in the gradle build folder.
+     * The gradle output file property derived from the task name with a `.log` suffix in the gradle build folder.
+     * 
+     * @return RegularFile Provider
      */
 	@OutputFile
     @SuppressWarnings("deprecation")

@@ -16,14 +16,24 @@ import org.gradle.api.tasks.TaskAction;
  */
 public abstract class StopFusekiTask extends DefaultTask {
 
+	/**
+	 * Creates a new StopFusekiTask object.
+	 */
+	public StopFusekiTask() {
+	}
+	
     /**
-     * @return The required gradle task output folder property.
+     * The required gradle task output folder property.
+     * 
+     * @return DirectoryProperty
      */
     @InputDirectory
     public abstract DirectoryProperty getOutputFolderPath();
 
     /**
-     * @return The optional gradle task debug property (default is false).
+     * The optional gradle task debug property (default is false).
+     * 
+     * @return Boolean Property
      */
     @Optional
     @Input

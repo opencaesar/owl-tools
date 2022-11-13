@@ -16,6 +16,12 @@ import java.util.stream.Stream;
  */
 public class OwlAxiom {
 
+	/**
+	 * Creates a new OwlAxiom object
+	 */
+	public OwlAxiom() {
+	}
+	
     /**
      * Convert axioms from the internal representation to the OWL API representation
      * @param axiom an internal axiom

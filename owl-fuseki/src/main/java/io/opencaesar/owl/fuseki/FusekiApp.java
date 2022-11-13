@@ -156,6 +156,12 @@ public class FusekiApp {
         app.run(app);
     }
 
+    /**
+     * Creats a new FusekiApp object
+     */
+    public FusekiApp() {
+    }
+    
     private void run(FusekiApp app) throws Exception {
         LOGGER.info("=================================================================");
         LOGGER.info("                        S T A R T");
@@ -409,6 +415,12 @@ public class FusekiApp {
      */
     public static class CommandConverter implements IStringConverter<Command> {
 
+    	/**
+    	 * Creates a new CommandConverter object
+    	 */
+    	public CommandConverter() {
+    	}
+    	
         @Override
         public Command convert(String value) {
             try {
@@ -469,24 +481,30 @@ public class FusekiApp {
     }
 
     /**
+     * Returns the jena-fuseki-server artifact for the given version.
+     * 
      * @param version requested artifact version
-     * @return The jena-fuseki-server artifact for the given version
+     * @return Artifact
      */
     public static Artifact newFusekiServerArtifact(String version) {
         return new DefaultArtifact("org.apache.jena:jena-fuseki-server:"+version);
     }
 
     /**
+     * Returns the jena-fuseki-webapp artifact for the given version.
+     * 
      * @param version requested artifact version
-     * @return The jena-fuseki-webapp artifact for the given version
+     * @return Artifact
      */
     public static Artifact newFusekiWebAppArtifact(String version) {
         return new DefaultArtifact("org.apache.jena:jena-fuseki-webapp:"+version);
     }
 
     /**
+     * Returns the jena-fuseki-war artifact for the given version.
+     * 
      * @param version requested artifact version
-     * @return The jena-fuseki-war artifact for the given version
+     * @return Artifact
      */
     public static Artifact newFusekiWarArtifact(String version) {
         return new DefaultArtifact("org.apache.jena:jena-fuseki-war:war:"+version);

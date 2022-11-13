@@ -39,7 +39,7 @@ import org.apache.xml.resolver.CatalogManager;
  * 
  * @author elaasar
  */
-public final class OwlCatalog {
+final class OwlCatalog {
 
     /*
      * The singleton catalog manager

@@ -67,24 +67,30 @@ public class Taxonomy extends DirectedAcyclicGraph<ClassExpression, Taxonomy.Tax
 	}
 
 	/**
+	 * Returns the set of class expression vertices that have a direct child relationship with the given vertex.
+	 * 
 	 * @param v a class expression vertex
-	 * @return The set of class expression vertices that have a direct child relationship with the given vertex.
+	 * @return Set of ClassExpressions
 	 */
 	public Set<ClassExpression> childrenOf(final ClassExpression v) {
 		return outgoingEdgesOf(v).stream().map(this::getEdgeTarget).collect(Collectors.toSet());
 	}
 
 	/**
+	 * Returns the set of class expression vertices that are directly or indirectly a child of the given vertex.
+	 * 
 	 * @param v a class expression vertex
-	 * @return The set of class expression vertices that are directly or indirectly a child of the given vertex.
+	 * @return Set of ClassExpressions
 	 */
 	public Set<ClassExpression> descendantsOf(final ClassExpression v) {
 		return getDescendants(v);
 	}
 
 	/**
+	 * Returns the set of class expression vertices that are topologically the first children of the given vertex.
+	 * 
 	 * @param v a class expression vertex
-	 * @return The set of class expression vertices that are topologically the first children of the given vertex.
+	 * @return Set of ClassExpressions
 	 */
 	public Set<ClassExpression> directChildrenOf(final ClassExpression v) {
 		final Set<ClassExpression> c = childrenOf(v);
@@ -94,24 +100,30 @@ public class Taxonomy extends DirectedAcyclicGraph<ClassExpression, Taxonomy.Tax
 	}
 
 	/**
+	 * Returns the set of class expression vertices that have a direct parent relationship with the given vertex.
+	 * 
 	 * @param v a class expression vertex
-	 * @return The set of class expression vertices that have a direct parent relationship with the given vertex.
+	 * @return Set of ClassExpressions
 	 */
 	public Set<ClassExpression> parentsOf(final ClassExpression v) {
 		return incomingEdgesOf(v).stream().map(this::getEdgeSource).collect(Collectors.toSet());
 	}
 
 	/**
+	 * Returns the set of class expression vertices that are directly or indirectly a parent of the given vertex.
+	 * 
 	 * @param v a class expression vertex
-	 * @return The set of class expression vertices that are directly or indirectly a parent of the given vertex.
+	 * @return Set of ClassExpressions
 	 */
 	public Set<ClassExpression> ancestorsOf(final ClassExpression v) {
 		return getAncestors(v);
 	}
 
 	/**
+	 * Returns the set of class expression vertices that are topologically the first parents of the given vertex.
+	 * 
 	 * @param v a class expression vertex
-	 * @return The set of class expression vertices that are topologically the first parents of the given vertex.
+	 * @return Set of ClassExpressions
 	 */
 	public Set<ClassExpression> directParentsOf(final ClassExpression v) {
 		final Set<ClassExpression> p = parentsOf(v);
@@ -121,7 +133,9 @@ public class Taxonomy extends DirectedAcyclicGraph<ClassExpression, Taxonomy.Tax
 	}
 
 	/**
-	 * @return If it exists, a class expression vertex that has more than one direct parent.
+	 * Returns whether there exists a class expression vertex that has more than one direct parent.
+	 * 
+	 * @return Optional of ClassExpression
 	 */
 	public Optional<ClassExpression> multiParentChild() {
 		final DepthFirstIterator<ClassExpression, Taxonomy.TaxonomyEdge> dfi = 
@@ -134,9 +148,10 @@ public class Taxonomy extends DirectedAcyclicGraph<ClassExpression, Taxonomy.Tax
 	}
 
 	/**
-	 *
+	 * Returns a new directed graph obtained by removing the given class expression vertex.
+	 * 
 	 * @param v a class expression
-	 * @return A new directed graph obtained by removing the given class expression vertex.
+	 * @return Taxonomy
 	 */
 	public Taxonomy exciseVertex(final ClassExpression v) {
 		final Taxonomy g = new Taxonomy();
@@ -170,9 +185,10 @@ public class Taxonomy extends DirectedAcyclicGraph<ClassExpression, Taxonomy.Tax
 	}
 
 	/**
-	 *
+	 * Returns a new directed graph obtained by removing the vertices corresponding to the given set of class expressions.
+	 * 
 	 * @param vs a set of class expression vertices.
-	 * @return A new directed graph obtained by removing the vertices corresponding to the given set of class expressions.
+	 * @return Taxonomy
 	 */
 	public Taxonomy exciseVertices(final Set<ClassExpression> vs) {
 		if (vs.isEmpty()) {
@@ -185,16 +201,20 @@ public class Taxonomy extends DirectedAcyclicGraph<ClassExpression, Taxonomy.Tax
 	}
 
 	/**
+	 * Returns a new directed graph obtained by removing the vertices satisfying the predicate.
+	 * 
 	 * @param predicate a predicate for filtering graph vertices
-	 * @return A new directed graph obtained by removing the vertices satisfying the predicate.
+	 * @return Taxonomy
 	 */
 	public Taxonomy exciseVerticesIf(final Predicate<ClassExpression> predicate) {
 		return exciseVertices(vertexSet().stream().filter(predicate).collect(Collectors.toSet()));
 	}
 
 	/**
+	 * Returns a new directed graph with the given root added as the parent of all root vertices in the original graph.
+	 * 
 	 * @param root a class expression vertex.
-	 * @return A new directed graph with the given root added as the parent of all root vertices in the original graph.
+	 * @return Taxonomy
 	 */
 	public Taxonomy rootAt(final ClassExpression root) {
 		final Taxonomy g = (Taxonomy) clone();
@@ -207,7 +227,9 @@ public class Taxonomy extends DirectedAcyclicGraph<ClassExpression, Taxonomy.Tax
 	}
 
 	/**
-	 * @return A new directed graph with all transitive edges removed.
+	 * Returns a new directed graph with all transitive edges removed.
+	 * 
+	 * @return Taxonomy
 	 */
 	public Taxonomy transitiveReduction() {
 		final Taxonomy tr = (Taxonomy) clone();
@@ -481,6 +503,13 @@ public class Taxonomy extends DirectedAcyclicGraph<ClassExpression, Taxonomy.Tax
 	 * A taxonomy edge from a super class (source) to a subclass (target)
 	 */
 	public static class TaxonomyEdge extends DefaultEdge {
+		
+		/**
+		 * Creates a new TaxonomyEdge object
+		 */
+		public TaxonomyEdge() {
+		}
+		
 		@Override
 		public int hashCode() {
 			return Arrays.asList(getSource(), getTarget()).hashCode();
