@@ -1,12 +1,13 @@
 package io.opencaesar.owl.fuseki;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
-import org.gradle.api.file.*;
+import org.gradle.api.file.DirectoryProperty;
+import org.gradle.api.file.RegularFile;
+import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.Input;
@@ -21,54 +22,88 @@ import org.gradle.api.tasks.TaskAction;
  */
 public abstract class StartFusekiTask extends DefaultTask {
 
+	/**
+	 * Creates a new StartFusekiTask object.
+	 */
+	public StartFusekiTask( ) {
+	}
+	
+    /**
+     * The required gradle task fuseki configuration property.
+     * 
+     * @return RegularFileProperty
+     */
 	@InputFile
     public abstract RegularFileProperty getConfigurationPath();
 
     /**
-     * @return The required gradle task fuseki output folder property.
+     * The required gradle task fuseki output folder property.
+     * 
+     * @return DirectoryProperty
      */
-    @OutputDirectory
+	@OutputDirectory
     public abstract DirectoryProperty getOutputFolderPath();
 
     /**
-     * @return The optional gradle task fuseki web ui property (default is false).
+     * The optional gradle task remote Maven repository URL property for resolving Apache Fuseki dependencies
+     *         (default is https://repo.maven.apache.org/maven2/).
+     * 
+     * @return String Property
      */
     @Optional
     @Input
     public abstract Property<String> getRemoteRepositoryURL();
 
+    /**
+     * The optional gradle task fuseki version property (default is 4.6.0).
+     * 
+     * @return String Property
+     */
     @Optional
     @Input
     public abstract Property<String> getFusekiVersion();
 
     /**
-     * @return The optional gradle task fuseki port property (default is 3030).
+     * The optional gradle task fuseki port property (default is 3030).
+     * 
+     * @return Integer Property
      */
     @Optional
     @Input
     public abstract Property<Integer> getPort();
 
     /**
-     * @return The optional gradle task fuseki maximum pings property (default is 10).
+     * The optional gradle task fuseki web ui property (default is false).
+     * 
+     * @return Boolean Proprty
      */
     @Optional
     @Input
     public abstract Property<Boolean> getWebUI();
 
+    /**
+     * The optional gradle task fuseki maximum pings property (default is 10).
+     * 
+     * @return Integer Property
+     */
     @Optional
     @Input
     public abstract Property<Integer> getMaxPings();
 
     /**
-     * @return The optional gradle task debug property (default is false).
+     * The optional gradle task debug property (default is false).
+     * 
+     * @return Boolean Property
      */
     @Optional
     @Input
     public abstract Property<Boolean> getDebug();
 
     /**
-     * @return The gradle output file, after checking whether the fuseki pid file can be deleted
+     * The gradle output file, after checking whether the fuseki pid file can be deleted
      *         if the process no longer exists.
+     * 
+     * @return Regular File Provider
      * @throws IOException error
      */
     @OutputFile
