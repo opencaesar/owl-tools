@@ -35,6 +35,9 @@ public class ConsoleRepositoryListener
 
     private final static Logger LOGGER = Logger.getLogger(ConsoleRepositoryListener.class);
 
+    /**
+     * Constructor
+     */
     public ConsoleRepositoryListener() {}
 
     public void artifactDeployed( RepositoryEvent event )

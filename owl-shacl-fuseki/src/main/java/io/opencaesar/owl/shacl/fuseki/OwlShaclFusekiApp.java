@@ -50,6 +50,9 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.github.jsonldjava.shaded.com.google.common.base.Suppliers;
 
+/**
+ * Utility for querying a Fuseki server using SHACL queries.
+ */
 public class OwlShaclFusekiApp {
 
 	@Parameter(
@@ -94,6 +97,11 @@ public class OwlShaclFusekiApp {
 		DOMConfigurator.configure(ClassLoader.getSystemClassLoader().getResource("log4j.xml"));
 	}
 
+	/**
+	 * Application for querying a Fuseki server.
+	 * @param args Application arguments.
+	 * @throws Exception Error
+	 */
 	public static void main(final String... args) throws Exception {
 		final OwlShaclFusekiApp app = new OwlShaclFusekiApp();
 		final JCommander builder = JCommander.newBuilder().addObject(app).build();
@@ -107,6 +115,12 @@ public class OwlShaclFusekiApp {
 			((AppenderSkeleton) appender).setThreshold(Level.DEBUG);
 		}
 		app.run();
+	}
+
+	/**
+	 * Creates a new OwlShaclFusekiApp object
+	 */
+	public OwlShaclFusekiApp() {
 	}
 
 	private void run() throws Exception {
@@ -171,6 +185,9 @@ public class OwlShaclFusekiApp {
     	return (version != null) ? version : "<SNAPSHOT>";
     }
 
+	/**
+	 * Default reasoner entailment output file extension
+	 */
 	public static String OUTPUT_FORMAT = "ttl";
 
 	/**
@@ -269,7 +286,11 @@ public class OwlShaclFusekiApp {
 		return queries;
 	}
 
-	public String getFileExtension(final File file) {
+	/**
+	 * @param file a file
+	 * @return the file extension without the period.
+	 */
+	private String getFileExtension(final File file) {
 		String fileName = file.getName();
 		if (fileName.lastIndexOf(".") != -1)
 			return fileName.substring(fileName.lastIndexOf(".") + 1);
@@ -279,7 +300,15 @@ public class OwlShaclFusekiApp {
 
 	// ------------
 
+	/**
+	 * A parameter validator for an URI string
+	 */
 	public static class URIValidator implements IParameterValidator {
+		/**
+		 * Creates a new URIValidator object
+		 */
+		public URIValidator() {
+		}
 		@Override
 		public void validate(final String name, final String value) throws ParameterException {
 			try {
@@ -290,7 +319,15 @@ public class OwlShaclFusekiApp {
 		}
 	}
 
+	/**
+	 * A parameter validator for an output result folder path.
+	 */
 	public static class ResultFolderPath implements IParameterValidator {
+		/**
+		 * Creates a new ResultFolderPath object
+		 */
+		public ResultFolderPath() {
+		}
 		@Override
 		public void validate(final String name, final String value) throws ParameterException {
 			File directory = new File(value);
@@ -300,7 +337,15 @@ public class OwlShaclFusekiApp {
 		}
 	}
 
+	/**
+	 * A parameter validator for an existing query file.
+	 */
 	public static class QueryPath implements IParameterValidator {
+		/**
+		 * Creates a new QueryPath object
+		 */
+		public QueryPath() {
+		}
 		@Override
 		public void validate(final String name, final String value) throws ParameterException {
 			File input = new File(value);

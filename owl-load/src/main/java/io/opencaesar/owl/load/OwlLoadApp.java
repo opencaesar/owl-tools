@@ -47,8 +47,14 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 
+/**
+ * Utility for loading to a Fuseki server ontology files based on an OASIS XML catalog.
+ */
 public class OwlLoadApp {
 
+    /**
+     * Allowed input file extensions for ontologies.
+     */
 	public static String[] DEFAULT_EXTENSIONS = { "owl", "ttl" };
 	
     @Parameter(
@@ -102,6 +108,11 @@ public class OwlLoadApp {
         DOMConfigurator.configure(ClassLoader.getSystemClassLoader().getResource("log4j.xml"));
     }
 
+    /**
+     * Application for loading ontologies to a Fuseki server.
+     * @param args Application arguments.
+     * @throws Exception Error
+     */
     public static void main(final String... args) throws Exception {
         final OwlLoadApp app = new OwlLoadApp();
         final JCommander builder = JCommander.newBuilder().addObject(app).build();
@@ -117,6 +128,12 @@ public class OwlLoadApp {
         app.run();
     }
 
+    /**
+     * Creates a new OwlLoadApp object
+     */
+    public OwlLoadApp() {
+    }
+    
     private void run() throws Exception {
         LOGGER.info("=================================================================");
         LOGGER.info("                        S T A R T");
@@ -189,7 +206,11 @@ public class OwlLoadApp {
     }
 
     private static String OS = System.getProperty("os.name").toLowerCase();
-    public static boolean isWindows() {
+
+    /**
+     * @return true if the operating system is Windows.
+     */
+    private static boolean isWindows() {
         return (OS.indexOf("win") >= 0);
     }
     private void loadOntology(RDFConnection conn, final OWLOntology ont) {
@@ -227,7 +248,16 @@ public class OwlLoadApp {
     	return (version != null) ? version : "<SNAPSHOT>";
     }
 
+
+    /**
+     * A parameter validator for a file extension for an RDF language syntax.
+     */
 	public static class FileExtensionValidator implements IParameterValidator {
+		/**
+		 * Creates a new FileExtensionValidator object
+		 */
+		public FileExtensionValidator() {
+		}
 		@Override
 		public void validate(final String name, final String value) throws ParameterException {
 			Lang lang = RDFLanguages.fileExtToLang(value);
@@ -238,7 +268,15 @@ public class OwlLoadApp {
 		
 	}
 
+    /**
+     * A parameter validator for an OASIS XML catalog path.
+     */
 	public static class CatalogPath implements IParameterValidator {
+		/**
+		 * Creates a new FileExtensionValidator object
+		 */
+		public CatalogPath() {
+		}
         @Override
         public void validate(final String name, final String value) throws ParameterException {
             File file = new File(value);

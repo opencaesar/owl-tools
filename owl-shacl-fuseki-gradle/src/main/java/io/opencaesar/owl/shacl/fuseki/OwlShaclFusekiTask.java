@@ -19,21 +19,56 @@ import org.gradle.api.tasks.OutputFiles;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.work.Incremental;
 
+/**
+ * Gradle task for querying a fuseki endpoint using *.shacl queries.
+ */
 public abstract class OwlShaclFusekiTask extends DefaultTask {
 
+	/**
+	 * Creates a new OwlShaclFusekiTask object
+	 */
+	public OwlShaclFusekiTask() {
+	}
+
+	/**
+	 * The required gradle task input Fuseki endpoint URL.
+	 * 
+	 * @return String Property
+	 */
 	@Input
 	public abstract Property<String> getEndpointURL();
 
+	/**
+	 * The required gradle task input query path where to search for *.shacl files.
+	 * 
+	 * @return File Property
+	 */
 	@Input
 	public abstract Property<File> getQueryPath();
 
+	/**
+	 * The required gradle task output result path where to save query results.
+	 * 
+	 * @return File Property
+	 */
 	@Input
 	public abstract Property<File> getResultPath();
 
+	/**
+	 * The optional gradle task debug property (default is false).
+	 * 
+	 * @return Boolean Property
+	 */
 	@Input
 	@Optional
 	public abstract Property<Boolean> getDebug();
 
+	/**
+	 * The collection of *.shacl files found in the query folder.
+	 * 
+	 * @return ConfigurableFileCollection.
+	 * @throws IOException error
+	 */
 	@Incremental
 	@InputFiles
 	@SuppressWarnings("deprecation")
@@ -52,6 +87,12 @@ public abstract class OwlShaclFusekiTask extends DefaultTask {
 		return getProject().files(Collections.EMPTY_LIST);
 	}
 
+	/**
+	 * The collection of query result files corresponding to each *.shacl file found in the query folder.
+	 * 
+	 * @return ConfigurableFileCollection
+	 * @throws IOException error
+	 */
 	@OutputFiles
 	@SuppressWarnings("deprecation")
 	protected ConfigurableFileCollection getOutputFiles() throws IOException {
@@ -77,6 +118,9 @@ public abstract class OwlShaclFusekiTask extends DefaultTask {
 		return new File(newPath + File.separator + newName);
 	}
 
+	/**
+	 * The gradle task action logic.
+	 */
     @TaskAction
     public void run() {
 		final ArrayList<String> args = new ArrayList<>();

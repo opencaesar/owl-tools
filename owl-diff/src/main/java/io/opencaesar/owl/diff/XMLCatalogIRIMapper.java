@@ -9,11 +9,22 @@ import org.apache.xml.resolver.CatalogManager;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLOntologyIRIMapper;
 
+/**
+ * Utility for using an Oasis XML Catalog for mapping Ontology IRIs.
+ */
 @SuppressWarnings("serial")
 public class XMLCatalogIRIMapper implements OWLOntologyIRIMapper {
 
+	/**
+	 * an Oasis XML Catalog
+	 */
 	private final Catalog catalog;
 
+	/**
+	 * Constructor
+	 * @param catalogFile an Oasis XML Catalog file
+	 * @throws IOException error
+	 */
 	public XMLCatalogIRIMapper(File catalogFile) throws IOException {
 		if (null == catalogFile || !catalogFile.isFile() || !catalogFile.isAbsolute())
 			throw new IllegalArgumentException("The catalogFile must exists and be an absolute path: " + catalogFile);

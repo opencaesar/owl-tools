@@ -94,6 +94,9 @@ import openllet.owlapi.OpenlletReasoner;
 import openllet.owlapi.OpenlletReasonerFactory;
 import openllet.owlapi.explanation.PelletExplanation;
 
+/**
+ * A utility for running a reasoner on the set of ontologies in scope of an OASIS XML catalog.
+ */
 public class OwlReasonApp {
   
 	private static final String CONSISTENCY = "Consistency";
@@ -118,9 +121,20 @@ public class OwlReasonApp {
 	}
 	
 	private final Options options = new Options();
-	
+
+	/**
+	 * default input ontology file extension.
+	 */
 	public static final String DEFAULT_INPUT_FILE_EXTENSION = "owl";
+
+	/**
+	 * default reasoner output file extension.
+	 */
 	public static final String DEFAULT_OUTPUT_FILE_EXTENSION = "ttl";
+
+	/**
+	 * default reasoner output explanation file extension.
+	 */
 	public static final String DEFAULT_EXPLANATION_FORMAT = "owl";
 	
 	private static class Options {
@@ -235,6 +249,11 @@ public class OwlReasonApp {
         DOMConfigurator.configure(ClassLoader.getSystemClassLoader().getResource("log4j.xml"));
 	}
 
+	/**
+	 * Application for running a reasoner on the set of ontologies in scope of an OASIS XML catalog.
+	 * @param args Application arguments.
+	 * @throws Exception Error
+	 */
 	public static void main(final String... args) throws Exception {
 		final OwlReasonApp app = new OwlReasonApp();
 		final JCommander builder = JCommander.newBuilder().addObject(app.options).build();
@@ -250,6 +269,12 @@ public class OwlReasonApp {
 		app.run();
 	}
 
+	/**
+	 * Creates a new OwlReasonApp object
+	 */
+	public OwlReasonApp() {
+	}
+	
 	private void run() throws Exception {
 		LOGGER.info("=================================================================");
 		LOGGER.info("                        S T A R T");
@@ -581,7 +606,15 @@ public class OwlReasonApp {
     	return (version != null) ? version : "<SNAPSHOT>";
     }
 
+	/**
+	 * A parameter validator for an OASIS XML catalog path.
+	 */
 	public static class CatalogPath implements IParameterValidator {
+		/**
+		 * Creates a new CatalogPath object
+		 */
+		public CatalogPath() {
+		}
 		@Override
 		public void validate(final String name, final String value) throws ParameterException {
 			File file = new File(value);
@@ -590,8 +623,16 @@ public class OwlReasonApp {
 			}
 		}
 	}
-	
+
+	/**
+	 * A string converter for specifying types of reasoning statements.
+	 */
 	public static class SpecConverter implements IStringConverter<Spec> {
+		/**
+		 * Creates a new SpecConverter object
+		 */
+		public SpecConverter() {
+		}
 		@Override
 		public Spec convert(String value) {
 			String[] s = value.split("=");
@@ -608,7 +649,15 @@ public class OwlReasonApp {
 		
 	}
 
+	/**
+	 * A parameter validator for a file with one of the supported extensions
+	 */
 	public static class FileExtensionValidator implements IParameterValidator {
+		/**
+		 * Creates a new FileExtensionValidator object
+		 */
+		public FileExtensionValidator() {
+		}
 		@Override
 		public void validate(final String name, final String value) throws ParameterException {
 			if (!extensions.containsKey(value)) {
@@ -620,7 +669,15 @@ public class OwlReasonApp {
 		
 	}
 
+	/**
+	 * A parameter validator for an output RDF file.
+	 */
 	public static class OutputFileExtensionValidator implements IParameterValidator {
+		/**
+		 * Creates a new OutputFileExtensionValidator object
+		 */
+		public OutputFileExtensionValidator() {
+		}
 		@Override
 		public void validate(final String name, final String value) throws ParameterException {
 			Lang lang = RDFLanguages.fileExtToLang(value);
@@ -631,8 +688,16 @@ public class OwlReasonApp {
 		}
 
 	}
-	
+
+	/**
+	 * A parameter validator for an output explanation file.
+	 */
 	public static class ExplanationFormatValidator implements IParameterValidator {
+		/**
+		 * Creates a new ExplanationFormatValidator object
+		 */
+		public ExplanationFormatValidator() {
+		}
 		@Override
 		public void validate(final String name, final String value) throws ParameterException {
 			if (!extensions.containsKey(value)) {
@@ -643,7 +708,15 @@ public class OwlReasonApp {
 
 	}
 
+	/**
+	 * A parameter validator for an output XML report file.
+	 */
 	public static class ReportPathValidator implements IParameterValidator {
+		/**
+		 * Creates a new ReportPathValidator object
+		 */
+		public ReportPathValidator() {
+		}
 		@Override
 		public void validate(final String name, final String value) throws ParameterException {
 			File file = new File(value);

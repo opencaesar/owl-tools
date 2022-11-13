@@ -25,17 +25,32 @@ import io.opencaesar.closeworld.Axiom.ClassExpressionSetAxiom.DisjointClassesAxi
 import io.opencaesar.closeworld.Axiom.ClassExpressionSetAxiom.DisjointUnionAxiom;
 import org.jgrapht.traverse.DepthFirstIterator;
 
+/**
+ * A directed acyclic graph for implementing the bundle closure algorithm
+ */
 @SuppressWarnings("serial")
 public class Taxonomy extends DirectedAcyclicGraph<ClassExpression, Taxonomy.TaxonomyEdge> {
 
+	/**
+	 * Empty-graph constructor
+	 */
 	public Taxonomy() {
 		super(TaxonomyEdge.class);
 	}
 
+	/**
+	 * Graph constructor from a list of adjacent vertices
+	 * @param edgeList List of adjacent vertices
+	 */
 	public Taxonomy(final List<ClassExpression> edgeList) {
 		this(edgeList, edgeList);
 	}
 
+	/**
+	 * Graph constructor from a list of vertices and edges.
+	 * @param vertexList a list of vertices
+	 * @param edgeList a list of edges as pairs of adjacent vertices
+	 */
 	public Taxonomy(final List<ClassExpression> vertexList, final List<ClassExpression> edgeList) {
 		super(TaxonomyEdge.class);
 		
@@ -51,14 +66,32 @@ public class Taxonomy extends DirectedAcyclicGraph<ClassExpression, Taxonomy.Tax
 		}
 	}
 
+	/**
+	 * Returns the set of class expression vertices that have a direct child relationship with the given vertex.
+	 * 
+	 * @param v a class expression vertex
+	 * @return Set of ClassExpressions
+	 */
 	public Set<ClassExpression> childrenOf(final ClassExpression v) {
 		return outgoingEdgesOf(v).stream().map(this::getEdgeTarget).collect(Collectors.toSet());
 	}
 
+	/**
+	 * Returns the set of class expression vertices that are directly or indirectly a child of the given vertex.
+	 * 
+	 * @param v a class expression vertex
+	 * @return Set of ClassExpressions
+	 */
 	public Set<ClassExpression> descendantsOf(final ClassExpression v) {
 		return getDescendants(v);
 	}
 
+	/**
+	 * Returns the set of class expression vertices that are topologically the first children of the given vertex.
+	 * 
+	 * @param v a class expression vertex
+	 * @return Set of ClassExpressions
+	 */
 	public Set<ClassExpression> directChildrenOf(final ClassExpression v) {
 		final Set<ClassExpression> c = childrenOf(v);
 		final HashSet<ClassExpression> cd = new HashSet<>();
@@ -66,14 +99,32 @@ public class Taxonomy extends DirectedAcyclicGraph<ClassExpression, Taxonomy.Tax
 		return c.stream().filter(e -> !cd.contains(e)).collect(Collectors.toSet());
 	}
 
+	/**
+	 * Returns the set of class expression vertices that have a direct parent relationship with the given vertex.
+	 * 
+	 * @param v a class expression vertex
+	 * @return Set of ClassExpressions
+	 */
 	public Set<ClassExpression> parentsOf(final ClassExpression v) {
 		return incomingEdgesOf(v).stream().map(this::getEdgeSource).collect(Collectors.toSet());
 	}
 
+	/**
+	 * Returns the set of class expression vertices that are directly or indirectly a parent of the given vertex.
+	 * 
+	 * @param v a class expression vertex
+	 * @return Set of ClassExpressions
+	 */
 	public Set<ClassExpression> ancestorsOf(final ClassExpression v) {
 		return getAncestors(v);
 	}
 
+	/**
+	 * Returns the set of class expression vertices that are topologically the first parents of the given vertex.
+	 * 
+	 * @param v a class expression vertex
+	 * @return Set of ClassExpressions
+	 */
 	public Set<ClassExpression> directParentsOf(final ClassExpression v) {
 		final Set<ClassExpression> p = parentsOf(v);
 		final HashSet<ClassExpression> pa = new HashSet<>();
@@ -81,6 +132,11 @@ public class Taxonomy extends DirectedAcyclicGraph<ClassExpression, Taxonomy.Tax
 		return p.stream().filter(e -> !pa.contains(e)).collect(Collectors.toSet());
 	}
 
+	/**
+	 * Returns whether there exists a class expression vertex that has more than one direct parent.
+	 * 
+	 * @return Optional of ClassExpression
+	 */
 	public Optional<ClassExpression> multiParentChild() {
 		final DepthFirstIterator<ClassExpression, Taxonomy.TaxonomyEdge> dfi = 
 				new DepthFirstIterator<ClassExpression, Taxonomy.TaxonomyEdge>(this);
@@ -91,6 +147,12 @@ public class Taxonomy extends DirectedAcyclicGraph<ClassExpression, Taxonomy.Tax
 		return Optional.empty();
 	}
 
+	/**
+	 * Returns a new directed graph obtained by removing the given class expression vertex.
+	 * 
+	 * @param v a class expression
+	 * @return Taxonomy
+	 */
 	public Taxonomy exciseVertex(final ClassExpression v) {
 		final Taxonomy g = new Taxonomy();
 				 
@@ -122,6 +184,12 @@ public class Taxonomy extends DirectedAcyclicGraph<ClassExpression, Taxonomy.Tax
 		return g;
 	}
 
+	/**
+	 * Returns a new directed graph obtained by removing the vertices corresponding to the given set of class expressions.
+	 * 
+	 * @param vs a set of class expression vertices.
+	 * @return Taxonomy
+	 */
 	public Taxonomy exciseVertices(final Set<ClassExpression> vs) {
 		if (vs.isEmpty()) {
 			return this;
@@ -132,10 +200,22 @@ public class Taxonomy extends DirectedAcyclicGraph<ClassExpression, Taxonomy.Tax
 		}
 	}
 
+	/**
+	 * Returns a new directed graph obtained by removing the vertices satisfying the predicate.
+	 * 
+	 * @param predicate a predicate for filtering graph vertices
+	 * @return Taxonomy
+	 */
 	public Taxonomy exciseVerticesIf(final Predicate<ClassExpression> predicate) {
 		return exciseVertices(vertexSet().stream().filter(predicate).collect(Collectors.toSet()));
 	}
 
+	/**
+	 * Returns a new directed graph with the given root added as the parent of all root vertices in the original graph.
+	 * 
+	 * @param root a class expression vertex.
+	 * @return Taxonomy
+	 */
 	public Taxonomy rootAt(final ClassExpression root) {
 		final Taxonomy g = (Taxonomy) clone();
 
@@ -146,6 +226,11 @@ public class Taxonomy extends DirectedAcyclicGraph<ClassExpression, Taxonomy.Tax
 		return g;
 	}
 
+	/**
+	 * Returns a new directed graph with all transitive edges removed.
+	 * 
+	 * @return Taxonomy
+	 */
 	public Taxonomy transitiveReduction() {
 		final Taxonomy tr = (Taxonomy) clone();
 		TransitiveReduction.INSTANCE.reduce(tr);
@@ -155,8 +240,8 @@ public class Taxonomy extends DirectedAcyclicGraph<ClassExpression, Taxonomy.Tax
 	/**
 	 * Bypass a single parent of a child.
 	 * 
-	 * @param child  ClassExpression
-	 * @param parent ClassExpression
+	 * @param child  a class expression vertex
+	 * @param parent a class expression vertex
 	 * @return Taxonomy
 	 */
 	public Taxonomy bypassParent(final ClassExpression child, final ClassExpression parent) {
@@ -182,8 +267,8 @@ public class Taxonomy extends DirectedAcyclicGraph<ClassExpression, Taxonomy.Tax
 	/**
 	 * Recursively bypass parents of a child.
 	 * 
-	 * @param child   ClassExpression
-	 * @param parents Set
+	 * @param child   a class expression vertex
+	 * @param parents Set of class expression vertices
 	 * @return Taxonomy
 	 */
 	public Taxonomy bypassParents(final ClassExpression child, final Set<ClassExpression> parents) {
@@ -199,7 +284,7 @@ public class Taxonomy extends DirectedAcyclicGraph<ClassExpression, Taxonomy.Tax
 	/**
 	 * Eliminate redundant edges above child.
 	 * 
-	 * @param child ClassExpression
+	 * @param child a class expression vertex
 	 * @return Taxonomy
 	 */
 	public Taxonomy reduceChild(final ClassExpression child) {
@@ -225,9 +310,9 @@ public class Taxonomy extends DirectedAcyclicGraph<ClassExpression, Taxonomy.Tax
 	/**
 	 * Isolate child from one parent.
 	 * 
-	 * @param child  ClassExpression
-	 * @param parent ClassExpression
-	 * @return Taxonomy
+	 * @param child  a class expression vertex
+	 * @param parent a class expression vertex
+	 * @return A new directed graph obtained by replacing the given parent vertex with the difference between parent and child.
 	 */
 	public Taxonomy isolateChildFromOne(final ClassExpression child, final ClassExpression parent) {
 		if (parentsOf(parent).isEmpty()) {
@@ -261,8 +346,8 @@ public class Taxonomy extends DirectedAcyclicGraph<ClassExpression, Taxonomy.Tax
 	/**
 	 * Recursively isolate child from parents.
 	 * 
-	 * @param child   ClassExpression
-	 * @param parents Set
+	 * @param child   a class expression vertex
+	 * @param parents a set of class expression vertixes
 	 * @return Taxonomy
 	 */
 	public Taxonomy isolateChild(final ClassExpression child, final Set<ClassExpression> parents) {
@@ -386,19 +471,45 @@ public class Taxonomy extends DirectedAcyclicGraph<ClassExpression, Taxonomy.Tax
 		}
 	}
 
+	/**
+	 * UnconnectedTaxonomyException thrown if a graph fails the requirement of having a connected topology.
+	 */
 	public static class UnconnectedTaxonomyException extends RuntimeException {
+
+		/**
+		 * UnconnectedTaxonomyException constructor
+		 * @param s explanation
+		 */
 		public UnconnectedTaxonomyException(final String s) {
 			super(s);
 		}
 	}
 
+	/**
+	 * InvalidTreeException thrown if a graph fails the requirement of having the topology of a tree.
+	 */
 	public static class InvalidTreeException extends RuntimeException {
+
+		/**
+		 * InvalidTreeException constructor
+		 * @param s explanation
+		 */
 		public InvalidTreeException(final String s) {
 			super(s);
 		}
 	}
 
+	/**
+	 * A taxonomy edge from a super class (source) to a subclass (target)
+	 */
 	public static class TaxonomyEdge extends DefaultEdge {
+		
+		/**
+		 * Creates a new TaxonomyEdge object
+		 */
+		public TaxonomyEdge() {
+		}
+		
 		@Override
 		public int hashCode() {
 			return Arrays.asList(getSource(), getTarget()).hashCode();

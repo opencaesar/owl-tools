@@ -11,8 +11,23 @@ import org.semanticweb.owlapi.model.OWLClassExpression;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
+/**
+ * Utility class for converting internal axioms to OWL API axioms.
+ */
 public class OwlAxiom {
 
+	/**
+	 * Creates a new OwlAxiom object
+	 */
+	public OwlAxiom() {
+	}
+	
+    /**
+     * Convert axioms from the internal representation to the OWL API representation
+     * @param axiom an internal axiom
+     * @param api the utility for operating with the OWL API
+     * @return An OWL API axiom representation corresponding to the internal axiom.
+     */
     public static OWLAxiom toOwlAxiom(final Axiom axiom, final OwlApi api) {
 
         if (axiom instanceof ClassExpressionSetAxiom) {

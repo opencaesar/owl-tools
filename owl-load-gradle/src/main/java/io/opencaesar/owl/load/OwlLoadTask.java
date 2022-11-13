@@ -30,23 +30,62 @@ import org.gradle.work.Incremental;
  */
 public abstract class OwlLoadTask extends DefaultTask {
 
+	/**
+	 * Creates a new OwlLoadTask object
+	 */
+	public OwlLoadTask() {
+	}
+	
+    /**
+     * The required gradle task list of ontology IRIs property.
+     * 
+     * @return List of Strings
+     */
     @Input
     public abstract ListProperty<String> getIris();
 
+    /**
+     * The required gradle task Fuseki server endpoint URL property.
+     * 
+     * @return String Property
+     */
     @Input
     public abstract Property<String> getEndpointURL();
 
+    /**
+     * The required gradle task OASIS XML catalog path property.
+     * 
+     * @return File Property
+     */
 	@Input
     public abstract Property<File> getCatalogPath();
 
+    /**
+     * The optional gradle task ontology file extensions property (default list is owl and ttl).
+     * 
+     * @return List of Strings Property
+     */
     @Optional
 	@Input
     public abstract ListProperty<String> getFileExtensions();
 
+    /**
+     * The optional gradle task debug property (default is false).
+     * 
+     * @return Boolean Property
+     */
     @Optional
     @Input
     public abstract Property<Boolean> getDebug();
 
+    /**
+     * The list of gradle task input files derived from all the files in
+     *         the input catalog that have one of the file extensions.
+     *         
+     * @return ConfigurableFileCollection
+     * @throws IOException error
+     * @throws URISyntaxException error
+     */
     @Incremental
     @InputFiles
 	@SuppressWarnings("deprecation")
@@ -63,6 +102,11 @@ public abstract class OwlLoadTask extends DefaultTask {
 		return getProject().files(Collections.EMPTY_LIST);
     }
 
+    /**
+     * The gradle output file property derived from the task name with a `.log` suffix in the gradle build folder.
+     * 
+     * @return RegularFile Provider
+     */
 	@OutputFile
     @SuppressWarnings("deprecation")
     protected Provider<RegularFile> getOutputFile() {
@@ -72,6 +116,9 @@ public abstract class OwlLoadTask extends DefaultTask {
                 .file("log/" + getTaskIdentity().name + ".log");
     }
 
+    /**
+     * The gradle task action logic.
+     */
     @TaskAction
     public void run() {
         final ArrayList<String> args = new ArrayList<>();

@@ -35,12 +35,22 @@ import org.eclipse.aether.resolution.ArtifactRequest;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.aether.resolution.ArtifactResult;
 
+/**
+ * Start an Apache Fuseki server, either in headless mode or with a web UI.
+ * This application resolves the Apache Fuseki dependencies from a remote maven repository
+ * so that it can be safely be used as a Gradle task.
+ */
 public class FusekiApp {
 
+    /**
+     * The file that will contain the PID of the fuseki server
+     */
     public static final String PID_FILENAME = "fuseki.pid";
-    public static final String LOG_FILENAME = "fuseki.log";
 
-    public static final String STOPPED_FILENAME = "fuseki.stopped";
+    /**
+     * The log file for the fuseki server output.
+     */
+    public static final String LOG_FILENAME = "fuseki.log";
 
     enum Command {
         start,
@@ -124,6 +134,11 @@ public class FusekiApp {
         DOMConfigurator.configure(ClassLoader.getSystemClassLoader().getResource("log4j.xml"));
     }
 
+    /**
+     * Application for starting a Fuseki server.
+     * @param args Application arguments.
+     * @throws Exception Error
+     */
     public static void main(final String... args) throws Exception {
         final FusekiApp app = new FusekiApp();
         final JCommander builder = JCommander.newBuilder().addObject(app).build();
@@ -141,6 +156,12 @@ public class FusekiApp {
         app.run(app);
     }
 
+    /**
+     * Creats a new FusekiApp object
+     */
+    public FusekiApp() {
+    }
+    
     private void run(FusekiApp app) throws Exception {
         LOGGER.info("=================================================================");
         LOGGER.info("                        S T A R T");
@@ -190,6 +211,12 @@ public class FusekiApp {
     }
 
 
+    /**
+     * Extract an input zip archive stream to a target folder
+     * @param source an input stream of a zip archive
+     * @param target a target directory where to extract the zip contents.
+     * @throws IOException error
+     */
     public static void unzip(InputStream source, File target) throws IOException {
         final ZipInputStream zipStream = new ZipInputStream(source);
         ZipEntry nextEntry;
@@ -375,13 +402,25 @@ public class FusekiApp {
         }
     }
 
+    /**
+     * @return Application version.
+     */
     private String getAppVersion() {
         var version = this.getClass().getPackage().getImplementationVersion();
         return (version != null) ? version : "<SNAPSHOT>";
     }
 
+    /**
+     * A parameter converter for the command enumeration (start/stop).
+     */
     public static class CommandConverter implements IStringConverter<Command> {
 
+    	/**
+    	 * Creates a new CommandConverter object
+    	 */
+    	public CommandConverter() {
+    	}
+    	
         @Override
         public Command convert(String value) {
             try {
@@ -441,14 +480,32 @@ public class FusekiApp {
             throw new RuntimeException("Cannot find java executable at: " + javaExe);
     }
 
+    /**
+     * Returns the jena-fuseki-server artifact for the given version.
+     * 
+     * @param version requested artifact version
+     * @return Artifact
+     */
     public static Artifact newFusekiServerArtifact(String version) {
         return new DefaultArtifact("org.apache.jena:jena-fuseki-server:"+version);
     }
 
+    /**
+     * Returns the jena-fuseki-webapp artifact for the given version.
+     * 
+     * @param version requested artifact version
+     * @return Artifact
+     */
     public static Artifact newFusekiWebAppArtifact(String version) {
         return new DefaultArtifact("org.apache.jena:jena-fuseki-webapp:"+version);
     }
 
+    /**
+     * Returns the jena-fuseki-war artifact for the given version.
+     * 
+     * @param version requested artifact version
+     * @return Artifact
+     */
     public static Artifact newFusekiWarArtifact(String version) {
         return new DefaultArtifact("org.apache.jena:jena-fuseki-war:war:"+version);
     }
