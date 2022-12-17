@@ -46,6 +46,7 @@ public abstract class StopFusekiTask extends DefaultTask {
     @TaskAction
     public void run() {
         final ArrayList<String> args = new ArrayList<>();
+        args.add("-c");
         args.add(FusekiApp.Command.stop.toString());
         if (getOutputFolderPath().isPresent()) {
             args.add("-o");

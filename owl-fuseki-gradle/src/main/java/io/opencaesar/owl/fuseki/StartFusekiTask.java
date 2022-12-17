@@ -131,6 +131,7 @@ public abstract class StartFusekiTask extends DefaultTask {
     @TaskAction
     public void run() {
         final ArrayList<String> args = new ArrayList<>();
+        args.add("-c");
         args.add(FusekiApp.Command.start.toString());
         if (getFusekiVersion().isPresent()) {
             args.add("--fuseki-version");

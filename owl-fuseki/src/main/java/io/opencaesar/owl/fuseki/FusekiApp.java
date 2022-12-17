@@ -68,7 +68,6 @@ public class FusekiApp {
     @Parameter(
             names = {"--configurationPath", "-g"},
             description = "A path to a configuration file (Required)",
-            required = true,
             order = 2)
     private String configurationPath;
 
@@ -143,6 +142,9 @@ public class FusekiApp {
         final FusekiApp app = new FusekiApp();
         final JCommander builder = JCommander.newBuilder().addObject(app).build();
         builder.parse(args);
+    	if (app.command == Command.start && app.configurationPath == null) {
+    		throw new IllegalArgumentException("The 'configurationPath' paramter is not specified");
+    	}
         if (app.help) {
             builder.usage();
             return;
@@ -172,7 +174,7 @@ public class FusekiApp {
         LOGGER.info(("Output folder path = " + outputFolderPath));
 
         if (command == Command.start) {
-             RepositorySystem repositorySystem = ManualRepositorySystemFactory.newRepositorySystem();
+            RepositorySystem repositorySystem = ManualRepositorySystemFactory.newRepositorySystem();
             DefaultRepositorySystemSession session = newRepositorySystemSession(repositorySystem);
             List<RemoteRepository> repositories = newRepositories(remoteRepositoryURL);
             final List<String> deps = new ArrayList<>();
