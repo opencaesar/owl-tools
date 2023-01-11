@@ -17,7 +17,6 @@
 package io.opencaesar.owl.load;
 
 import java.io.File;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -205,8 +204,6 @@ public class OwlLoadApp {
         LOGGER.info("                          E N D");
         LOGGER.info("=================================================================");
     }
-
-    private static String OS = System.getProperty("os.name").toLowerCase();
 
     private void loadOntology(RDFConnection conn, final OWLOntology ont) {
         IRI documentIRI = ont.getOWLOntologyManager().getOntologyDocumentIRI(ont);
