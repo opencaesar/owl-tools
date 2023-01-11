@@ -305,11 +305,11 @@ public class FusekiApp {
         if (pingArg) {
             args[pos++] = "--ping";
         }
-        args[pos++] = "--config=" + config.getAbsolutePath();
+        args[pos++] = "--config=" + config.getName(); // put the simple file name to avoid spaces in path
 
         System.arraycopy(argv, 0, args, pos, argv.length);
         ProcessBuilder pb = new ProcessBuilder(args);
-        pb.directory(output.toFile());
+        pb.directory(config.getParentFile()); // run in the config file's folder
         pb.redirectErrorStream(true);
         pb.redirectOutput(logFile);
 
