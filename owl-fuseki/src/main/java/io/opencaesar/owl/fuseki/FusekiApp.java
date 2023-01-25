@@ -1,9 +1,23 @@
 package io.opencaesar.owl.fuseki;
 
-import java.io.*;
-import java.net.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -13,19 +27,15 @@ import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
-
-import com.beust.jcommander.IStringConverter;
-import com.beust.jcommander.JCommander;
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.ParameterException;
-
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
 import org.apache.maven.resolver.owl.fuseki.ManualRepositorySystemFactory;
 import org.eclipse.aether.DefaultRepositorySystemSession;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.artifact.DefaultArtifact;
-import org.eclipse.aether.collection.*;
+import org.eclipse.aether.collection.CollectRequest;
+import org.eclipse.aether.collection.CollectResult;
+import org.eclipse.aether.collection.DependencyCollectionException;
 import org.eclipse.aether.graph.Dependency;
 import org.eclipse.aether.graph.DependencyNode;
 import org.eclipse.aether.graph.DependencyVisitor;
@@ -34,6 +44,11 @@ import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.aether.resolution.ArtifactRequest;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.aether.resolution.ArtifactResult;
+
+import com.beust.jcommander.IStringConverter;
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.Parameter;
+import com.beust.jcommander.ParameterException;
 
 /**
  * Start an Apache Fuseki server, either in headless mode or with a web UI.
@@ -305,11 +320,11 @@ public class FusekiApp {
         if (pingArg) {
             args[pos++] = "--ping";
         }
-        args[pos++] = "--config=" + config.getName(); // put the simple file name to avoid spaces in path
+        args[pos++] = "--config=" + output.relativize(config.toPath()); // put the relative path to avoid spaces in path
 
         System.arraycopy(argv, 0, args, pos, argv.length);
         ProcessBuilder pb = new ProcessBuilder(args);
-        pb.directory(config.getParentFile()); // run in the config file's folder
+        pb.directory(output.toFile());
         pb.redirectErrorStream(true);
         pb.redirectOutput(logFile);
 
