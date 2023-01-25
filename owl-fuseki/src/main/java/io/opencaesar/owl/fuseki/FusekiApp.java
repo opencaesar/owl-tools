@@ -320,7 +320,7 @@ public class FusekiApp {
         if (pingArg) {
             args[pos++] = "--ping";
         }
-        args[pos++] = "--config=" + output.relativize(config.toPath()); // put the relative path to avoid spaces in path
+        args[pos++] = "--config=" + output.relativize(config.toPath()).toString().replace("\\", "/"); // put the relative path to avoid spaces in path
 
         System.arraycopy(argv, 0, args, pos, argv.length);
         ProcessBuilder pb = new ProcessBuilder(args);
