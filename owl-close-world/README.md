@@ -93,9 +93,9 @@ Suppose two distinct classes _A_ and _B_ have no common subclass. Then the path 
 ### The General Case
 In the general case, we cannot assume the taxonomy is a tree. There may be explicitly-asserted common subclasses, and these invalidate the assumptions that led to the simple algorithm in the simple case.
 
-One strategy for dealing with the general case is to transform an arbitrary taxomony into an equivalent tree and then apply the simple algorithm to the tree. The meaning of _equivalent_ here is that the disjointness policy applied to equivalent taxonomies should yield equivalent disjointness interpretations.
+It is possible, however, to apply the disjointness policy to a general taxonomy in a set of graph transformations that transform the taxonomy into an equivalent tree. In this context, _equivalent_ means representing the taxonomic relationships implied by both the original taxonomy and the disjointness policy. After such transformation, we simply apply the foregoing simple algorithm to generate disjointess assertions.
 
-The subclass relation is transitive, that is, if _A_ is a subclass of _B_ and _B_ is a subclass of _C_, then _A_ is a subclass of _C_. It is true in this case that _A_ is a common subclass of _B_ and _C_, but so is _B_. The fact that _A_ is a subclass of _C_ does not rule out any disjointness not already ruled out. In the following discussions of algorithms, we will assume that the input has undergone transitive reduction and is maintained in reduced state.
+The subclass relation is transitive, that is, if _A_ is a subclass of _B_ and _B_ is a subclass of _C_, then _A_ is a subclass of _C_. Consequently, any arbitrary taxonomy represents the same relations after _transitive reduction_. In the following, we assume the taxonomy to be transformed is in transitive reduction form.
 
 ### Bypass-Reduce-Isolate Algorithm
 
