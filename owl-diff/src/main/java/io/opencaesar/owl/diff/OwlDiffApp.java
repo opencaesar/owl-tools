@@ -1,6 +1,7 @@
 package io.opencaesar.owl.diff;
 
 import java.io.File;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -11,18 +12,19 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.jena.atlas.web.ContentType;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.Statement;
+import org.apache.jena.rdf.model.StmtIterator;
+import org.apache.jena.riot.Lang;
+import org.apache.jena.riot.RDFLanguages;
+import org.apache.jena.vocabulary.OWL;
 import org.apache.log4j.Appender;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
-import org.semanticweb.owlapi.apibinding.OWLManager;
-import org.semanticweb.owlapi.model.HasIRI;
-import org.semanticweb.owlapi.model.IRI;
-import org.semanticweb.owlapi.model.OWLAxiom;
-import org.semanticweb.owlapi.model.OWLImportsDeclaration;
-import org.semanticweb.owlapi.model.OWLOntology;
-import org.semanticweb.owlapi.model.OWLOntologyManager;
 
 import com.beust.jcommander.IParameterValidator;
 import com.beust.jcommander.IStringConverter;
@@ -35,6 +37,11 @@ import com.beust.jcommander.ParameterException;
  * between two ontologies.
  */
 public class OwlDiffApp {
+
+    /**
+     * Allowed input file extensions for ontologies.
+     */
+	public static String[] DEFAULT_EXTENSIONS = { "owl", "ttl" };
 
 	/**
 	 * Creates a new OwlDiffApp object
@@ -58,31 +65,42 @@ public class OwlDiffApp {
 		order = 2)
 	private String catalogPath2 = ".";
 
-	@Parameter(
+    @Parameter(
+        names = {"--file-extensions", "-f"},
+        description = "File extensions of files that will be uploaded. Default is owl and ttl, options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss (Optional)",
+    	validateWith = FileExtensionValidator.class,
+        order = 3)
+    private List<String> fileExtensions = new ArrayList<>();
+    {
+        fileExtensions.addAll(Arrays.asList(DEFAULT_EXTENSIONS));
+    }
+
+    @Parameter(
 		names = { "--ignore", "-i" },
 		description = "List of comma-separated partial IRIs to ignore reporting on",
 		required = false,
 		converter = SetOfIris.class,
-		order = 3)
+		order = 4)
 	private Set<String> ignoreSet = new HashSet<String>();
 
 	@Parameter(
 		names = { "-d", "--debug" },
 		description = "Shows debug logging statements",
-		order = 4)
+		order = 5)
 	private boolean debug;
 
 	@Parameter(
 		names = { "--help", "-h" },
 		description = "Displays summary of options",
 		help = true,
-		order =5)
+		order =6)
 	private boolean help;
 	
-	private final static Logger LOGGER = Logger.getLogger(OwlDiffApp.class);
-	{
+    private final static Logger LOGGER = Logger.getLogger(OwlDiffApp.class);
+
+    static {
         DOMConfigurator.configure(ClassLoader.getSystemClassLoader().getResource("log4j.xml"));
-	}
+    }
 
 	/**
 	 * Application for the ontology comparison tool.
@@ -113,52 +131,44 @@ public class OwlDiffApp {
 		LOGGER.info("                        S T A R T");
 		LOGGER.info("                       OWL Diff " + getAppVersion());
 		LOGGER.info("=================================================================");
-		LOGGER.info(("OWL Catalog 1 = " + catalogPath1));
-		LOGGER.info(("OWL Catalog 2 = " + catalogPath2));
 
 		Map<String, Pair> index = new HashMap<String, Pair>();
 
-		// OWL catalog 1
-		final File folder1 = new File(catalogPath1).getParentFile();
-		final Collection<File> files1 = collectOwlFiles(folder1);
-		final OWLOntologyManager manager1 = OWLManager.createOWLOntologyManager();
-		manager1.getIRIMappers().add((new XMLCatalogIRIMapper(new File(catalogPath1))));
-        for(File file :	files1) {
-   			String relativePath = folder1.toURI().relativize(file.toURI()).getPath();
-   			index.put(relativePath, new Pair(file, null));
+		// Identify files in OWL catalog 1
+		OwlCatalog catalog1 = OwlCatalog.create(new File(catalogPath1).toURI());
+		final URI folder1 = URI.create(catalog1.getBaseUri().toString());
+		final Collection<URI> files1 = catalog1.getFileUris(fileExtensions);
+        for(URI file :	files1) {
+   			String relativePath = folder1.relativize(file).getPath();
+   			index.put(relativePath, new Pair(new File(file), null));
         }
 
-		// OWL catalog 2
-		final File folder2 = new File(catalogPath2).getParentFile();
-		final Collection<File> files2 = collectOwlFiles(folder2);
-		final OWLOntologyManager manager2 = OWLManager.createOWLOntologyManager();
-		manager2.getIRIMappers().add((new XMLCatalogIRIMapper(new File(catalogPath2))));
-        for(File file :	files2) {
-   			String relativePath = folder2.toURI().relativize(file.toURI()).getPath();
+		// Identify files in OWL catalog 2
+		OwlCatalog catalog2 = OwlCatalog.create(new File(catalogPath2).toURI());
+		final URI folder2 = URI.create(catalog2.getBaseUri().toString());
+		final Collection<URI> files2 = catalog2.getFileUris(fileExtensions);
+        for(URI file :	files2) {
+   			String relativePath = folder2.relativize(file).getPath();
    			Pair pair = index.get(relativePath);
 			if (pair == null) {
-				index.put(relativePath, new Pair(null, file));
+				index.put(relativePath, new Pair(null, new File(file)));
 			} else {
-				pair.file2 = file;
+				pair.file2 = new File(file);
 			}
         }
 		
-		// Compare catalogs 1 and 2
 		List<Pair> pairs = index.values().stream().collect(Collectors.toList());
 		for (Pair pair : pairs) {
 			if (pair.file2 == null) {
-				final OWLOntology ontology1 = manager1.loadOntologyFromOntologyDocument(pair.file1);
-				LOGGER.info("Ontology "+ontology1.getOntologyID().getOntologyIRI().get()+':');
-				LOGGER.info("\tOntology in catalog 1 only");
+				final Model model1 = loadModel(pair.file1);
+				System.out.println("- "+getModelURI(model1));
 			} else if (pair.file1 == null) {
-				final OWLOntology ontology2 = manager2.loadOntologyFromOntologyDocument(pair.file2);
-				LOGGER.info("Ontology "+ontology2.getOntologyID().getOntologyIRI().get()+':');
-				LOGGER.info("\tOntology in catalog 2 only");
+				final Model model2 = loadModel(pair.file2);
+				System.out.println("+ "+getModelURI(model2));
 			} else {
-				final OWLOntology ontology1 = manager1.loadOntologyFromOntologyDocument(pair.file1);
-				final OWLOntology ontology2 = manager2.loadOntologyFromOntologyDocument(pair.file2);
-				LOGGER.info("Ontology "+ontology1.getOntologyID().getOntologyIRI().get()+':');
-				check(ontology1, ontology2);
+				final Model model1 = loadModel(pair.file1);
+				final Model model2 = loadModel(pair.file2);
+				compare(model1, model2);
 			}
 		};
 
@@ -167,90 +177,56 @@ public class OwlDiffApp {
 		LOGGER.info("=================================================================");
 	}
 
-	/**
-	 * Print the differences between two ontologies (1 and 2) in terms of:
-	 * - import declaration axioms in 2 but not in 1
-	 * - axioms in 2 but not in 1
-	 * @param ontology1 an ontology 1
-	 * @param ontology2 an ontology 2
-	 */
-	public void check(final OWLOntology ontology1, final OWLOntology ontology2) {
-		Set<OWLImportsDeclaration> imports1 = ontology1.importsDeclarations().collect(Collectors.toSet());
-		Set<OWLImportsDeclaration> imports2 = ontology2.importsDeclarations().collect(Collectors.toSet());
-		
-		Set<OWLAxiom> axioms1 = ontology1.axioms().collect(Collectors.toSet());
-		Set<OWLAxiom> axioms2 = ontology2.axioms().collect(Collectors.toSet());
-
-		printImportsInRightButNotLeft(imports1, imports2, "Axioms in ontology 1 only:");
-		printAxiomsInRightButNotLeft(axioms1, axioms2, "Axioms in ontology 1 only:");
-
-		printImportsInRightButNotLeft(imports2, imports1, "Axioms in ontology 2 only:");				
-		printAxiomsInRightButNotLeft(axioms2, axioms1, "Axioms in ontology 2 only:");			
-	}
-
-	/**
-	 * Utility for printing import declaration axioms in the right set that are not in the left set.
-	 *
-	 * @param left a set of import declaration axioms
-	 * @param right a set of import declaration axioms
-	 * @param label A label prefixed for each import declaration axiom to print.
-	 */
-	public void printImportsInRightButNotLeft(final Set<OWLImportsDeclaration> left, final Set<OWLImportsDeclaration> right, final String label) {
-		left.stream().
-			sorted().
-			filter(it -> !right.contains(it)).
-			forEach(it -> LOGGER.info('\t'+label+' '+it.toString().replace('\n', ' ')));
-	}
-
-	/**
-	 * Utility for printing axioms in the right set that are not in the left set.
-	 *
-	 * @param left a set of axioms
-	 * @param right a set of axioms
-	 * @param label A label prefixed for each axiom to print.
-	 */
-	public void printAxiomsInRightButNotLeft(final Set<OWLAxiom> left, final Set<OWLAxiom> right, final String label) {
-		left.stream().
-			sorted().
-			filter(it -> !right.contains(it)).
-			filter(it -> !shouldIgnore(it)).
-			forEach(it -> LOGGER.info('\t'+label+' '+it.toString().replace('\n', ' ')));
-	}
-
-	private boolean shouldIgnore(OWLAxiom axiom) {
-		return axiom.components().
-			filter(it -> it instanceof HasIRI).
-			map(it -> ((HasIRI) it).getIRI()).
-			anyMatch(it -> shouldIgnore(it));
-	}
-
-	private boolean shouldIgnore(IRI iri) {
-		final String str = iri.getIRIString();
-		return ignoreSet.stream().anyMatch(it -> str.startsWith(it));
+	private Model loadModel(File file) {
+		String filePath = file.getAbsolutePath();
+		Model model = ModelFactory.createDefaultModel();
+        ContentType ct = RDFLanguages.guessContentType(filePath) ;
+		model.read(filePath, ct.getContentTypeStr());
+		return model;
 	}
 	
-	private Collection<File> collectOwlFiles(final File directory) {
-		ArrayList<File> owlFiles = new ArrayList<File>();
-		for (File file : directory.listFiles()) {
-			if (file.isFile()) {
-				if (getFileExtension(file).equals("owl")) {
-					owlFiles.add(file);
+	/**
+	 * Print the differences between two RDF models (1 and 2)
+	 * @param model1 an model 1
+	 * @param model2 an model 2
+	 */
+	public void compare(final Model model1, final Model model2) {
+		var deleted = getStatementsInLeftButNotRight(model1, model2);
+		var added = getStatementsInLeftButNotRight(model2, model1);
+		if (!deleted.isEmpty() || !added.isEmpty()) {
+			System.out.println("* "+getModelURI(model1));
+			deleted.forEach(it -> System.out.println("\t- "+ it.toString()));
+			added.forEach(it -> System.out.println("\t+ "+ it.toString()));
+		}
+	}
+
+	/**
+	 * Utility for determining statements that exist in the left model but not the right model .
+	 *
+	 * @param left the left model
+	 * @param right the right model
+	 * @return a list of statements that exist in the left model but not the right model
+	 */
+	public List<Statement> getStatementsInLeftButNotRight(final Model left, final Model right) {
+		var statements = new ArrayList<Statement>();
+		StmtIterator i = left.listStatements();
+		while (i.hasNext()) {
+			var statement = i.next();
+			if (!right.contains(statement)) {
+				if (!statement.getSubject().isAnon() &&
+					!statement.getObject().isAnon() &&
+					!statement.getPredicate().hasURI(OWL.versionInfo.getURI())) {
+					statements.add(statement);
 				}
-			} else if (file.isDirectory()) {
-				owlFiles.addAll(collectOwlFiles(file));
 			}
 		}
-		return owlFiles;
+		return statements;
 	}
 
-	private String getFileExtension(final File file) {
-        String fileName = file.getName();
-        if (fileName.lastIndexOf(".") != -1)
-        	return fileName.substring(fileName.lastIndexOf(".")+1);
-        else 
-        	return "";
+	private String getModelURI(Model m) {
+		return m.getGraph().getPrefixMapping().getNsPrefixURI("");
 	}
-
+	
 	private String getAppVersion() throws Exception {
     	var version = this.getClass().getPackage().getImplementationVersion();
     	return (version != null) ? version : "<SNAPSHOT>";
@@ -276,24 +252,23 @@ public class OwlDiffApp {
 		}
 	}
 
-	/**
-	 * A parameter validator for an output file path.
-	 */
-	public static class OutputFilePath implements IParameterValidator {
-
+    /**
+     * A parameter validator for a file extension for an RDF language syntax.
+     */
+	public static class FileExtensionValidator implements IParameterValidator {
 		/**
-		 * Creates a new OutputFilePath object
+		 * Creates a new FileExtensionValidator object
 		 */
-		public OutputFilePath() {
+		public FileExtensionValidator() {
 		}
-
 		@Override
 		public void validate(final String name, final String value) throws ParameterException {
-			File folder = new File(value).getParentFile();
-			if (!folder.exists()) {
-				folder.mkdir();
+			Lang lang = RDFLanguages.fileExtToLang(value);
+			if (lang == null) {
+				throw new ParameterException("File extension " + name + " is not a valid one");
 			}
 		}
+		
 	}
 
 	/**
@@ -321,4 +296,5 @@ public class OwlDiffApp {
 			this.file2 = file2;
 		}
 	}
+
 }

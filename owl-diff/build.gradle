@@ -12,5 +12,5 @@ dependencies {
 	testImplementation "junit:junit:${versions.junit}"
 
  	implementation "xml-resolver:xml-resolver:${versions.xmlresolver}"
-	implementation "net.sourceforge.owlapi:owlapi-distribution:${versions.owl}"
+	implementation "org.apache.jena:jena-rdfconnection:${versions.jena}"
 }
