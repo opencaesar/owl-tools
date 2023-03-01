@@ -15,6 +15,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -307,22 +308,19 @@ public class FusekiApp {
         // Start the server
         fusekiDir.mkdirs();
 
-        String java = getJavaCommandPath();
-        int argCount = 7 + argv.length + (pingArg ? 1 : 0);
-        String[] args = new String[argCount];
-        int pos = 0;
-        args[pos++] = java;
-        args[pos++] = "-cp";
-        args[pos++] = String.join(File.pathSeparator, cpEntries);
-        args[pos++] = clazz;
-        args[pos++] = "--port";
-        args[pos++] = Integer.toString(port);
+        List<String> args = new ArrayList<String>();
+        args.add(getJavaCommandPath());
+        args.add("-cp");
+        args.add(String.join(File.pathSeparator, cpEntries));
+        args.add(clazz);
+        args.add("--port");
+        args.add(Integer.toString(port));
         if (pingArg) {
-            args[pos++] = "--ping";
+        	args.add("--ping");
         }
-        args[pos++] = "--config=" + output.relativize(config.toPath()).toString().replace("\\", "/"); // put the relative path to avoid spaces in path
-
-        System.arraycopy(argv, 0, args, pos, argv.length);
+        args.add("--config=" + output.relativize(config.toPath()).toString().replace("\\", "/")); // put the relative path to avoid spaces in path
+        args.addAll(Arrays.asList(argv));
+        
         ProcessBuilder pb = new ProcessBuilder(args);
         pb.directory(output.toFile());
         pb.redirectErrorStream(true);
