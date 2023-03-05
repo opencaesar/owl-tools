@@ -1,0 +1,162 @@
+digraph BundleClosure__Taxonomy {
+    rankdir = BT
+
+    J [
+        fontsize = 14,
+        shape = plain,
+        label = J
+    ]
+
+    G [
+        fontsize = 14,
+        shape = plain,
+        label = G
+    ]
+
+    C [
+        fontsize = 14,
+        shape = plain,
+        label = C
+    ]
+
+    D [
+        fontsize = 14,
+        shape = plain,
+        label = D
+    ]
+
+    F [
+        fontsize = 14,
+        shape = plain,
+        label = F
+    ]
+
+    B [
+        fontsize = 14,
+        shape = plain,
+        label = B
+    ]
+
+    A [
+        fontsize = 14,
+        shape = plain,
+        label = A
+    ]
+
+    X [
+        fontsize = 14,
+        shape = plain,
+        label = X
+    ]
+
+    Y [
+        fontsize = 14,
+        shape = plain,
+        label = Y
+    ]
+
+    Z [
+        fontsize = 14,
+        shape = plain,
+        label = Z
+    ]
+
+    U [
+        fontsize = 14,
+        shape = plain,
+        label = U
+    ]
+
+    "I\\J" [
+        fontsize = 14,
+        shape = plain,
+        label = "I\\J"
+    ]
+
+    "H\\J" [
+        fontsize = 14,
+        shape = plain,
+        label = "H\\J"
+    ]
+
+    "E\\J" [
+        fontsize = 14,
+        shape = plain,
+        label = "E\\J"
+    ]
+
+    G -> J [
+        arrowhead = none,
+        fontsize = 8
+    ]
+
+    G -> "I\\J" [
+        arrowhead = none,
+        fontsize = 8
+    ]
+
+    C -> G [
+        arrowhead = none,
+        fontsize = 8
+    ]
+
+    C -> "H\\J" [
+        arrowhead = none,
+        fontsize = 8
+    ]
+
+    F -> J [
+        arrowhead = none,
+        fontsize = 8
+    ]
+
+    F -> "I\\J" [
+        arrowhead = none,
+        fontsize = 8
+    ]
+
+    B -> C [
+        arrowhead = none,
+        fontsize = 8
+    ]
+
+    B -> D [
+        arrowhead = none,
+        fontsize = 8
+    ]
+
+    B -> F [
+        arrowhead = none,
+        fontsize = 8
+    ]
+
+    B -> "E\\J" [
+        arrowhead = none,
+        fontsize = 8
+    ]
+
+    A -> B [
+        arrowhead = none,
+        fontsize = 8
+    ]
+
+    U -> A [
+        arrowhead = none,
+        fontsize = 8
+    ]
+
+    U -> X [
+        arrowhead = none,
+        fontsize = 8
+    ]
+
+    U -> Y [
+        arrowhead = none,
+        fontsize = 8
+    ]
+
+    U -> Z [
+        arrowhead = none,
+        fontsize = 8
+    ]
+}

@@ -1,0 +1,31 @@
+digraph initial {
+    rankdir = "BT"
+    node [shape = plain]
+    edge [arrowhead = none]
+
+    b1 [label = <B<SUB>1</SUB>>]
+    b2 [label = <B<SUB>2</SUB>>]
+    bdots [label = "..."]
+    bk [label = <B<SUB><I>k</I></SUB>>]
+    c  [label = <C>]
+    d1 [label = <D<SUB>1</SUB>>]
+    d2 [label = <D<SUB>2</SUB>>]
+    ddots [label = "..."]
+    dl [label = <D<SUB><I>l</I></SUB>>]
+
+    c -> b1
+    c -> b2
+    c -> bdots
+    c -> bk
+
+    d1 -> c
+    d2 -> c
+    ddots -> c
+    dl -> c
+
+    edge [style = invis]
+    rank = same { b1 -> b2 -> bdots -> bk }
+    rank = same { d1 -> d2 -> ddots -> dl }
+}
+
+

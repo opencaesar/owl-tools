@@ -1,0 +1,58 @@
+digraph BundleClosure__Taxonomy {
+    rankdir = BT
+
+    G [
+        fontsize = 14,
+        shape = plain,
+        label = G
+    ]
+
+    J [
+        fontsize = 14,
+        shape = plain,
+        label = J
+    ]
+
+    C [
+        fontsize = 14,
+        shape = plain,
+        label = C
+    ]
+
+    F [
+        fontsize = 14,
+        shape = plain,
+        label = F
+    ]
+
+    B [
+        fontsize = 14,
+        shape = plain,
+        label = B
+    ]
+
+    G -> J [
+        arrowhead = none,
+        fontsize = 8
+    ]
+
+    C -> G [
+        arrowhead = none,
+        fontsize = 8
+    ]
+
+    F -> J [
+        arrowhead = none,
+        fontsize = 8
+    ]
+
+    B -> C [
+        arrowhead = none,
+        fontsize = 8
+    ]
+
+    B -> F [
+        arrowhead = none,
+        fontsize = 8
+    ]
+}

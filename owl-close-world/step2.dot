@@ -1,0 +1,53 @@
+digraph step2 {
+    rankdir = "BT"
+    node [shape = plain]
+    edge [arrowhead = none]
+
+    ai1 [label = <A<SUB><I>i</I>,1</SUB>>]
+    ai2 [label = <A<SUB><I>i</I>,2</SUB>>]
+    aidots [label = "..."]
+    aij [label = <A<SUB><I>i,j</I></SUB>>]
+    
+    bi [label = <B<SUB><I>i</I></SUB>>]
+    bimc [label = <B<SUB><I>i</I></SUB>\\C>]
+
+    c [label = "C"]
+    
+    d1 [label = <D<SUB>1</SUB>>]
+    d2 [label = <D<SUB>2</SUB>>]
+    ddots [label = "..."]
+    dl [label = <D<SUB><I>l</I></SUB>>]
+
+    ei1 [label = <E<SUB><I>i</I>,1</SUB>>]
+    ei2 [label = <E<SUB><I>i</I>,2</SUB>>]
+    eidots [label = "..."]
+    eim [label = <E<SUB><I>i,m</I></SUB>>]
+    
+    bi -> ai1
+    bi -> ai2
+    bi -> aidots
+    bi -> aij
+
+    bimc -> bi
+    
+    c -> bi
+
+    d1 -> c
+    d2 -> c
+    ddots -> c
+    dl -> c
+
+    ei1 -> bimc
+    ei2 -> bimc
+    eidots -> bimc
+    eim -> bimc
+
+    node [style = invis]
+    edge [style = invis]
+    rank = same { ai1 -> ai2 -> aidots -> aij }
+    rank = same { bimc -> invis -> c }
+    rank = same { ei1 -> ei2 -> eidots -> eim }
+    rank = same { d1 -> d2 -> ddots -> dl }
+}
+
+

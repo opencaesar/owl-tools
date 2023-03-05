@@ -62,7 +62,7 @@ A reasoner will include that the set of cars is empty, but the empty set is a va
 
 The general problem of disjointness maintenance is the augmentation of a taxonomy with disjointness axioms that encode a specific policy for vocabulary closure. It is of utmost importance to note that these disjointness axioms are in no sense implied by the taxonomy itself; indeed, the open world interpretation is that two classes are not considered to be disjoint unless explicitly declared to be so or if their disjointness is implied by mutually exclusive constraints such as property range or cardinality restrictions.
 
-Disjointness maintenance can be simplified by declaraing a policy regarding dijsointness and then implementing that policy in code that can reliably generate the prescribed disjointness axioms.
+Disjointness maintenance can be simplified by declaring a policy regarding dijsointness and then implementing that policy in code that can reliably generate the prescribed disjointness axioms.
 
 We propose here a simple policy: any two classes that have no common subclass are considered to be disjoint. A simple corollary is that, if _B_ is a subclass of _A_, then _A_ and _B_ are not disjoint because _A_ and _B_ have a common subclass, namely _B_. Also note that disjointness is inherited: if _A_ and _B_ are disjoint, then every subclass of _A_ is disjoint with every subclass of _B_. We can use this fact to make our generated disjointness axioms concise.
 
@@ -80,7 +80,7 @@ The objectives of a disjointness maintenance algorithm are threefold:
 
 The final item is beyond the expertise of the author. We focus on the first two and hope for the best with the third.
 
-Finally, there are circumstances in which applying the policy is inappropriate. In OML, we distinguish between _concepts_ and _aspects_. The operational difference is precisely that: the concepts taxonomy is subjected to vocabulary bundle closure and the aspects taxonomy is not. In practice, concepts are used to denote classes such as `Person` and `Vehicle` in which the policy is clearly applicable, and aspects denote classes such as `ThingWithVolume` and `ThingWithMass`, in which is equally clearly not applicable.
+Finally, there are circumstances in which applying the policy is inappropriate. In OML, we distinguish between _concepts_ and _aspects_. The operational difference is precisely that: the concepts taxonomy is subjected to vocabulary bundle closure and the aspects taxonomy is not. In practice, concepts are used to denote classes such as `Person` and `Vehicle` for which the policy is clearly applicable, and aspects denote classes such as `ThingWithVolume` and `ThingWithMass`, for which it is equally clearly _not_ applicable.
 
 ### The Simplest Case
 Consider the case of a taxonomy that is a _directed rooted tree_ in the graph-theoretic sense. A _tree_ is an undirected graph that is connected and acyclic. (An equivalent condition is that there is exactly one path between any two vertices.) A _directed tree_ is a tree in which the edges are directed, and a _rooted tree_ is a directed tree in which a single vertex is designated the _root_. For this discussion we will take edge direction to be from subclass to superclass; the parents of a vertex correspond to its superclasses and its children correspond to its subclasses.
@@ -97,7 +97,7 @@ It is possible, however, to apply the disjointness policy to a general taxonomy 
 
 The subclass relation is transitive, that is, if _A_ is a subclass of _B_ and _B_ is a subclass of _C_, then _A_ is a subclass of _C_. Consequently, any arbitrary taxonomy represents the same relations after _transitive reduction_. In the following, we assume the taxonomy to be transformed is in transitive reduction form.
 
-### Bypass-Reduce-Isolate Algorithm
+### Bypass-Isolate-Reduce Algorithm
 
 #### Theory
 Let _T_ be a rooted taxonomy and let _G_ be the transitive reduction of a graph whose edges represent the is-subclass-of relation in _T_. Further suppose that _G_ is a directed acyclic graph and let _H_ be its transitive closure. Then the ancestors of a class _A_ in _G_ correspond to the superclasses of _A_ (omitting _A_) in _H_ and the descendants of _A_ in _G_ correspond to the subclasses of _A_ (omitting _A_) in _H_.
@@ -108,7 +108,7 @@ Suppose there exists a class _C_ such that _C_ ⊆ _B_<sub>1</sub>, _C_ ⊆ _B_<
 
 Note that there may be other ancestors of _B_<sub>_i_</sub> and descendants of _D_<sub>_i_</sub> not shown, but there are no edges from any ancestor of _C_ to any descendant of _C_ because _G_ is in transitive reduction form.)
 
-Consider a particular parent of _C_, _B_<sub>_i_</sub>, and its parents _A_<sub>1</sub>, _A_<sub>1</sub>, …, _A_<sub>_j</sub>. Because _T_ is rooted, _j_ > 0.
+Consider a particular parent of _C_, _B_<sub>_i_</sub>, and its parents _A_<sub>1</sub>, _A_<sub>1</sub>, …, _A_<sub>_j_</sub>. Because _T_ is rooted, _j_ > 0.
 
 ![Detail for Bi](bidetail.svg)
 
@@ -136,12 +136,64 @@ The transformation code does not follow the proof steps one-by-one. An outer whi
 
 The edge from _C_ to each of its parents (_B_<sub>_i_</sub>) is replaced by an edge to each of its grandparents (_A_<sub>_i*_</sub>). That is, the parents of _C_ are bypassed.
 
-#### Reduce
-
-The _bypass_ step may leave _G_ no longer in transitive reduction form. The _reduce_ step removes any redundant edges among ancestors of _C_.
-
 #### Isolate
 
-The _isolate_ step replaces each _B_<sub>_i_</sub> with _B_<sub>_i_</sub> \\ _C_.
+Each _B_<sub>_i_</sub> is replaced by _B_<sub>_i_</sub> \\ _C_. That is, _C_ is isolated from each _B_<sub>_i_</sub>.
 
-## Description Bundle Closure
+#### Reduce
+
+Any redundant edges among ancestors of _C_ that may have been introduced in the bypass step are removed.
+
+### Example
+
+#### Initial Taxonomy
+![original](original.svg)
+#### After Rooting and Transitive Reduction
+![reduced](reduced.svg)
+#### Step 1: Process Multi-Parent Child J
+Neighborhood above J:<p>
+![step-1-child-identified](step-1-child-identified.svg)
+##### Bypass and Isolate Parents {I, H, E}
+Remove edges from parents to child. Add edges from grandparents to child.
+Replace parents with difference of parents and child.<p>
+![step-1-bypass-isolate](step-1-bypass-isolate.svg)
+##### Reduce Graph Above J
+Remove redundant edges.<p>
+![step-1-reduce](step-1-reduce.svg)
+##### End of Step 1
+![step-1-final](step-1-final.svg)
+#### Step 2: Process Multi-Parent Child J
+Neighborhood above J:<p>
+![step-2-child-identified](step-2-child-identified.svg)
+##### Bypass and Isolate Parents {G, F}
+Remove edges from parents to child. Add edges from grandparents to child.
+Replace parents with difference of parents and child.<p>
+![step-2-bypass-isolate](step-2-bypass-isolate.svg)
+##### Reduce Graph Above J
+Remove redundant edges.<p>
+![step-2-reduce](step-2-reduce.svg)
+##### End of Step 2
+![step-2-final](step-2-final.svg)
+#### Step 3: Process Multi-Parent Child I\J
+Neighborhood above I\J:<p>
+![step-3-child-identified](step-3-child-identified.svg)
+##### Bypass and Isolate Parents {G\J, F\J}
+Remove edges from parents to child. Add edges from grandparents to child.
+Replace parents with difference of parents and child.<p>
+![step-3-bypass-isolate](step-3-bypass-isolate.svg)
+##### Reduce Graph Above I\J
+Remove redundant edges.<p>
+![step-3-reduce](step-3-reduce.svg)
+##### End of Step 3
+![step-3-final](step-3-final.svg)
+#### Assert Disjointness
+* Children of C: DisjointClasses(H&bsol;J J I&bsol;J G&bsol;(J∪I))
+* Children of B: DisjointClasses(C D E&bsol;J F&bsol;(J∪I))
+* Children of U: DisjointClasses(A X Y Z)
+
+
+#### Notes
+* The algorithm employs certain theorems (e.g., _A_ ⋃ _A_ ≡ _A_) to simplify class expressions, but does not itself perform complete set-theoretic reasoning. For example, it does not take note of the fact that _J_ ⊆ _I_ in order to simplify the expression _J_ ⋃ _I_ to simply _I_. Other than its impact on human understanding, this is not a deficiency. The algorithm produces axioms that are true; the reasoner has the logic to interpret those properly even if they are not syntactically minimal.
+* OWL has no construct for set difference _per se_, but _A_ &bsol; _B_ ≡ _A_ ∩ _B_', and OWL has constructs for class intersection and class complement.
+
+
