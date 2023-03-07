@@ -159,17 +159,9 @@ public class OwlDiffApp {
 		
 		List<Pair> pairs = index.values().stream().collect(Collectors.toList());
 		for (Pair pair : pairs) {
-			if (pair.file2 == null) {
-				final Model model1 = loadModel(pair.file1);
-				System.out.println("- "+getModelURI(model1));
-			} else if (pair.file1 == null) {
-				final Model model2 = loadModel(pair.file2);
-				System.out.println("+ "+getModelURI(model2));
-			} else {
-				final Model model1 = loadModel(pair.file1);
-				final Model model2 = loadModel(pair.file2);
-				compare(model1, model2);
-			}
+			final Model model1 = (pair.file1 != null) ? loadModel(pair.file1) : ModelFactory.createDefaultModel();
+			final Model model2 = (pair.file2 != null) ? loadModel(pair.file2) : ModelFactory.createDefaultModel();
+			compare(model1, model2);
 		};
 
 		LOGGER.info("=================================================================");
@@ -179,8 +171,8 @@ public class OwlDiffApp {
 
 	private Model loadModel(File file) {
 		String filePath = file.getAbsolutePath();
-		Model model = ModelFactory.createDefaultModel();
         ContentType ct = RDFLanguages.guessContentType(filePath) ;
+		Model model = ModelFactory.createDefaultModel();
 		model.read(filePath, ct.getContentTypeStr());
 		return model;
 	}
@@ -194,7 +186,11 @@ public class OwlDiffApp {
 		var deleted = getStatementsInLeftButNotRight(model1, model2);
 		var added = getStatementsInLeftButNotRight(model2, model1);
 		if (!deleted.isEmpty() || !added.isEmpty()) {
-			System.out.println("* "+getModelURI(model1));
+			if (getModelURI(model1) != null) {
+				System.out.println("* "+getModelURI(model1));
+			} else {
+				System.out.println("* "+getModelURI(model2));
+			}
 			deleted.forEach(it -> System.out.println("\t- "+ it.toString()));
 			added.forEach(it -> System.out.println("\t+ "+ it.toString()));
 		}
