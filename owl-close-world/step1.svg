@@ -12,87 +12,87 @@
 <!-- ai1 -->
 <g id="node1" class="node">
 <title>ai1</title>
-<text text-anchor="start" x="40.5" y="-208.8" font-family="Times,serif" font-size="14.00">A</text>
-<text text-anchor="start" x="50.5" y="-208.8" font-family="Times,serif" font-style="italic" baseline-shift="sub" font-size="14.00">i</text>
-<text text-anchor="start" x="54.5" y="-208.8" font-family="Times,serif" baseline-shift="sub" font-size="14.00">,1</text>
+<text text-anchor="start" x="43" y="-208.8" font-family="Times,serif" font-style="italic" font-size="14.00">A</text>
+<text text-anchor="start" x="52" y="-208.8" font-family="Times,serif" font-style="italic" baseline-shift="sub" font-size="14.00">i</text>
+<text text-anchor="start" x="56" y="-208.8" font-family="Times,serif" font-style="italic" baseline-shift="sub" font-size="14.00">,1</text>
 </g>
 <!-- ai2 -->
 <g id="node2" class="node">
 <title>ai2</title>
-<text text-anchor="start" x="82.5" y="-208.8" font-family="Times,serif" font-size="14.00">A</text>
-<text text-anchor="start" x="92.5" y="-208.8" font-family="Times,serif" font-style="italic" baseline-shift="sub" font-size="14.00">i</text>
-<text text-anchor="start" x="96.5" y="-208.8" font-family="Times,serif" baseline-shift="sub" font-size="14.00">,2</text>
+<text text-anchor="start" x="84" y="-208.8" font-family="Times,serif" font-style="italic" font-size="14.00">A</text>
+<text text-anchor="start" x="93" y="-208.8" font-family="Times,serif" font-style="italic" baseline-shift="sub" font-size="14.00">i</text>
+<text text-anchor="start" x="97" y="-208.8" font-family="Times,serif" font-style="italic" baseline-shift="sub" font-size="14.00">,2</text>
 </g>
 <!-- ai1&#45;&gt;ai2 -->
 <!-- aidots -->
 <g id="node3" class="node">
 <title>aidots</title>
-<text text-anchor="middle" x="130.5" y="-207.8" font-family="Times,serif" font-size="14.00">...</text>
+<text text-anchor="middle" x="131.5" y="-207.8" font-family="Times,serif" font-style="italic" font-size="14.00">...</text>
 </g>
 <!-- ai2&#45;&gt;aidots -->
 <!-- aij -->
 <g id="node4" class="node">
 <title>aij</title>
-<text text-anchor="start" x="154.5" y="-208.8" font-family="Times,serif" font-size="14.00">A</text>
-<text text-anchor="start" x="164.5" y="-208.8" font-family="Times,serif" font-style="italic" baseline-shift="sub" font-size="14.00">i,j</text>
+<text text-anchor="start" x="156" y="-208.8" font-family="Times,serif" font-style="italic" font-size="14.00">A</text>
+<text text-anchor="start" x="165" y="-208.8" font-family="Times,serif" font-style="italic" baseline-shift="sub" font-size="14.00">i,j</text>
 </g>
 <!-- aidots&#45;&gt;aij -->
 <!-- bi -->
 <g id="node5" class="node">
 <title>bi</title>
-<text text-anchor="start" x="105.5" y="-157.8" font-family="Times,serif" font-size="14.00">B</text>
-<text text-anchor="start" x="115.5" y="-157.8" font-family="Times,serif" font-style="italic" baseline-shift="sub" font-size="14.00">i</text>
+<text text-anchor="start" x="107" y="-157.8" font-family="Times,serif" font-style="italic" font-size="14.00">B</text>
+<text text-anchor="start" x="116" y="-157.8" font-family="Times,serif" font-style="italic" baseline-shift="sub" font-size="14.00">i</text>
 </g>
 <!-- bi&#45;&gt;ai1 -->
 <g id="edge1" class="edge">
 <title>bi&#45;&gt;ai1</title>
-<path fill="none" stroke="black" d="M105.62,-167.12C94.41,-176.27 72.29,-194.34 60.44,-204.02"/>
+<path fill="none" stroke="black" d="M107.19,-166.74C96.25,-175.83 73.81,-194.46 62.06,-204.22"/>
 </g>
 <!-- bi&#45;&gt;ai2 -->
 <g id="edge2" class="edge">
 <title>bi&#45;&gt;ai2</title>
-<path fill="none" stroke="black" d="M110.15,-167.91C106.68,-177.35 100.23,-194.89 96.8,-204.25"/>
+<path fill="none" stroke="black" d="M111.15,-167.91C107.68,-177.35 101.23,-194.89 97.8,-204.25"/>
 </g>
 <!-- bi&#45;&gt;aidots -->
 <g id="edge3" class="edge">
 <title>bi&#45;&gt;aidots</title>
-<path fill="none" stroke="black" d="M114.85,-167.91C118.32,-177.35 124.77,-194.89 128.2,-204.25"/>
+<path fill="none" stroke="black" d="M115.85,-167.91C119.32,-177.35 125.77,-194.89 129.2,-204.25"/>
 </g>
 <!-- bi&#45;&gt;aij -->
 <g id="edge4" class="edge">
 <title>bi&#45;&gt;aij</title>
-<path fill="none" stroke="black" d="M119.3,-167.91C129.32,-177.35 147.94,-194.89 157.86,-204.25"/>
+<path fill="none" stroke="black" d="M119.88,-167.51C129.75,-176.81 148.64,-194.62 158.74,-204.13"/>
 </g>
 <!-- bimc -->
 <g id="node6" class="node">
 <title>bimc</title>
-<text text-anchor="start" x="53" y="-106.8" font-family="Times,serif" font-size="14.00">B</text>
-<text text-anchor="start" x="63" y="-106.8" font-family="Times,serif" font-style="italic" baseline-shift="sub" font-size="14.00">i</text>
-<text text-anchor="start" x="67" y="-106.8" font-family="Times,serif" font-size="14.00">\C</text>
+<text text-anchor="start" x="55.5" y="-106.8" font-family="Times,serif" font-style="italic" font-size="14.00">B</text>
+<text text-anchor="start" x="64.5" y="-106.8" font-family="Times,serif" font-style="italic" baseline-shift="sub" font-size="14.00">i</text>
+<text text-anchor="start" x="68.5" y="-106.8" font-family="Times,serif" font-style="italic" font-size="14.00">\C</text>
 </g>
 <!-- bimc&#45;&gt;bi -->
 <g id="edge5" class="edge">
 <title>bimc&#45;&gt;bi</title>
-<path fill="none" stroke="black" d="M72.51,-116.91C81.38,-126.35 97.85,-143.89 106.63,-153.25"/>
+<path fill="none" stroke="black" d="M74.38,-116.91C83.05,-126.35 99.17,-143.89 107.76,-153.25"/>
 </g>
 <!-- invis -->
 <!-- bimc&#45;&gt;invis -->
 <!-- biic -->
 <g id="node7" class="node">
 <title>biic</title>
-<text text-anchor="start" x="143" y="-106.8" font-family="Times,serif" font-size="14.00">B</text>
-<text text-anchor="start" x="153" y="-106.8" font-family="Times,serif" font-style="italic" baseline-shift="sub" font-size="14.00">i</text>
-<text text-anchor="start" x="157" y="-106.8" font-family="Times,serif" font-size="14.00">∩C</text>
+<text text-anchor="start" x="143.5" y="-106.8" font-family="Times,serif" font-style="italic" font-size="14.00">B</text>
+<text text-anchor="start" x="152.5" y="-106.8" font-family="Times,serif" font-style="italic" baseline-shift="sub" font-size="14.00">i</text>
+<text text-anchor="start" x="156.5" y="-106.8" font-family="Times,serif" font-style="italic" font-size="14.00">∩C</text>
 </g>
 <!-- biic&#45;&gt;bi -->
 <g id="edge6" class="edge">
 <title>biic&#45;&gt;bi</title>
-<path fill="none" stroke="black" d="M153.36,-116.91C144.3,-126.35 127.47,-143.89 118.5,-153.25"/>
+<path fill="none" stroke="black" d="M153.49,-116.91C144.62,-126.35 128.15,-143.89 119.37,-153.25"/>
 </g>
 <!-- c -->
 <g id="node8" class="node">
 <title>c</title>
-<text text-anchor="middle" x="159.5" y="-54.8" font-family="Times,serif" font-size="14.00">C</text>
+<text text-anchor="middle" x="159.5" y="-54.8" font-family="Times,serif" font-style="italic" font-size="14.00">C</text>
 </g>
 <!-- c&#45;&gt;biic -->
 <g id="edge7" class="edge">
@@ -102,8 +102,8 @@
 <!-- d1 -->
 <g id="node9" class="node">
 <title>d1</title>
-<text text-anchor="start" x="99" y="-4.8" font-family="Times,serif" font-size="14.00">D</text>
-<text text-anchor="start" x="109" y="-4.8" font-family="Times,serif" baseline-shift="sub" font-size="14.00">1</text>
+<text text-anchor="start" x="99" y="-4.8" font-family="Times,serif" font-style="italic" font-size="14.00">D</text>
+<text text-anchor="start" x="109" y="-4.8" font-family="Times,serif" font-style="italic" baseline-shift="sub" font-size="14.00">1</text>
 </g>
 <!-- d1&#45;&gt;c -->
 <g id="edge8" class="edge">
@@ -113,8 +113,8 @@
 <!-- d2 -->
 <g id="node10" class="node">
 <title>d2</title>
-<text text-anchor="start" x="134" y="-4.8" font-family="Times,serif" font-size="14.00">D</text>
-<text text-anchor="start" x="144" y="-4.8" font-family="Times,serif" baseline-shift="sub" font-size="14.00">2</text>
+<text text-anchor="start" x="134" y="-4.8" font-family="Times,serif" font-style="italic" font-size="14.00">D</text>
+<text text-anchor="start" x="144" y="-4.8" font-family="Times,serif" font-style="italic" baseline-shift="sub" font-size="14.00">2</text>
 </g>
 <!-- d1&#45;&gt;d2 -->
 <!-- d2&#45;&gt;c -->
@@ -125,7 +125,7 @@
 <!-- ddots -->
 <g id="node11" class="node">
 <title>ddots</title>
-<text text-anchor="middle" x="175.5" y="-3.8" font-family="Times,serif" font-size="14.00">...</text>
+<text text-anchor="middle" x="175.5" y="-3.8" font-family="Times,serif" font-style="italic" font-size="14.00">...</text>
 </g>
 <!-- d2&#45;&gt;ddots -->
 <!-- ddots&#45;&gt;c -->
@@ -136,7 +136,7 @@
 <!-- dl -->
 <g id="node12" class="node">
 <title>dl</title>
-<text text-anchor="start" x="199.5" y="-4.8" font-family="Times,serif" font-size="14.00">D</text>
+<text text-anchor="start" x="199.5" y="-4.8" font-family="Times,serif" font-style="italic" font-size="14.00">D</text>
 <text text-anchor="start" x="209.5" y="-4.8" font-family="Times,serif" font-style="italic" baseline-shift="sub" font-size="14.00">l</text>
 </g>
 <!-- ddots&#45;&gt;dl -->
@@ -148,50 +148,50 @@
 <!-- ei1 -->
 <g id="node13" class="node">
 <title>ei1</title>
-<text text-anchor="start" x="0" y="-55.8" font-family="Times,serif" font-size="14.00">E</text>
+<text text-anchor="start" x="0" y="-55.8" font-family="Times,serif" font-style="italic" font-size="14.00">E</text>
 <text text-anchor="start" x="9" y="-55.8" font-family="Times,serif" font-style="italic" baseline-shift="sub" font-size="14.00">i</text>
-<text text-anchor="start" x="13" y="-55.8" font-family="Times,serif" baseline-shift="sub" font-size="14.00">,1</text>
+<text text-anchor="start" x="13" y="-55.8" font-family="Times,serif" font-style="italic" baseline-shift="sub" font-size="14.00">,1</text>
 </g>
 <!-- ei1&#45;&gt;bimc -->
 <g id="edge12" class="edge">
 <title>ei1&#45;&gt;bimc</title>
-<path fill="none" stroke="black" d="M18.69,-65.91C29.29,-75.35 48.98,-92.89 59.48,-102.25"/>
+<path fill="none" stroke="black" d="M18.95,-65.91C29.94,-75.35 50.35,-92.89 61.23,-102.25"/>
 </g>
 <!-- ei2 -->
 <g id="node14" class="node">
 <title>ei2</title>
-<text text-anchor="start" x="41" y="-55.8" font-family="Times,serif" font-size="14.00">E</text>
+<text text-anchor="start" x="41" y="-55.8" font-family="Times,serif" font-style="italic" font-size="14.00">E</text>
 <text text-anchor="start" x="50" y="-55.8" font-family="Times,serif" font-style="italic" baseline-shift="sub" font-size="14.00">i</text>
-<text text-anchor="start" x="54" y="-55.8" font-family="Times,serif" baseline-shift="sub" font-size="14.00">,2</text>
+<text text-anchor="start" x="54" y="-55.8" font-family="Times,serif" font-style="italic" baseline-shift="sub" font-size="14.00">,2</text>
 </g>
 <!-- ei1&#45;&gt;ei2 -->
 <!-- ei2&#45;&gt;bimc -->
 <g id="edge13" class="edge">
 <title>ei2&#45;&gt;bimc</title>
-<path fill="none" stroke="black" d="M54.33,-65.91C57.03,-75.35 62.04,-92.89 64.71,-102.25"/>
+<path fill="none" stroke="black" d="M54.59,-65.91C57.68,-75.35 63.4,-92.89 66.46,-102.25"/>
 </g>
 <!-- eidots -->
 <g id="node15" class="node">
 <title>eidots</title>
-<text text-anchor="middle" x="88.5" y="-54.8" font-family="Times,serif" font-size="14.00">...</text>
+<text text-anchor="middle" x="88.5" y="-54.8" font-family="Times,serif" font-style="italic" font-size="14.00">...</text>
 </g>
 <!-- ei2&#45;&gt;eidots -->
 <!-- eidots&#45;&gt;bimc -->
 <g id="edge14" class="edge">
 <title>eidots&#45;&gt;bimc</title>
-<path fill="none" stroke="black" d="M85.62,-65.91C81.38,-75.35 73.51,-92.89 69.31,-102.25"/>
+<path fill="none" stroke="black" d="M85.89,-65.91C82.03,-75.35 74.87,-92.89 71.05,-102.25"/>
 </g>
 <!-- eim -->
 <g id="node16" class="node">
 <title>eim</title>
-<text text-anchor="start" x="112.5" y="-55.8" font-family="Times,serif" font-size="14.00">E</text>
+<text text-anchor="start" x="112.5" y="-55.8" font-family="Times,serif" font-style="italic" font-size="14.00">E</text>
 <text text-anchor="start" x="121.5" y="-55.8" font-family="Times,serif" font-style="italic" baseline-shift="sub" font-size="14.00">i,m</text>
 </g>
 <!-- eidots&#45;&gt;eim -->
 <!-- eim&#45;&gt;bimc -->
 <g id="edge15" class="edge">
 <title>eim&#45;&gt;bimc</title>
-<path fill="none" stroke="black" d="M116.92,-65.91C105.74,-75.35 84.97,-92.89 73.9,-102.25"/>
+<path fill="none" stroke="black" d="M117.18,-65.91C106.39,-75.35 86.34,-92.89 75.65,-102.25"/>
 </g>
 <!-- eim&#45;&gt;c -->
 <!-- invis&#45;&gt;biic -->

@@ -2,48 +2,56 @@ digraph BundleClosure__Taxonomy {
     rankdir = BT
 
     G [
+        fontname = "Times-Italic",
         fontsize = 14,
         shape = plain,
         label = G
     ]
 
     J [
+        fontname = "Times-Italic",
         fontsize = 14,
         shape = plain,
         label = J
     ]
 
     "I\\J" [
+        fontname = "Times-Italic",
         fontsize = 14,
         shape = plain,
         label = "I\\J"
     ]
 
     C [
+        fontname = "Times-Italic",
         fontsize = 14,
         shape = plain,
         label = C
     ]
 
     "H\\J" [
+        fontname = "Times-Italic",
         fontsize = 14,
         shape = plain,
         label = "H\\J"
     ]
 
     F [
+        fontname = "Times-Italic",
         fontsize = 14,
         shape = plain,
         label = F
     ]
 
     B [
+        fontname = "Times-Italic",
         fontsize = 14,
         shape = plain,
         label = B
     ]
 
     "E\\J" [
+        fontname = "Times-Italic",
         fontsize = 14,
         shape = plain,
         label = "E\\J"

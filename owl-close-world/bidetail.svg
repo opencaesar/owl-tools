@@ -12,41 +12,41 @@
 <!-- ai1 -->
 <g id="node1" class="node">
 <title>ai1</title>
-<text text-anchor="start" x="16.5" y="-157.8" font-family="Times,serif" font-size="14.00">A</text>
-<text text-anchor="start" x="26.5" y="-157.8" font-family="Times,serif" font-style="italic" baseline-shift="sub" font-size="14.00">i</text>
-<text text-anchor="start" x="30.5" y="-157.8" font-family="Times,serif" baseline-shift="sub" font-size="14.00">,1</text>
+<text text-anchor="start" x="18" y="-157.8" font-family="Times,serif" font-style="italic" font-size="14.00">A</text>
+<text text-anchor="start" x="27" y="-157.8" font-family="Times,serif" font-style="italic" baseline-shift="sub" font-size="14.00">i</text>
+<text text-anchor="start" x="31" y="-157.8" font-family="Times,serif" font-style="italic" baseline-shift="sub" font-size="14.00">,1</text>
 </g>
 <!-- ai2 -->
 <g id="node2" class="node">
 <title>ai2</title>
-<text text-anchor="start" x="58.5" y="-157.8" font-family="Times,serif" font-size="14.00">A</text>
-<text text-anchor="start" x="68.5" y="-157.8" font-family="Times,serif" font-style="italic" baseline-shift="sub" font-size="14.00">i</text>
-<text text-anchor="start" x="72.5" y="-157.8" font-family="Times,serif" baseline-shift="sub" font-size="14.00">,2</text>
+<text text-anchor="start" x="59" y="-157.8" font-family="Times,serif" font-style="italic" font-size="14.00">A</text>
+<text text-anchor="start" x="68" y="-157.8" font-family="Times,serif" font-style="italic" baseline-shift="sub" font-size="14.00">i</text>
+<text text-anchor="start" x="72" y="-157.8" font-family="Times,serif" font-style="italic" baseline-shift="sub" font-size="14.00">,2</text>
 </g>
 <!-- ai1&#45;&gt;ai2 -->
 <!-- aidots -->
 <g id="node3" class="node">
 <title>aidots</title>
-<text text-anchor="middle" x="106.5" y="-156.8" font-family="Times,serif" font-size="14.00">...</text>
+<text text-anchor="middle" x="106.5" y="-156.8" font-family="Times,serif" font-style="italic" font-size="14.00">...</text>
 </g>
 <!-- ai2&#45;&gt;aidots -->
 <!-- aij -->
 <g id="node4" class="node">
 <title>aij</title>
-<text text-anchor="start" x="130.5" y="-157.8" font-family="Times,serif" font-size="14.00">A</text>
-<text text-anchor="start" x="140.5" y="-157.8" font-family="Times,serif" font-style="italic" baseline-shift="sub" font-size="14.00">i,j</text>
+<text text-anchor="start" x="131" y="-157.8" font-family="Times,serif" font-style="italic" font-size="14.00">A</text>
+<text text-anchor="start" x="140" y="-157.8" font-family="Times,serif" font-style="italic" baseline-shift="sub" font-size="14.00">i,j</text>
 </g>
 <!-- aidots&#45;&gt;aij -->
 <!-- bi -->
 <g id="node5" class="node">
 <title>bi</title>
-<text text-anchor="start" x="81.5" y="-106.8" font-family="Times,serif" font-size="14.00">B</text>
-<text text-anchor="start" x="91.5" y="-106.8" font-family="Times,serif" font-style="italic" baseline-shift="sub" font-size="14.00">i</text>
+<text text-anchor="start" x="82" y="-106.8" font-family="Times,serif" font-style="italic" font-size="14.00">B</text>
+<text text-anchor="start" x="91" y="-106.8" font-family="Times,serif" font-style="italic" baseline-shift="sub" font-size="14.00">i</text>
 </g>
 <!-- bi&#45;&gt;ai1 -->
 <g id="edge1" class="edge">
 <title>bi&#45;&gt;ai1</title>
-<path fill="none" stroke="black" d="M81.62,-116.12C70.41,-125.27 48.29,-143.34 36.44,-153.02"/>
+<path fill="none" stroke="black" d="M82.19,-115.74C71.25,-124.83 48.81,-143.46 37.06,-153.22"/>
 </g>
 <!-- bi&#45;&gt;ai2 -->
 <g id="edge2" class="edge">
@@ -61,23 +61,23 @@
 <!-- bi&#45;&gt;aij -->
 <g id="edge4" class="edge">
 <title>bi&#45;&gt;aij</title>
-<path fill="none" stroke="black" d="M95.3,-116.91C105.32,-126.35 123.94,-143.89 133.86,-153.25"/>
+<path fill="none" stroke="black" d="M94.88,-116.51C104.75,-125.81 123.64,-143.62 133.74,-153.13"/>
 </g>
 <!-- c -->
 <g id="node6" class="node">
 <title>c</title>
-<text text-anchor="middle" x="159.5" y="-54.8" font-family="Times,serif" font-size="14.00">C</text>
+<text text-anchor="middle" x="159.5" y="-54.8" font-family="Times,serif" font-style="italic" font-size="14.00">C</text>
 </g>
 <!-- c&#45;&gt;bi -->
 <g id="edge5" class="edge">
 <title>c&#45;&gt;bi</title>
-<path fill="none" stroke="black" d="M154.84,-62.72C142.62,-71.15 109.62,-93.92 95.29,-103.81"/>
+<path fill="none" stroke="black" d="M154.84,-62.72C142.5,-71.23 108.95,-94.39 94.86,-104.11"/>
 </g>
 <!-- d1 -->
 <g id="node7" class="node">
 <title>d1</title>
-<text text-anchor="start" x="100" y="-4.8" font-family="Times,serif" font-size="14.00">D</text>
-<text text-anchor="start" x="110" y="-4.8" font-family="Times,serif" baseline-shift="sub" font-size="14.00">1</text>
+<text text-anchor="start" x="100" y="-4.8" font-family="Times,serif" font-style="italic" font-size="14.00">D</text>
+<text text-anchor="start" x="110" y="-4.8" font-family="Times,serif" font-style="italic" baseline-shift="sub" font-size="14.00">1</text>
 </g>
 <!-- d1&#45;&gt;c -->
 <g id="edge6" class="edge">
@@ -87,8 +87,8 @@
 <!-- d2 -->
 <g id="node8" class="node">
 <title>d2</title>
-<text text-anchor="start" x="135" y="-4.8" font-family="Times,serif" font-size="14.00">D</text>
-<text text-anchor="start" x="145" y="-4.8" font-family="Times,serif" baseline-shift="sub" font-size="14.00">2</text>
+<text text-anchor="start" x="135" y="-4.8" font-family="Times,serif" font-style="italic" font-size="14.00">D</text>
+<text text-anchor="start" x="145" y="-4.8" font-family="Times,serif" font-style="italic" baseline-shift="sub" font-size="14.00">2</text>
 </g>
 <!-- d1&#45;&gt;d2 -->
 <!-- d2&#45;&gt;c -->
@@ -99,7 +99,7 @@
 <!-- ddots -->
 <g id="node9" class="node">
 <title>ddots</title>
-<text text-anchor="middle" x="176.5" y="-3.8" font-family="Times,serif" font-size="14.00">...</text>
+<text text-anchor="middle" x="176.5" y="-3.8" font-family="Times,serif" font-style="italic" font-size="14.00">...</text>
 </g>
 <!-- d2&#45;&gt;ddots -->
 <!-- ddots&#45;&gt;c -->
@@ -110,7 +110,7 @@
 <!-- dl -->
 <g id="node10" class="node">
 <title>dl</title>
-<text text-anchor="start" x="200.5" y="-4.8" font-family="Times,serif" font-size="14.00">D</text>
+<text text-anchor="start" x="200.5" y="-4.8" font-family="Times,serif" font-style="italic" font-size="14.00">D</text>
 <text text-anchor="start" x="210.5" y="-4.8" font-family="Times,serif" font-style="italic" baseline-shift="sub" font-size="14.00">l</text>
 </g>
 <!-- ddots&#45;&gt;dl -->
@@ -122,21 +122,21 @@
 <!-- ei1 -->
 <g id="node11" class="node">
 <title>ei1</title>
-<text text-anchor="start" x="0" y="-55.8" font-family="Times,serif" font-size="14.00">E</text>
+<text text-anchor="start" x="0" y="-55.8" font-family="Times,serif" font-style="italic" font-size="14.00">E</text>
 <text text-anchor="start" x="9" y="-55.8" font-family="Times,serif" font-style="italic" baseline-shift="sub" font-size="14.00">i</text>
-<text text-anchor="start" x="13" y="-55.8" font-family="Times,serif" baseline-shift="sub" font-size="14.00">,1</text>
+<text text-anchor="start" x="13" y="-55.8" font-family="Times,serif" font-style="italic" baseline-shift="sub" font-size="14.00">,1</text>
 </g>
 <!-- ei1&#45;&gt;bi -->
 <g id="edge10" class="edge">
 <title>ei1&#45;&gt;bi</title>
-<path fill="none" stroke="black" d="M21.57,-65.91C37.55,-76.07 68.29,-95.64 81.83,-104.25"/>
+<path fill="none" stroke="black" d="M21.57,-65.91C37.71,-76.18 68.92,-96.04 82.24,-104.51"/>
 </g>
 <!-- ei2 -->
 <g id="node12" class="node">
 <title>ei2</title>
-<text text-anchor="start" x="41" y="-55.8" font-family="Times,serif" font-size="14.00">E</text>
+<text text-anchor="start" x="41" y="-55.8" font-family="Times,serif" font-style="italic" font-size="14.00">E</text>
 <text text-anchor="start" x="50" y="-55.8" font-family="Times,serif" font-style="italic" baseline-shift="sub" font-size="14.00">i</text>
-<text text-anchor="start" x="54" y="-55.8" font-family="Times,serif" baseline-shift="sub" font-size="14.00">,2</text>
+<text text-anchor="start" x="54" y="-55.8" font-family="Times,serif" font-style="italic" baseline-shift="sub" font-size="14.00">,2</text>
 </g>
 <!-- ei1&#45;&gt;ei2 -->
 <!-- ei2&#45;&gt;bi -->
@@ -147,7 +147,7 @@
 <!-- eidots -->
 <g id="node13" class="node">
 <title>eidots</title>
-<text text-anchor="middle" x="88.5" y="-54.8" font-family="Times,serif" font-size="14.00">...</text>
+<text text-anchor="middle" x="88.5" y="-54.8" font-family="Times,serif" font-style="italic" font-size="14.00">...</text>
 </g>
 <!-- ei2&#45;&gt;eidots -->
 <!-- eidots&#45;&gt;bi -->
@@ -158,7 +158,7 @@
 <!-- eim -->
 <g id="node14" class="node">
 <title>eim</title>
-<text text-anchor="start" x="112.5" y="-55.8" font-family="Times,serif" font-size="14.00">E</text>
+<text text-anchor="start" x="112.5" y="-55.8" font-family="Times,serif" font-style="italic" font-size="14.00">E</text>
 <text text-anchor="start" x="121.5" y="-55.8" font-family="Times,serif" font-style="italic" baseline-shift="sub" font-size="14.00">i,m</text>
 </g>
 <!-- eidots&#45;&gt;eim -->

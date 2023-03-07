@@ -1,6 +1,6 @@
 digraph step3 {
     rankdir = "BT"
-    node [shape = plain]
+    node [fontname = "Times-Italic" shape = plain]
     edge [arrowhead = none]
 
     ai1 [label = <A<SUB><I>i</I>,1</SUB>>]

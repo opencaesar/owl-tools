@@ -85,7 +85,7 @@ Finally, there are circumstances in which applying the policy is inappropriate. 
 ### The Simplest Case
 Consider the case of a taxonomy that is a _directed rooted tree_ in the graph-theoretic sense. A _tree_ is an undirected graph that is connected and acyclic. (An equivalent condition is that there is exactly one path between any two vertices.) A _directed tree_ is a tree in which the edges are directed, and a _rooted tree_ is a directed tree in which a single vertex is designated the _root_. For this discussion we will take edge direction to be from subclass to superclass; the parents of a vertex correspond to its superclasses and its children correspond to its subclasses.
 
-#### Theorem 1
+#### Theorem
 _Declaring all sibling subclasses of every class disjoint satisfies the disjointness policy._
 ##### Proof
 Suppose two distinct classes _A_ and _B_ have no common subclass. Then the path from _A_ to the root does not pass through _B_, and _vice versa_. Consequently, there exists some lowest common ancestor _L_ (which may be the root) and sibling classes of _L_ _A'_ and _B'_ such that _A_ ⊆ _A'_ and _B_ ⊆ _B'_. If sibling subclasses _A'_ and _B'_ are declared disjoint, then _A_ and _B_ are disjoint. ☐
@@ -126,7 +126,7 @@ Finally we note that _B_<sub>_i_</sub> = (_B_<sub>_i_</sub> \\_C_) ∪ _C_. Cons
 
 ![Step 3](step3.svg)
 
-Now observe that after this step _C_ may still have multiple parents, but each of its paths to the root has now been shortened by one edge. Recalling that by assumption _G_ is rooted, repeated applications of Steps 1-3 will terminate eventually because a vertex whose distance to the root is 1 can have have only a single parent, the root. Therefore, repeated applications of the algorithm to _C_ will converge. The procedure removes the multi-parentedness of _C_ and creates no other multi-parent children, so repeated applications to each multi-parent child will eliminate all multi-parent children. The resulting transformed graph is a tree.
+Now observe that after this step _C_ may still have multiple parents, but each of its paths to the root has now been shortened by one edge. Recalling that by assumption _G_ is rooted, repeated applications of Steps 1-3 will terminate eventually because a vertex whose distance to the root is 1 can have have only a single parent, the root. Therefore, repeated applications of the algorithm to _C_ will terminate. The procedure removes the multi-parentedness of _C_ and creates no other multi-parent children, so repeated applications to each multi-parent child will eliminate all multi-parent children. The resulting transformed graph is a tree.
 
 ### Algorithm Implementation
 
@@ -150,50 +150,51 @@ Any redundant edges among ancestors of _C_ that may have been introduced in the 
 ![original](original.svg)
 #### After Rooting and Transitive Reduction
 ![reduced](reduced.svg)
-#### Step 1: Process Multi-Parent Child J
+#### Step 1: Process Multi-Parent Child _J_
 Neighborhood above J:<p>
 ![step-1-child-identified](step-1-child-identified.svg)
-##### Bypass and Isolate Parents {I, H, E}
+##### Bypass and Isolate Parents { _I_, _H_, _E_ }
 Remove edges from parents to child. Add edges from grandparents to child.
 Replace parents with difference of parents and child.<p>
 ![step-1-bypass-isolate](step-1-bypass-isolate.svg)
-##### Reduce Graph Above J
+##### Reduce Graph Above _J_
 Remove redundant edges.<p>
 ![step-1-reduce](step-1-reduce.svg)
 ##### End of Step 1
 ![step-1-final](step-1-final.svg)
-#### Step 2: Process Multi-Parent Child J
+#### Step 2: Process Multi-Parent Child _J_
 Neighborhood above J:<p>
 ![step-2-child-identified](step-2-child-identified.svg)
-##### Bypass and Isolate Parents {G, F}
+##### Bypass and Isolate Parents { _G_, _F_ }
 Remove edges from parents to child. Add edges from grandparents to child.
 Replace parents with difference of parents and child.<p>
 ![step-2-bypass-isolate](step-2-bypass-isolate.svg)
-##### Reduce Graph Above J
+##### Reduce Graph Above _J_
 Remove redundant edges.<p>
 ![step-2-reduce](step-2-reduce.svg)
 ##### End of Step 2
 ![step-2-final](step-2-final.svg)
-#### Step 3: Process Multi-Parent Child I\J
+#### Step 3: Process Multi-Parent Child _I_\\_J_
 Neighborhood above I\J:<p>
 ![step-3-child-identified](step-3-child-identified.svg)
-##### Bypass and Isolate Parents {G\J, F\J}
+##### Bypass and Isolate Parents { _G_\\_J_, _F_\\_J_ }
 Remove edges from parents to child. Add edges from grandparents to child.
 Replace parents with difference of parents and child.<p>
 ![step-3-bypass-isolate](step-3-bypass-isolate.svg)
-##### Reduce Graph Above I\J
+##### Reduce Graph Above _I_\\_J_
 Remove redundant edges.<p>
 ![step-3-reduce](step-3-reduce.svg)
 ##### End of Step 3
 ![step-3-final](step-3-final.svg)
 #### Assert Disjointness
-* Children of C: DisjointClasses(H&bsol;J J I&bsol;J G&bsol;(J∪I))
-* Children of B: DisjointClasses(C D E&bsol;J F&bsol;(J∪I))
-* Children of U: DisjointClasses(A X Y Z)
+* Children of _C_: DisjointClasses(_H_&bsol;_J_ _J_ _I_&bsol;_J_ _G_&bsol;(_J_∪_I_))
+* Children of _B_: DisjointClasses(_C_ _D_ _E_&bsol;_J_ _F_&bsol;(_J_∪_I_))
+* Children of _U_: DisjointClasses(_A_ _X_ _Y_ _Z_)
 
 
 #### Notes
-* The algorithm employs certain theorems (e.g., _A_ ⋃ _A_ ≡ _A_) to simplify class expressions, but does not itself perform complete set-theoretic reasoning. For example, it does not take note of the fact that _J_ ⊆ _I_ in order to simplify the expression _J_ ⋃ _I_ to simply _I_. Other than its impact on human understanding, this is not a deficiency. The algorithm produces axioms that are true; the reasoner has the logic to interpret those properly even if they are not syntactically minimal.
+* The algorithm employs certain theorems (e.g., _A_ ⋃ _A_ ≡ _A_) to simplify class expressions, but does not itself perform complete set-theoretic reasoning. For example, it does not take note of the fact that _J_ ⊆ _I_ in order to simplify the expression _J_ ⋃ _I_ to _I_. Other than its impact on human understanding, this is not a deficiency. The algorithm produces axioms that are true; the reasoner implements the logic to interpret those properly even if they are not syntactically minimal.
 * OWL has no construct for set difference _per se_, but _A_ &bsol; _B_ ≡ _A_ ∩ _B_', and OWL has constructs for class intersection and class complement.
+* As a check, we note from the original taxonomy that _D_ and _F_ share no common subclass, and should therefore be declared disjoint. The asserted disjointness declares _D_ disjoint from _F_ &bsol;(_J_⋃_I_), so the subset of _F_ that is not in _J_ or _I_ is disjoint from _D_. The remainder of _F_ is (by definition) in _J_ ⋃ _I_ ≡ _J_ ⋃ _I_\\_J_. _J_ ⋃ _I_\\_J_ ⊆ _C_ in the transformed taxonomy, and _C_ is disjoint from _D_. Therefore _D_ and _F_ are disjoint.
 
 
