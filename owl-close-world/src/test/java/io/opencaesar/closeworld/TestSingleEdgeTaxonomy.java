@@ -1,6 +1,6 @@
 package io.opencaesar.closeworld;
 
-import io.opencaesar.closeworld.ClassExpression.Singleton;
+import io.opencaesar.closeworld.ClassExpression.Unitary;
 import org.junit.*;
 
 import java.util.Arrays;
@@ -13,8 +13,8 @@ public class TestSingleEdgeTaxonomy {
 	
 	private Taxonomy tAB;
 	private Taxonomy tB;
-	private Singleton a;
-	private Singleton b;
+	private Unitary a;
+	private Unitary b;
 	private HashSet<ClassExpression> setA;
 	private HashSet<ClassExpression> setB;
 
@@ -30,8 +30,8 @@ public class TestSingleEdgeTaxonomy {
 	public void setUp() throws Exception {
 		tAB = new Taxonomy();
 		tB = new Taxonomy();
-		a = new Singleton("a");
-		b = new Singleton("b");
+		a = new Unitary("a");
+		b = new Unitary("b");
 		setA = new HashSet<ClassExpression>(Arrays.asList(a));
 		setB = new HashSet<ClassExpression>(Arrays.asList(b));
 		tAB.addVertex(a);

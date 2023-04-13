@@ -1,7 +1,7 @@
 package io.opencaesar.closeworld;
 
 import io.opencaesar.closeworld.ClassExpression.Empty;
-import io.opencaesar.closeworld.ClassExpression.Singleton;
+import io.opencaesar.closeworld.ClassExpression.Unitary;
 import io.opencaesar.closeworld.ClassExpression.Universal;
 import org.junit.*;
 
@@ -9,7 +9,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
 public class TestEmpty {
-	private Singleton sa;
+	private Unitary sa;
 	private Empty empty1;
 	private Empty empty2;
 	private Universal universal;
@@ -21,7 +21,7 @@ public class TestEmpty {
 	}
 
 	@Before public void setUp() throws Exception {
-		sa = new Singleton("a");
+		sa = new Unitary("a");
 		empty1 = new Empty();
 		empty2 = new Empty();
 		universal = new Universal();

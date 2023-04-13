@@ -1,6 +1,6 @@
 package io.opencaesar.closeworld;
 
-import io.opencaesar.closeworld.ClassExpression.Singleton;
+import io.opencaesar.closeworld.ClassExpression.Unitary;
 import org.junit.*;
 
 import java.util.Set;
@@ -13,7 +13,7 @@ import static org.junit.Assert.assertFalse;
 public class TestSingleVertexTaxonomy {
 	private Taxonomy t;
 	private Taxonomy e;
-	private Singleton a;
+	private Unitary a;
 
 	@BeforeClass public static void setUpBeforeClass() throws Exception {
 	}
@@ -24,7 +24,7 @@ public class TestSingleVertexTaxonomy {
 	@Before public void setUp() throws Exception {
 		t = new Taxonomy();
 		e = new Taxonomy();
-		a = new Singleton("a");
+		a = new Unitary("a");
 		t.addVertex(a);
 	}
 

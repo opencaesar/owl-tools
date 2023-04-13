@@ -1,6 +1,6 @@
 package io.opencaesar.closeworld;
 
-import io.opencaesar.closeworld.ClassExpression.Singleton;
+import io.opencaesar.closeworld.ClassExpression.Unitary;
 import org.junit.*;
 
 import java.util.*;
@@ -57,7 +57,7 @@ public class TestAsymmetricTaxonomy {
 		Set<String> initialVertexNames = initialEdgeSpec.stream().collect(Collectors.toSet());
 		
 		initialVertexNames.forEach(vn -> {
-			vertexMap.put(vn, new Singleton(vn));
+			vertexMap.put(vn, new Unitary(vn));
 		});
 		
 		List<ClassExpression> initialEdgeList = initialEdgeSpec.stream().map(e -> vertexMap.get(e)).collect(Collectors.toList());
@@ -279,8 +279,8 @@ public class TestAsymmetricTaxonomy {
 		siblingMap.forEach((c, s) -> {
 			disjointClassesAxioms.add(new Axiom.ClassExpressionSetAxiom.DisjointClassesAxiom(s));
 			disjointUnionAxioms.add(
-					(c instanceof Singleton) ?
-							new Axiom.ClassExpressionSetAxiom.DisjointUnionAxiom((Singleton) c, s) :
+					(c instanceof Unitary) ?
+							new Axiom.ClassExpressionSetAxiom.DisjointUnionAxiom((Unitary) c, s) :
 							new Axiom.ClassExpressionSetAxiom.DisjointClassesAxiom(s)
 			);
 		});

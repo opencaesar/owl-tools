@@ -9,10 +9,10 @@ import java.util.HashSet;
 import static org.junit.Assert.*;
 
 public class TestDifference {
-	private Singleton sa1;
-	private Singleton sa2;
-	private Singleton sb;
-	private Singleton sc;
+	private Unitary sa1;
+	private Unitary sa2;
+	private Unitary sb;
+	private Unitary sc;
 	private Difference a1ma2;
 	private Difference a2ma1;
 	private Difference a1mb;
@@ -30,10 +30,10 @@ public class TestDifference {
 	}
 
 	@Before public void setUp() throws Exception {
-		sa1 = new Singleton("a");
-		sa2 = new Singleton("a");
-		sb = new Singleton("b");
-		sc = new Singleton("c");
+		sa1 = new Unitary("a");
+		sa2 = new Unitary("a");
+		sb = new Unitary("b");
+		sc = new Unitary("c");
 		a1ma2 = new Difference(sa1, sa2);
 		a2ma1 = new Difference(sa2, sa1);
 		a1mb = new Difference(sa1, sb);

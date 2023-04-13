@@ -19,7 +19,7 @@ public class TestAxiom {
     Axiom.ClassExpressionSetAxiom.DisjointClassesAxiom djca1a, djca1b, djca2a, djca2b;
     Axiom.ClassExpressionSetAxiom.EquivalentClassesAxiom eqca1a, eqca1b, eqca2a, eqca2b;
     Axiom.ClassExpressionSetAxiom.DisjointUnionAxiom djua1a, djua1b, djua2a, djua2b;
-    ClassExpression.Singleton e;
+    ClassExpression.Unitary e;
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
@@ -32,11 +32,11 @@ public class TestAxiom {
     @Before
     public void setUp() throws Exception {
 
-        final ClassExpression.Singleton a = new ClassExpression.Singleton("a");
-        final ClassExpression.Singleton b = new ClassExpression.Singleton("b");
-        final ClassExpression.Singleton c = new ClassExpression.Singleton("c");
-        final ClassExpression.Singleton d = new ClassExpression.Singleton("d");
-        e = new ClassExpression.Singleton("e");
+        final ClassExpression.Unitary a = new ClassExpression.Unitary("a");
+        final ClassExpression.Unitary b = new ClassExpression.Unitary("b");
+        final ClassExpression.Unitary c = new ClassExpression.Unitary("c");
+        final ClassExpression.Unitary d = new ClassExpression.Unitary("d");
+        e = new ClassExpression.Unitary("e");
 
         final ClassExpression.Union aub = new ClassExpression.Union(new HashSet<>(Arrays.asList(a, b)));
         final ClassExpression.Union bua = new ClassExpression.Union(new HashSet<>(Arrays.asList(b, a)));

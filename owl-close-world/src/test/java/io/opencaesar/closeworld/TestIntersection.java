@@ -11,10 +11,10 @@ import static org.junit.Assert.*;
 @SuppressWarnings("all")
 public class TestIntersection {
 	
-	private Singleton sa1;
-	private Singleton sa2;
-	private Singleton sb;
-	private Singleton sc;
+	private Unitary sa1;
+	private Unitary sa2;
+	private Unitary sb;
+	private Unitary sc;
 	private Intersection a1;
 	private Intersection a1ia2;
 	private Intersection a1ia2ib;
@@ -34,13 +34,13 @@ public class TestIntersection {
 
 	@Before
 	public void setUp() throws Exception {
-		sa1 = new Singleton("a");
-		sa2 = new Singleton("a");
-		sb = new Singleton("b");
-		sc = new Singleton("c");
+		sa1 = new Unitary("a");
+		sa2 = new Unitary("a");
+		sb = new Unitary("b");
+		sc = new Unitary("c");
 		empty = new Empty();
 		universal = new Universal();
-		Singleton[] sl1 = {sa1, sa2, sb, sc};
+		Unitary[] sl1 = {sa1, sa2, sb, sc};
 		HashSet<ClassExpression> a1l = new HashSet<ClassExpression>(Arrays.asList(sl1).subList(0, 1));
 		a1 = new Intersection(a1l);
 		HashSet<ClassExpression> a1ia2l = new HashSet<ClassExpression>(Arrays.asList(sl1).subList(0, 2));
@@ -49,7 +49,7 @@ public class TestIntersection {
 		a1ia2ib = new Intersection(a1ia2ibl);
 		HashSet<ClassExpression> a1ia2ibicl = new HashSet<ClassExpression>(Arrays.asList(sl1).subList(0, 4));
 		a1ia2ibic = new Intersection(a1ia2ibicl);
-		Singleton[] sl2 = {sa1, sb, sc};
+		Unitary[] sl2 = {sa1, sb, sc};
 		HashSet<ClassExpression> a1ibl = new HashSet<ClassExpression>(Arrays.asList(sl2).subList(0, 2));
 		a1ib = new Intersection(a1ibl);
 		HashSet<ClassExpression> a1ibicl = new HashSet<ClassExpression>(Arrays.asList(sl2).subList(0, 3));

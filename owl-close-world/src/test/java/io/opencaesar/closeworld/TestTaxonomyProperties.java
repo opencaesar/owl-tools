@@ -1,6 +1,6 @@
 package io.opencaesar.closeworld;
 
-import io.opencaesar.closeworld.ClassExpression.Singleton;
+import io.opencaesar.closeworld.ClassExpression.Unitary;
 import io.opencaesar.closeworld.Taxonomy.InvalidTreeException;
 import io.opencaesar.closeworld.Taxonomy.UnconnectedTaxonomyException;
 import org.junit.*;
@@ -9,9 +9,9 @@ import static org.junit.Assert.*;
 
 public class TestTaxonomyProperties {
 	
-	private Singleton a;
-	private Singleton b;
-	private Singleton c;
+	private Unitary a;
+	private Unitary b;
+	private Unitary c;
 	
 	private Taxonomy connectedTree;
 	private Taxonomy connectedNotTree;
@@ -24,9 +24,9 @@ public class TestTaxonomyProperties {
 	}
 
 	@Before public void setUp() throws Exception {
-		a = new Singleton("a");
-		b = new Singleton("b");
-		c = new Singleton("c");
+		a = new Unitary("a");
+		b = new Unitary("b");
+		c = new Unitary("c");
 		
 		notConnectedNotTree = new Taxonomy();
 		notConnectedNotTree.addVertex(a);

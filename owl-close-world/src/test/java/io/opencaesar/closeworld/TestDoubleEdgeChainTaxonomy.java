@@ -1,6 +1,6 @@
 package io.opencaesar.closeworld;
 
-import io.opencaesar.closeworld.ClassExpression.Singleton;
+import io.opencaesar.closeworld.ClassExpression.Unitary;
 import org.junit.*;
 
 import java.util.Arrays;
@@ -16,9 +16,9 @@ public class TestDoubleEdgeChainTaxonomy {
 	private Taxonomy taxonomyAB;
 	private Taxonomy taxonomyA;
 	private Taxonomy taxonomyC;
-	private Singleton a;
-	private Singleton b;
-	private Singleton c;
+	private Unitary a;
+	private Unitary b;
+	private Unitary c;
 	private HashSet<ClassExpression> setA;
 	private HashSet<ClassExpression> setAB;
 	private HashSet<ClassExpression> setB;
@@ -38,9 +38,9 @@ public class TestDoubleEdgeChainTaxonomy {
 		taxonomyAB = new Taxonomy();
 		taxonomyA = new Taxonomy();
 		taxonomyC = new Taxonomy();
-		a = new Singleton("a");
-		b = new Singleton("b");
-		c = new Singleton("c");
+		a = new Unitary("a");
+		b = new Unitary("b");
+		c = new Unitary("c");
 		setA = new HashSet<ClassExpression>(Arrays.asList(a));
 		setAB = new HashSet<ClassExpression>(Arrays.asList(a, b));
 		setB = new HashSet<ClassExpression>(Arrays.asList(b));

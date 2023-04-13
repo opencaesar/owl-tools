@@ -421,8 +421,8 @@ public class Taxonomy extends DirectedAcyclicGraph<ClassExpression, Taxonomy.Tax
 					break;
 				case DISJOINT_UNION:
 					axioms.add(
-							(c instanceof ClassExpression.Singleton) ?
-									new DisjointUnionAxiom((ClassExpression.Singleton) c, s) :
+							(c instanceof ClassExpression.Unitary) ?
+									new DisjointUnionAxiom((ClassExpression.Unitary) c, s) :
 									new DisjointClassesAxiom(s)
 					);
 					break;

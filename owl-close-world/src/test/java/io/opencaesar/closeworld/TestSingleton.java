@@ -9,10 +9,10 @@ import java.util.HashSet;
 import static org.junit.Assert.*;
 
 public class TestSingleton {
-	private Singleton sa1;
-	private Singleton sa2;
-	private Singleton sb;
-	private Singleton sc;
+	private Unitary sa1;
+	private Unitary sa2;
+	private Unitary sb;
+	private Unitary sc;
 	private Empty empty;
 	private Universal universal;
 
@@ -23,10 +23,10 @@ public class TestSingleton {
 	}
 
 	@Before public void setUp() throws Exception {
-		sa1 = new Singleton("a");
-		sa2 = new Singleton("a");
-		sb = new Singleton("b");
-		sc = new Singleton("c");
+		sa1 = new Unitary("a");
+		sa2 = new Unitary("a");
+		sb = new Unitary("b");
+		sc = new Unitary("c");
 		empty = new Empty();
 		universal = new Universal();
 	}
@@ -81,7 +81,7 @@ public class TestSingleton {
 		assertEquals(amb, sa1.difference(sb));
 		assertEquals(bma, sb.difference(sa1));
 		// Theorem 8
-		Singleton[] sl = {sb, sc};
+		Unitary[] sl = {sb, sc};
 		HashSet<ClassExpression> s = new HashSet<ClassExpression>(Arrays.asList(sl));
 		Union u = new Union(s);
 		assertEquals(sa1.difference(u), sa1.difference(sb).difference(sc));
@@ -95,7 +95,7 @@ public class TestSingleton {
 	}
 
 	@Test public void testIntersection() {
-		Singleton[] sl = {sa1, sb};
+		Unitary[] sl = {sa1, sb};
 		HashSet<ClassExpression> s = new HashSet<ClassExpression>(Arrays.asList(sl));
 		Intersection i = new Intersection(s);
 		assertEquals(i, sa1.intersection(sb));
@@ -109,7 +109,7 @@ public class TestSingleton {
 	}
 
 	@Test public void testUnion() {
-		Singleton[] sl = {sa1, sb};
+		Unitary[] sl = {sa1, sb};
 		HashSet<ClassExpression> s = new HashSet<ClassExpression>(Arrays.asList(sl));
 		Union u = new Union(s);
 		assertEquals(u, sa1.union(sb));

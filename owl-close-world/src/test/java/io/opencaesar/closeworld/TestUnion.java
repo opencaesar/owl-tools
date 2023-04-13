@@ -11,10 +11,10 @@ import static org.junit.Assert.*;
 @SuppressWarnings("all")
 public class TestUnion {
 	
-	private ClassExpression.Singleton sa1;
-	private ClassExpression.Singleton sa2;
-	private ClassExpression.Singleton sb;
-	private ClassExpression.Singleton sc;
+	private ClassExpression.Unitary sa1;
+	private ClassExpression.Unitary sa2;
+	private ClassExpression.Unitary sb;
+	private ClassExpression.Unitary sc;
 	private ClassExpression.Union a1;
 	private ClassExpression.Union a1ua2;
 	private ClassExpression.Union a1ua2ub;
@@ -32,11 +32,11 @@ public class TestUnion {
 
 	@Before
 	public void setUp() throws Exception {
-		sa1 = new Singleton("a");
-		sa2 = new Singleton("a");
-		sb = new Singleton("b");
-		sc = new Singleton("c");
-		Singleton[] sl1 = { sa1, sa2, sb, sc };
+		sa1 = new Unitary("a");
+		sa2 = new Unitary("a");
+		sb = new Unitary("b");
+		sc = new Unitary("c");
+		Unitary[] sl1 = { sa1, sa2, sb, sc };
 		HashSet<ClassExpression> a1l = new HashSet<ClassExpression>(Arrays.asList(sl1).subList(0, 1));
 		a1 = new Union(a1l);
 		HashSet<ClassExpression> a1ua2l = new HashSet<ClassExpression>(Arrays.asList(sl1).subList(0, 2));
@@ -45,7 +45,7 @@ public class TestUnion {
 		a1ua2ub = new Union(a1ua2ubl);
 		HashSet<ClassExpression> a1ua2ubucl = new HashSet<ClassExpression>(Arrays.asList(sl1).subList(0, 4));
 		a1ua2ubuc = new Union(a1ua2ubucl);
-		Singleton[] sl2 = { sa1, sb, sc };
+		Unitary[] sl2 = { sa1, sb, sc };
 		HashSet<ClassExpression> a1ibl = new HashSet<ClassExpression>(Arrays.asList(sl2).subList(0, 2));
 		a1ub = new Union(a1ibl);
 		HashSet<ClassExpression> a1ibicl = new HashSet<ClassExpression>(Arrays.asList(sl2).subList(0, 3));

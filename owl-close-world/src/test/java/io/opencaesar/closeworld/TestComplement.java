@@ -9,10 +9,10 @@ import java.util.HashSet;
 import static org.junit.Assert.*;
 
 public class TestComplement {
-	private Singleton sa1;
-	private Singleton sa2;
-	private Singleton sb;
-	private Singleton sc;
+	private Unitary sa1;
+	private Unitary sa2;
+	private Unitary sb;
+	private Unitary sc;
 	private Complement ca1;
 	private Complement ca2;
 	private Complement cb;
@@ -27,10 +27,10 @@ public class TestComplement {
 	}
 
 	@Before public void setUp() throws Exception {
-		sa1 = new Singleton("a");
-		sa2 = new Singleton("a");
-		sb = new Singleton("b");
-		sc = new Singleton("c");
+		sa1 = new Unitary("a");
+		sa2 = new Unitary("a");
+		sb = new Unitary("b");
+		sc = new Unitary("c");
 		ca1 = new Complement(sa1);
 		ca2 = new Complement(sa2);
 		cb = new Complement(sb);
