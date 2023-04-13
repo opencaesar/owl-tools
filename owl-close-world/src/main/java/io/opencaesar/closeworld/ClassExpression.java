@@ -657,8 +657,17 @@ public abstract class ClassExpression {
 			// Theorem 4
 			if (e instanceof Intersection)
 				newSet.addAll(((Intersection) e).s);
-			else
-				newSet.add(e);
+			else {
+				ClassExpression sp = super.intersection(e);
+				if (sp instanceof Intersection)
+					if (e instanceof Universal)
+						return this;
+					else {
+						newSet.add(e);
+					}
+				else
+					return sp;
+			}
 			return new Intersection(newSet);
 		}
 	}
