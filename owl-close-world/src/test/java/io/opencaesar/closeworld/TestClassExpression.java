@@ -536,4 +536,58 @@ public class TestClassExpression {
 	    assertEquals(universal, universal.union(universal));
 	}
 
+	// Theorem 6: For any classes A and B, A ∪ B = B ∪ A.
+	
+	@Test public void testTheorem06() {
+		assertEquals(b.union(a), a.union(b));
+		assertEquals(ec.union(a), a.union(ec));
+		assertEquals(imj.union(a), a.union(imj));
+		assertEquals(oip.union(a), a.union(oip));
+		assertEquals(uuv.union(a), a.union(uuv));
+		assertEquals(empty.union(a), a.union(empty));
+		assertEquals(universal.union(a), a.union(universal));
+		assertEquals(b.union(dc), dc.union(b));
+		assertEquals(ec.union(dc), dc.union(ec));
+		assertEquals(imj.union(dc), dc.union(imj));
+		assertEquals(oip.union(dc), dc.union(oip));
+		assertEquals(uuv.union(dc), dc.union(uuv));
+		assertEquals(empty.union(dc), dc.union(empty));
+		assertEquals(universal.union(dc), dc.union(universal));
+		assertEquals(b.union(gmh), gmh.union(b));
+		assertEquals(ec.union(gmh), gmh.union(ec));
+		assertEquals(imj.union(gmh), gmh.union(imj));
+		assertEquals(oip.union(gmh), gmh.union(oip));
+		assertEquals(uuv.union(gmh), gmh.union(uuv));
+		assertEquals(empty.union(gmh), gmh.union(empty));
+		assertEquals(universal.union(gmh), gmh.union(universal));
+		assertEquals(b.union(min), min.union(b));
+		assertEquals(ec.union(min), min.union(ec));
+		assertEquals(imj.union(min), min.union(imj));
+		assertEquals(oip.union(min), min.union(oip));
+		assertEquals(uuv.union(min), min.union(uuv));
+		assertEquals(empty.union(min), min.union(empty));
+		assertEquals(universal.union(min), min.union(universal));
+		assertEquals(b.union(sut), sut.union(b));
+		assertEquals(ec.union(sut), sut.union(ec));
+		assertEquals(imj.union(sut), sut.union(imj));
+		assertEquals(oip.union(sut), sut.union(oip));
+		assertEquals(uuv.union(sut), sut.union(uuv));
+		assertEquals(empty.union(sut), sut.union(empty));
+		assertEquals(universal.union(sut), sut.union(universal));
+		assertEquals(b.union(empty), empty.union(b));
+		assertEquals(ec.union(empty), empty.union(ec));
+		assertEquals(imj.union(empty), empty.union(imj));
+		assertEquals(oip.union(empty), empty.union(oip));
+		assertEquals(uuv.union(empty), empty.union(uuv));
+		assertEquals(empty.union(empty), empty.union(empty));
+		assertEquals(universal.union(empty), empty.union(universal));
+		assertEquals(b.union(universal), universal.union(b));
+		assertEquals(ec.union(universal), universal.union(ec));
+		assertEquals(imj.union(universal), universal.union(imj));
+		assertEquals(oip.union(universal), universal.union(oip));
+		assertEquals(uuv.union(universal), universal.union(uuv));
+		assertEquals(empty.union(universal), universal.union(empty));
+		assertEquals(universal.union(universal), universal.union(universal));
+	}
+
 }

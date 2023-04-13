@@ -726,11 +726,19 @@ public abstract class ClassExpression {
 			// Theorem 7
 			if (e instanceof Union)
 				newSet.addAll(((Union) e).s);
-			else
-				newSet.add(e);
+			else {
+				ClassExpression sp = super.union(e);
+				if (sp instanceof Union) 
+					if (e instanceof Empty)
+						return this;
+					else {
+						newSet.add(e);
+					}
+				else
+					return sp;
+			}
 			return new Union(newSet);
 		}
-
 	}
 
 }
