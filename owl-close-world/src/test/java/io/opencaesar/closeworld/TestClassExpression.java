@@ -1334,7 +1334,7 @@ public class TestClassExpression {
 	    assertEquals(empty, empty.difference(universal));
 	}
 	
-	// For any class A, A\A = ∅.
+	// Theorem 13: For any class A, A\A = ∅.
 	
 	@Test public void testTheorem13() {
 	    assertEquals(empty, a.difference(a));
@@ -1345,4 +1345,47 @@ public class TestClassExpression {
 	    assertEquals(empty, empty.difference(empty));
 	    assertEquals(empty, universal.difference(universal));
 	}
+	
+	// Theorem 14: For any class A and universal set U, U ∩ A = A.
+	
+	@Test public void testTheorem14() {
+	    assertEquals(a, universal.intersection(a));
+	    assertEquals(dc, universal.intersection(dc));
+	    assertEquals(gmh, universal.intersection(gmh));
+	    assertEquals(min, universal.intersection(min));
+	    assertEquals(sut, universal.intersection(sut));
+	    assertEquals(empty, universal.intersection(empty));
+	    assertEquals(universal, universal.intersection(universal));
+	}
+	
+	// Theorem 15: For any class A, U ∪ A = U.
+	
+	@Test public void testTheorem15() {
+	    assertEquals(universal, universal.union(a));
+	    assertEquals(universal, universal.union(dc));
+	    assertEquals(universal, universal.union(gmh));
+	    assertEquals(universal, universal.union(min));
+	    assertEquals(universal, universal.union(sut));
+	    assertEquals(universal, universal.union(empty));
+	    assertEquals(universal, universal.union(universal));
+	}
+	
+	// Theorem 16: For any class A, A\U = ∅.
+	
+	@Test public void testTheorem16() {
+	    assertEquals(empty, a.difference(universal));
+	    assertEquals(empty, dc.difference(universal));
+	    assertEquals(empty, gmh.difference(universal));
+	    assertEquals(empty, min.difference(universal));
+	    assertEquals(empty, sut.difference(universal));
+	    assertEquals(empty, empty.difference(universal));
+	    assertEquals(empty, universal.difference(universal));
+	}
+	
+	// Theorem 17: ∅′ = U.
+	
+	@Test public void testTheorem17() {
+	    assertEquals(universal, empty.complement());
+	}
+	
 }
