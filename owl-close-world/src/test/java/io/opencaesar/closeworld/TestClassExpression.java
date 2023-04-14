@@ -1286,4 +1286,63 @@ public class TestClassExpression {
 		assertEquals(universal.difference(universal.union(universal)), universal.difference(universal).difference(universal));
 	}
 
+	// Theorem 9: For any class A and empty set ∅, ∅ ∩ A = ∅.
+	
+	@Test public void testTheorem09() {
+	    assertEquals(empty, empty.intersection(a));
+	    assertEquals(empty, empty.intersection(dc));
+	    assertEquals(empty, empty.intersection(gmh));
+	    assertEquals(empty, empty.intersection(min));
+	    assertEquals(empty, empty.intersection(sut));
+	    assertEquals(empty, empty.intersection(empty));
+	    assertEquals(empty, empty.intersection(universal));
+	}
+	
+	// Theorem 10: For any class A, ∅ ∪ A = A.
+	
+	@Test public void testTheorem10() {
+	    assertEquals(a, empty.union(a));
+	    assertEquals(dc, empty.union(dc));
+	    assertEquals(gmh, empty.union(gmh));
+	    assertEquals(min, empty.union(min));
+	    assertEquals(sut, empty.union(sut));
+	    assertEquals(empty, empty.union(empty));
+	    assertEquals(universal, empty.union(universal));
+	}
+	
+	// Theorem 11: For any class A, A\∅ = A.
+	
+	@Test public void testTheorem11() {
+	    assertEquals(a, a.difference(empty));
+	    assertEquals(dc, dc.difference(empty));
+	    assertEquals(gmh, gmh.difference(empty));
+	    assertEquals(min, min.difference(empty));
+	    assertEquals(sut, sut.difference(empty));
+	    assertEquals(empty, empty.difference(empty));
+	    assertEquals(universal, universal.difference(empty));
+	}
+	
+	// Theorem 12: For any class A, ∅\A = ∅.
+	
+	@Test public void testTheorem12() {
+	    assertEquals(empty, empty.difference(a));
+	    assertEquals(empty, empty.difference(dc));
+	    assertEquals(empty, empty.difference(gmh));
+	    assertEquals(empty, empty.difference(min));
+	    assertEquals(empty, empty.difference(sut));
+	    assertEquals(empty, empty.difference(empty));
+	    assertEquals(empty, empty.difference(universal));
+	}
+	
+	// For any class A, A\A = ∅.
+	
+	@Test public void testTheorem13() {
+	    assertEquals(empty, a.difference(a));
+	    assertEquals(empty, dc.difference(dc));
+	    assertEquals(empty, gmh.difference(gmh));
+	    assertEquals(empty, min.difference(min));
+	    assertEquals(empty, sut.difference(sut));
+	    assertEquals(empty, empty.difference(empty));
+	    assertEquals(empty, universal.difference(universal));
+	}
 }
