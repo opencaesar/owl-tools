@@ -1388,4 +1388,114 @@ public class TestClassExpression {
 	    assertEquals(universal, empty.complement());
 	}
 	
+	// Theorem 18: For any classes A and B, A ∪ (B\A) = A ∪ B.
+	// Some cases are caught earlier by other theorems.
+	
+	@Test public void testTheorem18() {
+	    assertEquals(a.union(b), a.union(b.difference(a)));
+	    assertEquals(a.union(ec), a.union(ec.difference(a)));
+	    // assertEquals(a.union(imj), a.union(imj.difference(a)));
+	    assertEquals(a.union(oip), a.union(oip.difference(a)));
+	    assertEquals(a.union(uuv), a.union(uuv.difference(a)));
+	    assertEquals(a.union(empty), a.union(empty.difference(a)));
+	    assertEquals(a.union(universal), a.union(universal.difference(a)));
+	    assertEquals(dc.union(b), dc.union(b.difference(dc)));
+	    assertEquals(dc.union(ec), dc.union(ec.difference(dc)));
+	    // assertEquals(dc.union(imj), dc.union(imj.difference(dc)));
+	    assertEquals(dc.union(oip), dc.union(oip.difference(dc)));
+	    assertEquals(dc.union(uuv), dc.union(uuv.difference(dc)));
+	    assertEquals(dc.union(empty), dc.union(empty.difference(dc)));
+	    assertEquals(dc.union(universal), dc.union(universal.difference(dc)));
+	    assertEquals(gmh.union(b), gmh.union(b.difference(gmh)));
+	    assertEquals(gmh.union(ec), gmh.union(ec.difference(gmh)));
+	    // assertEquals(gmh.union(imj), gmh.union(imj.difference(gmh)));
+	    assertEquals(gmh.union(oip), gmh.union(oip.difference(gmh)));
+	    assertEquals(gmh.union(uuv), gmh.union(uuv.difference(gmh)));
+	    assertEquals(gmh.union(empty), gmh.union(empty.difference(gmh)));
+	    assertEquals(gmh.union(universal), gmh.union(universal.difference(gmh)));
+	    assertEquals(min.union(b), min.union(b.difference(min)));
+	    assertEquals(min.union(ec), min.union(ec.difference(min)));
+	    // assertEquals(min.union(imj), min.union(imj.difference(min)));
+	    assertEquals(min.union(oip), min.union(oip.difference(min)));
+	    assertEquals(min.union(uuv), min.union(uuv.difference(min)));
+	    assertEquals(min.union(empty), min.union(empty.difference(min)));
+	    assertEquals(min.union(universal), min.union(universal.difference(min)));
+	    // assertEquals(sut.union(b), sut.union(b.difference(sut)));
+	    // assertEquals(sut.union(ec), sut.union(ec.difference(sut)));
+	    // assertEquals(sut.union(imj), sut.union(imj.difference(sut)));
+	    // assertEquals(sut.union(oip), sut.union(oip.difference(sut)));
+	    // assertEquals(sut.union(uuv), sut.union(uuv.difference(sut)));
+	    assertEquals(sut.union(empty), sut.union(empty.difference(sut)));
+	    assertEquals(sut.union(universal), sut.union(universal.difference(sut)));
+	    assertEquals(empty.union(b), empty.union(b.difference(empty)));
+	    assertEquals(empty.union(ec), empty.union(ec.difference(empty)));
+	    assertEquals(empty.union(imj), empty.union(imj.difference(empty)));
+	    assertEquals(empty.union(oip), empty.union(oip.difference(empty)));
+	    assertEquals(empty.union(uuv), empty.union(uuv.difference(empty)));
+	    assertEquals(empty.union(empty), empty.union(empty.difference(empty)));
+	    assertEquals(empty.union(universal), empty.union(universal.difference(empty)));
+	    assertEquals(universal.union(b), universal.union(b.difference(universal)));
+	    assertEquals(universal.union(ec), universal.union(ec.difference(universal)));
+	    assertEquals(universal.union(imj), universal.union(imj.difference(universal)));
+	    assertEquals(universal.union(oip), universal.union(oip.difference(universal)));
+	    assertEquals(universal.union(uuv), universal.union(uuv.difference(universal)));
+	    assertEquals(universal.union(empty), universal.union(empty.difference(universal)));
+	    assertEquals(universal.union(universal), universal.union(universal.difference(universal)));
+	}
+	
+	// Theorem 19: For any classes A and B, A ∩ (B\A) = ∅.
+	// Some cases are caught earlier by other theorems.
+	
+	@Test public void testTheorem19() {
+	    assertEquals(empty, a.intersection(b.difference(a)));
+	    assertEquals(empty, a.intersection(ec.difference(a)));
+	    // assertEquals(empty, a.intersection(imj.difference(a)));
+	    assertEquals(empty, a.intersection(oip.difference(a)));
+	    assertEquals(empty, a.intersection(uuv.difference(a)));
+	    assertEquals(empty, a.intersection(empty.difference(a)));
+	    assertEquals(empty, a.intersection(universal.difference(a)));
+	    assertEquals(empty, dc.intersection(b.difference(dc)));
+	    assertEquals(empty, dc.intersection(ec.difference(dc)));
+	    // assertEquals(empty, dc.intersection(imj.difference(dc)));
+	    assertEquals(empty, dc.intersection(oip.difference(dc)));
+	    assertEquals(empty, dc.intersection(uuv.difference(dc)));
+	    assertEquals(empty, dc.intersection(empty.difference(dc)));
+	    assertEquals(empty, dc.intersection(universal.difference(dc)));
+	    assertEquals(empty, gmh.intersection(b.difference(gmh)));
+	    assertEquals(empty, gmh.intersection(ec.difference(gmh)));
+	    // assertEquals(empty, gmh.intersection(imj.difference(gmh)));
+	    assertEquals(empty, gmh.intersection(oip.difference(gmh)));
+	    assertEquals(empty, gmh.intersection(uuv.difference(gmh)));
+	    assertEquals(empty, gmh.intersection(empty.difference(gmh)));
+	    assertEquals(empty, gmh.intersection(universal.difference(gmh)));
+	    assertEquals(empty, min.intersection(b.difference(min)));
+	    assertEquals(empty, min.intersection(ec.difference(min)));
+	    // assertEquals(empty, min.intersection(imj.difference(min)));
+	    assertEquals(empty, min.intersection(oip.difference(min)));
+	    assertEquals(empty, min.intersection(uuv.difference(min)));
+	    assertEquals(empty, min.intersection(empty.difference(min)));
+	    assertEquals(empty, min.intersection(universal.difference(min)));
+	    assertEquals(empty, sut.intersection(b.difference(sut)));
+	    assertEquals(empty, sut.intersection(ec.difference(sut)));
+	    // assertEquals(empty, sut.intersection(imj.difference(sut)));
+	    assertEquals(empty, sut.intersection(oip.difference(sut)));
+	    assertEquals(empty, sut.intersection(uuv.difference(sut)));
+	    assertEquals(empty, sut.intersection(empty.difference(sut)));
+	    assertEquals(empty, sut.intersection(universal.difference(sut)));
+	    assertEquals(empty, empty.intersection(b.difference(empty)));
+	    assertEquals(empty, empty.intersection(ec.difference(empty)));
+	    assertEquals(empty, empty.intersection(imj.difference(empty)));
+	    assertEquals(empty, empty.intersection(oip.difference(empty)));
+	    assertEquals(empty, empty.intersection(uuv.difference(empty)));
+	    assertEquals(empty, empty.intersection(empty.difference(empty)));
+	    assertEquals(empty, empty.intersection(universal.difference(empty)));
+	    assertEquals(empty, universal.intersection(b.difference(universal)));
+	    assertEquals(empty, universal.intersection(ec.difference(universal)));
+	    assertEquals(empty, universal.intersection(imj.difference(universal)));
+	    assertEquals(empty, universal.intersection(oip.difference(universal)));
+	    assertEquals(empty, universal.intersection(uuv.difference(universal)));
+	    assertEquals(empty, universal.intersection(empty.difference(universal)));
+	    assertEquals(empty, universal.intersection(universal.difference(universal)));
+	}
+	
 }

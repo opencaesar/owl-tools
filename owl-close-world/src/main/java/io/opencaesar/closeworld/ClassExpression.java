@@ -103,7 +103,7 @@ public abstract class ClassExpression {
 		else if ((e instanceof Intersection || e instanceof Empty || e instanceof Universal))
 			// Theorem 3
 			return e.intersection(this);
-		else if ((e instanceof Difference) && ((Difference) e).b == this)
+		else if ((e instanceof Difference) && ((Difference) e).b.equals(this))
 			// Theorem 19
 			return new Empty();
 		else
@@ -123,6 +123,9 @@ public abstract class ClassExpression {
 		else if ((e instanceof Union || e instanceof Empty || e instanceof Universal))
 			// Theorem 6
 			return e.union(this);
+		else if ((e instanceof Difference) && ((Difference) e).b.equals(this))
+			// Theorem  18
+			return this.union(((Difference) e).a);
 		else
 			return new Union(new HashSet<>(Arrays.asList(this, e)));
 	}
@@ -546,7 +549,7 @@ public abstract class ClassExpression {
 		protected ClassExpression difference(ClassExpression e) {
 
 			ClassExpression s = super.difference(e);
-			if (s instanceof Empty || s.equals(this))
+			if ((s instanceof Empty) || s.equals(this))
 				return s;
 			else
 				// Theorem 8
