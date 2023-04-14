@@ -544,14 +544,13 @@ public abstract class ClassExpression {
 		 */
 		@Override
 		protected ClassExpression difference(ClassExpression e) {
-			if (e instanceof Empty)
-				// Theorem 11
-				return this;
-			else if (e instanceof Universal || this.equals(e))
-				// Theorem 13, Theorem 16
-				return new Empty();
+
+			ClassExpression s = super.difference(e);
+			if (s instanceof Empty || s.equals(this))
+				return s;
 			else
-				return new Difference(a, b.union(e));
+				// Theorem 8
+				return a.difference(b.union(e));		// Theorem 8
 		}
 
 	}
