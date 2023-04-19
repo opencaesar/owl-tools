@@ -76,21 +76,21 @@ public class TestBundleClosure {
 	@Test public void testConstructors() {
 		Assert.assertEquals(initialVertexSet, tu.vertexSet());
 		Assert.assertEquals(15, tu.edgeSet().size());
-		Assert.assertNotNull(tu.getEdge(va, vb));
-		Assert.assertNotNull(tu.getEdge(va, vc));
-		Assert.assertNotNull(tu.getEdge(va, vi));
-		Assert.assertNotNull(tu.getEdge(vb, vc));
-		Assert.assertNotNull(tu.getEdge(vb, vd));
-		Assert.assertNotNull(tu.getEdge(vb, ve));
-		Assert.assertNotNull(tu.getEdge(vb, vf));
-		Assert.assertNotNull(tu.getEdge(vc, vg));
-		Assert.assertNotNull(tu.getEdge(vc, vh));
-		Assert.assertNotNull(tu.getEdge(ve, vj));
-		Assert.assertNotNull(tu.getEdge(vf, vi));
-		Assert.assertNotNull(tu.getEdge(vg, vi));
-		Assert.assertNotNull(tu.getEdge(vg, vj));
-		Assert.assertNotNull(tu.getEdge(vh, vj));
-		Assert.assertNotNull(tu.getEdge(vi, vj));
+		Assert.assertTrue(tu.containsEdge(va, vb));
+		Assert.assertTrue(tu.containsEdge(va, vc));
+		Assert.assertTrue(tu.containsEdge(va, vi));
+		Assert.assertTrue(tu.containsEdge(vb, vc));
+		Assert.assertTrue(tu.containsEdge(vb, vd));
+		Assert.assertTrue(tu.containsEdge(vb, ve));
+		Assert.assertTrue(tu.containsEdge(vb, vf));
+		Assert.assertTrue(tu.containsEdge(vc, vg));
+		Assert.assertTrue(tu.containsEdge(vc, vh));
+		Assert.assertTrue(tu.containsEdge(ve, vj));
+		Assert.assertTrue(tu.containsEdge(vf, vi));
+		Assert.assertTrue(tu.containsEdge(vg, vi));
+		Assert.assertTrue(tu.containsEdge(vg, vj));
+		Assert.assertTrue(tu.containsEdge(vh, vj));
+		Assert.assertTrue(tu.containsEdge(vi, vj));
 	}
 	
 
@@ -129,6 +129,24 @@ public class TestBundleClosure {
 	@Test public void testDirectParents() {
 		Assert.assertEquals(0, tu.directParentsOf(va).size());
 		Assert.assertEquals(Stream.of(vf, vg).collect(Collectors.toSet()), tu.directParentsOf(vi));
+	}
+	
+	@Test public void testMultiParentChild() {
+		Assert.assertTrue(Stream.of(Optional.of(vi), Optional.of(vj)).collect(Collectors.toSet()).contains(tu.multiParentChild()));
+	}
+	
+	@Test public void testMultiTransitiveClosure() {
+		Assert.assertTrue(tr.containsEdge(vg, vi));
+		Assert.assertTrue(tr.containsEdge(vi, vj));
+		Assert.assertFalse(tr.containsEdge(vg, vj));
+	}
+	
+	@Test public void testExciseVertex() {
+		Taxonomy g = tr.exciseVertex(vi);
+		Assert.assertFalse(g.containsVertex(vi));
+		Assert.assertFalse(g.containsEdge(vg, vi));
+		Assert.assertFalse(g.containsEdge(vi, vj));
+		Assert.assertTrue(g.containsEdge(vg, vj));
 	}
 	
 }
