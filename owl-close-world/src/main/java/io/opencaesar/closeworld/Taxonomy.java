@@ -23,7 +23,8 @@ import com.google.common.base.Objects;
 
 import io.opencaesar.closeworld.Axiom.ClassExpressionSetAxiom.DisjointClassesAxiom;
 import io.opencaesar.closeworld.Axiom.ClassExpressionSetAxiom.DisjointUnionAxiom;
-import org.jgrapht.traverse.DepthFirstIterator;
+import org.jgrapht.graph.EdgeReversedGraph;
+import org.jgrapht.traverse.TopologicalOrderIterator;
 
 /**
  * A directed acyclic graph for implementing the bundle closure algorithm
@@ -133,13 +134,15 @@ public class Taxonomy extends DirectedAcyclicGraph<ClassExpression, Taxonomy.Tax
 	}
 
 	/**
-	 * Returns whether there exists a class expression vertex that has more than one direct parent.
+	 * Returns the lowest multi-parent child if any exist.
 	 * 
 	 * @return Optional of ClassExpression
 	 */
 	public Optional<ClassExpression> multiParentChild() {
-		final DepthFirstIterator<ClassExpression, Taxonomy.TaxonomyEdge> dfi = 
-				new DepthFirstIterator<ClassExpression, Taxonomy.TaxonomyEdge>(this);
+		final EdgeReversedGraph<ClassExpression, Taxonomy.TaxonomyEdge> reversedGraph =
+				new EdgeReversedGraph<ClassExpression, Taxonomy.TaxonomyEdge>(this);
+		final TopologicalOrderIterator<ClassExpression, Taxonomy.TaxonomyEdge> dfi = 
+				new TopologicalOrderIterator<ClassExpression, Taxonomy.TaxonomyEdge>(reversedGraph);
 		while (dfi.hasNext()) {
 			final ClassExpression v = dfi.next();
 			if (directParentsOf(v).size() > 1) return Optional.of(v);

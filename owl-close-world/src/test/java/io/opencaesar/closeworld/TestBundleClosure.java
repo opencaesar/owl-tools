@@ -132,10 +132,10 @@ public class TestBundleClosure {
 	}
 	
 	@Test public void testMultiParentChild() {
-		Assert.assertTrue(Stream.of(Optional.of(vi), Optional.of(vj)).collect(Collectors.toSet()).contains(tu.multiParentChild()));
+		Assert.assertEquals(Optional.of(vj), tr.multiParentChild());
 	}
 	
-	@Test public void testMultiTransitiveClosure() {
+	@Test public void testTransitiveClosure() {
 		Assert.assertTrue(tr.containsEdge(vg, vi));
 		Assert.assertTrue(tr.containsEdge(vi, vj));
 		Assert.assertFalse(tr.containsEdge(vg, vj));
