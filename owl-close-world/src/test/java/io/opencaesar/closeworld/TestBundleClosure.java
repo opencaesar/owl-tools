@@ -94,10 +94,41 @@ public class TestBundleClosure {
 	}
 	
 
-	@Test public void testChildrenOf() {
+	@Test public void testChildren() {
 		Assert.assertEquals(0, tu.childrenOf(vj).size());
 		Assert.assertEquals(Stream.of(vb, vc, vi).collect(Collectors.toSet()), tu.childrenOf(va));
 		Assert.assertEquals(Stream.of(vj).collect(Collectors.toSet()), tu.childrenOf(ve));
+	}
+	
+	@Test public void testDescendants() {
+		Assert.assertEquals(0, tu.descendantsOf(vj).size());
+		Assert.assertEquals(Stream.of(vj).collect(Collectors.toSet()), tu.descendantsOf(vh));
+		Assert.assertEquals(Stream.of(vj).collect(Collectors.toSet()), tu.descendantsOf(ve));
+		Assert.assertEquals(Stream.of(vg, vh, vi, vj).collect(Collectors.toSet()), tu.descendantsOf(vc));
+		Assert.assertEquals(Stream.of(vb, vc, vd, ve, vf, vg, vh, vi, vj).collect(Collectors.toSet()), tu.descendantsOf(va));
+	}
+	
+	@Test public void testDirectChildren() {
+		Assert.assertEquals(0, tu.directChildrenOf(vj).size());
+		Assert.assertEquals(Stream.of(vb).collect(Collectors.toSet()), tu.directChildrenOf(va));
+	}
+	
+	@Test public void testParents() {
+		Assert.assertEquals(0, tu.parentsOf(va).size());
+		Assert.assertEquals(Stream.of(va, vf, vg).collect(Collectors.toSet()), tu.parentsOf(vi));
+		Assert.assertEquals(Stream.of(ve, vg, vh, vi).collect(Collectors.toSet()), tu.parentsOf(vj));
+	}
+	
+	@Test public void testAncestors() {
+		Assert.assertEquals(0, tu.ancestorsOf(va).size());
+		Assert.assertEquals(Stream.of(va).collect(Collectors.toSet()), tu.ancestorsOf(vb));
+		Assert.assertEquals(Stream.of(va, vb, vc, vf, vg).collect(Collectors.toSet()), tu.ancestorsOf(vi));
+		Assert.assertEquals(Stream.of(va, vb, vc, ve, vf, vg, vh, vi).collect(Collectors.toSet()), tu.ancestorsOf(vj));
+	}
+	
+	@Test public void testDirectParents() {
+		Assert.assertEquals(0, tu.directParentsOf(va).size());
+		Assert.assertEquals(Stream.of(vf, vg).collect(Collectors.toSet()), tu.directParentsOf(vi));
 	}
 	
 }
