@@ -149,4 +149,44 @@ public class TestBundleClosure {
 		Assert.assertTrue(g.containsEdge(vg, vj));
 	}
 	
+	@Test public void testExciseVertices() {
+		Taxonomy g = tr.exciseVertices(Stream.of(vc, vf, vi).collect(Collectors.toSet()));
+		Set<ClassExpression> remaining = Stream.of(va, vb, vd, ve, vg, vh, vj).collect(Collectors.toSet());
+		Assert.assertEquals(remaining, g.vertexSet());
+		Assert.assertTrue(g.containsEdge(vb, vh));
+		Assert.assertTrue(g.containsEdge(vb, vj));
+		Assert.assertTrue(g.containsEdge(vg, vj));
+	}
+	
+	@Test public void testExciseVerticesIf() {
+		Taxonomy g1 = tr.exciseVerticesIf(v -> false);
+		Assert.assertEquals(tr, g1);
+		Taxonomy g2 = tr.exciseVerticesIf(v -> true);
+		Assert.assertEquals(0, g2.vertexSet().size());
+		Taxonomy g3 = tr.exciseVerticesIf(v -> Stream.of(vc, vf, vi).collect(Collectors.toSet()).contains(v));
+		Assert.assertEquals(Stream.of(va, vb, vd, ve, vg, vh, vj).collect(Collectors.toSet()), g3.vertexSet());
+		Assert.assertTrue(g3.containsEdge(vb, vh));
+		Assert.assertTrue(g3.containsEdge(vb, vj));
+		Assert.assertTrue(g3.containsEdge(vg, vj));
+	}
+
+	@Test public void testRootAt() {
+		ClassExpression root = new Unitary("root");
+		tr.removeEdge(va, vb);
+		Taxonomy rt = tr.rootAt(root);
+		Assert.assertTrue(rt.containsEdge(root, va));
+		Assert.assertTrue(rt.containsEdge(root, vb));
+		Set<ClassExpression> roots = rt.vertexSet().stream().filter(v -> (rt.inDegreeOf(v) == 0)).collect(Collectors.toSet());
+		Assert.assertEquals(1, roots.size());
+		Assert.assertTrue(roots.contains(root));
+	}
+	
+	@Test public void testReduceChild() {
+		Taxonomy rd = tu.reduceChild(vj);
+		Assert.assertTrue(rd.containsEdge(ve, vj));
+		Assert.assertTrue(rd.containsEdge(vh, vj));
+		Assert.assertTrue(rd.containsEdge(vi, vj));
+		Assert.assertFalse(rd.containsEdge(vg, vj));
+	}
+	
 }
