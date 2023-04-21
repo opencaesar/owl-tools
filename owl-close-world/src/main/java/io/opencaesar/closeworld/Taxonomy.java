@@ -274,50 +274,6 @@ public class Taxonomy extends DirectedAcyclicGraph<ClassExpression, Taxonomy.Tax
 	}
 	
 	/**
-	 * Bypass a single parent of a child.
-	 * 
-	 * @param child  a class expression vertex
-	 * @param parent a class expression vertex
-	 * @return Taxonomy
-	 */
-	public Taxonomy bypassParent(final ClassExpression child, final ClassExpression parent) {
-		final Taxonomy g = new Taxonomy();
-				
-		// Copy all vertices.
-		
-		vertexSet().forEach(g::addVertex);
-		
-		// Copy all edges except that from parent to child.
-		
-		edgeSet().stream().map(e -> new AbstractMap.SimpleEntry<>(getEdgeSource(e), getEdgeTarget(e)))
-			.filter(it -> it.getKey() != parent || it.getValue() != child)
-			.forEach(p -> g.addEdge(p.getKey(), p.getValue()));
-		
-		// Add edges from direct grandparents to child.
-		
-		directParentsOf(parent).forEach(gp -> g.addEdge(gp, child));
-		
-		return g;
-	}
-
-	/**
-	 * Recursively bypass parents of a child.
-	 * 
-	 * @param child   a class expression vertex
-	 * @param parents Set of class expression vertices
-	 * @return Taxonomy
-	 */
-	public Taxonomy bypassParents(final ClassExpression child, final Set<ClassExpression> parents) {
-		if (parents.isEmpty()) {
-			return this;
-		} else {
-			ClassExpression first = parents.iterator().next();
-			Set<ClassExpression> rest = parents.stream().filter(it -> it != first).collect(Collectors.toSet());
-			return bypassParent(child, first).bypassParents(child, rest);
-		}
-	}
-
-	/**
 	 * Eliminate redundant edges above child.
 	 * 
 	 * @param child a class expression vertex
