@@ -17,8 +17,10 @@ public class TestBundleClosure {
 
 	HashMap<String, ClassExpression> vertexMap = new HashMap<String, ClassExpression>();
 
+	Taxonomy te;
+	Taxonomy ts;
+	Taxonomy tm;
 	Taxonomy tu;
-	Taxonomy tv;
 	Taxonomy tr;
 	ClassExpression va;
 	ClassExpression vb;
@@ -62,12 +64,21 @@ public class TestBundleClosure {
 				vc, vh,  ve, vj,  vf, vi,  vg, vi,  vg, vj,  vh, vj,  vi, vj
 			).collect(Collectors.toList());
 				
-				
-		tu = new Taxonomy(initialEdgeList);
-
-		tv = (Taxonomy) tu.clone();
+		te = new Taxonomy();
 		
+		ts = new Taxonomy();
+		ts.addVertex(va);
+		
+		tm = new Taxonomy();
+		tm.addVertex(va);
+		tm.addVertex(vb);
+		tm.addVertex(vc);
+		tm.addEdge(va, vb);
+		tm.addEdge(va, vc);
+		
+		tu = new Taxonomy(initialEdgeList);
 		tr = tu.transitiveReduction();
+		
 	}
 
 	@After public void tearDown() throws Exception {
@@ -142,7 +153,7 @@ public class TestBundleClosure {
 	}
 	
 	@Test public void testExciseVertex() {
-		Taxonomy g = tr.exciseVertex(vi);
+		final Taxonomy g = tr.exciseVertex(vi);
 		Assert.assertFalse(g.containsVertex(vi));
 		Assert.assertFalse(g.containsEdge(vg, vi));
 		Assert.assertFalse(g.containsEdge(vi, vj));
@@ -150,8 +161,8 @@ public class TestBundleClosure {
 	}
 	
 	@Test public void testExciseVertices() {
-		Taxonomy g = tr.exciseVertices(Stream.of(vc, vf, vi).collect(Collectors.toSet()));
-		Set<ClassExpression> remaining = Stream.of(va, vb, vd, ve, vg, vh, vj).collect(Collectors.toSet());
+		final Taxonomy g = tr.exciseVertices(Stream.of(vc, vf, vi).collect(Collectors.toSet()));
+		final Set<ClassExpression> remaining = Stream.of(va, vb, vd, ve, vg, vh, vj).collect(Collectors.toSet());
 		Assert.assertEquals(remaining, g.vertexSet());
 		Assert.assertTrue(g.containsEdge(vb, vh));
 		Assert.assertTrue(g.containsEdge(vb, vj));
@@ -159,11 +170,11 @@ public class TestBundleClosure {
 	}
 	
 	@Test public void testExciseVerticesIf() {
-		Taxonomy g1 = tr.exciseVerticesIf(v -> false);
+		final Taxonomy g1 = tr.exciseVerticesIf(v -> false);
 		Assert.assertEquals(tr, g1);
-		Taxonomy g2 = tr.exciseVerticesIf(v -> true);
+		final Taxonomy g2 = tr.exciseVerticesIf(v -> true);
 		Assert.assertEquals(0, g2.vertexSet().size());
-		Taxonomy g3 = tr.exciseVerticesIf(v -> Stream.of(vc, vf, vi).collect(Collectors.toSet()).contains(v));
+		final Taxonomy g3 = tr.exciseVerticesIf(v -> Stream.of(vc, vf, vi).collect(Collectors.toSet()).contains(v));
 		Assert.assertEquals(Stream.of(va, vb, vd, ve, vg, vh, vj).collect(Collectors.toSet()), g3.vertexSet());
 		Assert.assertTrue(g3.containsEdge(vb, vh));
 		Assert.assertTrue(g3.containsEdge(vb, vj));
@@ -171,18 +182,18 @@ public class TestBundleClosure {
 	}
 
 	@Test public void testRootAt() {
-		ClassExpression root = new Unitary("root");
+		final ClassExpression root = new Unitary("root");
 		tr.removeEdge(va, vb);
-		Taxonomy rt = tr.rootAt(root);
+		final Taxonomy rt = tr.rootAt(root);
 		Assert.assertTrue(rt.containsEdge(root, va));
 		Assert.assertTrue(rt.containsEdge(root, vb));
-		Set<ClassExpression> roots = rt.vertexSet().stream().filter(v -> (rt.inDegreeOf(v) == 0)).collect(Collectors.toSet());
+		final Set<ClassExpression> roots = rt.vertexSet().stream().filter(v -> (rt.inDegreeOf(v) == 0)).collect(Collectors.toSet());
 		Assert.assertEquals(1, roots.size());
 		Assert.assertTrue(roots.contains(root));
 	}
 	
 	@Test public void testReduceChild() {
-		Taxonomy rd = tu.reduceChild(vj);
+		final Taxonomy rd = tu.reduceChild(vj);
 		Assert.assertTrue(rd.containsEdge(ve, vj));
 		Assert.assertTrue(rd.containsEdge(vh, vj));
 		Assert.assertTrue(rd.containsEdge(vi, vj));
@@ -190,7 +201,7 @@ public class TestBundleClosure {
 	}
 	
 	@Test public void testBypassIsolate() {
-		Taxonomy bi = tr.bypassIsolate(vj);
+		final Taxonomy bi = tr.bypassIsolate(vj);
 		// bypass
 		Assert.assertEquals(tr.vertexSet().size(), bi.vertexSet().size());
 		Assert.assertTrue(bi.containsEdge(vb, vj));
@@ -217,7 +228,7 @@ public class TestBundleClosure {
 	}
 
 	@Test public void testTreeify() {
-		Taxonomy t = tr.treeify();
+		final Taxonomy t = tr.treeify();
 		Assert.assertEquals(10, t.vertexSet().size());
 		Assert.assertEquals(9, t.edgeSet().size());    // |E| = |V| - 1 for a tree
 		Assert.assertTrue(t.containsEdge(va, vb));
@@ -231,4 +242,21 @@ public class TestBundleClosure {
 		Assert.assertTrue(t.containsEdge(vc, vg.difference(vi.union(vj))));
 	}
 	
+	@Test public void testTreeifyEmpty() {
+		final Taxonomy empty = new Taxonomy();
+		Assert.assertEquals(te, te.treeify());
+	}
+
+	@Test public void testTreeifySingle() {
+		Assert.assertEquals(ts, ts.treeify());
+	}
+
+	@Test public void testTreeifyMinimal() {
+		Assert.assertEquals(tm, tm.treeify());
+	}
+
+	@Test public void testTreeifyIdempotent() {
+		Assert.assertEquals(tr.treeify(), tr.treeify().treeify());
+	}
+
 }

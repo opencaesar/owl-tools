@@ -311,8 +311,8 @@ public class Taxonomy extends DirectedAcyclicGraph<ClassExpression, Taxonomy.Tax
 		if (parents.isEmpty()) {
 			return this;
 		} else {
-			ClassExpression first = parents.iterator().next();
-			Set<ClassExpression> rest = parents.stream().filter(it -> it != first).collect(Collectors.toSet());
+			final ClassExpression first = parents.iterator().next();
+			final Set<ClassExpression> rest = parents.stream().filter(it -> it != first).collect(Collectors.toSet());
 			return bypassParent(child, first).bypassParents(child, rest);
 		}
 	}
