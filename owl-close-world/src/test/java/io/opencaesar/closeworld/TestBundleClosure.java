@@ -201,15 +201,34 @@ public class TestBundleClosure {
 		Assert.assertFalse(bi.containsEdge(vi, vj));
 		Assert.assertFalse(bi.containsEdge(vh, vj));
 		// isolate
-		Assert.assertTrue(bi.containsVertex(vj));
+		Assert.assertFalse(bi.containsVertex(ve));
 		Assert.assertTrue(bi.containsVertex(ve.difference(vj)));
+		Assert.assertFalse(bi.containsEdge(ve.difference(vj), vj));
 		Assert.assertFalse(bi.containsVertex(vh));
 		Assert.assertTrue(bi.containsVertex(vh.difference(vj)));
+		Assert.assertFalse(bi.containsEdge(vh.difference(vj), vj));
 		Assert.assertFalse(bi.containsVertex(vi));
 		Assert.assertTrue(bi.containsVertex(vi.difference(vj)));
+		Assert.assertFalse(bi.containsEdge(vh.difference(vj), vj));
 		Assert.assertTrue(bi.containsEdge(vb, ve.difference(vj)));
 		Assert.assertTrue(bi.containsEdge(vc, vh.difference(vj)));
 		Assert.assertTrue(bi.containsEdge(vf, vi.difference(vj)));
 		Assert.assertTrue(bi.containsEdge(vg, vi.difference(vj)));
 	}
+
+	@Test public void testTreeify() {
+		Taxonomy t = tr.treeify();
+		Assert.assertEquals(10, t.vertexSet().size());
+		Assert.assertEquals(9, t.edgeSet().size());    // |E| = |V| - 1 for a tree
+		Assert.assertTrue(t.containsEdge(va, vb));
+		Assert.assertTrue(t.containsEdge(vb, vc));
+		Assert.assertTrue(t.containsEdge(vb, vd));
+		Assert.assertTrue(t.containsEdge(vb, ve.difference(vj)));
+		Assert.assertTrue(t.containsEdge(vb, vf.difference(vi.union(vj))));
+		Assert.assertTrue(t.containsEdge(vc, vj));
+		Assert.assertTrue(t.containsEdge(vc, vi.difference(vj)));
+		Assert.assertTrue(t.containsEdge(vc, vh.difference(vj)));
+		Assert.assertTrue(t.containsEdge(vc, vg.difference(vi.union(vj))));
+	}
+	
 }

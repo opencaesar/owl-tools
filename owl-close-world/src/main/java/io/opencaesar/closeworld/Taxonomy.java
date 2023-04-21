@@ -406,10 +406,7 @@ public class Taxonomy extends DirectedAcyclicGraph<ClassExpression, Taxonomy.Tax
 	 		 	
 	 	if (co.isPresent()) {
 			final ClassExpression child = co.get();
-			final Set<ClassExpression> parents = parentsOf(child);
-			final Taxonomy bp = bypassParents(child, parents);
-			final Taxonomy rd = bp.reduceChild(child);
-	 		return rd.isolateChild(child, parents).treeify();
+	 		return bypassIsolate(child).reduceChild(child).treeify();
 	 	} else {
 	 		return this;
 	 	}
