@@ -189,4 +189,14 @@ public class TestBundleClosure {
 		Assert.assertFalse(rd.containsEdge(vg, vj));
 	}
 	
+	@Test public void testBypassIsolate() {
+		Taxonomy bi = tr.bypassIsolate(vj);
+		Assert.assertTrue(bi.containsVertex(vj));
+		Assert.assertFalse(bi.containsVertex(ve));
+		Assert.assertTrue(bi.containsVertex(ve.difference(vj)));
+		Assert.assertFalse(bi.containsVertex(vh));
+		Assert.assertTrue(bi.containsVertex(vh.difference(vj)));
+		Assert.assertFalse(bi.containsVertex(vi));
+		Assert.assertTrue(bi.containsVertex(vi.difference(vj)));
+	}
 }

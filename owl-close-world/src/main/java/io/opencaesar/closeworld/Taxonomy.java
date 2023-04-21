@@ -240,6 +240,20 @@ public class Taxonomy extends DirectedAcyclicGraph<ClassExpression, Taxonomy.Tax
 		return tr;
 	}
 
+	public Taxonomy bypassIsolate(final ClassExpression child) {
+		final Taxonomy t = new Taxonomy();
+		
+		final Set<ClassExpression> parents = parentsOf(child).stream().collect(Collectors.toSet());
+		final Set<ClassExpression> grandparents = parents.stream().flatMap(p -> parentsOf(p).stream()).collect(Collectors.toSet());
+		final HashMap<ClassExpression, ClassExpression> replace = new HashMap<ClassExpression, ClassExpression>();
+		parents.forEach(parent -> replace.put(parent,  parent.difference(child)));
+		
+		vertexSet().stream().filter(v -> !parents.contains(v)).forEach(t::addVertex);
+		replace.values().forEach(t::addVertex);
+		
+		return t;
+	}
+	
 	/**
 	 * Bypass a single parent of a child.
 	 * 
