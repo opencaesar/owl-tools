@@ -240,6 +240,12 @@ public class Taxonomy extends DirectedAcyclicGraph<ClassExpression, Taxonomy.Tax
 		return tr;
 	}
 
+	/**
+	 * Returns a new directed graph with the given child bypassed and its parents isolated.
+	 * 
+	 * @param child a class expression vertex.
+	 * @return Taxonomy
+	 */
 	public Taxonomy bypassIsolate(final ClassExpression child) {
 		final Taxonomy bit = new Taxonomy();
 		
@@ -297,59 +303,6 @@ public class Taxonomy extends DirectedAcyclicGraph<ClassExpression, Taxonomy.Tax
 		directParentsOf(child).forEach(p -> g.addEdge(p, child));
 		
 		return g;
-	}
-
-	/**
-	 * Isolate child from one parent.
-	 * 
-	 * @param child  a class expression vertex
-	 * @param parent a class expression vertex
-	 * @return A new directed graph obtained by replacing the given parent vertex with the difference between parent and child.
-	 */
-	public Taxonomy isolateChildFromOne(final ClassExpression child, final ClassExpression parent) {
-		if (parentsOf(parent).isEmpty()) {
-			return this;
-		} else {
-			final Taxonomy g = new Taxonomy();
-			
-			final ClassExpression diff = parent.difference(child);
-
-			final HashSet<ClassExpression> newVertices = new HashSet<>(vertexSet());
-			newVertices.remove(parent);
-			newVertices.add(diff);
-			newVertices.forEach(g::addVertex);
-			
-			edgeSet().forEach(e -> {
-				final ClassExpression s = getEdgeSource(e);
-				final ClassExpression t = getEdgeTarget(e);
-				if (s == parent) {
-					if (t != child) g.addEdge(diff, t);
-				} else if (t == parent) {
-					g.addEdge(s, diff);
-				} else {
-					g.addEdge(s, t);
-				}
-			});
-			
-			return g;
-		}
-	}
-
-	/**
-	 * Recursively isolate child from parents.
-	 * 
-	 * @param child   a class expression vertex
-	 * @param parents a set of class expression vertixes
-	 * @return Taxonomy
-	 */
-	public Taxonomy isolateChild(final ClassExpression child, final Set<ClassExpression> parents) {
-		if (parents.isEmpty()) {
-			return this;
-		} else {
-			ClassExpression first = parents.iterator().next();
-			Set<ClassExpression> rest = parents.stream().filter(it -> it != first).collect(Collectors.toSet());
-			return isolateChildFromOne(child, first).isolateChild(child, rest);
-		}
 	}
 
 	/**
