@@ -241,17 +241,36 @@ public class Taxonomy extends DirectedAcyclicGraph<ClassExpression, Taxonomy.Tax
 	}
 
 	public Taxonomy bypassIsolate(final ClassExpression child) {
-		final Taxonomy t = new Taxonomy();
+		final Taxonomy bit = new Taxonomy();
 		
 		final Set<ClassExpression> parents = parentsOf(child).stream().collect(Collectors.toSet());
 		final Set<ClassExpression> grandparents = parents.stream().flatMap(p -> parentsOf(p).stream()).collect(Collectors.toSet());
 		final HashMap<ClassExpression, ClassExpression> replace = new HashMap<ClassExpression, ClassExpression>();
+		
+		// replacement map from parents to isolated parents
 		parents.forEach(parent -> replace.put(parent,  parent.difference(child)));
 		
-		vertexSet().stream().filter(v -> !parents.contains(v)).forEach(t::addVertex);
-		replace.values().forEach(t::addVertex);
+		// substitute isolated parents for parents
+		vertexSet().stream().filter(v -> !parents.contains(v)).forEach(bit::addVertex);
+		replace.values().forEach(bit::addVertex);
 		
-		return t;
+		// substitute isolated parents edges for parents edges
+		edgeSet().forEach(e -> {
+			final ClassExpression s = getEdgeSource(e);
+			final ClassExpression t = getEdgeTarget(e);
+			if (parents.contains(s)) {
+				if (t != child) bit.addEdge(replace.get(s), t);
+			} else if (parents.contains(t)) {
+				bit.addEdge(s, replace.get(t));
+			} else {
+				bit.addEdge(s, t);
+			}
+		});
+		
+		// move child up to grandparents
+		grandparents.forEach(gp -> bit.addEdge(gp,  child));
+		
+		return bit;
 	}
 	
 	/**

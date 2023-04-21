@@ -191,12 +191,25 @@ public class TestBundleClosure {
 	
 	@Test public void testBypassIsolate() {
 		Taxonomy bi = tr.bypassIsolate(vj);
+		// bypass
+		Assert.assertEquals(tr.vertexSet().size(), bi.vertexSet().size());
+		Assert.assertTrue(bi.containsEdge(vb, vj));
+		Assert.assertTrue(bi.containsEdge(vc, vj));
+		Assert.assertTrue(bi.containsEdge(vf, vj));
+		Assert.assertTrue(bi.containsEdge(vg, vj));
+		Assert.assertFalse(bi.containsEdge(ve, vj));
+		Assert.assertFalse(bi.containsEdge(vi, vj));
+		Assert.assertFalse(bi.containsEdge(vh, vj));
+		// isolate
 		Assert.assertTrue(bi.containsVertex(vj));
-		Assert.assertFalse(bi.containsVertex(ve));
 		Assert.assertTrue(bi.containsVertex(ve.difference(vj)));
 		Assert.assertFalse(bi.containsVertex(vh));
 		Assert.assertTrue(bi.containsVertex(vh.difference(vj)));
 		Assert.assertFalse(bi.containsVertex(vi));
 		Assert.assertTrue(bi.containsVertex(vi.difference(vj)));
+		Assert.assertTrue(bi.containsEdge(vb, ve.difference(vj)));
+		Assert.assertTrue(bi.containsEdge(vc, vh.difference(vj)));
+		Assert.assertTrue(bi.containsEdge(vf, vi.difference(vj)));
+		Assert.assertTrue(bi.containsEdge(vg, vi.difference(vj)));
 	}
 }
