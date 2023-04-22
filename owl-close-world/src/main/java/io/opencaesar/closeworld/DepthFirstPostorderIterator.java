@@ -25,6 +25,7 @@ public class DepthFirstPostorderIterator {
 	}
 	
 	public boolean hasNext() {
+		if (!queue.isEmpty()) return true;
 		while (dfswf.hasNext()) {
 			dfswf.next();
 			if (!queue.isEmpty()) return true;
