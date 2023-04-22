@@ -23,8 +23,6 @@ import com.google.common.base.Objects;
 
 import io.opencaesar.closeworld.Axiom.ClassExpressionSetAxiom.DisjointClassesAxiom;
 import io.opencaesar.closeworld.Axiom.ClassExpressionSetAxiom.DisjointUnionAxiom;
-import org.jgrapht.graph.EdgeReversedGraph;
-import org.jgrapht.traverse.TopologicalOrderIterator;
 
 /**
  * A directed acyclic graph for implementing the bundle closure algorithm
