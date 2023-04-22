@@ -138,27 +138,10 @@ public class Taxonomy extends DirectedAcyclicGraph<ClassExpression, Taxonomy.Tax
 	 * 
 	 * @return Optional of ClassExpression
 	 */
-	public Optional<ClassExpression> multiParentChildX() {
-		final EdgeReversedGraph<ClassExpression, Taxonomy.TaxonomyEdge> reversedGraph =
-				new EdgeReversedGraph<ClassExpression, Taxonomy.TaxonomyEdge>(this);
-		final TopologicalOrderIterator<ClassExpression, Taxonomy.TaxonomyEdge> dfi = 
-				new TopologicalOrderIterator<ClassExpression, Taxonomy.TaxonomyEdge>(reversedGraph);
-		while (dfi.hasNext()) {
-			final ClassExpression v = dfi.next();
-			if (directParentsOf(v).size() > 1) return Optional.of(v);
-		}
-		return Optional.empty();
-	}
-
-	/**
-	 * Returns the lowest multi-parent child if any exist.
-	 * 
-	 * @return Optional of ClassExpression
-	 */
 	public Optional<ClassExpression> multiParentChild() {
 		final DepthFirstPostorderIterator iter = new DepthFirstPostorderIterator(this);
 		while (iter.hasNext()) {
-			final ClassExpression v = iter.nextX();
+			final ClassExpression v = iter.next();
 			if (directParentsOf(v).size() > 1) return Optional.of(v);
 		}
 		return Optional.empty();
