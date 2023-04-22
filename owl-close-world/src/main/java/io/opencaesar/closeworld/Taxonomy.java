@@ -13,7 +13,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.jgrapht.GraphTests;
-import org.jgrapht.alg.ConnectivityInspector;
+import org.jgrapht.alg.connectivity.ConnectivityInspector;
 import org.jgrapht.alg.TransitiveReduction;
 import org.jgrapht.graph.AsUndirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
@@ -234,7 +234,7 @@ public class Taxonomy extends DirectedAcyclicGraph<ClassExpression, Taxonomy.Tax
 		TransitiveReduction.INSTANCE.reduce(tr);
 		return tr;
 	}
-
+	
 	/**
 	 * Returns a new directed graph with the given child bypassed and its parents isolated.
 	 * 
@@ -377,7 +377,7 @@ public class Taxonomy extends DirectedAcyclicGraph<ClassExpression, Taxonomy.Tax
 	 * @return boolean
 	 */
 	public boolean isConnected() {
-		return new ConnectivityInspector<>(this).isGraphConnected();
+		return new ConnectivityInspector<>(this).isConnected();
 	}
 
 	/**

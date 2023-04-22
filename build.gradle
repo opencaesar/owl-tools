@@ -6,7 +6,7 @@ subprojects {
 		owl: '5.1.17',
 		openllet: '2.6.5',
 		jena: '4.6.1',
-		jgrapht: '1.1.0',
+		jgrapht: '1.5.1',
 		xmlcatalog: '1.0.4',
 		xmlresolver: '1.2',
 		commonsIo: '2.11.0',
