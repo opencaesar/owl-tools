@@ -22,6 +22,7 @@ public class TestBundleClosure {
 	Taxonomy tm;
 	Taxonomy tu;
 	Taxonomy tr;
+	Taxonomy tc;
 	ClassExpression va;
 	ClassExpression vb;
 	ClassExpression vc;
@@ -34,6 +35,7 @@ public class TestBundleClosure {
 	ClassExpression vj;
 	Set<ClassExpression> initialVertexSet;
 	List<ClassExpression> initialEdgeList;
+	List<ClassExpression> cyclicEdgeList;
 
 	@BeforeClass public static void setUpBeforeClass() throws Exception {
 	}
@@ -64,6 +66,9 @@ public class TestBundleClosure {
 				vc, vh,  ve, vj,  vf, vi,  vg, vi,  vg, vj,  vh, vj,  vi, vj
 			).collect(Collectors.toList());
 				
+		cyclicEdgeList = new ArrayList<ClassExpression>(initialEdgeList);
+		cyclicEdgeList.addAll(Stream.of(vg, vh,  vh, vc).collect(Collectors.toList()));
+		
 		te = new Taxonomy();
 		
 		ts = new Taxonomy();
@@ -79,6 +84,7 @@ public class TestBundleClosure {
 		tu = new Taxonomy(initialEdgeList);
 		tr = tu.transitiveReduction();
 		
+		tc = new Taxonomy(cyclicEdgeList);
 	}
 
 	@After public void tearDown() throws Exception {
@@ -102,6 +108,15 @@ public class TestBundleClosure {
 		Assert.assertTrue(tu.containsEdge(vg, vj));
 		Assert.assertTrue(tu.containsEdge(vh, vj));
 		Assert.assertTrue(tu.containsEdge(vi, vj));
+		// Cyclic edge list implies a strongly-connected component {c, g, h}. Ensure exactly one of the set appears in the taxonomy.
+		final Set<ClassExpression> scc = Stream.of(vc, vg, vh).collect(Collectors.toSet());
+		final Set<ClassExpression> cvs = tc.vertexSet().stream().filter(v -> scc.contains(v)).collect(Collectors.toSet());
+		Assert.assertEquals(1,  cvs.size());
+		final ClassExpression cv = (ClassExpression) cvs.toArray()[0];
+		Assert.assertTrue(tc.containsEdge(vb, cv));
+		Assert.assertEquals(2, tc.childrenOf(cv).size());
+		Assert.assertTrue(tc.containsEdge(cv, vi));
+		Assert.assertTrue(tc.containsEdge(cv, vj));
 	}
 	
 

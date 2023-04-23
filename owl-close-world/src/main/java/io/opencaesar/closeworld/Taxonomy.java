@@ -12,12 +12,15 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import org.jgrapht.Graph;
 import org.jgrapht.GraphTests;
 import org.jgrapht.alg.connectivity.ConnectivityInspector;
+import org.jgrapht.alg.connectivity.KosarajuStrongConnectivityInspector;
 import org.jgrapht.alg.TransitiveReduction;
 import org.jgrapht.graph.AsUndirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DirectedAcyclicGraph;
+import org.jgrapht.graph.SimpleDirectedGraph;
 
 import com.google.common.base.Objects;
 
@@ -53,16 +56,44 @@ public class Taxonomy extends DirectedAcyclicGraph<ClassExpression, Taxonomy.Tax
 	public Taxonomy(final List<ClassExpression> vertexList, final List<ClassExpression> edgeList) {
 		super(TaxonomyEdge.class);
 		
-		vertexList.forEach(this::addVertex);
+		// Build initial directed graph, which may contain cycles.
+		
+		final SimpleDirectedGraph<ClassExpression, DefaultEdge> dg = new SimpleDirectedGraph<ClassExpression, DefaultEdge>(DefaultEdge.class);
+		
+		vertexList.forEach(dg::addVertex);
 		
 		final Iterator<ClassExpression> i = edgeList.iterator();
 		while (i.hasNext()) {
 			{
 				final ClassExpression p = i.next();
 				final ClassExpression c = i.next();
-				addEdge(p, c);
+				dg.addEdge(p, c);
 			}
 		}
+		
+		// Find condensation graph.
+		
+		final Graph<Graph<ClassExpression, DefaultEdge>, DefaultEdge> cg =
+				new KosarajuStrongConnectivityInspector<ClassExpression, DefaultEdge>(dg).getCondensation();
+		
+		// Build a directed acyclic graph by selecting a single class expression from each strongly-connected component.
+		// The reasoner will independently find all such classes equivalent so any one will suffice for disjointness analysis.
+
+		// vertices
+		final HashMap<Set<ClassExpression>, ClassExpression> vertexMap = new HashMap<Set<ClassExpression>, ClassExpression>();
+		cg.vertexSet().forEach(v -> {
+			final Set<ClassExpression> vs = v.vertexSet();
+			vertexMap.put(vs, (ClassExpression) vs.toArray()[0]);
+			this.addVertex(vertexMap.get(vs));
+		});
+		
+		// edges
+		cg.edgeSet().forEach(e -> {
+			final ClassExpression s = (ClassExpression) vertexMap.get(cg.getEdgeSource(e).vertexSet());
+			final ClassExpression t = (ClassExpression) vertexMap.get(cg.getEdgeTarget(e).vertexSet());
+			this.addEdge(s, t);
+		});
+		
 	}
 
 	/**
