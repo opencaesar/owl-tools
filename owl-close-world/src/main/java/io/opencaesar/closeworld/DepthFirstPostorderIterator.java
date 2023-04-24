@@ -30,7 +30,7 @@ public class DepthFirstPostorderIterator {
 			dfswf.next();
 			if (!queue.isEmpty()) return true;
 		}
-		return !queue.isEmpty();
+		return false;
 	}
 	
 	public ClassExpression next() {
