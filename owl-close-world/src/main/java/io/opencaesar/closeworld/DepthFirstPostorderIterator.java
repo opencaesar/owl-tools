@@ -38,7 +38,7 @@ public class DepthFirstPostorderIterator {
 	}
 	
 	/**
-	 * A DepthFirstIterator that overrides finishVertex()) to queue finished vertices.
+	 * A DepthFirstIterator that overrides finishVertex() to queue finished vertices.
 	 * 
 	 * @author sjenkins
 	 *

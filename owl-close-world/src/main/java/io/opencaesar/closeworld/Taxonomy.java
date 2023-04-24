@@ -332,7 +332,7 @@ public class Taxonomy extends DirectedAcyclicGraph<ClassExpression, Taxonomy.Tax
 	}
 
 	/**
-	 * Recursively bypass, reduce, and isolate until the result is a tree.
+	 * Recursively bypass, isolate, and reduce until the result is a tree.
 	 * 
 	 * @return Taxonomy
 	 */
