@@ -33,8 +33,11 @@ public class TestBundleClosure {
 	ClassExpression vh;
 	ClassExpression vi;
 	ClassExpression vj;
+	ClassExpression vk;
+	ClassExpression vl;
 	Set<ClassExpression> initialVertexSet;
 	List<ClassExpression> initialEdgeList;
+	Set<ClassExpression> cyclicVertexSet;
 	List<ClassExpression> cyclicEdgeList;
 
 	@BeforeClass public static void setUpBeforeClass() throws Exception {
@@ -57,6 +60,9 @@ public class TestBundleClosure {
 		vh = new Unitary("h");
 		vi = new Unitary("i");
 		vj = new Unitary("j");
+		vk = new Unitary("k");
+		vl = new Unitary("l");
+		
 		
 		initialVertexSet = Stream.of(
 				va, vb, vc, vd, ve, vf, vg, vh, vi, vj).collect(Collectors.toSet());
@@ -66,8 +72,11 @@ public class TestBundleClosure {
 				vc, vh,  ve, vj,  vf, vi,  vg, vi,  vg, vj,  vh, vj,  vi, vj
 			).collect(Collectors.toList());
 				
+		cyclicVertexSet = new HashSet<ClassExpression>(initialVertexSet);
+		cyclicVertexSet.addAll(Stream.of(vk, vl).collect(Collectors.toSet()));
+		
 		cyclicEdgeList = new ArrayList<ClassExpression>(initialEdgeList);
-		cyclicEdgeList.addAll(Stream.of(vg, vh,  vh, vc).collect(Collectors.toList()));
+		cyclicEdgeList.addAll(Stream.of(vk, vj,  ve, vk,  vl, vk,  vd, vl,  vk, vd).collect(Collectors.toList()));
 		
 		te = new Taxonomy();
 		
@@ -108,15 +117,28 @@ public class TestBundleClosure {
 		Assert.assertTrue(tu.containsEdge(vg, vj));
 		Assert.assertTrue(tu.containsEdge(vh, vj));
 		Assert.assertTrue(tu.containsEdge(vi, vj));
-		// Cyclic edge list implies a strongly-connected component {c, g, h}. Ensure exactly one of the set appears in the taxonomy.
-		final Set<ClassExpression> scc = Stream.of(vc, vg, vh).collect(Collectors.toSet());
-		final Set<ClassExpression> cvs = tc.vertexSet().stream().filter(v -> scc.contains(v)).collect(Collectors.toSet());
-		Assert.assertEquals(1,  cvs.size());
-		final ClassExpression cv = (ClassExpression) cvs.toArray()[0];
-		Assert.assertTrue(tc.containsEdge(vb, cv));
-		Assert.assertEquals(2, tc.childrenOf(cv).size());
-		Assert.assertTrue(tc.containsEdge(cv, vi));
-		Assert.assertTrue(tc.containsEdge(cv, vj));
+		// Cyclic edge list implies a strongly-connected component {d, k, l}. It will be replaced in the condensation by d.
+		Assert.assertEquals(10, tc.vertexSet().size());
+		Assert.assertEquals(17, tc.edgeSet().size());
+		Assert.assertFalse(tc.containsVertex(vk));
+		Assert.assertFalse(tc.containsVertex(vl));
+		Assert.assertTrue(tc.containsEdge(va, vb));
+		Assert.assertTrue(tc.containsEdge(va, vc));
+		Assert.assertTrue(tc.containsEdge(va, vi));
+		Assert.assertTrue(tc.containsEdge(vb, vc));
+		Assert.assertTrue(tc.containsEdge(vb, vd));
+		Assert.assertTrue(tc.containsEdge(vb, ve));
+		Assert.assertTrue(tc.containsEdge(vb, vf));
+		Assert.assertTrue(tc.containsEdge(vc, vg));
+		Assert.assertTrue(tc.containsEdge(vc, vh));
+		Assert.assertTrue(tc.containsEdge(vd, vj));
+		Assert.assertTrue(tc.containsEdge(ve, vd));
+		Assert.assertTrue(tc.containsEdge(ve, vj));
+		Assert.assertTrue(tc.containsEdge(vf, vi));
+		Assert.assertTrue(tc.containsEdge(vg, vi));
+		Assert.assertTrue(tc.containsEdge(vg, vj));
+		Assert.assertTrue(tc.containsEdge(vh, vj));
+		Assert.assertTrue(tc.containsEdge(vi, vj));
 	}
 	
 

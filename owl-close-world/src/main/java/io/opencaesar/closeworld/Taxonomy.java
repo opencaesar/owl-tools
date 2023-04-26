@@ -2,6 +2,8 @@ package io.opencaesar.closeworld;
 
 import java.util.AbstractMap;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -78,13 +80,26 @@ public class Taxonomy extends DirectedAcyclicGraph<ClassExpression, Taxonomy.Tax
 		
 		// Build a directed acyclic graph by selecting a single class expression from each strongly-connected component.
 		// The reasoner will independently find all such classes equivalent so any one will suffice for disjointness analysis.
+		// We sort by toString() and choose the first.
 
+		final class Sortbyname implements Comparator<ClassExpression> {
+		 
+		    // Method
+		    // Sorting in ascending order of name
+		    public int compare(ClassExpression a, ClassExpression b)
+		    {
+		 
+		        return a.toString().compareTo(b.toString());
+		    }
+		}
+		
 		// vertices
 		final HashMap<Set<ClassExpression>, ClassExpression> vertexMap = new HashMap<Set<ClassExpression>, ClassExpression>();
 		cg.vertexSet().forEach(v -> {
 			final Set<ClassExpression> vs = v.vertexSet();
-			vertexMap.put(vs, (ClassExpression) vs.toArray()[0]);
-			this.addVertex(vertexMap.get(vs));
+			final ClassExpression v1 = vs.stream().sorted(new Sortbyname()).collect(Collectors.toList()).get(0);
+			vertexMap.put(vs, v1);
+			this.addVertex(v1);
 		});
 		
 		// edges
