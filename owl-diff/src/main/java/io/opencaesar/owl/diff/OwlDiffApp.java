@@ -10,7 +10,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.apache.jena.atlas.web.ContentType;
 import org.apache.jena.rdf.model.Model;
@@ -157,11 +156,11 @@ public class OwlDiffApp {
 			}
         }
 		
-		List<Pair> pairs = index.values().stream().collect(Collectors.toList());
-		for (Pair pair : pairs) {
+		for (var entry : index.entrySet()) {
+			var pair = entry.getValue();
 			final Model model1 = (pair.file1 != null) ? loadModel(pair.file1) : ModelFactory.createDefaultModel();
 			final Model model2 = (pair.file2 != null) ? loadModel(pair.file2) : ModelFactory.createDefaultModel();
-			compare(model1, model2);
+			compare(model1, model2, entry.getKey());
 		};
 
 		LOGGER.info("=================================================================");
@@ -181,15 +180,18 @@ public class OwlDiffApp {
 	 * Print the differences between two RDF models (1 and 2)
 	 * @param model1 an model 1
 	 * @param model2 an model 2
+	 * @param relativePath the relative path of the models
 	 */
-	public void compare(final Model model1, final Model model2) {
+	public void compare(final Model model1, final Model model2, final String relativePath) {
 		var deleted = getStatementsInLeftButNotRight(model1, model2);
 		var added = getStatementsInLeftButNotRight(model2, model1);
 		if (!deleted.isEmpty() || !added.isEmpty()) {
 			if (getModelURI(model1) != null) {
 				System.out.println("* "+getModelURI(model1));
-			} else {
+			} else if (getModelURI(model1) != null) {
 				System.out.println("* "+getModelURI(model2));
+			} else {
+				System.out.println("* "+relativePath);
 			}
 			deleted.forEach(it -> System.out.println("\t- "+ it.toString()));
 			added.forEach(it -> System.out.println("\t+ "+ it.toString()));

@@ -1,6 +1,8 @@
 package io.opencaesar.closeworld;
 
 import java.util.ArrayDeque;
+import java.util.Iterator;
+
 import org.jgrapht.traverse.DepthFirstIterator;
 
 /**
@@ -10,13 +12,14 @@ import org.jgrapht.traverse.DepthFirstIterator;
  * @author sjenkins
  *
  */
-public class DepthFirstPostorderIterator {
+public class DepthFirstPostorderIterator implements Iterator<ClassExpression> {
 
 	private static ArrayDeque<ClassExpression> queue;
 	private static DepthFirstIteratorWithFinish dfswf;
 	
 	/**
-	 * Constructor
+	 * Constructs a new DepthFirstPostorderIterator
+	 * 
 	 * @param t Taxonomy
 	 */
 	public DepthFirstPostorderIterator(Taxonomy t) {
@@ -24,6 +27,7 @@ public class DepthFirstPostorderIterator {
 		dfswf = new DepthFirstIteratorWithFinish(t);
 	}
 	
+	@Override
 	public boolean hasNext() {
 		if (!queue.isEmpty()) return true;
 		while (dfswf.hasNext()) {
@@ -32,7 +36,8 @@ public class DepthFirstPostorderIterator {
 		}
 		return false;
 	}
-	
+
+	@Override
 	public ClassExpression next() {
 		return queue.removeFirst();
 	}

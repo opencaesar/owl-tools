@@ -2,7 +2,6 @@ package io.opencaesar.closeworld;
 
 import java.util.AbstractMap;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -16,9 +15,9 @@ import java.util.stream.Collectors;
 
 import org.jgrapht.Graph;
 import org.jgrapht.GraphTests;
-import org.jgrapht.alg.connectivity.ConnectivityInspector;
-import org.jgrapht.alg.connectivity.KosarajuStrongConnectivityInspector;
 import org.jgrapht.alg.TransitiveReduction;
+import org.jgrapht.alg.ConnectivityInspector;
+import org.jgrapht.alg.KosarajuStrongConnectivityInspector;
 import org.jgrapht.graph.AsUndirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DirectedAcyclicGraph;
@@ -423,7 +422,7 @@ public class Taxonomy extends DirectedAcyclicGraph<ClassExpression, Taxonomy.Tax
 	 * @return boolean
 	 */
 	public boolean isConnected() {
-		return new ConnectivityInspector<>(this).isConnected();
+		return new ConnectivityInspector<>(this).isGraphConnected();
 	}
 
 	/**
