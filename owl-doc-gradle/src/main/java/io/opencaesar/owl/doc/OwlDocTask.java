@@ -82,6 +82,7 @@ public abstract class OwlDocTask extends DefaultTask {
 	 * 
 	 * @return List of Strings Property
 	 */
+    @Optional
     @Input
     public abstract ListProperty<String> getInputOntologyIris();
 

@@ -43,7 +43,6 @@ import org.apache.jena.graph.Graph;
 import org.apache.jena.ontology.AnnotationProperty;
 import org.apache.jena.ontology.DatatypeProperty;
 import org.apache.jena.ontology.Individual;
-import org.apache.jena.ontology.MinCardinalityQRestriction;
 import org.apache.jena.ontology.ObjectProperty;
 import org.apache.jena.ontology.OntClass;
 import org.apache.jena.ontology.OntDocumentManager;
@@ -56,9 +55,11 @@ import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFLanguages;
+import org.apache.jena.vocabulary.OWL2;
 import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.RDFS;
 import org.apache.log4j.Appender;
@@ -113,8 +114,7 @@ public class OwlDocApp {
 			
 		@Parameter(
 			names = { "--input-ontology-iri", "-i"},
-			description = "iri of input OWL ontology (Required)",
-			required = true,
+			description = "iri of input OWL ontology (Optional, by default all ontologies in catalog)",
 			order = 4)
 		private List<String> inputOntologyIris = new ArrayList<>();
 				
@@ -207,13 +207,25 @@ public class OwlDocApp {
 	private void run() throws Exception {
 		LOGGER.info("=================================================================");
 		LOGGER.info("                        S T A R T");
-		LOGGER.info("                     OWL Bikeshed " + getAppVersion());
+		LOGGER.info("                     OWL Doc " + getAppVersion());
 		LOGGER.info("=================================================================");
+        LOGGER.info(("Input Catalog Path = " + options.inputCatalogPath));
+        LOGGER.info(("Input Catalog Title = " + options.inputCatalogTitle));
+        LOGGER.info(("Input Catalog Version = " + options.inputCatalogVersion));
+        LOGGER.info(("Input Ontology Iris = " + options.inputOntologyIris));
+        LOGGER.info(("Input File Extensions = " + options.inputFileExtensions));
+        LOGGER.info(("Output Folder Path = " + options.outputFolderPath));
+        LOGGER.info(("Output Case Sensitive = " + options.outputCaseSensitive));
 	    	    	    
 		OwlCatalog catalog = OwlCatalog.create(new File(options.inputCatalogPath).toURI());
+		Map<String, URI> fileMap = catalog.getFileUriMap(options.inputFileExtensions);
 		OntDocumentManager mgr = new OntDocumentManager();
-		for (var entry : catalog.getFileUriMap(options.inputFileExtensions).entrySet()) {
+		for (var entry : fileMap.entrySet()) {
 			mgr.addAltEntry(entry.getKey(), entry.getValue().toString());
+		}
+		
+		if (options.inputOntologyIris.isEmpty()) {
+			options.inputOntologyIris.addAll(fileMap.keySet());
 		}
 		
 		OntModelSpec s = new OntModelSpec(OntModelSpec.OWL_MEM);
@@ -268,6 +280,8 @@ public class OwlDocApp {
 			
 		});
 
+		ontModel.close();
+		
     	LOGGER.info("=================================================================");
 		LOGGER.info("                          E N D");
 		LOGGER.info("=================================================================");
@@ -461,6 +475,11 @@ public class OwlDocApp {
 		final var files = new HashMap<File, String>();
 		final var elements = new StringBuffer();
 
+		final var ON_CLASS = ResourceFactory.createProperty( OWL2.NS, "onClass" );
+		final var MAX_QUALIFIED_CARDINALITY = ResourceFactory.createProperty( OWL2.NS, "maxQualifiedCardinality" );
+		final var MIN_QUALIFIED_CARDINALITY = ResourceFactory.createProperty( OWL2.NS, "minQualifiedCardinality" );
+		final var EXACT_QUALIFIED_CARDINALITY = ResourceFactory.createProperty( OWL2.NS, "qualifiedCardinality" );
+
 		for (var s : owlModel.classes) {
 			var localName = localName(s);
 			var iri = s.getURI();
@@ -488,19 +507,19 @@ public class OwlDocApp {
 					property += " equals "+asString(restriction.asHasValueRestriction().getHasValue());
 				} else if (restriction.isMinCardinalityRestriction()) {
 					property += " min "+restriction.asMinCardinalityRestriction().getMinCardinality();
-					if (restriction.hasProperty(restriction.getProfile().HAS_CLASS_Q())) {
-						property += " "+asString(restriction.as(MinCardinalityQRestriction.class).getHasClassQ());
-					}
 				} else if (restriction.isMaxCardinalityRestriction()) {
 					property += " max "+restriction.asMaxCardinalityRestriction().getMaxCardinality();
-					if (restriction.hasProperty(restriction.getProfile().HAS_CLASS_Q())) {
-						property += " "+asString(restriction.as(MinCardinalityQRestriction.class).getHasClassQ());
-					}
 				} else if (restriction.isCardinalityRestriction()) {
 					property += " exactly "+restriction.asCardinalityRestriction().getCardinality();
-					if (restriction.hasProperty(restriction.getProfile().HAS_CLASS_Q())) {
-						property += " "+asString(restriction.as(MinCardinalityQRestriction.class).getHasClassQ());
-					}
+				} else if (restriction.getProperty(MIN_QUALIFIED_CARDINALITY) != null) {
+					property += " min "+restriction.getProperty(MIN_QUALIFIED_CARDINALITY).getInt();
+					property += " "+ asString(restriction.getProperty(ON_CLASS).getObject());
+				} else if (restriction.getProperty(MAX_QUALIFIED_CARDINALITY) != null) {
+					property += " max "+restriction.getProperty(MAX_QUALIFIED_CARDINALITY).getInt();
+					property += " "+ asString(restriction.getProperty(ON_CLASS).getObject());
+				} else if (restriction.getProperty(EXACT_QUALIFIED_CARDINALITY) != null) {
+					property += " exactly "+restriction.getProperty(EXACT_QUALIFIED_CARDINALITY).getInt();
+					property += " "+ asString(restriction.getProperty(ON_CLASS).getObject());
 				}
 				return property;
 			};

@@ -27,8 +27,8 @@ Args:
     --input-catalog-version, -v
       Version of OML input catalog
       Default: <empty string>
-  * --input-ontology-iri, -i
-      iri of input OWL ontology
+    --input-ontology-iri, -i
+      iri of input OWL ontology (by default all ontologies in catalog)
       Default: []
     --input-file-extension, -e
       input file extension (options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss)
@@ -60,7 +60,7 @@ task owlDoc(type:io.opencaesar.owl.doc.OwlDocTask) {
 	inputCatalogPath = file('path/to/input/oml/catalog') [Required]
 	inputCatalogTitle = project.title [Optional]
 	inputCatalogVersion = project.version [Optional]
-	inputOntologyIris = [ 'http://root/ontology/classes', .. ]  [Required]
+	inputOntologyIris = [ 'http://root/ontology/classes', .. ]  [Optional, by default all ontologies in catalog]
 	inputFileExtensions = [ 'owl', 'ttl' ] [Optional, options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss]	
 	outputFolderPath = file('path/to/output/bikeshed/folder') [Required]
 	outputCaseSensitive = org.gradle.internal.os.OperatingSystem.current().isLinux() [Optional]
