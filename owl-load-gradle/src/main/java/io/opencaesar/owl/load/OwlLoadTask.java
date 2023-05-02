@@ -135,7 +135,7 @@ public abstract class OwlLoadTask extends DefaultTask {
             args.add(getEndpointURL().get());
         }
         if (getFileExtensions().isPresent()) {
-        	getFileExtensions().get().forEach((String ext) -> {
+        	getFileExtensions().get().forEach(ext -> {
                 args.add("-f");
                 args.add(ext);
             });
