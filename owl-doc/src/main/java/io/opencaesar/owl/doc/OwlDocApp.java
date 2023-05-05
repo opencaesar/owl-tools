@@ -53,9 +53,9 @@ import org.apache.jena.ontology.Ontology;
 import org.apache.jena.ontology.Restriction;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Property;
+import org.apache.jena.rdf.model.RDFList;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
-import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFLanguages;
@@ -475,11 +475,41 @@ public class OwlDocApp {
 		final var files = new HashMap<File, String>();
 		final var elements = new StringBuffer();
 
-		final var ON_CLASS = ResourceFactory.createProperty( OWL2.NS, "onClass" );
-		final var MAX_QUALIFIED_CARDINALITY = ResourceFactory.createProperty( OWL2.NS, "maxQualifiedCardinality" );
-		final var MIN_QUALIFIED_CARDINALITY = ResourceFactory.createProperty( OWL2.NS, "minQualifiedCardinality" );
-		final var EXACT_QUALIFIED_CARDINALITY = ResourceFactory.createProperty( OWL2.NS, "qualifiedCardinality" );
-
+		Function<Restriction, Resource> qualifiedType = i -> {
+			if (i.getOnProperty().isDatatypeProperty())
+				return i.getProperty(OWL2.onDataRange).getObject().asResource();
+			else
+				return i.getProperty(OWL2.onClass).getObject().asResource();
+		};
+		
+		Function<RDFNode, String> restrictionFunc = i -> {
+			var restriction = (Restriction)i;
+			var property = asString(restriction.getOnProperty());
+			if (restriction.isAllValuesFromRestriction()) {
+				property += " all " + asString(restriction.asAllValuesFromRestriction().getAllValuesFrom());
+			} else if (restriction.isSomeValuesFromRestriction()) {
+				property += " some " + asString(restriction.asSomeValuesFromRestriction().getSomeValuesFrom());
+			} else if (restriction.isHasValueRestriction()) {
+				property += " equals "+asString(restriction.asHasValueRestriction().getHasValue());
+			} else if (restriction.isMinCardinalityRestriction()) {
+				property += " min "+restriction.asMinCardinalityRestriction().getMinCardinality();
+			} else if (restriction.isMaxCardinalityRestriction()) {
+				property += " max "+restriction.asMaxCardinalityRestriction().getMaxCardinality();
+			} else if (restriction.isCardinalityRestriction()) {
+				property += " exactly "+restriction.asCardinalityRestriction().getCardinality();
+			} else if (restriction.getProperty(OWL2.minQualifiedCardinality) != null) {
+				property += " min "+restriction.getProperty(OWL2.minQualifiedCardinality).getInt();
+				property += " "+ asString(qualifiedType.apply(restriction));
+			} else if (restriction.getProperty(OWL2.maxQualifiedCardinality) != null) {
+				property += " max "+restriction.getProperty(OWL2.maxQualifiedCardinality).getInt();
+				property += " "+ asString(qualifiedType.apply(restriction));
+			} else if (restriction.getProperty(OWL2.qualifiedCardinality) != null) {
+				property += " exactly "+restriction.getProperty(OWL2.qualifiedCardinality).getInt();
+				property += " "+ asString(qualifiedType.apply(restriction));
+			}
+			return property;
+		};
+		
 		for (var s : owlModel.classes) {
 			var localName = localName(s);
 			var iri = s.getURI();
@@ -495,34 +525,6 @@ public class OwlDocApp {
 				""", 
 				path, 
 				localName));
-			
-			Function<RDFNode, String> restrictionFunc = i -> {
-				var restriction = (Restriction)i;
-				var property = asString(restriction.getOnProperty());
-				if (restriction.isAllValuesFromRestriction()) {
-					property += " all " + asString(restriction.asAllValuesFromRestriction().getAllValuesFrom());
-				} else if (restriction.isSomeValuesFromRestriction()) {
-					property += " some " + asString(restriction.asSomeValuesFromRestriction().getSomeValuesFrom());
-				} else if (restriction.isHasValueRestriction()) {
-					property += " equals "+asString(restriction.asHasValueRestriction().getHasValue());
-				} else if (restriction.isMinCardinalityRestriction()) {
-					property += " min "+restriction.asMinCardinalityRestriction().getMinCardinality();
-				} else if (restriction.isMaxCardinalityRestriction()) {
-					property += " max "+restriction.asMaxCardinalityRestriction().getMaxCardinality();
-				} else if (restriction.isCardinalityRestriction()) {
-					property += " exactly "+restriction.asCardinalityRestriction().getCardinality();
-				} else if (restriction.getProperty(MIN_QUALIFIED_CARDINALITY) != null) {
-					property += " min "+restriction.getProperty(MIN_QUALIFIED_CARDINALITY).getInt();
-					property += " "+ asString(restriction.getProperty(ON_CLASS).getObject());
-				} else if (restriction.getProperty(MAX_QUALIFIED_CARDINALITY) != null) {
-					property += " max "+restriction.getProperty(MAX_QUALIFIED_CARDINALITY).getInt();
-					property += " "+ asString(restriction.getProperty(ON_CLASS).getObject());
-				} else if (restriction.getProperty(EXACT_QUALIFIED_CARDINALITY) != null) {
-					property += " exactly "+restriction.getProperty(EXACT_QUALIFIED_CARDINALITY).getInt();
-					property += " "+ asString(restriction.getProperty(ON_CLASS).getObject());
-				}
-				return property;
-			};
 			
 			var image = getClassImage(s);
 			var axioms = getAxioms(s.listProperties());
@@ -607,9 +609,14 @@ public class OwlDocApp {
 				path, 
 				localName));
 			
-			var c = owlModel.ontModel.getOntClass(iri);
-			var axioms = getAxioms(c.listProperties());
-			var literals = getTerms("rdfs:Literal", c.listEquivalentClasses().toList().get(0).asEnumeratedClass().getOneOf().asJavaList());
+			var listOfLiterals = owlModel.ontModel.listObjectsOfProperty(s, OWL2.equivalentClass).toList().stream()
+					.map(i -> i.asResource())
+					.filter(i -> i.hasProperty(OWL2.oneOf))
+					.flatMap(i -> i.getProperty(OWL2.oneOf).getObject().as(RDFList.class).asJavaList().stream())
+					.collect(Collectors.toList());
+						
+			var axioms = getAxioms(s.listProperties());
+			var literals = getTerms("rdfs:Literal", listOfLiterals);
 			
 			final var content = new StringBuffer(String.format(
 				"""
