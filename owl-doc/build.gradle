@@ -14,6 +14,8 @@ dependencies {
 	implementation "xml-resolver:xml-resolver:${versions.xmlresolver}"
 	implementation "org.apache.jena:jena-rdfconnection:${versions.jena}"
 	implementation "net.sourceforge.plantuml:plantuml:${versions.plantuml}"
+	implementation "org.jsoup:jsoup:${versions.jsoup}"
+	
  }
  
 sourceCompatibility = '17'

@@ -20,17 +20,23 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Deque;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -67,8 +73,13 @@ import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Node;
+import org.jsoup.nodes.TextNode;
 
 import com.beust.jcommander.IParameterValidator;
+import com.beust.jcommander.IStringConverter;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
@@ -79,18 +90,26 @@ import net.sourceforge.plantuml.code.TranscoderUtil;
  * A utility for running a reasoner on the set of ontologies in scope of an OASIS XML catalog.
  */
 public class OwlDocApp {
-  
-	private static final Set<String> extensions = new HashSet<String>(Arrays.asList(
-		"fss", "owl", "rdf", "xml", "n3", "ttl", "rj", "nt", "jsonld", "trig", "trix", "nq"
-	));
-	
-	private final Options options = new Options();
 
 	/**
-	 * default input ontology file extension.
+	 * The default OWL file extensions
 	 */
 	public static final String[] DEFAULT_EXTENSIONS = {"owl", "ttl"};
 
+	private static final List<String> extensions = Arrays.asList(
+		"fss", "owl", "rdf", "xml", "n3", "ttl", "rj", "nt", "jsonld", "trig", "trix", "nq"
+	);
+	
+	private static final String CSS_DEFAULT = "default.css";
+	private static final String CSS_MAIN = "main.css";
+
+	private static final String IMG_ONTOLOGY = "https://help.eclipse.org/latest/topic/org.eclipse.jdt.doc.user/images/org.eclipse.jdt.ui/obj16/package_obj.svg";
+	private static final String IMG_CLASS = "https://help.eclipse.org/latest/topic/org.eclipse.jdt.doc.user/images/org.eclipse.jdt.ui/obj16/methpub_obj.svg";
+	private static final String IMG_DATATYPE = "https://help.eclipse.org/latest/topic/org.eclipse.jdt.doc.user/images/org.eclipse.jdt.ui/obj16/methpri_obj.svg";
+	private static final String IMG_PROPERTY = "https://help.eclipse.org/latest/topic/org.eclipse.jdt.doc.user/images/org.eclipse.jdt.ui/obj16/methpro_obj.svg";
+	private static final String IMG_INDIVIDUAL = "https://help.eclipse.org/latest/topic/org.eclipse.jdt.doc.user/images/org.eclipse.jdt.ui/obj16/field_public_obj.svg";
+	private static final String IMG_ITEM = "https://help.eclipse.org/latest/topic/org.eclipse.jdt.doc.user/images/org.eclipse.jdt.ui/obj16/methdef_obj.svg";
+	
 	private static class Options {
 		@Parameter(
 			names = { "--input-catalog-path", "-c"},
@@ -137,23 +156,33 @@ public class OwlDocApp {
 			names= { "--output-case-sensitive","-s" }, 
 			description="Whether output paths are case sensitive", 
 			help=true, 
-			order=8)
+			order=7)
 		private boolean outputCaseSensitive;
 			
 		@Parameter(
+			names= { "--css-file-path","-css" }, 
+			description="Path of a css file", 
+			converter = URLConverter.class,
+			help=true, 
+			order=8)
+		private URL cssFilePath = OwlDocApp.class.getClassLoader().getResource(CSS_DEFAULT);
+
+		@Parameter(
 			names = {"--debug", "-d"},
 			description = "Shows debug logging statements",
-			order = 9)
+			order=9)
 		private boolean debug;
 		
 		@Parameter(
 			names = {"--help", "-h"},
 			description = "Displays summary of options",
 			help = true,
-			order = 10)
+			order=10)
 		private boolean help;
 	}
-	
+
+	private final Options options = new Options();
+
 	private class OwlModel {
 		private OntModel ontModel;
 		private List<Ontology> ontologies;
@@ -166,13 +195,23 @@ public class OwlDocApp {
 		
 		public OwlModel(OntModel ontModel) {
 			this.ontModel = ontModel;
-			ontologies = sortByIri(ontModel.listOntologies().toList());
+			ontologies = sortByIri(ontModel.listOntologies().filterKeep(i-> hasTerms(i)).toList());
 			classes = sortByName(ontModel.listNamedClasses().toList());
 			datatypes = sortByName(ontModel.listSubjectsWithProperty(RDF.type, RDFS.Datatype).toList());
 			annotationProperties = sortByName(ontModel.listAnnotationProperties().toList());
 			objectProperties = sortByName(ontModel.listObjectProperties().toList());
 			datatypeProperties = sortByName(ontModel.listDatatypeProperties().toList());
 			individuals = sortByName(ontModel.listIndividuals().toList());
+		}
+
+		private boolean hasTerms(Ontology o) {
+			var iri = o.getURI();
+			var resources = ontModel.listResourcesWithProperty(RDF.type)
+					.filterDrop(i -> i.isAnon())
+					.filterKeep(i -> i.getURI().startsWith(iri))
+					.toList();
+			resources.removeIf(i -> ontModel.getOntology(i.getURI()) != null);
+			return !resources.isEmpty();
 		}
 	}
 	
@@ -238,11 +277,13 @@ public class OwlDocApp {
 		OwlModel owlModel = new OwlModel(ontModel);
 		final var outputFiles = new HashMap<File, String>();
 		
+		outputFiles.putAll(copyCssFile());
+		
 		// create output files
-		outputFiles.putAll(generateSummaryFile(owlModel));
 		outputFiles.putAll(generateIndexFile(owlModel));
+		outputFiles.putAll(generateSummaryFile(owlModel));
 		outputFiles.putAll(generateNavigationFile(owlModel));
-		outputFiles.putAll(generateOntologiesFile(owlModel));
+		outputFiles.putAll(generateClassHierarchyFile(owlModel));
 		outputFiles.putAll(generateClassesFile(owlModel));
 		outputFiles.putAll(generateDatatypesFile(owlModel));
 		outputFiles.putAll(generatePropertiesFile(owlModel.annotationProperties, "Annotation Properties"));
@@ -289,37 +330,13 @@ public class OwlDocApp {
 	
 	//----------------------------------------------------------------------------------
 	
-	private Map<File, String> generateSummaryFile(OwlModel owlModel) throws IOException {
-		final var content = new StringBuffer();
-
-		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");  
-	    LocalDateTime now = LocalDateTime.now();  
-	    var timestamp = dtf.format(now);  
-
-		content.append(String.format(
-			"""
-			<html>
-			   <head>
-			      <title>%s</title>
-			   </head>
-			   <body>
-			      <font face="Verdana, Helvetica, sans-serif">
-			         <h2>
-			            %s v%s
-			         </h2>
-			         <p><i>Updated on: %s</i></p>
-			         <hr>
-			      </font>
-			   </body>
-			</html>
-			""",
-			options.inputCatalogTitle,
-			options.inputCatalogTitle,
-			options.inputCatalogVersion,
-			timestamp));
-				
-		final var file = new File(options.outputFolderPath+File.separator+"summary.html").getCanonicalFile();
-		return Collections.singletonMap(file, content.toString());
+	private Map<File, String> copyCssFile() throws IOException {
+		var inputStream = options.cssFilePath.openStream();
+		 Scanner s = new Scanner(inputStream);
+		 String content = s.useDelimiter("\\A").hasNext() ? s.next() : "";
+		 s.close();
+		var file = new File(options.outputFolderPath+File.separator+CSS_MAIN);
+		return Collections.singletonMap(file, content);
 	}
 	
 	private Map<File, String> generateIndexFile(OwlModel owlModel) throws IOException {
@@ -330,20 +347,11 @@ public class OwlDocApp {
 			<html>
 			   <head>
 			      <title>Ontology Documentation</title>
-			      <script type="text/javascript">
-			         targetPage = "" + window.location.search;
-			         if (targetPage != "" && targetPage != "undefined")
-			             targetPage = targetPage.substring(1);
-			         function loadFrames() {
-			             if (targetPage != "" && targetPage != "undefined")
-			                 top.mainFrame.location = top.targetPage;
-			         }
-			      </script>
 			   </head>
 			   <frameset cols="30%,70%" title="" onLoad="top.loadFrames()">
 			      <frameset rows="40%,60%" title="" onLoad="top.loadFrames()">
 			         <frame src="navigation.html" title="Navigation">
-			         <frame src="ontologies.html" name="navigationFrame" title="Elements">
+			         <frame src="classes.html" name="navigationFrame" title="Elements">
 			      </frameset>
 			      <frame src="summary.html" name="mainFrame" title="Details" scrolling="yes"/>
 			   </frameset>
@@ -353,97 +361,120 @@ public class OwlDocApp {
 		final var file = new File(options.outputFolderPath+File.separator+"index.html").getCanonicalFile();
 		return Collections.singletonMap(file, content.toString());
 	}
-	
-	private Map<File, String> generateNavigationFile(OwlModel owlModel) throws IOException {
+
+	private Map<File, String> generateSummaryFile(OwlModel owlModel) throws IOException {
 		final var content = new StringBuffer();
-		
-		content.append(
+		final var path = options.outputFolderPath+File.separator+"summary.html";
+
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");  
+	    LocalDateTime now = LocalDateTime.now();  
+	    var timestamp = dtf.format(now);  
+
+		content.append(String.format(
 			"""
 			<html>
-			   <head></head>
-			   <body style="background-image: url(icons/WatermarkRight.gif);  background-position: 100% 100%; background-repeat: no-repeat">
-			      <font face="Verdana, Helvetica, sans-serif">
-			         <p><b>Navigation</b></p>
-			         <font size="-1">
-			         &nbsp;<a href="summary.html" target="mainFrame">Summary</a><br>
-			         &nbsp;<a href="ontologies.html" target="navigationFrame">Ontologies</a><br>
-			         &nbsp;<a href="classes.html" target="navigationFrame">Classes</a><br>
-			         &nbsp;<a href="datatypes.html" target="navigationFrame">Datatypes</a><br>
-			         &nbsp;<a href="annotation_Properties.html" target="navigationFrame">Annotation Properties</a><br>
-			         &nbsp;<a href="datatype_Properties.html" target="navigationFrame">Datatype Properties</a><br>
-			         &nbsp;<a href="object_Properties.html" target="navigationFrame">Object Properties</a><br>
-			         &nbsp;<a href="individuals.html" target="navigationFrame">Individuals</a><br>
-			         </font>
-			      </font>
+			   <head>
+			      <title>%s</title>
+			      <link rel="stylesheet" href="%s">
+			   </head>
+			   <body>
+		          <h1>%s v%s</h1>
+		          <p class="date">Updated on: %s</p>
+		          <hr>
 			   </body>
-			</html>			
-			""");
-		
-		final var file = new File(options.outputFolderPath+File.separator+"navigation.html").getCanonicalFile();
+			</html>
+			""",
+			options.inputCatalogTitle,
+			getRelativeCSSPath(path),
+			options.inputCatalogTitle,
+			options.inputCatalogVersion,
+			timestamp));
+				
+		final var file = new File(path).getCanonicalFile();
 		return Collections.singletonMap(file, content.toString());
 	}
-
-	private Map<File, String> generateOntologiesFile(OwlModel owlModel) throws IOException {
+	
+	private Map<File, String> generateNavigationFile(OwlModel owlModel) throws IOException {
 		final var files = new HashMap<File, String>();
+		final var path = options.outputFolderPath+File.separator+"navigation.html";
 		final var elements = new StringBuffer();
 
 		for (var s : owlModel.ontologies) {
 			var iri = s.getURI();
 			var uri = URI.create(iri);
             var relativePath = uri.getAuthority()+uri.getPath()+hashCode(iri);
-            var path = options.outputFolderPath+File.separator+relativePath+".html";
+            var path1 = options.outputFolderPath+File.separator+relativePath+"_1.html";
+            var path2 = options.outputFolderPath+File.separator+relativePath+"_2.html";
 			elements.append(String.format(
 				"""
 				<tr>
-				   <td><img border="0" src="icons/OWLOntology.greyed.gif" width="16" height="16"></td>
-				   <td nowrap="nowrap"><font size="-1"><a href="%s" target="mainFrame">%s</a></font></td>
+				   <td><img border="0" src="%s" width="16" height="16"></td>
+				   <td nowrap="nowrap"><a href="%s" target="navigationFrame">%s</a></td>
 				</tr>
 				""", 
-				path, 
+				IMG_ONTOLOGY,
+				path1, 
 				iri));
 			
 			var axioms = getAxioms(s.listProperties());
-			var classes = getTerms("owl:Class", iri, owlModel.classes);
-			var datatypes = getTerms("rdfs:Datatype", iri, owlModel.datatypes);
-			var annotationProperties = getTerms("owl:AnnotationProperty", iri, owlModel.annotationProperties);
-			var datatypeProperties = getTerms("owl:DatatypeProperty", iri, owlModel.datatypeProperties);
-			var objectProperties = getTerms("owl:ObjectProperty", iri, owlModel.objectProperties);
-			var individuals = getTerms("owl:NamedIndividual", iri, owlModel.individuals);
+			var classes = getTerms("Classes", iri, IMG_CLASS, owlModel.classes);
+			var datatypes = getTerms("Datatypes", iri, IMG_DATATYPE, owlModel.datatypes);
+			var annotationProperties = getTerms("Annotation Properties", iri, IMG_PROPERTY, owlModel.annotationProperties);
+			var datatypeProperties = getTerms("Datatype Properties", iri, IMG_PROPERTY, owlModel.datatypeProperties);
+			var objectProperties = getTerms("Object Properties", iri, IMG_PROPERTY, owlModel.objectProperties);
+			var individuals = getTerms("Individuals", iri, IMG_INDIVIDUAL, owlModel.individuals);
 			
-			final var content = new StringBuffer(String.format(
-				"""
-				<html>
-				   <head>
-				      <title>%s</title>
-				   </head>
-				   <body>
-				      <font face="Verdana, Helvetica, sans-serif">
-				         <h2>
-				            Ontology %s
-				         </h2>
-				         <hr>
-				         %s
-				         %s
-				         %s
-				         %s
-				         %s
-				         %s
-				         %s
-				      </font>
-				   </body>
-				</html>
-				""",
-				iri,
-				iri,
-				axioms,
-				classes,
-				datatypes,
-				annotationProperties,
-				objectProperties,
-				datatypeProperties,
-				individuals
-			));
-			files.put(new File(path).getCanonicalFile(), content.toString());
+			final var content1 = new StringBuffer(String.format(
+					"""
+					<html>
+					   <head>
+					      <title>%s</title>
+						  <link rel="stylesheet" href="%s">
+					   </head>
+					   <body>
+					      <p><a href="%s" target="mainFrame">%s</a></p>
+						  %s
+						  %s
+						  %s
+						  %s
+						  %s
+						  %s
+					   </body>
+					</html>
+					""",
+					iri,
+					getRelativeCSSPath(path1),
+					path2,
+					iri,
+					classes,
+					datatypes,
+					annotationProperties,
+					datatypeProperties,
+					objectProperties,
+					individuals
+				));
+				files.put(new File(path1).getCanonicalFile(), content1.toString());
+
+				final var content2 = new StringBuffer(String.format(
+					"""
+					<html>
+					   <head>
+					      <title>%s</title>
+						  <link rel="stylesheet" href="%s">
+					   </head>
+					   <body>
+						  <h3>Ontology %s</h3>
+					      <hr>
+					      %s
+					   </body>
+					</html>
+					""",
+					iri,
+					getRelativeCSSPath(path2),
+					iri,
+					axioms
+				));
+				files.put(new File(path2).getCanonicalFile(), content2.toString());
 		};
 
 		String content = String.format(
@@ -451,28 +482,37 @@ public class OwlDocApp {
 			<html>
 			   <head>
 			      <title>Ontologies</title>
+				  <link rel="stylesheet" href="%s">
 			   </head>
 			   <body>
-			      <font face="Verdana, Helvetica, sans-serif">
-			         <p><b>Ontologies</b></p>
+			         <h3>Index</h3>
+			         &nbsp;<a href="class-hierarchy.html" target="navigationFrame">Class Hierarchy</a><br>
+			         &nbsp;<a href="classes.html" target="navigationFrame">All Classes</a><br>
+			         &nbsp;<a href="datatypes.html" target="navigationFrame">All Datatypes</a><br>
+			         &nbsp;<a href="annotation_Properties.html" target="navigationFrame">All Annotation Properties</a><br>
+			         &nbsp;<a href="datatype_Properties.html" target="navigationFrame">All Datatype Properties</a><br>
+			         &nbsp;<a href="object_Properties.html" target="navigationFrame">All Object Properties</a><br>
+			         &nbsp;<a href="individuals.html" target="navigationFrame">All Individuals</a><br>
+			         <h3>Ontologies</h3>
 			         <table>
 			            <tbody>
 								%s
 			            </tbody>
 			         </table>
-			      </font>
 			   </body>
 			</html>
 			""", 
+			getRelativeCSSPath(path),
 			elements.toString().replaceAll("\n", "\n\t\t\t\t\t")); 
 
-		final var file = new File(options.outputFolderPath+File.separator+"ontologies.html").getCanonicalFile();
+		final var file = new File(path).getCanonicalFile();
 		files.put(file, content.toString());
 		return files;
 	}
 
 	private Map<File, String> generateClassesFile(OwlModel owlModel) throws IOException {
 		final var files = new HashMap<File, String>();
+		final var path = options.outputFolderPath+File.separator+"classes.html";
 		final var elements = new StringBuffer();
 
 		Function<Restriction, Resource> qualifiedType = i -> {
@@ -515,45 +555,49 @@ public class OwlDocApp {
 			var iri = s.getURI();
 			var uri = URI.create(iri);
             var relativePath = uri.getAuthority()+uri.getPath()+(uri.getFragment() == null ? "" : File.separator+uri.getFragment())+hashCode(iri);
-            var path = options.outputFolderPath+File.separator+relativePath+".html";
+            var path1 = options.outputFolderPath+File.separator+relativePath+".html";
 			elements.append(String.format(
 				"""
 				<tr>
-					<td><img border="0" src="icons/OWLNamedClassDefined.gif" width="16" height="16"></td>
-					<td nowrap="nowrap"><font size="-1"><a href="%s" target="mainFrame">%s</a></font></td>
+					<td><img border="0" src="%s" width="16" height="16"></td>
+					<td nowrap="nowrap"><a href="%s" target="mainFrame">%s</a></td>
 				</tr>
-				""", 
-				path, 
+				""",
+				IMG_CLASS,
+				path1, 
 				localName));
 			
 			var image = getClassImage(s);
 			var axioms = getAxioms(s.listProperties());
-			var superClasses = getTerms("rdfs:superClassOf", sortByAbbreviatedIri(s.listSubClasses(true).toList()));
-			var properties = getTerms("rdfs:Property", sortByAbbreviatedIri(owlModel.ontModel.listSubjectsWithProperty(RDFS.domain, s).toList()), i -> asString(i)+" : "+asString(((OntProperty)i).listRange().toList()));
-			var restrictedProperties = getTerms("owl:Restriction", s.listSuperClasses(true).filterKeep(i -> i.isRestriction()).mapWith(i -> i.asRestriction()).toList(), restrictionFunc);
+			var superClasses = getNodes("rdfs:superClassOf", IMG_CLASS, s.listSubClasses(true).toList());
+			var properties = getNodes("owl:domainOf", owlModel.ontModel.listSubjectsWithProperty(RDFS.domain, s).toList(), IMG_PROPERTY, i -> asString(i)+" : "+asString(owlModel.ontModel.getOntProperty(i.asResource().getURI()).listRange().toList()));
+			var restrictedProperties = getNodes("owl:restrictionOn", s.listSuperClasses(true).filterKeep(i -> i.isRestriction()).mapWith(i -> i.asRestriction()).toList(), IMG_PROPERTY, restrictionFunc);
 			final var content = new StringBuffer(String.format(
 				"""
 				<html>
 				   <head>
 				      <title>%s</title>
+					  <link rel="stylesheet" href="%s">
 				   </head>
+				   <script>
+				   function Copy() {
+				      navigator.clipboard.writeText(document.location.href)
+				   }
+				   </script>
 				   <body>
-				      <font face="Verdana, Helvetica, sans-serif">
-				         <h2>
-				            <font size="-1">%s</font><br>
-				            Class %s
-				         </h2>
-				         <img src="http://www.plantuml.com/plantuml/svg/%s"/>
-				         <hr>
-				         %s
-				         %s
-				         %s
-				         %s
-				      </font>
+					  <button onclick="Copy()">URL</button>
+			          <h2><font size="-1">%s</font><br>Class %s</h2>
+			          <img src="http://www.plantuml.com/plantuml/svg/%s"/>
+			          <hr>
+			          %s
+			          %s
+			          %s
+			          %s
 				   </body>
 				</html>
 				""",
 				abbreviatedIri(s),
+				getRelativeCSSPath(path1),
 				iri,
 				abbreviatedIri(s),
 				image,
@@ -561,36 +605,104 @@ public class OwlDocApp {
 				superClasses,
 				properties,
 				restrictedProperties));
-			files.put(new File(path).getCanonicalFile(), content.toString());
+			files.put(new File(path1).getCanonicalFile(), content.toString());
 		};
 
 		String content = String.format(
 			"""
 			<html>
 			   <head>
-			      <title>Classes</title>
+			      <title>All Classes</title>
+				  <link rel="stylesheet" href="%s">
 			   </head>
 			   <body>
-			      <font face="Verdana, Helvetica, sans-serif">
-			         <p><b>Classes</b></p>
-			         <table>
-			            <tbody>
-								%s
-			            </tbody>
-			         </table>
-			      </font>
+		          <h3>All Classes</h3>
+		          <table>
+		             <tbody>
+			 				%s
+		             </tbody>
+		          </table>
 			   </body>
 			</html>
-			""", 
+			""",
+			getRelativeCSSPath(path),
 			elements.toString().replaceAll("\n", "\n\t\t\t\t\t")); 
 
-		final var file = new File(options.outputFolderPath+File.separator+"classes.html").getCanonicalFile();
+		final var file = new File(path).getCanonicalFile();
 		files.put(file, content.toString());
 		return files;
 	}
 
+	private Map<File, String> generateClassHierarchyFile(OwlModel owlModel) throws IOException {
+		final var path = options.outputFolderPath+File.separator+"class-hierarchy.html";
+		final var elements = new StringBuffer();
+
+        Deque<OntClass> stack = new ArrayDeque<>();
+        Map<OntClass, Integer> levels = new HashMap<>();
+        stack.addAll(owlModel.ontModel.listHierarchyRootClasses().filterDrop(i -> i.isAnon()).toList());
+        stack.forEach(i -> levels.put(i, 0));
+
+        while (!stack.isEmpty()) {
+        	OntClass aClass = stack.pop();
+
+        	StringBuffer spaces = new StringBuffer();
+            int indentLevel = levels.get(aClass);
+            for (int i = 0; i < indentLevel; i++) {
+                spaces.append("&nbsp;&nbsp;&nbsp;&nbsp;");
+            }
+
+			var iri = aClass.getURI();
+			var uri = URI.create(iri);
+            var relativePath = uri.getAuthority()+uri.getPath()+hashCode(iri);
+            var path1 = options.outputFolderPath+File.separator+relativePath+".html";
+			elements.append(String.format(
+				"""
+				<tr>
+				   <td>%s<img border="0" src="%s" width="16" height="16">&nbsp;<a href="%s" target="navigationFrame">%s</a></td>
+				</tr>
+				""",
+				spaces.toString(),
+				IMG_CLASS,
+				path1, 
+				asLocalName(aClass)));
+
+            List<OntClass> subClasses = aClass.listSubClasses(true).toList();
+
+            for (OntClass subClass : subClasses) {
+                if (subClass.listSubClasses().hasNext()) {
+                    stack.push(subClass);
+                    levels.put(subClass, indentLevel+1);
+                }
+            }
+        }
+
+        final var contents = String.format(
+			"""
+			<html>
+			   <head>
+			      <title>Class Hierarchy</title>
+				  <link rel="stylesheet" href="%s">
+			   </head>
+			   <body>
+		          <h3>Class Hierarchy</h3>
+		          <table>
+		             <tbody>
+			 				%s
+		             </tbody>
+		          </table>
+			   </body>
+			</html>
+			""",
+			getRelativeCSSPath(path),
+			elements.toString().replaceAll("\n", "\n\t\t\t\t\t")); 
+		
+		final var file = new File(path).getCanonicalFile();
+		return Collections.singletonMap(file, contents.toString());
+	}
+	
 	private Map<File, String> generateDatatypesFile(OwlModel owlModel) throws IOException {
 		final var files = new HashMap<File, String>();
+		final var path = options.outputFolderPath+File.separator+"datatypes.html";
 		final var elements = new StringBuffer();
 
 		for (var s : owlModel.datatypes) {
@@ -598,15 +710,16 @@ public class OwlDocApp {
 			var iri = s.getURI();
 			var uri = URI.create(iri);
             var relativePath = uri.getAuthority()+uri.getPath()+(uri.getFragment() == null ? "" : File.separator+uri.getFragment())+hashCode(iri);
-            var path = options.outputFolderPath+File.separator+relativePath+".html";
+            var path1 = options.outputFolderPath+File.separator+relativePath+".html";
 			elements.append(String.format(
 				"""
 				<tr>
-					<td><img border="0" src="icons/OWLNamedDatatypeDefined.gif" width="16" height="16"></td>
-					<td nowrap="nowrap"><font size="-1"><a href="%s" target="mainFrame">%s</a></font></td>
+					<td><img border="0" src="%s" width="16" height="16"></td>
+					<td nowrap="nowrap"><a href="%s" target="mainFrame">%s</a></td>
 				</tr>
-				""", 
-				path, 
+				""",
+				IMG_DATATYPE,
+				path1, 
 				localName));
 			
 			var listOfLiterals = owlModel.ontModel.listObjectsOfProperty(s, OWL2.equivalentClass).toList().stream()
@@ -616,62 +729,60 @@ public class OwlDocApp {
 					.collect(Collectors.toList());
 						
 			var axioms = getAxioms(s.listProperties());
-			var literals = getTerms("rdfs:Literal", listOfLiterals);
+			var literals = getNodes("rdf:typeOf", IMG_ITEM, listOfLiterals);
 			
 			final var content = new StringBuffer(String.format(
 				"""
 				<html>
 				   <head>
 				      <title>%s</title>
+					  <link rel="stylesheet" href="%s">
 				   </head>
 				   <body>
-				      <font face="Verdana, Helvetica, sans-serif">
-				         <h2>
-				            <font size="-1">%s</font><br>
-				            Datatype %s
-				         </h2>
-				         <hr>
-				         %s
-				         %s
-				      </font>
+			          <h2><font size="-1">%s</font><br>Datatype %s</h2>
+			          <hr>
+			          %s
+			          %s
 				   </body>
 				</html>
 				""",
 				abbreviatedIri(s),
+				getRelativeCSSPath(path1),
 				iri,
 				abbreviatedIri(s),
 				axioms,
 				literals));
-			files.put(new File(path).getCanonicalFile(), content.toString());
+			files.put(new File(path1).getCanonicalFile(), content.toString());
 		};
 
 		String content = String.format(
 			"""
 			<html>
 			   <head>
-			      <title>Datatypes</title>
+			      <title>All Datatypes</title>
+				  <link rel="stylesheet" href="%s">
 			   </head>
 			   <body>
-			      <font face="Verdana, Helvetica, sans-serif">
-			         <p><b>Datatypes</b></p>
-			         <table>
-			            <tbody>
-								%s
-			            </tbody>
-			         </table>
-			      </font>
+		          <h3>All Datatypes</h3>
+		          <table>
+		             <tbody>
+			 				%s
+		             </tbody>
+		          </table>
 			   </body>
 			</html>
 			""", 
+			getRelativeCSSPath(path),
 			elements.toString().replaceAll("\n", "\n\t\t\t\t\t")); 
 
-		final var file = new File(options.outputFolderPath+File.separator+"datatypes.html").getCanonicalFile();
+		final var file = new File(path).getCanonicalFile();
 		files.put(file, content.toString());
 		return files;
 	}
 
 	private Map<File, String> generatePropertiesFile(List<? extends OntProperty> properties, String title) throws IOException {
 		final var files = new HashMap<File, String>();
+		final var path = options.outputFolderPath+File.separator+title.replace(' ', '_').toLowerCase()+".html";
 		final var elements = new StringBuffer();
 
 		for (var s : properties) {
@@ -679,15 +790,16 @@ public class OwlDocApp {
 			var iri = s.getURI();
 			var uri = URI.create(iri);
             var relativePath = uri.getAuthority()+uri.getPath()+(uri.getFragment() == null ? "" : File.separator+uri.getFragment())+hashCode(iri);
-            var path = options.outputFolderPath+File.separator+relativePath+".html";
+            var path1 = options.outputFolderPath+File.separator+relativePath+".html";
 			elements.append(String.format(
 				"""
 				<tr>
-					<td><img border="0" src="icons/OWLNamedPropertyDefined.gif" width="16" height="16"></td>
-					<td nowrap="nowrap"><font size="-1"><a href="%s" target="mainFrame">%s</a></font></td>
+					<td><img border="0" src="%s" width="16" height="16"></td>
+					<td nowrap="nowrap"><a href="%s" target="mainFrame">%s</a></td>
 				</tr>
-				""", 
-				path, 
+				""",
+				IMG_PROPERTY,
+				path1, 
 				localName));
 			var axioms = getAxioms(s.listProperties());
 			final var content = new StringBuffer(String.format(
@@ -695,55 +807,53 @@ public class OwlDocApp {
 				<html>
 				   <head>
 				      <title>%s</title>
+				      <link rel="stylesheet" href="%s">
 				   </head>
 				   <body>
-				      <font face="Verdana, Helvetica, sans-serif">
-				         <h2>
-				            <font size="-1">%s</font><br>
-				            Property %s
-				         </h2>
-				         <hr>
-				         %s
-				      </font>
+			          <h3><font size="-1">%s</font><br>Property %s</h3>
+			          <hr>
+			          %s
 				   </body>
 				</html>
 				""",
 				abbreviatedIri(s),
+				getRelativeCSSPath(path1),
 				iri,
 				abbreviatedIri(s),
 				axioms));
-			files.put(new File(path).getCanonicalFile(), content.toString());
+			files.put(new File(path1).getCanonicalFile(), content.toString());
 		};
 
 		String content = String.format(
 			"""
 			<html>
 			   <head>
-			      <title>%s</title>
+			      <title>All %s</title>
+				  <link rel="stylesheet" href="%s">
 			   </head>
 			   <body>
-			      <font face="Verdana, Helvetica, sans-serif">
-			         <p><b>%s</b></p>
-			         <table>
-			            <tbody>
-								%s
-			            </tbody>
-			         </table>
-			      </font>
+		          <h2>All %s</h2>
+		          <table>
+		             <tbody>
+			 				%s
+		             </tbody>
+		          </table>
 			   </body>
 			</html>
 			""",
 			title,
+			getRelativeCSSPath(path),
 			title,
 			elements.toString().replaceAll("\n", "\n\t\t\t\t\t")); 
 
-		final var file = new File(options.outputFolderPath+File.separator+title.replace(' ', '_').toLowerCase()+".html").getCanonicalFile();
+		final var file = new File(path).getCanonicalFile();
 		files.put(file, content.toString());
 		return files;
 	}
 
 	private Map<File, String> generateIndividualsFile(OwlModel owlModel) throws IOException {
 		final var files = new HashMap<File, String>();
+		final var path = options.outputFolderPath+File.separator+"individuals.html";
 		final var elements = new StringBuffer();
 
 		for (var s : owlModel.individuals) {
@@ -751,15 +861,16 @@ public class OwlDocApp {
 			var iri = s.getURI();
 			var uri = URI.create(iri);
             var relativePath = uri.getAuthority()+uri.getPath()+(uri.getFragment() == null ? "" : File.separator+uri.getFragment())+hashCode(iri);
-            var path = options.outputFolderPath+File.separator+relativePath+".html";
+            var path1 = options.outputFolderPath+File.separator+relativePath+".html";
 			elements.append(String.format(
 				"""
 				<tr>
-					<td><img border="0" src="icons/OWLNamedIndividualDefined.gif" width="16" height="16"></td>
-					<td nowrap="nowrap"><font size="-1"><a href="%s" target="mainFrame">%s</a></font></td>
+					<td><img border="0" src="%s" width="16" height="16"></td>
+					<td nowrap="nowrap"><a href="%s" target="mainFrame">%s</a></td>
 				</tr>
-				""", 
-				path, 
+				""",
+				IMG_INDIVIDUAL,
+				path1, 
 				localName));
 			var axioms = getAxioms(s.listProperties());
 			final var content = new StringBuffer(String.format(
@@ -767,192 +878,206 @@ public class OwlDocApp {
 				<html>
 				   <head>
 				      <title>%s</title>
+				      <link rel="stylesheet" href="%s">
 				   </head>
 				   <body>
-				      <font face="Verdana, Helvetica, sans-serif">
-				         <h2>
-				            <font size="-1">%s</font><br>
-				            Individual %s
-				         </h2>
-				         <hr>
-				         %s
-				      </font>
+			          <h3><font size="-1">%s</font><br>Individual %s</h3>
+			          <hr>
+			          %s
 				   </body>
 				</html>
 				""",
 				abbreviatedIri(s),
+				getRelativeCSSPath(path1),
 				iri,
 				abbreviatedIri(s),
 				axioms));
-			files.put(new File(path).getCanonicalFile(), content.toString());
+			files.put(new File(path1).getCanonicalFile(), content.toString());
 		};
 
 		String content = String.format(
 			"""
 			<html>
 			   <head>
-			      <title>Individuals</title>
+			      <title>All Individuals</title>
+				  <link rel="stylesheet" href="%s">
 			   </head>
 			   <body>
-			      <font face="Verdana, Helvetica, sans-serif">
-			         <p><b>Individuals</b></p>
-			         <table>
-			            <tbody>
-								%s
-			            </tbody>
-			         </table>
-			      </font>
+		          <h2>All Individuals</h2>
+		          <table>
+		             <tbody>
+			 				%s
+		             </tbody>
+		          </table>
 			   </body>
 			</html>
 			""", 
+			getRelativeCSSPath(path),
 			elements.toString().replaceAll("\n", "\n\t\t\t\t\t")); 
 
-		final var file = new File(options.outputFolderPath+File.separator+"individuals.html").getCanonicalFile();
+		final var file = new File(path).getCanonicalFile();
 		files.put(file, content.toString());
 		return files;
 	}
 
 	private String getAxioms(StmtIterator i) {
-		var statements = new TreeMap<Property, Set<RDFNode>>(new Comparator<Property>() {
+		var propertyToValues = new TreeMap<Property, Set<RDFNode>>(new Comparator<Property>() {
 			@Override
 			public int compare(Property o1, Property o2) {
-				return o1.toString().compareTo(o2.toString());
+				return o1.getURI().compareTo(o2.getURI());
 			}
 		});
 				
 		while (i.hasNext()) {
 			var stmt = i.next();
-			var predicate = stmt.getPredicate();
+			var property = stmt.getPredicate();
 			var object = stmt.getObject();
 			if (!object.isAnon()) {
-				var objects = statements.get(predicate);
-				if (objects == null) {
-					statements.put(predicate, objects = new TreeSet<RDFNode>(new Comparator<RDFNode>() {
+				var values = propertyToValues.get(property);
+				if (values == null) {
+					propertyToValues.put(property, values = new TreeSet<RDFNode>(new Comparator<RDFNode>() {
 						@Override
 						public int compare(RDFNode o1, RDFNode o2) {
 							return o1.toString().compareTo(o2.toString());
 						}
 					}));
 				}
-				objects.add(object);
+				values.add(object);
 			}
 		}
 		
-		var properties = new StringBuffer();
+		var axioms = new StringBuffer();
 
-		for (var predicate : statements.keySet()) {
-			var objects = new StringBuffer();
-			for (var object : statements.get(predicate)) {
-				objects.append(String.format(
-					"""
-		            <tr>
-		               <td valign="TOP">
-		                  <img border="0" src="icons/RDFSClass.greyed.gif" width="16" height="16">
-		               </td>
-		               <td>
-		                  <font size="-1">%s</font>
-		               </td>
-		            </tr>
-					""",
-					asString(object)
-				));
+		for (var property : propertyToValues.keySet()) {
+			var values = propertyToValues.get(property);
+			if (!values.isEmpty()) {
+				axioms.append(getNodes(abbreviatedIri(property), IMG_ITEM, values));
 			}
-			properties.append(String.format(
+		}
+		
+		return axioms.toString();
+	}
+
+	private String getTerms(String title, String ontologyIri, String image, Collection<? extends Resource> terms) {
+		var ontoloyTerms = terms.stream()
+				.filter(i -> i.getURI().startsWith(ontologyIri))
+				.collect(Collectors.toList());
+
+		var table = getTable(ontoloyTerms, image, i -> asLocalName((Resource)i));
+
+		return ontoloyTerms.isEmpty() ? "" : String.format(
 				"""
-				<b><font size="-1">%s</font></b>
+				<h3>%s</h3>
+				%s
+				""",
+				title,
+				table);
+	}
+
+	private String getNodes(String title, String image, Collection<? extends RDFNode> terms) {
+		return getNodes(title, terms, image, i -> asString(i));
+	}
+
+	private String getNodes(String title, Collection<? extends RDFNode> terms, String image, Function<RDFNode, String> getLabel) {
+		var table = getTable(terms, image, getLabel);
+		return terms.isEmpty() ? "" : String.format(
+				"""
+				<h3>%s</h3>
 				<dl>
 				   <dd>
-				      <table>
-				         <tbody>
-				            %s
-				         </tbody>
-				      </table>
+				     %s
 				   </dd>
 				</dl>
 				""",
-				abbreviatedIri(predicate),
-				objects
-			));
-		}
-		
-		return properties.toString();
+				title,
+				table);
 	}
 
-	private String getTerms(String title, String ontologyIri, List<? extends Resource> resources) {
-		return getTerms(title, ontologyIri, resources, i -> asString(i));
-	}
-	
-	private String getTerms(String title, String ontologyIri, List<? extends Resource> resources, Function<RDFNode, String> getLabel) {
-		var terms = sortByName(resources).stream()
-				.filter(i -> i.getURI().startsWith(ontologyIri))
-				.collect(Collectors.toList());
-		return getTerms(title, terms, getLabel);
-	}
-
-	private String getTerms(String title, List<? extends RDFNode> terms) {
-		return getTerms(title, terms, i -> asString(i));
-	}
-
-	private String getTerms(String title, List<? extends RDFNode> terms, Function<RDFNode, String> getLabel) {
+	private String getTable(Collection<? extends RDFNode> nodes, String image, Function<RDFNode, String> getLabel) {
 		var s = new StringBuffer();
-		for (var term : terms) {
+		for (var node : sortNodes(nodes, getLabel)) {
 			s.append(String.format(
 				"""
 	            <tr>
 	               <td valign="TOP">
-	                  <img border="0" src="icons/RDFSClass.greyed.gif" width="16" height="16">
+	                  <img border="0" src="%s" width="16" height="16">
 	               </td>
 	               <td>
-	                  <font size="-1">%s</font>
+	                 %s
 	               </td>
 	            </tr>
 				""",
-				getLabel.apply(term)
+				image,
+				getLabel.apply(node)
 			));
 		}
 		return s.length() == 0 ? "" : String.format(
 			"""
-			<b><font size="-1">%s</font></b>
-			<dl>
-			   <dd>
-			      <table>
-			         <tbody>
-			            %s
-			         </tbody>
-			      </table>
-			   </dd>
-			</dl>
-			""", title, s);
+		    <table>
+			   <tbody>
+		            %s
+		       </tbody>
+			</table>
+			<p/>
+			""", s);
 	}
 
-	private static String getClassImage(OntClass ontClass) {
-		var superClasses = String.join(",", ontClass.listSuperClasses(true).mapWith(i -> i.getLocalName()).filterKeep(i -> i != null) .toList());
-		return plantUmlImage(String.format(
-			"""
-			class %s %s {}
-			""",
-			ontClass.getLocalName(),
-			superClasses.length()>0 ? "extends "+superClasses : ""));
+	private String getClassImage(OntClass ontClass) {
+		String thisClass = String.format(
+				"""
+				class %s [[%s]]
+				""",
+				ontClass.getLocalName(),
+				path(ontClass.getURI()));
+		
+		
+		var superClasses = String.join("\n", ontClass.listSuperClasses(true).filterKeep(i -> i != null).mapWith(i -> String.format(
+				"""
+				class %s [[%s]]
+				%s -up-|> %s
+				""",
+				i.getLocalName(),
+				path(ontClass.getURI()),
+				ontClass.getLocalName(),
+				i.getLocalName()
+		)).toList());
+
+		var subClasses = String.join("\n", ontClass.listSubClasses(true).filterKeep(i -> i != null).mapWith(i -> String.format(
+				"""
+				class %s [[%s]]
+				hide %s members
+				%s -up-|> %s
+				""",
+				i.getLocalName(),
+				path(ontClass.getURI()),
+				i.getLocalName(),
+				i.getLocalName(),
+				ontClass.getLocalName()
+		)).toList());
+
+		return plantUmlImage(thisClass+superClasses+subClasses);
 	}
 	
 	//----------------------------------------------------------------------------------
 
-	private static <T extends Resource> List<T> sortByIri(List<T> resources) {
-		var filtered = resources.stream().filter(i -> !i.isAnon()).collect(Collectors.toList());
-		filtered.sort((x1, x2) -> x1.getURI().compareTo(x2.getURI()));
-		return filtered;
+	private static <T extends RDFNode> List<T> sortNodes(Collection<T> nodes, Function<RDFNode, String> getLabel) {
+		var sorted = new ArrayList<>(nodes);
+		sorted.sort((x1, x2) -> getLabel.apply(x1).compareTo(getLabel.apply(x2)));
+		return sorted;
 	}
-	
-	private static <T extends Resource> List<T> sortByName(List<T> resources) {
+
+	private static <T extends Resource> List<T> sortResourcesi(List<T> resources, Function<RDFNode, String> getLabel) {
 		var filtered = resources.stream().filter(i -> !i.isAnon()).collect(Collectors.toList());
-		filtered.sort((x1, x2) -> localName(x1).compareTo(localName(x2)));
+		filtered.sort((x1, x2) -> getLabel.apply(x1).compareTo(getLabel.apply(x2)));
 		return filtered;
 	}
 
-	private static <T extends Resource> List<T> sortByAbbreviatedIri(List<T> resources) {
-		var filtered = resources.stream().filter(i -> !i.isAnon()).collect(Collectors.toList());
-		filtered.sort((x1, x2) -> abbreviatedIri(x1).compareTo(abbreviatedIri(x2)));
-		return filtered;
+	private static <T extends Resource> List<T> sortByIri(List<T> resources) {
+		return sortResourcesi(resources, i -> ((Resource)i).getURI());
+	}
+
+	private static <T extends Resource> List<T> sortByName(List<T> resources) {
+		return sortResourcesi(resources, i -> localName((Resource)i));
 	}
 
 	private static final Pattern LINK = Pattern.compile("\\{\\{([^\\s\\}]+)\s*(.*?)\\}\\}");
@@ -1018,7 +1143,15 @@ public class OwlDocApp {
 			var label = qname.equals(iri)? iri : qname;
 			return isStandard(qname) ? label : String.format("<a href=\"%s\">%s</a>", path, label); 
 		}
-		return replaceLinks(node.toString(), (OntModel)node.getModel());
+		return replaceLinks(wrapUntaggedTextWithPreTag(node.toString()), (OntModel)node.getModel());
+	}
+
+	private String asLocalName(Resource resource) {
+		var iri = resource.getURI();
+        var path = path(iri);
+		var qname = abbreviatedIri(resource);
+		var label = resource.getLocalName();
+		return isStandard(qname) ? label : String.format("<a href=\"%s\" target=\"mainFrame\">%s</a>", path, label); 
 	}
 
 	private String asString(List<? extends RDFNode> nodes) {
@@ -1069,6 +1202,34 @@ public class OwlDocApp {
 		return (index != -1) ? iri.substring(0, index+1) : resource.getNameSpace();
 	}
 
+    public static String wrapUntaggedTextWithPreTag(String html) {
+        Document document = Jsoup.parseBodyFragment(html);
+        StringBuilder processedHtml = new StringBuilder();
+
+        if (document.body().childNodes().size() == 1) {
+        	return html;
+        }
+        
+        for (Node node : document.body().childNodes()) {
+            if (node instanceof TextNode) {
+                String untaggedText = ((TextNode)node).getWholeText();
+                if (!untaggedText.isEmpty()) {
+                    processedHtml.append("<pre>").append(untaggedText).append("</pre>");
+                }
+            } else {
+                processedHtml.append(node.outerHtml());
+            }
+        }
+
+        return processedHtml.toString();
+    }
+
+    private String getRelativeCSSPath(String contextFilePath) {
+    	var path1 = Paths.get(contextFilePath).getParent();
+    	var path2 = Paths.get(options.outputFolderPath+File.separator+CSS_MAIN);
+    	return path1.relativize(path2).toString();
+    }
+    
 	//----------------------------------------------------------------------------------
 
 	/**
@@ -1145,6 +1306,25 @@ public class OwlDocApp {
 				}
 			}
 	  	}
+	}
+
+	/**
+	 * The converter for URL params
+	 */
+	public static class URLConverter implements IStringConverter<URL>{
+		/**
+		 * Creates a new URLConverter object
+		 */
+		public URLConverter() {}
+
+		@Override
+		public URL convert(String value) {
+			try {
+				return new URL(value);
+			} catch (MalformedURLException e) {
+				return OwlDocApp.class.getClassLoader().getResource(CSS_DEFAULT);
+			}
+		}
 	}
 
 	/**
