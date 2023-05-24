@@ -1202,7 +1202,7 @@ public class OwlDocApp {
 		return (index != -1) ? iri.substring(0, index+1) : resource.getNameSpace();
 	}
 
-    public static String wrapUntaggedTextWithPreTag(String html) {
+    private static String wrapUntaggedTextWithPreTag(String html) {
         Document document = Jsoup.parseBodyFragment(html);
         StringBuilder processedHtml = new StringBuilder();
 
