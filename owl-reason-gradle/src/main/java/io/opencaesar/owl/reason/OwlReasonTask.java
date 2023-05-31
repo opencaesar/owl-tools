@@ -148,7 +148,6 @@ public abstract class OwlReasonTask extends DefaultTask {
 	 */
 	@Incremental
 	@InputFiles
-	@SuppressWarnings("deprecation")
 	protected ConfigurableFileCollection getInputFiles() throws IOException, URISyntaxException {
 		if (getCatalogPath().isPresent() && getCatalogPath().get().exists() && !getSpecs().get().isEmpty()) {
 			final var catalogURI = getCatalogPath().get().toURI();
@@ -177,7 +176,6 @@ public abstract class OwlReasonTask extends DefaultTask {
 	 * @throws URISyntaxException error
 	 */
 	@OutputFiles
-	@SuppressWarnings("deprecation")
 	protected ConfigurableFileCollection getOutputFiles() throws IOException, URISyntaxException {
 		if (getCatalogPath().isPresent() && getCatalogPath().get().exists() && !getSpecs().get().isEmpty()) {
 			final var catalogURI = getCatalogPath().get().toURI();

@@ -34,8 +34,8 @@ public class OwlClassExpression {
 			return toOwlClassExpression((Union) c, a);
 		} else if (c instanceof Empty) {
 			return toOwlClassExpression((Empty) c, a);
-		} else if (c instanceof Singleton) {
-			return toOwlClassExpression((Singleton) c, a);
+		} else if (c instanceof Unitary) {
+			return toOwlClassExpression((Unitary) c, a);
 		} else if (c instanceof Universal) {
 			return toOwlClassExpression((Universal) c, a);
 		} else {
@@ -72,7 +72,7 @@ public class OwlClassExpression {
 	 * @param a the utility for operating with the OWL API
 	 * @return OWLClass
 	 */
-	protected static OWLClass toOwlClassExpression(final Singleton s, final OwlApi a) {
+	protected static OWLClass toOwlClassExpression(final Unitary s, final OwlApi a) {
 		return a.getOWLClass(IRI.create((String) s.encapsulatedClass));
 	}
 

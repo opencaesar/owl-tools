@@ -1,0 +1,12 @@
+ext.title = 'Owl Doc Gradle'
+description = 'An gradle interface to run owl doc'
+
+dependencies {
+	implementation gradleApi()
+    implementation project (':owl-doc')
+ 	implementation "xml-resolver:xml-resolver:${versions.xmlresolver}"
+ 	implementation "commons-io:commons-io:${versions.commonsIo}"
+}
+
+sourceCompatibility = '17'
+targetCompatibility = '17'

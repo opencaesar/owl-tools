@@ -12,42 +12,44 @@ import java.util.stream.Collectors;
  * any mathematical reasoning, it employs these theorems to simplify
  * expressions:
  * <ul>
- * <li>Theorem 1: For any class A, (A&prime;)&prime; = A.</li>
+ * <li>Theorem 1: For any class A, (A′)′ = A.</li>
  * 
- * <li>Theorem 2: For any class A, A &cap; A = A.</li>
+ * <li>Theorem 2: For any class A, A ∩ A = A.</li>
  * 
- * <li>Theorem 3: For any classes A and B, A &cap; B = B &cap; A.</li>
+ * <li>Theorem 3: For any classes A and B, A ∩ B = B ∩ A.</li>
  * 
- * <li>Theorem 4: For any classes A, B, and C, (A &cap; B) &cap; C = A &cap; (B
- * &cap; C).</li>
+ * <li>Theorem 4: For any classes A, B, and C, (A ∩ B) ∩ C = A ∩ (B ∩ C).</li>
  * 
- * <li>Theorem 5: For any class A, A &cup; A = A.</li>
+ * <li>Theorem 5: For any class A, A ∪ A = A.</li>
  * 
- * <li>Theorem 6: For any classes A and B, A &cup; B = B &cup; A.</li>
+ * <li>Theorem 6: For any classes A and B, A ∪ B = B ∪ A.</li>
  * 
- * <li>Theorem 7: For any classes A, B, and C, (A &cup; B) &cup; C = A &cup; (B
- * &cup; C).</li>
+ * <li>Theorem 7: For any classes A, B, and C, (A ∪ B) ∪ C = A ∪ (B ∪ C).</li>
  * 
- * <li>Theorem 8: For any classes A, B, and C, (A\B)\C = A\(B &cup; C).</li>
+ * <li>Theorem 8: For any classes A, B, and C, (A\B)\C = A\(B ∪ C).</li>
  * 
- * <li>Theorem 9: For any class A and empty set &empty;, &empty; &cap; A =
- * &empty;.</li>
+ * <li>Theorem 9: For any class A and empty set ∅, ∅ ∩ A = ∅.</li>
  * 
- * <li>Theorem 10: For any class A, &empty; &cup; A = A.</li>
+ * <li>Theorem 10: For any class A, ∅ ∪ A = A.</li>
  * 
- * <li>Theorem 11: For any class A, A\&empty; = A.</li>
+ * <li>Theorem 11: For any class A, A\∅ = A.</li>
  * 
- * <li>Theorem 12: For any class A, &empty;\A = &empty;.</li>
+ * <li>Theorem 12: For any class A, ∅\A = ∅.</li>
  * 
- * <li>Theorem 13: For any class A, A\A = &empty;.</li>
+ * <li>Theorem 13: For any class A, A\A = ∅.</li>
  * 
- * <li>Theorem 14: For any class A and universal set U, U &cap; A = A.</li>
+ * <li>Theorem 14: For any class A and universal set U, U ∩ A = A.</li>
  * 
- * <li>Theorem 15: For any class A, U &cup; A = U.</li>
+ * <li>Theorem 15: For any class A, U ∪ A = U.</li>
  * 
- * <li>Theorem 16: For any class A, A\U = &empty;.</li>
+ * <li>Theorem 16: For any class A, A\U = ∅.</li>
  * 
- * <li>Theorem 17: &empty;&prime; = U.</li>
+ * <li>Theorem 17: ∅′ = U.</li>
+ * 
+ * <li>Theorem 18: For any classes A and B, A ∪ (B\A) = A ∪ B.</li>
+ * 
+ * <li>Theorem 19: For any classes A and B, A ∩ (B\A) = ∅.</li>
+ * 
  * </ul>
  * 
  * @author Steven Jenkins j.s.jenkins@jpl.nasa.gov
@@ -101,6 +103,9 @@ public abstract class ClassExpression {
 		else if ((e instanceof Intersection || e instanceof Empty || e instanceof Universal))
 			// Theorem 3
 			return e.intersection(this);
+		else if ((e instanceof Difference) && ((Difference) e).b.equals(this))
+			// Theorem 19
+			return new Empty();
 		else
 			return new Intersection(new HashSet<>(Arrays.asList(this, e)));
 	}
@@ -118,6 +123,9 @@ public abstract class ClassExpression {
 		else if ((e instanceof Union || e instanceof Empty || e instanceof Universal))
 			// Theorem 6
 			return e.union(this);
+		else if ((e instanceof Difference) && ((Difference) e).b.equals(this))
+			// Theorem  18
+			return this.union(((Difference) e).a);
 		else
 			return new Union(new HashSet<>(Arrays.asList(this, e)));
 	}
@@ -308,7 +316,7 @@ public abstract class ClassExpression {
 	 * @version 0.0.1
 	 * @since 0.0.1
 	 */
-	public static class Singleton extends ClassExpression {
+	public static class Unitary extends ClassExpression {
 
 		/**
 		 * An arbitrary object representing a single OWL2-DL class.
@@ -320,7 +328,7 @@ public abstract class ClassExpression {
 		 *
 		 * @param encapsulatedClass An arbitrary object representing a single OWL2-DL class.
 		 */
-		public Singleton(Object encapsulatedClass) {
+		public Unitary(Object encapsulatedClass) {
 			this.encapsulatedClass = encapsulatedClass;
 		}
 
@@ -330,7 +338,7 @@ public abstract class ClassExpression {
 		 */
 		@Override
 		public boolean equals(Object o) {
-			return (o instanceof Singleton) && ((Singleton) o).encapsulatedClass.equals(encapsulatedClass);
+			return (o instanceof Unitary) && ((Unitary) o).encapsulatedClass.equals(encapsulatedClass);
 		}
 
 		/**
@@ -539,14 +547,13 @@ public abstract class ClassExpression {
 		 */
 		@Override
 		protected ClassExpression difference(ClassExpression e) {
-			if (e instanceof Empty)
-				// Theorem 11
-				return this;
-			else if (e instanceof Universal || this.equals(e))
-				// Theorem 13, Theorem 16
-				return new Empty();
+
+			ClassExpression s = super.difference(e);
+			if ((s instanceof Empty) || s.equals(this))
+				return s;
 			else
-				return new Difference(a, b.union(e));
+				// Theorem 8
+				return a.difference(b.union(e));		// Theorem 8
 		}
 
 	}
@@ -652,8 +659,17 @@ public abstract class ClassExpression {
 			// Theorem 4
 			if (e instanceof Intersection)
 				newSet.addAll(((Intersection) e).s);
-			else
-				newSet.add(e);
+			else {
+				ClassExpression sp = super.intersection(e);
+				if (sp instanceof Intersection)
+					if (e instanceof Universal)
+						return this;
+					else {
+						newSet.add(e);
+					}
+				else
+					return sp;
+			}
 			return new Intersection(newSet);
 		}
 	}
@@ -712,11 +728,19 @@ public abstract class ClassExpression {
 			// Theorem 7
 			if (e instanceof Union)
 				newSet.addAll(((Union) e).s);
-			else
-				newSet.add(e);
+			else {
+				ClassExpression sp = super.union(e);
+				if (sp instanceof Union) 
+					if (e instanceof Empty)
+						return this;
+					else {
+						newSet.add(e);
+					}
+				else
+					return sp;
+			}
 			return new Union(newSet);
 		}
-
 	}
 
 }

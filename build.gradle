@@ -1,6 +1,6 @@
 subprojects {
 	group = 'io.opencaesar.owl'
-	version = '1.1.5'
+	version = '2.0.0'
 	
 	ext.versions = [
 		owl: '5.1.17',
@@ -15,7 +15,9 @@ subprojects {
 		slf4j: '1.7.33',
 		junit: '4.13.2',
 		mavenResolver: '1.8.2',
-		mavenProvider: '3.8.4'
+		mavenProvider: '3.8.4',
+		plantuml: '1.2023.6',
+		jsoup: '1.16.1'
 	]
 
 	repositories {

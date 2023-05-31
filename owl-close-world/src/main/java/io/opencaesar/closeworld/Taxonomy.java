@@ -2,6 +2,7 @@ package io.opencaesar.closeworld;
 
 import java.util.AbstractMap;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -12,18 +13,20 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import org.jgrapht.Graph;
 import org.jgrapht.GraphTests;
-import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.alg.TransitiveReduction;
+import org.jgrapht.alg.ConnectivityInspector;
+import org.jgrapht.alg.KosarajuStrongConnectivityInspector;
 import org.jgrapht.graph.AsUndirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DirectedAcyclicGraph;
+import org.jgrapht.graph.SimpleDirectedGraph;
 
 import com.google.common.base.Objects;
 
 import io.opencaesar.closeworld.Axiom.ClassExpressionSetAxiom.DisjointClassesAxiom;
 import io.opencaesar.closeworld.Axiom.ClassExpressionSetAxiom.DisjointUnionAxiom;
-import org.jgrapht.traverse.DepthFirstIterator;
 
 /**
  * A directed acyclic graph for implementing the bundle closure algorithm
@@ -54,16 +57,57 @@ public class Taxonomy extends DirectedAcyclicGraph<ClassExpression, Taxonomy.Tax
 	public Taxonomy(final List<ClassExpression> vertexList, final List<ClassExpression> edgeList) {
 		super(TaxonomyEdge.class);
 		
-		vertexList.forEach(this::addVertex);
+		// Build initial directed graph, which may contain cycles.
+		
+		final SimpleDirectedGraph<ClassExpression, DefaultEdge> dg = new SimpleDirectedGraph<ClassExpression, DefaultEdge>(DefaultEdge.class);
+		
+		vertexList.forEach(dg::addVertex);
 		
 		final Iterator<ClassExpression> i = edgeList.iterator();
 		while (i.hasNext()) {
 			{
 				final ClassExpression p = i.next();
 				final ClassExpression c = i.next();
-				addEdge(p, c);
+				dg.addEdge(p, c);
 			}
 		}
+		
+		// Find condensation graph.
+		
+		final Graph<Graph<ClassExpression, DefaultEdge>, DefaultEdge> cg =
+				new KosarajuStrongConnectivityInspector<ClassExpression, DefaultEdge>(dg).getCondensation();
+		
+		// Build a directed acyclic graph by selecting a single class expression from each strongly-connected component.
+		// The reasoner will independently find all such classes equivalent so any one will suffice for disjointness analysis.
+		// We sort by toString() and choose the first.
+
+		final class Sortbyname implements Comparator<ClassExpression> {
+		 
+		    // Method
+		    // Sorting in ascending order of name
+		    public int compare(ClassExpression a, ClassExpression b)
+		    {
+		 
+		        return a.toString().compareTo(b.toString());
+		    }
+		}
+		
+		// vertices
+		final HashMap<Set<ClassExpression>, ClassExpression> vertexMap = new HashMap<Set<ClassExpression>, ClassExpression>();
+		cg.vertexSet().forEach(v -> {
+			final Set<ClassExpression> vs = v.vertexSet();
+			final ClassExpression v1 = vs.stream().sorted(new Sortbyname()).collect(Collectors.toList()).get(0);
+			vertexMap.put(vs, v1);
+			this.addVertex(v1);
+		});
+		
+		// edges
+		cg.edgeSet().forEach(e -> {
+			final ClassExpression s = (ClassExpression) vertexMap.get(cg.getEdgeSource(e).vertexSet());
+			final ClassExpression t = (ClassExpression) vertexMap.get(cg.getEdgeTarget(e).vertexSet());
+			this.addEdge(s, t);
+		});
+		
 	}
 
 	/**
@@ -133,15 +177,14 @@ public class Taxonomy extends DirectedAcyclicGraph<ClassExpression, Taxonomy.Tax
 	}
 
 	/**
-	 * Returns whether there exists a class expression vertex that has more than one direct parent.
+	 * Returns the lowest multi-parent child if any exist.
 	 * 
 	 * @return Optional of ClassExpression
 	 */
 	public Optional<ClassExpression> multiParentChild() {
-		final DepthFirstIterator<ClassExpression, Taxonomy.TaxonomyEdge> dfi = 
-				new DepthFirstIterator<ClassExpression, Taxonomy.TaxonomyEdge>(this);
-		while (dfi.hasNext()) {
-			final ClassExpression v = dfi.next();
+		final DepthFirstPostorderIterator iter = new DepthFirstPostorderIterator(this);
+		while (iter.hasNext()) {
+			final ClassExpression v = iter.next();
 			if (directParentsOf(v).size() > 1) return Optional.of(v);
 		}
 		return Optional.empty();
@@ -236,51 +279,46 @@ public class Taxonomy extends DirectedAcyclicGraph<ClassExpression, Taxonomy.Tax
 		TransitiveReduction.INSTANCE.reduce(tr);
 		return tr;
 	}
-
+	
 	/**
-	 * Bypass a single parent of a child.
+	 * Returns a new directed graph with the given child bypassed and its parents isolated.
 	 * 
-	 * @param child  a class expression vertex
-	 * @param parent a class expression vertex
+	 * @param child a class expression vertex.
 	 * @return Taxonomy
 	 */
-	public Taxonomy bypassParent(final ClassExpression child, final ClassExpression parent) {
-		final Taxonomy g = new Taxonomy();
-				
-		// Copy all vertices.
+	public Taxonomy bypassIsolate(final ClassExpression child) {
+		final Taxonomy bit = new Taxonomy();
 		
-		vertexSet().forEach(g::addVertex);
+		final Set<ClassExpression> parents = parentsOf(child).stream().collect(Collectors.toSet());
+		final Set<ClassExpression> grandparents = parents.stream().flatMap(p -> parentsOf(p).stream()).collect(Collectors.toSet());
+		final HashMap<ClassExpression, ClassExpression> replace = new HashMap<ClassExpression, ClassExpression>();
 		
-		// Copy all edges except that from parent to child.
+		// replacement map from parents to isolated parents
+		parents.forEach(parent -> replace.put(parent,  parent.difference(child)));
 		
-		edgeSet().stream().map(e -> new AbstractMap.SimpleEntry<>(getEdgeSource(e), getEdgeTarget(e)))
-			.filter(it -> it.getKey() != parent || it.getValue() != child)
-			.forEach(p -> g.addEdge(p.getKey(), p.getValue()));
+		// substitute isolated parents for parents
+		vertexSet().stream().filter(v -> !parents.contains(v)).forEach(bit::addVertex);
+		replace.values().forEach(bit::addVertex);
 		
-		// Add edges from direct grandparents to child.
+		// substitute isolated parents edges for parents edges
+		edgeSet().forEach(e -> {
+			final ClassExpression s = getEdgeSource(e);
+			final ClassExpression t = getEdgeTarget(e);
+			if (parents.contains(s)) {
+				if (t != child) bit.addEdge(replace.get(s), t);
+			} else if (parents.contains(t)) {
+				bit.addEdge(s, replace.get(t));
+			} else {
+				bit.addEdge(s, t);
+			}
+		});
 		
-		directParentsOf(parent).forEach(gp -> g.addEdge(gp, child));
+		// move child up to grandparents
+		grandparents.forEach(gp -> bit.addEdge(gp,  child));
 		
-		return g;
+		return bit;
 	}
-
-	/**
-	 * Recursively bypass parents of a child.
-	 * 
-	 * @param child   a class expression vertex
-	 * @param parents Set of class expression vertices
-	 * @return Taxonomy
-	 */
-	public Taxonomy bypassParents(final ClassExpression child, final Set<ClassExpression> parents) {
-		if (parents.isEmpty()) {
-			return this;
-		} else {
-			ClassExpression first = parents.iterator().next();
-			Set<ClassExpression> rest = parents.stream().filter(it -> it != first).collect(Collectors.toSet());
-			return bypassParent(child, first).bypassParents(child, rest);
-		}
-	}
-
+	
 	/**
 	 * Eliminate redundant edges above child.
 	 * 
@@ -308,60 +346,7 @@ public class Taxonomy extends DirectedAcyclicGraph<ClassExpression, Taxonomy.Tax
 	}
 
 	/**
-	 * Isolate child from one parent.
-	 * 
-	 * @param child  a class expression vertex
-	 * @param parent a class expression vertex
-	 * @return A new directed graph obtained by replacing the given parent vertex with the difference between parent and child.
-	 */
-	public Taxonomy isolateChildFromOne(final ClassExpression child, final ClassExpression parent) {
-		if (parentsOf(parent).isEmpty()) {
-			return this;
-		} else {
-			final Taxonomy g = new Taxonomy();
-			
-			final ClassExpression diff = parent.difference(child);
-
-			final HashSet<ClassExpression> newVertices = new HashSet<>(vertexSet());
-			newVertices.remove(parent);
-			newVertices.add(diff);
-			newVertices.forEach(g::addVertex);
-			
-			edgeSet().forEach(e -> {
-				final ClassExpression s = getEdgeSource(e);
-				final ClassExpression t = getEdgeTarget(e);
-				if (s == parent) {
-					if (t != child) g.addEdge(diff, t);
-				} else if (t == parent) {
-					g.addEdge(s, diff);
-				} else {
-					g.addEdge(s, t);
-				}
-			});
-			
-			return g;
-		}
-	}
-
-	/**
-	 * Recursively isolate child from parents.
-	 * 
-	 * @param child   a class expression vertex
-	 * @param parents a set of class expression vertixes
-	 * @return Taxonomy
-	 */
-	public Taxonomy isolateChild(final ClassExpression child, final Set<ClassExpression> parents) {
-		if (parents.isEmpty()) {
-			return this;
-		} else {
-			ClassExpression first = parents.iterator().next();
-			Set<ClassExpression> rest = parents.stream().filter(it -> it != first).collect(Collectors.toSet());
-			return isolateChildFromOne(child, first).isolateChild(child, rest);
-		}
-	}
-
-	/**
-	 * Recursively bypass, reduce, and isolate until the result is a tree.
+	 * Recursively bypass, isolate, and reduce until the result is a tree.
 	 * 
 	 * @return Taxonomy
 	 */
@@ -370,10 +355,7 @@ public class Taxonomy extends DirectedAcyclicGraph<ClassExpression, Taxonomy.Tax
 	 		 	
 	 	if (co.isPresent()) {
 			final ClassExpression child = co.get();
-			final Set<ClassExpression> parents = parentsOf(child);
-			final Taxonomy bp = bypassParents(child, parents);
-			final Taxonomy rd = bp.reduceChild(child);
-	 		return rd.isolateChild(child, parents).treeify();
+	 		return bypassIsolate(child).reduceChild(child).treeify();
 	 	} else {
 	 		return this;
 	 	}
@@ -421,8 +403,8 @@ public class Taxonomy extends DirectedAcyclicGraph<ClassExpression, Taxonomy.Tax
 					break;
 				case DISJOINT_UNION:
 					axioms.add(
-							(c instanceof ClassExpression.Singleton) ?
-									new DisjointUnionAxiom((ClassExpression.Singleton) c, s) :
+							(c instanceof ClassExpression.Unitary) ?
+									new DisjointUnionAxiom((ClassExpression.Unitary) c, s) :
 									new DisjointClassesAxiom(s)
 					);
 					break;

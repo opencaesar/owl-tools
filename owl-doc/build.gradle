@@ -1,0 +1,23 @@
+apply plugin: 'application'
+
+ext.title = 'OWL Doc'
+description = 'A tool to generate OWL documentation'
+mainClassName = 'io.opencaesar.owl.doc.OwlDocApp'
+applicationName = 'owl-doc'
+
+dependencies {
+	implementation "com.beust:jcommander:${versions.jcommander}"
+	implementation "log4j:log4j:${versions.log4j}"
+	implementation "org.slf4j:slf4j-simple:${versions.slf4j}"
+	testImplementation "junit:junit:${versions.junit}"
+
+	implementation "xml-resolver:xml-resolver:${versions.xmlresolver}"
+	implementation "org.apache.jena:jena-rdfconnection:${versions.jena}"
+	implementation "net.sourceforge.plantuml:plantuml:${versions.plantuml}"
+	implementation "org.jsoup:jsoup:${versions.jsoup}"
+	
+ }
+ 
+sourceCompatibility = '17'
+targetCompatibility = '17'
+ 

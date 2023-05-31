@@ -137,7 +137,7 @@ public abstract class Axiom {
             /**
              * The single class that is the disjoint union of class expressions.
              */
-            protected ClassExpression.Singleton c;
+            protected ClassExpression.Unitary c;
 
             /**
              * Constructs an OWL2-DL Disjoint Union of Class Expressions actions.
@@ -145,7 +145,7 @@ public abstract class Axiom {
              * @param c The single class that is the disjoint union of class expressions.
              * @param set The class expressions asserted to be pairwise disjoint.
              */
-            protected DisjointUnionAxiom(ClassExpression.Singleton c, Set<ClassExpression> set) {
+            protected DisjointUnionAxiom(ClassExpression.Unitary c, Set<ClassExpression> set) {
                 super(set);
                 this.c = c;
             }
@@ -155,7 +155,7 @@ public abstract class Axiom {
              * 
              * @return a ClassExpression.Singleton
              */
-            protected ClassExpression.Singleton getC() {
+            protected ClassExpression.Unitary getC() {
                 return c;
             }
 
