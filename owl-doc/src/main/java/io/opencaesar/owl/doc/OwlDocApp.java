@@ -403,7 +403,7 @@ public class OwlDocApp {
 			var iri = s.getURI();
 			var uri = URI.create(iri);
             var relativePath = uri.getAuthority()+uri.getPath()+hashCode(iri);
-            var path1 = options.outputFolderPath+File.separator+relativePath+"_1.html";
+            var path1 = options.outputFolderPath+File.separator+relativePath+".html";
             var path2 = options.outputFolderPath+File.separator+relativePath+"_2.html";
 			elements.append(String.format(
 				"""
@@ -413,16 +413,16 @@ public class OwlDocApp {
 				</tr>
 				""", 
 				IMG_ONTOLOGY,
-				path1, 
+				getRelativePath(path, path2), 
 				iri));
 			
-			var axioms = getAxioms(s.listProperties());
-			var classes = getTerms("Classes", iri, IMG_CLASS, owlModel.classes);
-			var datatypes = getTerms("Datatypes", iri, IMG_DATATYPE, owlModel.datatypes);
-			var annotationProperties = getTerms("Annotation Properties", iri, IMG_PROPERTY, owlModel.annotationProperties);
-			var datatypeProperties = getTerms("Datatype Properties", iri, IMG_PROPERTY, owlModel.datatypeProperties);
-			var objectProperties = getTerms("Object Properties", iri, IMG_PROPERTY, owlModel.objectProperties);
-			var individuals = getTerms("Individuals", iri, IMG_INDIVIDUAL, owlModel.individuals);
+			var axioms = getAxioms(path1, s.listProperties());
+			var classes = getTerms(path1, "Classes", iri, IMG_CLASS, owlModel.classes);
+			var datatypes = getTerms(path1, "Datatypes", iri, IMG_DATATYPE, owlModel.datatypes);
+			var annotationProperties = getTerms(path1, "Annotation Properties", iri, IMG_PROPERTY, owlModel.annotationProperties);
+			var datatypeProperties = getTerms(path1, "Datatype Properties", iri, IMG_PROPERTY, owlModel.datatypeProperties);
+			var objectProperties = getTerms(path1, "Object Properties", iri, IMG_PROPERTY, owlModel.objectProperties);
+			var individuals = getTerms(path1, "Individuals", iri, IMG_INDIVIDUAL, owlModel.individuals);
 			
 			final var content1 = new StringBuffer(String.format(
 					"""
@@ -443,8 +443,8 @@ public class OwlDocApp {
 					</html>
 					""",
 					iri,
-					getRelativeCSSPath(path1),
-					path2,
+					getRelativeCSSPath(path2),
+					getRelativePath(path2, path1),
 					iri,
 					classes,
 					datatypes,
@@ -453,7 +453,7 @@ public class OwlDocApp {
 					objectProperties,
 					individuals
 				));
-				files.put(new File(path1).getCanonicalFile(), content1.toString());
+				files.put(new File(path2).getCanonicalFile(), content1.toString());
 
 				final var content2 = new StringBuffer(String.format(
 					"""
@@ -470,11 +470,11 @@ public class OwlDocApp {
 					</html>
 					""",
 					iri,
-					getRelativeCSSPath(path2),
+					getRelativeCSSPath(path1),
 					iri,
 					axioms
 				));
-				files.put(new File(path2).getCanonicalFile(), content2.toString());
+				files.put(new File(path1).getCanonicalFile(), content2.toString());
 		};
 
 		String content = String.format(
@@ -522,34 +522,6 @@ public class OwlDocApp {
 				return i.getProperty(OWL2.onClass).getObject().asResource();
 		};
 		
-		Function<RDFNode, String> restrictionFunc = i -> {
-			var restriction = (Restriction)i;
-			var property = asString(restriction.getOnProperty());
-			if (restriction.isAllValuesFromRestriction()) {
-				property += " all " + asString(restriction.asAllValuesFromRestriction().getAllValuesFrom());
-			} else if (restriction.isSomeValuesFromRestriction()) {
-				property += " some " + asString(restriction.asSomeValuesFromRestriction().getSomeValuesFrom());
-			} else if (restriction.isHasValueRestriction()) {
-				property += " equals "+asString(restriction.asHasValueRestriction().getHasValue());
-			} else if (restriction.isMinCardinalityRestriction()) {
-				property += " min "+restriction.asMinCardinalityRestriction().getMinCardinality();
-			} else if (restriction.isMaxCardinalityRestriction()) {
-				property += " max "+restriction.asMaxCardinalityRestriction().getMaxCardinality();
-			} else if (restriction.isCardinalityRestriction()) {
-				property += " exactly "+restriction.asCardinalityRestriction().getCardinality();
-			} else if (restriction.getProperty(OWL2.minQualifiedCardinality) != null) {
-				property += " min "+restriction.getProperty(OWL2.minQualifiedCardinality).getInt();
-				property += " "+ asString(qualifiedType.apply(restriction));
-			} else if (restriction.getProperty(OWL2.maxQualifiedCardinality) != null) {
-				property += " max "+restriction.getProperty(OWL2.maxQualifiedCardinality).getInt();
-				property += " "+ asString(qualifiedType.apply(restriction));
-			} else if (restriction.getProperty(OWL2.qualifiedCardinality) != null) {
-				property += " exactly "+restriction.getProperty(OWL2.qualifiedCardinality).getInt();
-				property += " "+ asString(qualifiedType.apply(restriction));
-			}
-			return property;
-		};
-		
 		for (var s : owlModel.classes) {
 			var localName = localName(s);
 			var iri = s.getURI();
@@ -564,13 +536,41 @@ public class OwlDocApp {
 				</tr>
 				""",
 				IMG_CLASS,
-				path1, 
+				getRelativePath(path, path1), 
 				localName));
-			
-			var image = getClassImage(s);
-			var axioms = getAxioms(s.listProperties());
-			var superClasses = getNodes("rdfs:superClassOf", IMG_CLASS, s.listSubClasses(true).toList());
-			var properties = getNodes("owl:domainOf", owlModel.ontModel.listSubjectsWithProperty(RDFS.domain, s).toList(), IMG_PROPERTY, i -> asString(i)+" : "+asString(owlModel.ontModel.getOntProperty(i.asResource().getURI()).listRange().toList()));
+
+			Function<RDFNode, String> restrictionFunc = i -> {
+				var restriction = (Restriction)i;
+				var property = asString(path1, restriction.getOnProperty());
+				if (restriction.isAllValuesFromRestriction()) {
+					property += " all " + asString(path1, restriction.asAllValuesFromRestriction().getAllValuesFrom());
+				} else if (restriction.isSomeValuesFromRestriction()) {
+					property += " some " + asString(path1, restriction.asSomeValuesFromRestriction().getSomeValuesFrom());
+				} else if (restriction.isHasValueRestriction()) {
+					property += " equals "+asString(path1, restriction.asHasValueRestriction().getHasValue());
+				} else if (restriction.isMinCardinalityRestriction()) {
+					property += " min "+restriction.asMinCardinalityRestriction().getMinCardinality();
+				} else if (restriction.isMaxCardinalityRestriction()) {
+					property += " max "+restriction.asMaxCardinalityRestriction().getMaxCardinality();
+				} else if (restriction.isCardinalityRestriction()) {
+					property += " exactly "+restriction.asCardinalityRestriction().getCardinality();
+				} else if (restriction.getProperty(OWL2.minQualifiedCardinality) != null) {
+					property += " min "+restriction.getProperty(OWL2.minQualifiedCardinality).getInt();
+					property += " "+ asString(path1, qualifiedType.apply(restriction));
+				} else if (restriction.getProperty(OWL2.maxQualifiedCardinality) != null) {
+					property += " max "+restriction.getProperty(OWL2.maxQualifiedCardinality).getInt();
+					property += " "+ asString(path1, qualifiedType.apply(restriction));
+				} else if (restriction.getProperty(OWL2.qualifiedCardinality) != null) {
+					property += " exactly "+restriction.getProperty(OWL2.qualifiedCardinality).getInt();
+					property += " "+ asString(path1, qualifiedType.apply(restriction));
+				}
+				return property;
+			};
+
+			var image = getClassImage(path1, s);
+			var axioms = getAxioms(path1, s.listProperties());
+			var superClasses = getNodes(path1, "rdfs:superClassOf", IMG_CLASS, s.listSubClasses(true).toList());
+			var properties = getNodes("owl:domainOf", owlModel.ontModel.listSubjectsWithProperty(RDFS.domain, s).toList(), IMG_PROPERTY, i -> asString(path1, i)+" : "+asString(path1, owlModel.ontModel.getOntProperty(i.asResource().getURI()).listRange().toList()));
 			var restrictedProperties = getNodes("owl:restrictionOn", s.listSuperClasses(true).filterKeep(i -> i.isRestriction()).mapWith(i -> i.asRestriction()).toList(), IMG_PROPERTY, restrictionFunc);
 			final var content = new StringBuffer(String.format(
 				"""
@@ -653,18 +653,18 @@ public class OwlDocApp {
 
 			var iri = aClass.getURI();
 			var uri = URI.create(iri);
-            var relativePath = uri.getAuthority()+uri.getPath()+hashCode(iri);
+            var relativePath = uri.getAuthority()+uri.getPath()+(uri.getFragment() == null ? "" : File.separator+uri.getFragment())+hashCode(iri);
             var path1 = options.outputFolderPath+File.separator+relativePath+".html";
 			elements.append(String.format(
 				"""
 				<tr>
-				   <td>%s<img border="0" src="%s" width="16" height="16">&nbsp;<a href="%s" target="navigationFrame">%s</a></td>
+				   <td>%s<img border="0" src="%s" width="16" height="16">&nbsp;<a href="%s" target="mainFrame">%s</a></td>
 				</tr>
 				""",
 				spaces.toString(),
 				IMG_CLASS,
-				path1, 
-				asLocalName(aClass)));
+				getRelativePath(path, path1), 
+				aClass.getLocalName()));
 
             List<OntClass> subClasses = aClass.listSubClasses(true).toList();
 
@@ -719,7 +719,7 @@ public class OwlDocApp {
 				</tr>
 				""",
 				IMG_DATATYPE,
-				path1, 
+				getRelativePath(path, path1), 
 				localName));
 			
 			var listOfLiterals = owlModel.ontModel.listObjectsOfProperty(s, OWL2.equivalentClass).toList().stream()
@@ -728,8 +728,8 @@ public class OwlDocApp {
 					.flatMap(i -> i.getProperty(OWL2.oneOf).getObject().as(RDFList.class).asJavaList().stream())
 					.collect(Collectors.toList());
 						
-			var axioms = getAxioms(s.listProperties());
-			var literals = getNodes("rdf:typeOf", IMG_ITEM, listOfLiterals);
+			var axioms = getAxioms(path1, s.listProperties());
+			var literals = getNodes(path1, "rdf:typeOf", IMG_ITEM, listOfLiterals);
 			
 			final var content = new StringBuffer(String.format(
 				"""
@@ -799,9 +799,9 @@ public class OwlDocApp {
 				</tr>
 				""",
 				IMG_PROPERTY,
-				path1, 
+				getRelativePath(path, path1), 
 				localName));
-			var axioms = getAxioms(s.listProperties());
+			var axioms = getAxioms(path1, s.listProperties());
 			final var content = new StringBuffer(String.format(
 				"""
 				<html>
@@ -870,9 +870,9 @@ public class OwlDocApp {
 				</tr>
 				""",
 				IMG_INDIVIDUAL,
-				path1, 
+				getRelativePath(path, path1), 
 				localName));
-			var axioms = getAxioms(s.listProperties());
+			var axioms = getAxioms(path1, s.listProperties());
 			final var content = new StringBuffer(String.format(
 				"""
 				<html>
@@ -920,7 +920,7 @@ public class OwlDocApp {
 		return files;
 	}
 
-	private String getAxioms(StmtIterator i) {
+	private String getAxioms(String contextFilePath, StmtIterator i) {
 		var propertyToValues = new TreeMap<Property, Set<RDFNode>>(new Comparator<Property>() {
 			@Override
 			public int compare(Property o1, Property o2) {
@@ -951,19 +951,19 @@ public class OwlDocApp {
 		for (var property : propertyToValues.keySet()) {
 			var values = propertyToValues.get(property);
 			if (!values.isEmpty()) {
-				axioms.append(getNodes(abbreviatedIri(property), IMG_ITEM, values));
+				axioms.append(getNodes(contextFilePath, abbreviatedIri(property), IMG_ITEM, values));
 			}
 		}
 		
 		return axioms.toString();
 	}
 
-	private String getTerms(String title, String ontologyIri, String image, Collection<? extends Resource> terms) {
+	private String getTerms(String contextFilePath, String title, String ontologyIri, String image, Collection<? extends Resource> terms) {
 		var ontoloyTerms = terms.stream()
 				.filter(i -> i.getURI().startsWith(ontologyIri))
 				.collect(Collectors.toList());
 
-		var table = getTable(ontoloyTerms, image, i -> asLocalName((Resource)i));
+		var table = getTable(ontoloyTerms, image, i -> asLocalName(contextFilePath, (Resource)i));
 
 		return ontoloyTerms.isEmpty() ? "" : String.format(
 				"""
@@ -974,8 +974,8 @@ public class OwlDocApp {
 				table);
 	}
 
-	private String getNodes(String title, String image, Collection<? extends RDFNode> terms) {
-		return getNodes(title, terms, image, i -> asString(i));
+	private String getNodes(String contextFilePath, String title, String image, Collection<? extends RDFNode> terms) {
+		return getNodes(title, terms, image, i -> asString(contextFilePath, i));
 	}
 
 	private String getNodes(String title, Collection<? extends RDFNode> terms, String image, Function<RDFNode, String> getLabel) {
@@ -1022,34 +1022,34 @@ public class OwlDocApp {
 			""", s);
 	}
 
-	private String getClassImage(OntClass ontClass) {
+	private String getClassImage(String contextFilePath, OntClass ontClass) {
 		String thisClass = String.format(
 				"""
 				class %s [[%s]]
 				""",
 				ontClass.getLocalName(),
-				path(ontClass.getURI()));
+				path(contextFilePath, ontClass.getURI()));
 		
 		
-		var superClasses = String.join("\n", ontClass.listSuperClasses(true).filterKeep(i -> i != null).mapWith(i -> String.format(
+		var superClasses = String.join("\n", ontClass.listSuperClasses(true).filterKeep(i -> i.isURIResource()).mapWith(i -> String.format(
 				"""
 				class %s [[%s]]
 				%s -up-|> %s
 				""",
 				i.getLocalName(),
-				path(ontClass.getURI()),
+				path(contextFilePath, ontClass.getURI()),
 				ontClass.getLocalName(),
 				i.getLocalName()
 		)).toList());
 
-		var subClasses = String.join("\n", ontClass.listSubClasses(true).filterKeep(i -> i != null).mapWith(i -> String.format(
+		var subClasses = String.join("\n", ontClass.listSubClasses(true).filterKeep(i -> i.isURIResource()).mapWith(i -> String.format(
 				"""
 				class %s [[%s]]
 				hide %s members
 				%s -up-|> %s
 				""",
 				i.getLocalName(),
-				path(ontClass.getURI()),
+				path(contextFilePath, ontClass.getURI()),
 				i.getLocalName(),
 				i.getLocalName(),
 				ontClass.getLocalName()
@@ -1081,7 +1081,7 @@ public class OwlDocApp {
 	}
 
 	private static final Pattern LINK = Pattern.compile("\\{\\{([^\\s\\}]+)\s*(.*?)\\}\\}");
-	private String replaceLinks(String input, OntModel ontModel) {
+	private String replaceLinks(String contextFilePath, String input, OntModel ontModel) {
 		Matcher matcher = LINK.matcher(input);
 		return matcher.replaceAll(match -> {
 		    String url = match.group(1);
@@ -1111,7 +1111,7 @@ public class OwlDocApp {
 			if (text.length() == 0) {
 				text = name;
 			}
-		    return String.format("<a href=\"%s\">%s</a>", path(url), text);
+		    return String.format("<a href=\"%s\">%s</a>", path(contextFilePath, url), text);
 		});
 	}
 		
@@ -1128,42 +1128,56 @@ public class OwlDocApp {
 		return options.outputCaseSensitive ? "" : "_"+Math.abs(s.hashCode());
 	}
 
-	private static final String[] array = {"oml", "owl", "rdfs", "rdf", "xsd"};
-	private static final List<String> default_namespaces = new ArrayList<>(Arrays.asList(array));
-	private boolean isStandard(String qname) {
-		return default_namespaces.stream().anyMatch(i -> qname.startsWith(i));
-	}
-	
-	private String asString(RDFNode node) {
+	private String asString(String contextFilePath, RDFNode node) {
 		if (node.isResource()) {
 			var resource = node.asResource();
 			var iri = resource.getURI();
-            var path = path(iri);
-			var qname = abbreviatedIri(resource);
-			var label = qname.equals(iri)? iri : qname;
-			return isStandard(qname) ? label : String.format("<a href=\"%s\">%s</a>", path, label); 
+			var label = abbreviatedIri(resource);
+			if (isExternalResource(resource)) {
+				return String.format("<a href=\"%s\">%s</a>", iri, label);
+			} else {
+				var path = path(contextFilePath, iri);
+				return String.format("<a href=\"%s\">%s</a>", path, label);
+			}
 		}
-		return replaceLinks(wrapUntaggedTextWithPreTag(node.toString()), (OntModel)node.getModel());
+		return replaceLinks(contextFilePath, wrapUntaggedTextWithPreTag(node.toString()), (OntModel)node.getModel());
 	}
 
-	private String asLocalName(Resource resource) {
+	private String asLocalName(String contextFilePath, Resource resource) {
 		var iri = resource.getURI();
-        var path = path(iri);
-		var qname = abbreviatedIri(resource);
 		var label = resource.getLocalName();
-		return isStandard(qname) ? label : String.format("<a href=\"%s\" target=\"mainFrame\">%s</a>", path, label); 
+		if (isExternalResource(resource)) {
+			return String.format("<a href=\"%s\">%s</a>", iri, label);
+		} else {
+			var path = path(contextFilePath, iri);
+			return String.format("<a href=\"%s\" target=\"mainFrame\">%s</a>", path, label);
+		}
 	}
 
-	private String asString(List<? extends RDFNode> nodes) {
+	private String asString(String contextFilePath, List<? extends RDFNode> nodes) {
 		return String.join(" ^ ", nodes.stream()
-				.map(i -> asString(i))
+				.map(i -> asString(contextFilePath, i))
 				.collect(Collectors.toList()));
 	}
 	
-	private String path(String iri) {
+	private boolean isExternalResource(Resource r) {
+		var uri = r.getURI();
+		var ontModel = (OntModel) r.getModel();
+		var ontologies = ontModel.listOntologies().toList();
+		for (var ontology : ontologies) {
+			var ontologyURI = ontology.getURI();
+			if (uri.startsWith(ontologyURI)) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	private String path(String contextFilePath, String iri) {
 		var uri = URI.create(iri);
         var relativePath = uri.getAuthority()+uri.getPath()+(uri.getFragment() == null ? "" : File.separator+uri.getFragment())+hashCode(iri);
-        return options.outputFolderPath+File.separator+relativePath+".html";
+        var path = options.outputFolderPath+File.separator+relativePath+".html";
+        return getRelativePath(contextFilePath, path);
 	}
 	
 	private static String abbreviatedIri(Resource resource) {
@@ -1174,13 +1188,7 @@ public class OwlDocApp {
 
 	private static String prefix(Resource resource) {
 		var namespace = namespace(resource);
-		String prefix = null;
-		for (Graph g : ((OntModel)resource.getModel()).getSubGraphs()) {
-			prefix = g.getPrefixMapping().getNsURIPrefix(namespace);
-			if (prefix != null) {
-				break;
-			}
-		}
+		String prefix = resource.getModel().getGraph().getPrefixMapping().getNsURIPrefix(namespace);
 		return prefix;
 	}
 	
@@ -1225,12 +1233,16 @@ public class OwlDocApp {
     }
 
     private String getRelativeCSSPath(String contextFilePath) {
-    	var path1 = Paths.get(contextFilePath).getParent();
-    	var path2 = Paths.get(options.outputFolderPath+File.separator+CSS_MAIN);
-    	return path1.relativize(path2).toString();
+    	return getRelativePath(contextFilePath, options.outputFolderPath+File.separator+CSS_MAIN);
     }
     
-	//----------------------------------------------------------------------------------
+    private String getRelativePath(String contextFilePath, String targetFilePath) {
+    	var path1 = Paths.get(contextFilePath).getParent();
+    	var path2 = Paths.get(targetFilePath);
+    	return path1.relativize(path2).toString();
+    }
+
+    //----------------------------------------------------------------------------------
 
 	/**
 	 * A parameter validator for an OASIS XML catalog path.
