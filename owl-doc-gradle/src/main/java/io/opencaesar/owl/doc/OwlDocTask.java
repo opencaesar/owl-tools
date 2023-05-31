@@ -113,6 +113,15 @@ public abstract class OwlDocTask extends DefaultTask {
     public abstract Property<Boolean> getOutputCaseSensitive();
 
 	/**
+	 * Path of a css file.
+	 * 
+	 * @return File Property
+	 */
+    @Optional
+    @Input
+    public abstract Property<File> getCssFilePath();
+
+    /**
 	 * The debug flag
 	 * 
 	 * @return Boolean Property
@@ -181,6 +190,10 @@ public abstract class OwlDocTask extends DefaultTask {
 	    	if (getOutputCaseSensitive().get()) {
 	    		args.add("-s");
 	    	}
+	    }
+	    if (getCssFilePath().isPresent()) {
+	   		args.add("-css");
+		    args.add(getCssFilePath().get().getAbsolutePath());
 	    }
 		if (getDebug().isPresent() && getDebug().get()) {
 		    args.add("-d");
