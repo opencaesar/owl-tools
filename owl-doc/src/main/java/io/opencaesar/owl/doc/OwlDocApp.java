@@ -738,7 +738,13 @@ public class OwlDocApp {
 				      <title>%s</title>
 					  <link rel="stylesheet" href="%s">
 				   </head>
+				   <script>
+				   function Copy() {
+				      navigator.clipboard.writeText(document.location.href)
+				   }
+				   </script>
 				   <body>
+					  <button onclick="Copy()">URL</button>
 			          <h2><font size="-1">%s</font><br>Datatype %s</h2>
 			          <hr>
 			          %s
@@ -809,8 +815,14 @@ public class OwlDocApp {
 				      <title>%s</title>
 				      <link rel="stylesheet" href="%s">
 				   </head>
+				   <script>
+				   function Copy() {
+				      navigator.clipboard.writeText(document.location.href)
+				   }
+				   </script>
 				   <body>
-			          <h3><font size="-1">%s</font><br>Property %s</h3>
+					  <button onclick="Copy()">URL</button>
+			          <h2><font size="-1">%s</font><br>Property %s</h2>
 			          <hr>
 			          %s
 				   </body>
@@ -880,8 +892,14 @@ public class OwlDocApp {
 				      <title>%s</title>
 				      <link rel="stylesheet" href="%s">
 				   </head>
+				   <script>
+				   function Copy() {
+				      navigator.clipboard.writeText(document.location.href)
+				   }
+				   </script>
 				   <body>
-			          <h3><font size="-1">%s</font><br>Individual %s</h3>
+					  <button onclick="Copy()">URL</button>
+			          <h2><font size="-1">%s</font><br>Individual %s</h2>
 			          <hr>
 			          %s
 				   </body>
