@@ -1125,7 +1125,7 @@ public class OwlDocApp {
 	}
 
 	private String hashCode(String s) {
-		return options.outputCaseSensitive ? s : "_"+Math.abs(s.hashCode());
+		return options.outputCaseSensitive ? "" : "_"+Math.abs(s.hashCode());
 	}
 
 	private static final String[] array = {"oml", "owl", "rdfs", "rdf", "xsd"};
