@@ -489,9 +489,9 @@ public class OwlDocApp {
 			         &nbsp;<a href="class-hierarchy.html" target="navigationFrame">Class Hierarchy</a><br>
 			         &nbsp;<a href="classes.html" target="navigationFrame">All Classes</a><br>
 			         &nbsp;<a href="datatypes.html" target="navigationFrame">All Datatypes</a><br>
-			         &nbsp;<a href="annotation_Properties.html" target="navigationFrame">All Annotation Properties</a><br>
-			         &nbsp;<a href="datatype_Properties.html" target="navigationFrame">All Datatype Properties</a><br>
-			         &nbsp;<a href="object_Properties.html" target="navigationFrame">All Object Properties</a><br>
+			         &nbsp;<a href="annotation_properties.html" target="navigationFrame">All Annotation Properties</a><br>
+			         &nbsp;<a href="datatype_properties.html" target="navigationFrame">All Datatype Properties</a><br>
+			         &nbsp;<a href="object_properties.html" target="navigationFrame">All Object Properties</a><br>
 			         &nbsp;<a href="individuals.html" target="navigationFrame">All Individuals</a><br>
 			         <h3>Ontologies</h3>
 			         <table>
