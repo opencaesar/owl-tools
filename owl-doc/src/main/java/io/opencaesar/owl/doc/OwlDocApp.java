@@ -1054,23 +1054,49 @@ public class OwlDocApp {
 	
 	//----------------------------------------------------------------------------------
 
-	private static <T extends RDFNode> List<T> sortNodes(Collection<T> nodes, Function<RDFNode, String> getLabel) {
+	/**
+	 * Sort notes by label.
+	 * @param nodes nodes
+	 * @param getLabel label function
+	 * @return sorted notes by their labels.
+	 * @param <T> node type.
+	 */
+	public static <T extends RDFNode> List<T> sortNodes(Collection<T> nodes, Function<RDFNode, String> getLabel) {
 		var sorted = new ArrayList<>(nodes);
 		sorted.sort((x1, x2) -> getLabel.apply(x1).compareTo(getLabel.apply(x2)));
 		return sorted;
 	}
 
-	private static <T extends Resource> List<T> sortResourcesi(List<T> resources, Function<RDFNode, String> getLabel) {
+	/**
+	 * Sort resources by label.
+	 * @param resources resources
+	 * @param getLabel label function
+	 * @return sorted resources by their labels.
+	 * @param <T> resource type.
+	 */
+	public static <T extends Resource> List<T> sortResourcesi(List<T> resources, Function<RDFNode, String> getLabel) {
 		var filtered = resources.stream().filter(i -> !i.isAnon()).collect(Collectors.toList());
 		filtered.sort((x1, x2) -> getLabel.apply(x1).compareTo(getLabel.apply(x2)));
 		return filtered;
 	}
 
-	private static <T extends Resource> List<T> sortByIri(List<T> resources) {
+	/**
+	 * sort resources by iri.
+	 * @param resources resources
+	 * @return sorted resources by iri.
+	 * @param <T> resource type.
+	 */
+	public static <T extends Resource> List<T> sortByIri(List<T> resources) {
 		return sortResourcesi(resources, i -> ((Resource)i).getURI());
 	}
 
-	private static <T extends Resource> List<T> sortByName(List<T> resources) {
+	/**
+	 * sort resources by name
+	 * @param resources resources.
+	 * @return sorted resources by name.
+	 * @param <T> resource type.
+	 */
+	public static <T extends Resource> List<T> sortByName(List<T> resources) {
 		return sortResourcesi(resources, i -> localName((Resource)i));
 	}
 

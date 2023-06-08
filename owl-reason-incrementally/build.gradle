@@ -1,0 +1,25 @@
+apply plugin: 'application'
+
+ext.title = 'OWL Reason Incrementally'
+description = 'A tool to run an incremental DL reasoner on an OWL catalog'
+mainClassName = 'io.opencaesar.owl.reason_incrementally.OwlReasonIncrementallyApp'
+applicationName = 'owl-reason-incrementally'
+
+dependencies {
+    implementation project (':owl-doc')
+
+    implementation "com.beust:jcommander:${versions.jcommander}"
+    implementation "log4j:log4j:${versions.log4j}"
+    implementation "org.slf4j:slf4j-simple:${versions.slf4j}"
+    testImplementation "junit:junit:${versions.junit}"
+
+    implementation "xml-resolver:xml-resolver:${versions.xmlresolver}"
+    implementation "org.apache.jena:jena-rdfconnection:${versions.jena}"
+    implementation "net.sourceforge.plantuml:plantuml:${versions.plantuml}"
+    implementation "org.jsoup:jsoup:${versions.jsoup}"
+
+    implementation("com.github.galigator.openllet:openllet-jena:${versions.openllet}") {
+        exclude group: 'org.antlr', module: 'antlr-runtime'
+    }
+}
+ 
