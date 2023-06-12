@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -55,12 +56,7 @@ import org.semanticweb.owlapi.formats.RioTurtleDocumentFormat;
 import org.semanticweb.owlapi.formats.TrigDocumentFormat;
 import org.semanticweb.owlapi.formats.TrixDocumentFormat;
 import org.semanticweb.owlapi.io.StringDocumentTarget;
-import org.semanticweb.owlapi.model.IRI;
-import org.semanticweb.owlapi.model.OWLAxiom;
-import org.semanticweb.owlapi.model.OWLClass;
-import org.semanticweb.owlapi.model.OWLDocumentFormat;
-import org.semanticweb.owlapi.model.OWLOntology;
-import org.semanticweb.owlapi.model.OWLOntologyManager;
+import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.model.parameters.Imports;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.Document;
@@ -137,14 +133,6 @@ public class OwlReasonIncrementallyOWLAPI {
                 required = true,
                 order = 2)
         private String inputOntologyIri;
-
-        @Parameter(
-                names = {"--spec", "-s"},
-                description = "output-ontology-iri= list of entailment statement types separarted by | (Required)",
-                converter = OwlReasonApp.SpecConverter.class,
-                required = true,
-                order = 3)
-        private List<OwlReasonApp.Spec> specs = new ArrayList<>();
 
         @Parameter(
                 names = {"--report-path", "-r"},
@@ -240,6 +228,19 @@ public class OwlReasonIncrementallyOWLAPI {
 
     public OwlReasonIncrementallyOWLAPI() {}
 
+
+//        -i
+//        http://srl.jpl.nasa.gov/efse/bundle
+//        http://srl.jpl.nasa.gov/efse/bundle/classes=ALL_SUBCLASS
+//        -s
+//        http://srl.jpl.nasa.gov/efse/bundle/properties=INVERSE_PROPERTY|ALL_SUBPROPERTY
+//        -s
+//        http://srl.jpl.nasa.gov/efse/bundle/individuals=ALL_INSTANCE|DATA_PROPERTY_VALUE|OBJECT_PROPERTY_VALUE|SAME_AS
+
+    static final EnumSet<StatementType> classStatementTypes = EnumSet.of(StatementType.ALL_SUBCLASS);
+    static final EnumSet<StatementType> propertyStatementTypes = EnumSet.of(StatementType.INVERSE_PROPERTY, StatementType.ALL_SUBPROPERTY);
+    static final EnumSet<StatementType> individualStatementTypes = EnumSet.of(StatementType.ALL_INSTANCE, StatementType.DATA_PROPERTY_VALUE, StatementType.OBJECT_PROPERTY_VALUE, StatementType.SAME_AS);
+
     private void run() throws Exception {
         LOGGER.info("=================================================================");
         LOGGER.info("                        S T A R T");
@@ -256,31 +257,18 @@ public class OwlReasonIncrementallyOWLAPI {
         LOGGER.debug("add location mappers");
         manager.getIRIMappers().add((new XMLCatalogIRIMapper(new File(options.catalogPath), options.inputFileExtensions)));
 
+        final OWLDataFactory factory = manager.getOWLDataFactory();
+
+        LOGGER.info("load ontology "+options.inputOntologyIri);
+        final OWLOntology inputOntology = manager.loadOntology(IRI.create(options.inputOntologyIri));
+        if (inputOntology == null) {
+            throw new RuntimeException("couldn't load ontology");
+        }
+
         // Get Pellet reasoner factory.
 
         LOGGER.info("create pellet reasoner factory");
         final OpenlletReasonerFactory reasonerFactory = OpenlletReasonerFactory.getInstance();
-
-        // Create explanation format
-
-        OWLDocumentFormat explanationFormat = extensions.get(options.explanationFormat);
-
-        // Check the input ontology
-        check(manager, reasonerFactory, explanationFormat, options.inputOntologyIri);
-
-        LOGGER.info("=================================================================");
-        LOGGER.info("                          E N D");
-        LOGGER.info("=================================================================");
-    }
-
-    private void check(final OWLOntologyManager manager, OpenlletReasonerFactory reasonerFactory, OWLDocumentFormat explanationFormat, String inputOntologyIri) throws Exception {
-        // Load input ontology.
-
-        LOGGER.info("load ontology "+inputOntologyIri);
-        final OWLOntology inputOntology = manager.loadOntology(IRI.create(inputOntologyIri));
-        if (inputOntology == null) {
-            throw new RuntimeException("couldn't load ontology");
-        }
 
         // Create a non-buffering Pellet reasoner.
 
@@ -288,12 +276,74 @@ public class OwlReasonIncrementallyOWLAPI {
         // Since refresshing the reasoner involves reloading the import closure of all ontologies,
         // it amounts to batch reasoning, not incremental reasoning.
 
-        LOGGER.info("create pellet reasoner for "+inputOntologyIri);
+        LOGGER.info("create pellet reasoner for "+inputOntology);
         PelletExplanation.setup();
         OpenlletReasoner reasoner = reasonerFactory.createNonBufferingReasoner(inputOntology);
         if (reasoner == null) {
             throw new RuntimeException("couldn't create reasoner");
         }
+
+        manager.addOntologyChangeListener(reasoner);
+
+
+        // Create explanation format
+        OWLDocumentFormat explanationFormat = extensions.get(options.explanationFormat);
+
+        // Check the input ontology
+        Entailments e1 = check(reasoner, explanationFormat, options.inputOntologyIri, 1);
+        e1.describe();
+
+        LOGGER.info("----- Add axioms -----\n");
+        OWLNamedIndividual ni = factory.getOWLNamedIndividual(IRI.create("http://srl.jpl.nasa.gov/efse/assemblies#ATest"));
+        OWLClass subsC = factory.getOWLClass(IRI.create("http://imce.jpl.nasa.gov/discipline/fse/fse#Subsystem"));
+        manager.applyChanges(
+                new AddAxiom(
+                        inputOntology, factory.getOWLDeclarationAxiom(ni)
+                ),
+                new AddAxiom(
+                        inputOntology, factory.getOWLClassAssertionAxiom(subsC, ni)
+                )
+        );
+
+        Entailments e2 = check(reasoner, explanationFormat, options.inputOntologyIri, 2);
+        e2.describe();
+//            <owl:NamedIndividual rdf:about="http://srl.jpl.nasa.gov/efse/function-list#a0f23b63-d452-4c58-8f40-40ed3217ce93">
+//                <rdf:type rdf:resource="http://imce.jpl.nasa.gov/library/types#PRT2Measurement"/>
+//                <fse:connectsAssembly1 rdf:resource="http://srl.jpl.nasa.gov/efse/assemblies#ed910146-c43c-47a7-97de-373c72a90563"/>
+//                <fse:connectsAssembly2 rdf:resource="http://srl.jpl.nasa.gov/efse/assemblies#8ab3dbe5-bd3e-4d99-8e51-14ea6e3607bf"/>
+//                <fse:connectsSubsystem1 rdf:resource="http://srl.jpl.nasa.gov/efse/assemblies#Subsystem_2006"/>
+//                <fse:connectsSubsystem2 rdf:resource="http://srl.jpl.nasa.gov/efse/assemblies#Subsystem_2014"/>
+//                <mission:joins1 rdf:resource="http://srl.jpl.nasa.gov/efse/assemblies#ed910146-c43c-47a7-97de-373c72a90563_PRTin19"/>
+//                <fse:hasEndCircuitType>Quiet</fse:hasEndCircuitType>
+//                <fse:hasFunctionDirection>2to1</fse:hasFunctionDirection>
+//                <fse:hasFunctionNumber>006-014-039</fse:hasFunctionNumber>
+//                <fse:lifecycleState>Preliminary</fse:lifecycleState>
+//                <base:hasCanonicalName>TLM UPPER LINK TEMP A</base:hasCanonicalName>
+//            </owl:NamedIndividual>
+
+
+        LOGGER.info("----- Remove axioms -----\n");
+
+        OWLOntology fl = manager.getOntology(IRI.create("http://srl.jpl.nasa.gov/efse/function-list"));
+
+        OWLNamedIndividual nd = factory.getOWLNamedIndividual(IRI.create("http://srl.jpl.nasa.gov/efse/function-list#a0f23b63-d452-4c58-8f40-40ed3217ce93"));
+        manager.applyChanges(
+                new RemoveAxiom(
+                        fl, factory.getOWLDeclarationAxiom(nd)
+                )
+        );
+
+
+        Entailments e3 = check(reasoner, explanationFormat, options.inputOntologyIri, 3);
+        e3.describe();
+
+        LOGGER.info("=================================================================");
+        LOGGER.info("                          E N D");
+        LOGGER.info("=================================================================");
+    }
+
+    private Entailments check(final OpenlletReasoner reasoner, OWLDocumentFormat explanationFormat, String inputOntologyIri, int suffix) throws Exception {
+
 
         // Create PelletExplanation.
 
@@ -333,22 +383,30 @@ public class OwlReasonIncrementallyOWLAPI {
 
         // Iterate over specs and extract entailments.
 
-        for (OwlReasonApp.Spec spec: options.specs) {
-            String outputOntologyIri = spec.outputOntologyIri;
-            EnumSet<StatementType> statementTypes = spec.statementTypes;
-            extractAndSaveEntailments(kb, inputOntologyIri, outputOntologyIri, statementTypes, manager);
-        }
+        String classesOutputIri = inputOntologyIri + "/classes" + suffix;
+        OntModel classesEntailments = extractAndSaveEntailments(kb, inputOntologyIri, classesOutputIri, classStatementTypes, reasoner.getManager());
+
+        String propertiesOutputIri = inputOntologyIri + "/properties" + suffix;
+        OntModel propertiesEntailments = extractAndSaveEntailments(kb, inputOntologyIri, propertiesOutputIri, propertyStatementTypes, reasoner.getManager());
+
+        String individualsOutputIri = inputOntologyIri + "/individuals" + suffix;
+        OntModel individualEntailments = extractAndSaveEntailments(kb, inputOntologyIri, individualsOutputIri, individualStatementTypes, reasoner.getManager());
+
+        return new Entailments(classesEntailments, propertiesEntailments, individualEntailments);
     }
 
     private List<OwlReasonApp.Result> checkConsistency(String ontologyIri, OpenlletReasoner reasoner, PelletExplanation explanation, OWLDocumentFormat explanationFormat) throws Exception {
         LOGGER.info("test consistency on "+ontologyIri);
         List<OwlReasonApp.Result> results = new ArrayList<>();
 
+        long s = System.currentTimeMillis();
         boolean success = reasoner.isConsistent();
+        long e = System.currentTimeMillis();
+
         if (success) {
-            LOGGER.info("Ontology "+ontologyIri+" is consistent");
+            LOGGER.info("Ontology "+ontologyIri+" is consistent ("+(e-s)+" ms)");
         } else {
-            LOGGER.error("Ontology "+ontologyIri+" is inconsistent");
+            LOGGER.error("Ontology "+ontologyIri+" is inconsistent ("+(e-s)+" ms)");
         }
 
         OwlReasonApp.Result result = new OwlReasonApp.Result();
@@ -365,13 +423,13 @@ public class OwlReasonIncrementallyOWLAPI {
     }
 
     private List<OwlReasonApp.Result> checkSatisfiability(String ontologyIri, OpenlletReasoner reasoner, PelletExplanation explanation, OWLDocumentFormat explanationFormat) throws Exception {
-        LOGGER.info("test satisfiability on "+ontologyIri);
+        LOGGER.trace("test satisfiability on "+ontologyIri);
         List<OwlReasonApp.Result> results = new ArrayList<>();
 
         Set<OWLClass> allClasses = reasoner.getRootOntology().classesInSignature(Imports.INCLUDED).collect(Collectors.toSet());
 
         int numOfClasses = allClasses.size();
-        LOGGER.info(numOfClasses+" total classes");
+        LOGGER.trace(numOfClasses+" total classes");
 
         int count = 0;
         int numOfUnsat = 0;
@@ -381,10 +439,10 @@ public class OwlReasonIncrementallyOWLAPI {
             if (klass.isOWLNothing()) // owl:Nothing should not be checked
                 continue;
             String className = klass.getIRI().getIRIString();
-            LOGGER.info(className+" "+ ++count+" of "+numOfClasses);
+            LOGGER.trace(className+" "+ ++count+" of "+numOfClasses);
 
             boolean success = reasoner.isSatisfiable(klass);
-            LOGGER.info("class "+className+" is "+(success?"":"un")+"satisfiable");
+            LOGGER.trace("class "+className+" is "+(success?"":"un")+"satisfiable");
 
             OwlReasonApp.Result result = new OwlReasonApp.Result();
             results.add(result);
@@ -454,52 +512,49 @@ public class OwlReasonIncrementallyOWLAPI {
         }
     }
 
-    private void extractAndSaveEntailments(KnowledgeBase kb, String inputOntologyIri, String outputOntologyIri, EnumSet<StatementType> statementTypes, OWLOntologyManager manager) throws Exception {
+    private OntModel extractAndSaveEntailments(KnowledgeBase kb, String inputOntologyIri, String outputOntologyIri, EnumSet<StatementType> statementTypes, OWLOntologyManager manager) throws Exception {
         // Create extractor.
 
         LOGGER.info("create extractor for "+statementTypes);
+        LOGGER.info("extract entailments for "+statementTypes);
+        LOGGER.info("remove trivial entailments for "+statementTypes);
+        LOGGER.info("remove backbone entailments for "+statementTypes);
+
+        long s = System.currentTimeMillis();
+
         ModelExtractor extractor = new ModelExtractor(kb);
 
         // Extract entailments
-
-        LOGGER.info("extract entailments for "+statementTypes);
         Model entailments = extractEntailments(extractor, statementTypes);
 
         // Remove trivial axioms involving owl:Thing and owl:Nothing.
-
-        LOGGER.info("remove trivial entailments for "+statementTypes);
         entailments = removeTrivial(entailments, options.removeUnsats);
 
         // Remove backbone entailments.
-
-        LOGGER.info("remove backbone entailments for "+statementTypes);
         if (options.removeBackbone) {
             entailments = removeBackbone(entailments, options.backboneIri);
         }
+        long e1 = System.currentTimeMillis();
 
         // Create Jena ontology model for results.
-
-        LOGGER.info("create jena ontology model for "+statementTypes);
         OntModel model = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM, entailments);
 
         // Create Jena ontology from model.
-
-        LOGGER.info("create jena ontology "+outputOntologyIri+" from model");
         Ontology outputOntology = model.createOntology(outputOntologyIri);
         outputOntology.addImport(ResourceFactory.createResource(inputOntologyIri));
         outputOntology.addComment("Generated by Owl Reason "+ getAppVersion(), null);
         outputOntology.addVersionInfo(""+Instant.now().getEpochSecond());
 
+        long e2 = System.currentTimeMillis();
+
         // Create an empty OWLAPI Ontology to get the ontology document IRI
 
-        LOGGER.info("get output filename from location mapping");
         OWLOntology empty = manager.createOntology(IRI.create(outputOntologyIri+"."+options.outputFileExtension));
         String filename = URI.create(manager.getOntologyDocumentIRI(empty).toString()).getPath();
         manager.removeOntology(empty);
 
         // Open output stream.
 
-        LOGGER.info("open output stream "+filename);
         File outputFile = new File(filename);
         //noinspection ResultOfMethodCallIgnored
         outputFile.getParentFile().mkdirs();
@@ -507,11 +562,15 @@ public class OwlReasonIncrementallyOWLAPI {
 
         // Serialize Jena ontology model to output stream.
 
-        LOGGER.info("serialize "+entailments.size()+" entailments to "+filename);
         Lang lang = RDFLanguages.fileExtToLang(options.outputFileExtension);
 
         model.write(outputFileStream, lang.getName());
-        LOGGER.info("finished serializing "+filename);
+        long e3 = System.currentTimeMillis();
+
+        LOGGER.info("extract entailments: ("+(e1-s)+" ms) create Jena model from results: ("+(e2-e1)+" ms) Serialize: ("+(e3-e2)+" ms)");
+        LOGGER.info("extract entailments: filename="+filename);
+
+        return model;
     }
 
     private Model extractEntailments(ModelExtractor extractor, EnumSet<StatementType> types) {
@@ -568,5 +627,12 @@ public class OwlReasonIncrementallyOWLAPI {
     private String getAppVersion() {
         var version = this.getClass().getPackage().getImplementationVersion();
         return (version != null) ? version : "<SNAPSHOT>";
+    }
+
+    public record Entailments(OntModel classes, OntModel properties, OntModel individuals) {
+
+        public void describe() {
+            LOGGER.info("Statements: classes="+classes.size() + ", properties="+properties.size()+", individuals="+individuals.size()+"\n");
+        }
     }
 }
