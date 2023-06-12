@@ -37,7 +37,7 @@ import java.util.logging.Logger;
 /**
  * Experiments with incremental reasoning.
  */
-public class OwlReasonIncrementallyApp {
+public class OwlReasonIncrementallyJena {
 
     /**
      * The default OWL file extensions
@@ -113,7 +113,7 @@ public class OwlReasonIncrementallyApp {
                 converter = URLConverter.class,
                 help=true,
                 order=8)
-        private URL cssFilePath = OwlReasonIncrementallyApp.class.getClassLoader().getResource(CSS_DEFAULT);
+        private URL cssFilePath = OwlReasonIncrementallyJena.class.getClassLoader().getResource(CSS_DEFAULT);
 
         @Parameter(
                 names = {"--debug", "-d"},
@@ -164,7 +164,7 @@ public class OwlReasonIncrementallyApp {
         }
     }
 
-    private final static Logger LOGGER = Log.getLogger(OwlReasonIncrementallyApp.class, Level.ALL);
+    private final static Logger LOGGER = Log.getLogger(OwlReasonIncrementallyJena.class, Level.ALL);
     static {
         DOMConfigurator.configure(ClassLoader.getSystemClassLoader().getResource("log4j.xml"));
     }
@@ -197,7 +197,7 @@ public class OwlReasonIncrementallyApp {
     }
 
     public static void main(String[] args) throws Exception {
-        final OwlReasonIncrementallyApp app = new OwlReasonIncrementallyApp();
+        final OwlReasonIncrementallyJena app = new OwlReasonIncrementallyJena();
         final JCommander builder = JCommander.newBuilder().addObject(app.options).build();
         builder.parse(args);
         if (app.options.help) {
@@ -210,7 +210,7 @@ public class OwlReasonIncrementallyApp {
         app.run();
     }
 
-    public OwlReasonIncrementallyApp() {}
+    public OwlReasonIncrementallyJena() {}
 
     private void run() throws Exception {
 
@@ -237,10 +237,20 @@ public class OwlReasonIncrementallyApp {
 
         final PelletReasoner r = PelletReasonerFactory.theInstance().create();
         final PelletInfGraph pig = r.bind(ontModel.getGraph());
+
+        final KnowledgeBase kb0 = pig.getKB();
+        final TBox tb0 = kb0.getTBox();
+        final Collection<ATermAppl> tas0 = tb0.getAxioms();
+        final Collection<ATermAppl> taas0 = tb0.getAssertedAxioms();
+        LOGGER.info("tbox0: "+tas0.size()+" axioms; "+taas0.size()+" asserted axioms\n");
+        ABox ab0 = kb0.getABox();
+        LOGGER.info("abox0: "+ab0.size()+" statements\n");
+
         pig.classify();
-        final KnowledgeBase kb = pig.getKB();
-        LOGGER.info("kb.isConsistencyDone()? : "+kb.isConsistencyDone()+"\n");
-        if (kb.isConsistent()) {
+        pig.realize();
+        final KnowledgeBase kb1 = pig.getKB();
+        LOGGER.info("kb.isConsistencyDone()? : "+kb1.isConsistencyDone()+"\n");
+        if (kb1.isConsistent()) {
             LOGGER.info("consistency: OK\n");
         } else {
             LOGGER.warning("consistency: Conflicts\n");
@@ -250,21 +260,25 @@ public class OwlReasonIncrementallyApp {
                 LOGGER.warning(" - " + i.next());
             }
         }
-        final TBox tb = kb.getTBox();
-        final Collection<ATermAppl> tas = tb.getAxioms();
-        final Collection<ATermAppl> taas = tb.getAssertedAxioms();
+        final TBox tb1 = kb1.getTBox();
+        final Collection<ATermAppl> tas = tb1.getAxioms();
+        final Collection<ATermAppl> taas = tb1.getAssertedAxioms();
         int nAsserted = 0;
         int nDerived = 0;
         LOGGER.info("tbox: "+tas.size()+" axioms; "+taas.size()+" asserted axioms\n");
 
+        final Set<ATermAppl> tDerived = new HashSet<>();
+        final Set<ATermAppl> tAsserted = new HashSet<>();
 
         for (final ATermAppl ta: tas) {
             final String repr = ATermApplVisitor.convert(ta);
             if (taas.contains(ta)) {
                 nAsserted++;
+                tAsserted.add(ta);
                 System.out.println("asserted:" + repr);
             } else {
                 nDerived++;
+                tDerived.add(ta);
                 System.out.println("derived:" + repr);
             }
         }
@@ -273,8 +287,31 @@ public class OwlReasonIncrementallyApp {
         LOGGER.info("tbox: "+(tas.size() - taas.size()) +" derived axioms; "+taas.size()+" asserted axioms\n");
         LOGGER.info("tbox: "+nDerived+" derived axioms; "+nAsserted+" asserted axioms\n");
 
-        ABox ab = kb.getABox();
-        LOGGER.info("abox: "+ab.size()+" statements\n");
+        int extraDerived = 0;
+        for (final ATermAppl ta : tas) {
+            if (!taas.contains(ta) && !tDerived.contains(ta)) {
+                extraDerived++;
+                final String repr = ATermApplVisitor.convert(ta);
+                LOGGER.warning("tb.getAxioms has an extra derived axiom: " + repr + "\n");
+            }
+        }
+        int extraAsserted = 0;
+        for (final ATermAppl ta : taas) {
+            if (!tas.contains(ta) && !tAsserted.contains(ta)) {
+                extraAsserted++;
+                final String repr = ATermApplVisitor.convert(ta);
+                LOGGER.warning("tb.getAssertedAxioms has an extra asserted axiom: " + repr + "\n");
+            }
+        }
+
+        LOGGER.info("tbox0: "+tas0.size()+" axioms; "+taas0.size()+" asserted axioms\n");
+        LOGGER.info("abox0: "+ab0.size()+" statements\n");
+
+        LOGGER.info("tbox1: "+(tas.size() - taas.size()) +" derived axioms; "+taas.size()+" asserted axioms\n");
+        LOGGER.info("tbox1: "+extraDerived+" extra derived, "+nDerived+" derived axioms; "+extraAsserted+" extra asserted, "+nAsserted+" asserted axioms\n");
+
+        ABox ab1 = kb1.getABox();
+        LOGGER.info("abox1: "+ab1.size()+" statements\n");
 
 
     }

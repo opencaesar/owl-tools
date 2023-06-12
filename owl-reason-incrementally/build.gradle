@@ -7,6 +7,7 @@ applicationName = 'owl-reason-incrementally'
 
 dependencies {
     implementation project (':owl-doc')
+    implementation project (':owl-reason')
 
     implementation "com.beust:jcommander:${versions.jcommander}"
     implementation "log4j:log4j:${versions.log4j}"
@@ -18,6 +19,13 @@ dependencies {
     implementation "net.sourceforge.plantuml:plantuml:${versions.plantuml}"
     implementation "org.jsoup:jsoup:${versions.jsoup}"
 
+    implementation "xml-resolver:xml-resolver:${versions.xmlresolver}"
+    implementation("com.github.galigator.openllet:openllet-owlapi:${versions.openllet}") {
+        exclude group: 'org.antlr', module: 'antlr-runtime'
+    }
+    implementation("com.github.galigator.openllet:openllet-explanation:${versions.openllet}") {
+        exclude group: 'org.antlr', module: 'antlr-runtime'
+    }
     implementation("com.github.galigator.openllet:openllet-jena:${versions.openllet}") {
         exclude group: 'org.antlr', module: 'antlr-runtime'
     }

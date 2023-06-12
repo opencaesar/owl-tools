@@ -233,12 +233,12 @@ public class OwlReasonApp {
 		private boolean help;
 	}
 		
-	private static class Spec {
-		String outputOntologyIri;
-		EnumSet<StatementType> statementTypes;
+	public static class Spec {
+		public String outputOntologyIri;
+		public EnumSet<StatementType> statementTypes;
 	}
 
-	private static class Result {
+	public static class Result {
 		public String name;
 		public String message;
 		public String explanation;
@@ -730,7 +730,7 @@ public class OwlReasonApp {
 	  	}
 	}
 
-	private static class ReasoningException extends Exception {
+	public static class ReasoningException extends Exception {
 		private static final long serialVersionUID = 1L;
 
 		public ReasoningException(String s) {
