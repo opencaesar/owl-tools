@@ -322,6 +322,11 @@ public class OwlReasonIncrementallyOWLAPI {
 //            </owl:NamedIndividual>
 
 
+        KnowledgeBase kb = reasoner.getKB();
+        LOGGER.info(kb.getIndividualsCount() + " individuals (before removal)\n");
+
+        LOGGER.info(inputOntology.individualsInSignature(Imports.INCLUDED).count() + " individuals in all ontologies (before removal)");
+
         LOGGER.info("----- Remove axioms -----\n");
 
         OWLOntology fl = manager.getOntology(IRI.create("http://srl.jpl.nasa.gov/efse/function-list"));
@@ -341,6 +346,9 @@ public class OwlReasonIncrementallyOWLAPI {
         );
         assert ca2 == ChangeApplied.SUCCESSFULLY;
 
+
+        LOGGER.info(inputOntology.individualsInSignature(Imports.INCLUDED).count() + " individuals in all ontologies (after removal)");
+
         // Verify that the function list individual is absent after removing it.
         Optional<OWLNamedIndividual> found2b = fl.individualsInSignature().filter(x -> fl2IRI.equals(x.getIRI())).findFirst();
         assert found2b.isEmpty();
@@ -348,8 +356,38 @@ public class OwlReasonIncrementallyOWLAPI {
         Optional<OWLNamedIndividual> found2c = reasoner.getOntology().individualsInSignature(Imports.INCLUDED).filter(x -> fl2IRI.equals(x.getIRI())).findFirst();
         assert found2c.isEmpty();
 
+        Optional<OWLNamedIndividual> found2d = inputOntology.individualsInSignature(Imports.INCLUDED).filter(x -> fl2IRI.equals(x.getIRI())).findFirst();
+        assert found2d.isEmpty();
+
+        List<OWLNamedIndividual> shouldBeEmpty = inputOntology.individualsInSignature(Imports.INCLUDED).filter(x -> fl2IRI.equals(x.getIRI())).toList();
+        assert shouldBeEmpty.isEmpty();
+
+        LOGGER.info(kb.getIndividualsCount() + " individuals (after removal, before refresh)");
+
+        // Force Pellet to recompute consistency.
+        reasoner.refresh();
+
+        LOGGER.info(kb.getIndividualsCount() + " individuals (after removal and refresh)");
+
         Entailments e3 = check(reasoner, explanationFormat, options.inputOntologyIri, 3);
         e3.describe();
+
+        LOGGER.info(kb.getIndividualsCount() + " individuals (after reasoner check and entailment extraction)");
+
+        Optional<OWLNamedIndividual> found3 = reasoner.getOntology().individualsInSignature(Imports.INCLUDED).filter(x -> fl2IRI.equals(x.getIRI())).findFirst();
+        assert found3.isEmpty();
+
+
+
+
+        LOGGER.info("Workaround to removal bug: create a new reasoner\n");
+        reasoner = reasonerFactory.createNonBufferingReasoner(inputOntology);
+        kb = reasoner.getKB();
+
+        LOGGER.info(kb.getIndividualsCount() + " individuals (after creating new Pellet reasoner)");
+
+        Entailments e4 = check(reasoner, explanationFormat, options.inputOntologyIri, 4);
+        e4.describe();
 
         LOGGER.info("=================================================================");
         LOGGER.info("                          E N D");
