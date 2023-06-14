@@ -337,15 +337,26 @@ public class OwlReasonIncrementallyOWLAPI {
         // Verify that the function list individual is present before removing it.
         Optional<OWLNamedIndividual> found2a = fl.individualsInSignature().filter(x -> fl2IRI.equals(x.getIRI())).findFirst();
         assert found2a.isPresent();
+        OWLNamedIndividual flI = found2a.get();
 
-        OWLNamedIndividual nd = factory.getOWLNamedIndividual(fl2IRI);
-        ChangeApplied ca2 = manager.applyChanges(
-                new RemoveAxiom(
-                        fl, factory.getOWLDeclarationAxiom(nd)
-                )
-        );
+        Set<OWLOntology> allOntologies = inputOntology.getImportsClosure();
+        LOGGER.info(allOntologies.size() + " ontologies");
+
+        Set<OWLSameIndividualAxiom> sameAs = inputOntology.getSameIndividualAxioms(flI);
+        LOGGER.info(sameAs.size() + " sameAs axioms about individual: "+fl2IRI);
+
+        List<RemoveAxiom> changes = new ArrayList<>();
+        changes.addAll(inputOntology.importsClosure().flatMap(o -> o.axioms(flI).map(ax -> new RemoveAxiom(o, ax))).toList());
+
+        // This has no effect.
+        changes.add(new RemoveAxiom(
+                fl, factory.getOWLSameIndividualAxiom(flI, flI)
+        ));
+
+        LOGGER.info("Removing "+changes.size() + " axioms about individual: "+fl2IRI);
+
+        ChangeApplied ca2 = manager.applyChanges(changes);
         assert ca2 == ChangeApplied.SUCCESSFULLY;
-
 
         LOGGER.info(inputOntology.individualsInSignature(Imports.INCLUDED).count() + " individuals in all ontologies (after removal)");
 
@@ -376,18 +387,6 @@ public class OwlReasonIncrementallyOWLAPI {
 
         Optional<OWLNamedIndividual> found3 = reasoner.getOntology().individualsInSignature(Imports.INCLUDED).filter(x -> fl2IRI.equals(x.getIRI())).findFirst();
         assert found3.isEmpty();
-
-
-
-
-        LOGGER.info("Workaround to removal bug: create a new reasoner\n");
-        reasoner = reasonerFactory.createNonBufferingReasoner(inputOntology);
-        kb = reasoner.getKB();
-
-        LOGGER.info(kb.getIndividualsCount() + " individuals (after creating new Pellet reasoner)");
-
-        Entailments e4 = check(reasoner, explanationFormat, options.inputOntologyIri, 4);
-        e4.describe();
 
         LOGGER.info("=================================================================");
         LOGGER.info("                          E N D");
