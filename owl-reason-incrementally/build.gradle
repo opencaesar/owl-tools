@@ -8,6 +8,7 @@ applicationName = 'owl-reason-incrementally'
 dependencies {
     implementation project (':owl-doc')
     implementation project (':owl-reason')
+    implementation project (':owl-diff')
 
     implementation "com.beust:jcommander:${versions.jcommander}"
     implementation "log4j:log4j:${versions.log4j}"

@@ -1,54 +1,28 @@
 package io.opencaesar.owl.reason_incrementally;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.net.URI;
-import java.time.Instant;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.Parameter;
+import io.opencaesar.owl.diff.OwlDiffApp;
 import io.opencaesar.owl.reason.OwlReasonApp;
 import io.opencaesar.owl.reason.XMLCatalogIRIMapper;
+import openllet.core.KnowledgeBase;
+import openllet.jena.ModelExtractor;
+import openllet.jena.ModelExtractor.StatementType;
+import openllet.jena.vocabulary.OWL2;
+import openllet.owlapi.OpenlletReasoner;
+import openllet.owlapi.OpenlletReasonerFactory;
+import openllet.owlapi.explanation.PelletExplanation;
 import org.apache.jena.ontology.OntModel;
 import org.apache.jena.ontology.OntModelSpec;
 import org.apache.jena.ontology.Ontology;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.rdf.model.Property;
-import org.apache.jena.rdf.model.RDFNode;
-import org.apache.jena.rdf.model.Resource;
-import org.apache.jena.rdf.model.ResourceFactory;
-import org.apache.jena.rdf.model.Statement;
-import org.apache.jena.rdf.model.StmtIterator;
+import org.apache.jena.rdf.model.*;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFLanguages;
 import org.apache.jena.vocabulary.RDFS;
-import org.apache.log4j.Appender;
-import org.apache.log4j.AppenderSkeleton;
-import org.apache.log4j.Level;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.log4j.*;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.semanticweb.owlapi.apibinding.OWLManager;
-import org.semanticweb.owlapi.formats.FunctionalSyntaxDocumentFormat;
-import org.semanticweb.owlapi.formats.N3DocumentFormat;
-import org.semanticweb.owlapi.formats.NQuadsDocumentFormat;
-import org.semanticweb.owlapi.formats.NTriplesDocumentFormat;
-import org.semanticweb.owlapi.formats.RDFJsonDocumentFormat;
-import org.semanticweb.owlapi.formats.RDFJsonLDDocumentFormat;
-import org.semanticweb.owlapi.formats.RDFXMLDocumentFormat;
-import org.semanticweb.owlapi.formats.RioTurtleDocumentFormat;
-import org.semanticweb.owlapi.formats.TrigDocumentFormat;
-import org.semanticweb.owlapi.formats.TrixDocumentFormat;
+import org.semanticweb.owlapi.formats.*;
 import org.semanticweb.owlapi.io.StringDocumentTarget;
 import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.model.parameters.ChangeApplied;
@@ -57,28 +31,45 @@ import org.w3c.dom.CDATASection;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import com.beust.jcommander.IParameterValidator;
-import com.beust.jcommander.IStringConverter;
-import com.beust.jcommander.JCommander;
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.ParameterException;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.net.URI;
+import java.time.Instant;
+import java.util.*;
+import java.util.stream.Collectors;
 
-import openllet.core.KnowledgeBase;
-import openllet.jena.ModelExtractor;
-import openllet.jena.ModelExtractor.StatementType;
-import openllet.jena.vocabulary.OWL2;
-import openllet.owlapi.OpenlletReasoner;
-import openllet.owlapi.OpenlletReasonerFactory;
-import openllet.owlapi.explanation.PelletExplanation;
 /**
  * Experiments with incremental reasoning.
  */
 public class OwlReasonIncrementallyOWLAPI {
 
+    /**
+     * default input ontology file extension.
+     */
+    public static final String DEFAULT_INPUT_FILE_EXTENSION = "owl";
+    /**
+     * default reasoner output file extension.
+     */
+    public static final String DEFAULT_OUTPUT_FILE_EXTENSION = "ttl";
+    /**
+     * default reasoner output explanation file extension.
+     */
+    public static final String DEFAULT_EXPLANATION_FORMAT = "owl";
+    static final EnumSet<StatementType> classStatementTypes = EnumSet.of(StatementType.ALL_SUBCLASS);
+    static final EnumSet<StatementType> propertyStatementTypes = EnumSet.of(StatementType.INVERSE_PROPERTY, StatementType.ALL_SUBPROPERTY);
+    static final EnumSet<StatementType> individualStatementTypes = EnumSet.of(StatementType.ALL_INSTANCE, StatementType.DATA_PROPERTY_VALUE, StatementType.OBJECT_PROPERTY_VALUE, StatementType.SAME_AS);
     private static final String CONSISTENCY = "Consistency";
     private static final String SATISFIABILITY = "Satisfiability";
-
     private static final Map<String, OWLDocumentFormat> extensions = new HashMap<>();
+    private final static Logger LOGGER = Logger.getLogger(OwlReasonIncrementallyOWLAPI.class);
+
     static {
         extensions.put("fss", new FunctionalSyntaxDocumentFormat());
         // triple formats
@@ -96,114 +87,22 @@ public class OwlReasonIncrementallyOWLAPI {
         extensions.put("nq", new NQuadsDocumentFormat());
     }
 
-    private final Options options = new Options();
-
-    /**
-     * default input ontology file extension.
-     */
-    public static final String DEFAULT_INPUT_FILE_EXTENSION = "owl";
-
-    /**
-     * default reasoner output file extension.
-     */
-    public static final String DEFAULT_OUTPUT_FILE_EXTENSION = "ttl";
-
-    /**
-     * default reasoner output explanation file extension.
-     */
-    public static final String DEFAULT_EXPLANATION_FORMAT = "owl";
-
-    private static class Options {
-        @Parameter(
-                names = { "--catalog-path", "-c"},
-                description = "path to the input OWL catalog (Required)",
-                validateWith = OwlReasonApp.CatalogPath.class,
-                required = true,
-                order = 1)
-        private String catalogPath;
-
-        @Parameter(
-                names = { "--input-ontology-iri", "-i"},
-                description = "iri of input OWL ontology (Required)",
-                required = true,
-                order = 2)
-        private String inputOntologyIri;
-
-        @Parameter(
-                names = {"--report-path", "-r"},
-                description = "path to a report file in Junit XML format ",
-                validateWith = OwlReasonApp.ReportPathValidator.class,
-                required = true,
-                order = 4)
-        private String reportPath;
-
-        @Parameter(
-                names = {"--input-file-extension", "-if"},
-                description = "input file extension (owl by default, options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss)",
-                validateWith = OwlReasonApp.FileExtensionValidator.class,
-                order = 5)
-        private List<String> inputFileExtensions = new ArrayList<>();
-        {
-            inputFileExtensions.add(DEFAULT_INPUT_FILE_EXTENSION);
-        }
-
-        @Parameter(
-                names = {"--output-file-extension", "-of"},
-                description = "output file extension (ttl by default, options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss)",
-                validateWith = OwlReasonApp.OutputFileExtensionValidator.class,
-                order = 6)
-        private String outputFileExtension = DEFAULT_OUTPUT_FILE_EXTENSION;
-
-        @Parameter(
-                names = {"--explanation-format", "-ef"},
-                description = "Explanation format (owl by default, options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss)",
-                validateWith = OwlReasonApp.ExplanationFormatValidator.class,
-                order = 7)
-        private String explanationFormat = DEFAULT_EXPLANATION_FORMAT;
-
-        @Parameter(
-                names = {"--remove-unsats", "-ru"},
-                description = "boolean indicating whether to remove entailments due to unsatisfiability (optional, default=true)",
-                arity = 1,
-                order = 8)
-        private boolean removeUnsats = true;
-
-        @Parameter(
-                names = {"--remove-backbone", "-rb"},
-                description = "boolean indicating whether to remove axioms on the backhone from entailments (optional, default=true)",
-                arity = 1,
-                order = 9)
-        private boolean removeBackbone = true;
-
-        @Parameter(
-                names = {"--backbone-iri", "-b"},
-                description = "iri of backbone ontology",
-                order = 10)
-        private String backboneIri = "http://opencaesar.io/oml";
-
-        @Parameter(
-                names = {"--indent", "-n"},
-                description = "indent of the JUnit XML elements",
-                order = 11)
-        private int indent = 2;
-
-        @Parameter(
-                names = {"--debug", "-d"},
-                description = "Shows debug logging statements",
-                order = 12)
-        private boolean debug;
-
-        @Parameter(
-                names = {"--help", "-h"},
-                description = "Displays summary of options",
-                help = true,
-                order =13)
-        private boolean help;
-    }
-
-    private final static Logger LOGGER = Logger.getLogger(OwlReasonIncrementallyOWLAPI.class);
     static {
         DOMConfigurator.configure(ClassLoader.getSystemClassLoader().getResource("log4j.xml"));
+    }
+
+    private final Options options = new Options();
+
+
+//        -i
+//        http://srl.jpl.nasa.gov/efse/bundle
+//        http://srl.jpl.nasa.gov/efse/bundle/classes=ALL_SUBCLASS
+//        -s
+//        http://srl.jpl.nasa.gov/efse/bundle/properties=INVERSE_PROPERTY|ALL_SUBPROPERTY
+//        -s
+//        http://srl.jpl.nasa.gov/efse/bundle/individuals=ALL_INSTANCE|DATA_PROPERTY_VALUE|OBJECT_PROPERTY_VALUE|SAME_AS
+
+    public OwlReasonIncrementallyOWLAPI() {
     }
 
     public static void main(String[] args) throws Exception {
@@ -221,21 +120,31 @@ public class OwlReasonIncrementallyOWLAPI {
         app.run();
     }
 
-    public OwlReasonIncrementallyOWLAPI() {}
-
-
-//        -i
-//        http://srl.jpl.nasa.gov/efse/bundle
-//        http://srl.jpl.nasa.gov/efse/bundle/classes=ALL_SUBCLASS
-//        -s
-//        http://srl.jpl.nasa.gov/efse/bundle/properties=INVERSE_PROPERTY|ALL_SUBPROPERTY
-//        -s
-//        http://srl.jpl.nasa.gov/efse/bundle/individuals=ALL_INSTANCE|DATA_PROPERTY_VALUE|OBJECT_PROPERTY_VALUE|SAME_AS
-
-    static final EnumSet<StatementType> classStatementTypes = EnumSet.of(StatementType.ALL_SUBCLASS);
-    static final EnumSet<StatementType> propertyStatementTypes = EnumSet.of(StatementType.INVERSE_PROPERTY, StatementType.ALL_SUBPROPERTY);
-    static final EnumSet<StatementType> individualStatementTypes = EnumSet.of(StatementType.ALL_INSTANCE, StatementType.DATA_PROPERTY_VALUE, StatementType.OBJECT_PROPERTY_VALUE, StatementType.SAME_AS);
-
+    /**
+     * Notes:
+     * <p>
+     * - Trying to track information from the KnowledgeBase API is very misleading because the counts remain unchanged
+     *   for unknown reasons.
+     * <p>
+     *   example:
+     *   ```
+     *   KnowledgeBase kb = reasoner.getKB();
+     *   LOGGER.info(kb.getIndividualsCount() + " individuals");
+     *   ```
+     * <p>
+     * - Trying to remove the entailment `owl:sameAs I, I` is also futile for unknown reasons.
+     * <p>
+     *   example:
+     *   ```
+     *   ATermAppl flA = ATermUtils.makeTermAppl(flI.getIRI().toString());
+     *   ATermAppl sameAxiom = ATermUtils.makeSameAs(flA, flA);
+     *   // no effect; the same-as axiom is still there even we confirmed its removal from the KB.
+     *   boolean removed = kb.removeAxiom(sameAxiom);
+     *   assert removed;
+     *   ```
+     *
+     * @throws Exception in case of error.
+     */
     private void run() throws Exception {
         LOGGER.info("=================================================================");
         LOGGER.info("                        S T A R T");
@@ -254,7 +163,7 @@ public class OwlReasonIncrementallyOWLAPI {
 
         final OWLDataFactory factory = manager.getOWLDataFactory();
 
-        LOGGER.info("load ontology "+options.inputOntologyIri);
+        LOGGER.info("load ontology " + options.inputOntologyIri);
         final OWLOntology inputOntology = manager.loadOntology(IRI.create(options.inputOntologyIri));
         if (inputOntology == null) {
             throw new RuntimeException("couldn't load ontology");
@@ -271,7 +180,7 @@ public class OwlReasonIncrementallyOWLAPI {
         // Since refresshing the reasoner involves reloading the import closure of all ontologies,
         // it amounts to batch reasoning, not incremental reasoning.
 
-        LOGGER.info("create pellet reasoner for "+inputOntology);
+        LOGGER.info("create pellet reasoner for " + inputOntology);
         PelletExplanation.setup();
         OpenlletReasoner reasoner = reasonerFactory.createNonBufferingReasoner(inputOntology);
         if (reasoner == null) {
@@ -279,7 +188,6 @@ public class OwlReasonIncrementallyOWLAPI {
         }
 
         manager.addOntologyChangeListener(reasoner);
-
 
         // Create explanation format
         OWLDocumentFormat explanationFormat = extensions.get(options.explanationFormat);
@@ -321,11 +229,8 @@ public class OwlReasonIncrementallyOWLAPI {
 //                <base:hasCanonicalName>TLM UPPER LINK TEMP A</base:hasCanonicalName>
 //            </owl:NamedIndividual>
 
-
-        KnowledgeBase kb = reasoner.getKB();
-        LOGGER.info(kb.getIndividualsCount() + " individuals (before removal)\n");
-
-        LOGGER.info(inputOntology.individualsInSignature(Imports.INCLUDED).count() + " individuals in all ontologies (before removal)");
+        Statements s12 = e1.getStatementsInLeftButNotRight(e2);
+        s12.describe();
 
         LOGGER.info("----- Remove axioms -----\n");
 
@@ -342,23 +247,11 @@ public class OwlReasonIncrementallyOWLAPI {
         Set<OWLOntology> allOntologies = inputOntology.getImportsClosure();
         LOGGER.info(allOntologies.size() + " ontologies");
 
-        Set<OWLSameIndividualAxiom> sameAs = inputOntology.getSameIndividualAxioms(flI);
-        LOGGER.info(sameAs.size() + " sameAs axioms about individual: "+fl2IRI);
-
-        List<RemoveAxiom> changes = new ArrayList<>();
-        changes.addAll(inputOntology.importsClosure().flatMap(o -> o.axioms(flI).map(ax -> new RemoveAxiom(o, ax))).toList());
-
-        // This has no effect.
-        changes.add(new RemoveAxiom(
-                fl, factory.getOWLSameIndividualAxiom(flI, flI)
-        ));
-
-        LOGGER.info("Removing "+changes.size() + " axioms about individual: "+fl2IRI);
+        List<? extends OWLOntologyChange> changes = inputOntology.importsClosure().flatMap(o -> o.axioms(flI).map(ax -> new RemoveAxiom(o, ax))).toList();
+        LOGGER.info("Removing " + changes.size() + " axioms about individual: " + fl2IRI);
 
         ChangeApplied ca2 = manager.applyChanges(changes);
         assert ca2 == ChangeApplied.SUCCESSFULLY;
-
-        LOGGER.info(inputOntology.individualsInSignature(Imports.INCLUDED).count() + " individuals in all ontologies (after removal)");
 
         // Verify that the function list individual is absent after removing it.
         Optional<OWLNamedIndividual> found2b = fl.individualsInSignature().filter(x -> fl2IRI.equals(x.getIRI())).findFirst();
@@ -373,20 +266,14 @@ public class OwlReasonIncrementallyOWLAPI {
         List<OWLNamedIndividual> shouldBeEmpty = inputOntology.individualsInSignature(Imports.INCLUDED).filter(x -> fl2IRI.equals(x.getIRI())).toList();
         assert shouldBeEmpty.isEmpty();
 
-        LOGGER.info(kb.getIndividualsCount() + " individuals (after removal, before refresh)");
-
-        // Force Pellet to recompute consistency.
-        reasoner.refresh();
-
-        LOGGER.info(kb.getIndividualsCount() + " individuals (after removal and refresh)");
-
         Entailments e3 = check(reasoner, explanationFormat, options.inputOntologyIri, 3);
         e3.describe();
 
-        LOGGER.info(kb.getIndividualsCount() + " individuals (after reasoner check and entailment extraction)");
-
         Optional<OWLNamedIndividual> found3 = reasoner.getOntology().individualsInSignature(Imports.INCLUDED).filter(x -> fl2IRI.equals(x.getIRI())).findFirst();
         assert found3.isEmpty();
+
+        Statements s23 = e2.getStatementsInLeftButNotRight(e3);
+        s23.describe();
 
         LOGGER.info("=================================================================");
         LOGGER.info("                          E N D");
@@ -398,7 +285,7 @@ public class OwlReasonIncrementallyOWLAPI {
 
         // Create PelletExplanation.
 
-        LOGGER.trace("create explanation for "+inputOntologyIri);
+        LOGGER.trace("create explanation for " + inputOntologyIri);
         PelletExplanation explanation = new PelletExplanation(reasoner);
 
         // Create knowledge base.
@@ -424,11 +311,11 @@ public class OwlReasonIncrementallyOWLAPI {
         // Check Results
 
         if (!isConsistent) {
-            LOGGER.error("Check "+options.reportPath+" for more details.");
+            LOGGER.error("Check " + options.reportPath + " for more details.");
             throw new OwlReasonApp.ReasoningException("Ontology is inconsistent. Check " + options.reportPath + " for more details.");
         }
         if (!isSatisfiable) {
-            LOGGER.error("Check "+options.reportPath+" for more details.");
+            LOGGER.error("Check " + options.reportPath + " for more details.");
             throw new OwlReasonApp.ReasoningException("Ontology has insatisfiabilities. Check " + options.reportPath + " for more details.");
         }
 
@@ -443,11 +330,11 @@ public class OwlReasonIncrementallyOWLAPI {
         String individualsOutputIri = inputOntologyIri + "/individuals" + suffix;
         OntModel individualEntailments = extractAndSaveEntailments(kb, inputOntologyIri, individualsOutputIri, individualStatementTypes, reasoner.getManager());
 
-        return new Entailments(classesEntailments, propertiesEntailments, individualEntailments);
+        return new Entailments(classesOutputIri, classesEntailments, propertiesOutputIri, propertiesEntailments, individualsOutputIri, individualEntailments);
     }
 
     private List<OwlReasonApp.Result> checkConsistency(String ontologyIri, OpenlletReasoner reasoner, PelletExplanation explanation, OWLDocumentFormat explanationFormat) throws Exception {
-        LOGGER.trace("test consistency on "+ontologyIri);
+        LOGGER.trace("test consistency on " + ontologyIri);
         List<OwlReasonApp.Result> results = new ArrayList<>();
 
         long s = System.currentTimeMillis();
@@ -455,9 +342,9 @@ public class OwlReasonIncrementallyOWLAPI {
         long e = System.currentTimeMillis();
 
         if (success) {
-            LOGGER.info("Ontology "+ontologyIri+" is consistent ("+(e-s)+" ms)");
+            LOGGER.info("Ontology " + ontologyIri + " is consistent (" + (e - s) + " ms)");
         } else {
-            LOGGER.error("Ontology "+ontologyIri+" is inconsistent ("+(e-s)+" ms)");
+            LOGGER.error("Ontology " + ontologyIri + " is inconsistent (" + (e - s) + " ms)");
         }
 
         OwlReasonApp.Result result = new OwlReasonApp.Result();
@@ -474,13 +361,13 @@ public class OwlReasonIncrementallyOWLAPI {
     }
 
     private List<OwlReasonApp.Result> checkSatisfiability(String ontologyIri, OpenlletReasoner reasoner, PelletExplanation explanation, OWLDocumentFormat explanationFormat) throws Exception {
-        LOGGER.trace("test satisfiability on "+ontologyIri);
+        LOGGER.trace("test satisfiability on " + ontologyIri);
         List<OwlReasonApp.Result> results = new ArrayList<>();
 
         Set<OWLClass> allClasses = reasoner.getRootOntology().classesInSignature(Imports.INCLUDED).collect(Collectors.toSet());
 
         int numOfClasses = allClasses.size();
-        LOGGER.trace(numOfClasses+" total classes");
+        LOGGER.trace(numOfClasses + " total classes");
 
         int count = 0;
         int numOfUnsat = 0;
@@ -490,23 +377,23 @@ public class OwlReasonIncrementallyOWLAPI {
             if (klass.isOWLNothing()) // owl:Nothing should not be checked
                 continue;
             String className = klass.getIRI().getIRIString();
-            LOGGER.trace(className+" "+ ++count+" of "+numOfClasses);
+            LOGGER.trace(className + " " + ++count + " of " + numOfClasses);
 
             boolean success = reasoner.isSatisfiable(klass);
-            LOGGER.trace("class "+className+" is "+(success?"":"un")+"satisfiable");
+            LOGGER.trace("class " + className + " is " + (success ? "" : "un") + "satisfiable");
 
             OwlReasonApp.Result result = new OwlReasonApp.Result();
             results.add(result);
             result.name = className;
 
             if (!success) {
-                result.message = "class "+className+" is insatisfiable";
+                result.message = "class " + className + " is insatisfiable";
                 result.explanation = createExplanationOntology(explanation.getUnsatisfiableExplanation(klass), explanationFormat);
                 numOfUnsat += 1;
             }
         }
         if (numOfUnsat > 0) {
-            LOGGER.error("Ontology "+ontologyIri+" has "+numOfUnsat+" insatisfiabilities");
+            LOGGER.error("Ontology " + ontologyIri + " has " + numOfUnsat + " insatisfiabilities");
         }
 
         return results;
@@ -514,7 +401,7 @@ public class OwlReasonIncrementallyOWLAPI {
 
     private String createExplanationOntology(Set<OWLAxiom> axioms, OWLDocumentFormat format) throws Exception {
         OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
-        if (manager == null ) {
+        if (manager == null) {
             throw new RuntimeException("couldn't create owl ontology manager");
         }
         OWLOntology ontology = manager.createOntology(axioms);
@@ -546,7 +433,7 @@ public class OwlReasonIncrementallyOWLAPI {
                     Element fl = doc.createElement("failure");
                     tc.appendChild(fl);
                     fl.setAttribute("message", result.message);
-                    CDATASection cdoc = doc.createCDATASection("\n"+result.message+"\n\n"+result.explanation+"\n");
+                    CDATASection cdoc = doc.createCDATASection("\n" + result.message + "\n\n" + result.explanation + "\n");
                     fl.appendChild(cdoc);
                 }
             });
@@ -554,7 +441,7 @@ public class OwlReasonIncrementallyOWLAPI {
 
         Transformer transformer = TransformerFactory.newInstance().newTransformer();
         transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-        transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", ""+indent);
+        transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "" + indent);
         DOMSource source = new DOMSource(doc);
         File reportFile = new File(options.reportPath);
         try (FileOutputStream stream = new FileOutputStream(reportFile)) {
@@ -566,10 +453,10 @@ public class OwlReasonIncrementallyOWLAPI {
     private OntModel extractAndSaveEntailments(KnowledgeBase kb, String inputOntologyIri, String outputOntologyIri, EnumSet<StatementType> statementTypes, OWLOntologyManager manager) throws Exception {
         // Create extractor.
 
-        LOGGER.trace("create extractor for "+statementTypes);
-        LOGGER.trace("extract entailments for "+statementTypes);
-        LOGGER.trace("remove trivial entailments for "+statementTypes);
-        LOGGER.trace("remove backbone entailments for "+statementTypes);
+        LOGGER.trace("create extractor for " + statementTypes);
+        LOGGER.trace("extract entailments for " + statementTypes);
+        LOGGER.trace("remove trivial entailments for " + statementTypes);
+        LOGGER.trace("remove backbone entailments for " + statementTypes);
 
         long s = System.currentTimeMillis();
 
@@ -579,11 +466,11 @@ public class OwlReasonIncrementallyOWLAPI {
         Model entailments = extractEntailments(extractor, statementTypes);
 
         // Remove trivial axioms involving owl:Thing and owl:Nothing.
-        entailments = removeTrivial(entailments, options.removeUnsats);
+        removeTrivial(entailments, options.removeUnsats);
 
         // Remove backbone entailments.
         if (options.removeBackbone) {
-            entailments = removeBackbone(entailments, options.backboneIri);
+            removeBackbone(entailments, options.backboneIri);
         }
         long e1 = System.currentTimeMillis();
 
@@ -593,14 +480,14 @@ public class OwlReasonIncrementallyOWLAPI {
         // Create Jena ontology from model.
         Ontology outputOntology = model.createOntology(outputOntologyIri);
         outputOntology.addImport(ResourceFactory.createResource(inputOntologyIri));
-        outputOntology.addComment("Generated by Owl Reason "+ getAppVersion(), null);
-        outputOntology.addVersionInfo(""+Instant.now().getEpochSecond());
+        outputOntology.addComment("Generated by Owl Reason " + getAppVersion(), null);
+        outputOntology.addVersionInfo("" + Instant.now().getEpochSecond());
 
         long e2 = System.currentTimeMillis();
 
         // Create an empty OWLAPI Ontology to get the ontology document IRI
 
-        OWLOntology empty = manager.createOntology(IRI.create(outputOntologyIri+"."+options.outputFileExtension));
+        OWLOntology empty = manager.createOntology(IRI.create(outputOntologyIri + "." + options.outputFileExtension));
         String filename = URI.create(manager.getOntologyDocumentIRI(empty).toString()).getPath();
         manager.removeOntology(empty);
 
@@ -618,8 +505,8 @@ public class OwlReasonIncrementallyOWLAPI {
         model.write(outputFileStream, lang.getName());
         long e3 = System.currentTimeMillis();
 
-        LOGGER.info("extract entailments: ("+(e1-s)+" ms) create Jena model from results: ("+(e2-e1)+" ms) Serialize: ("+(e3-e2)+" ms)");
-        LOGGER.info("extract entailments: filename="+filename);
+        LOGGER.info("extract entailments: (" + (e1 - s) + " ms) create Jena model from results: (" + (e2 - e1) + " ms) Serialize: (" + (e3 - e2) + " ms)");
+        LOGGER.info("extract entailments: filename=" + filename);
 
         return model;
     }
@@ -628,14 +515,14 @@ public class OwlReasonIncrementallyOWLAPI {
         // Extract entailments.
         extractor.setSelector(types);
         Model result = extractor.extractModel();
-        LOGGER.trace("extracted "+result.size()+" entailed axioms");
+        LOGGER.trace("extracted " + result.size() + " entailed axioms");
         return result;
     }
 
     /*
      *  Remove trivial entailments involving owl:Thing, owl:Nothing, owl:topObjectProperty, owl:topDataProperty
      */
-    private Model removeTrivial(Model entailments, boolean removeUnsats) {
+    private void removeTrivial(Model entailments, boolean removeUnsats) {
         StmtIterator iterator = entailments.listStatements();
         List<Statement> trivial = new ArrayList<>();
         while (iterator.hasNext()) {
@@ -649,14 +536,13 @@ public class OwlReasonIncrementallyOWLAPI {
             }
         }
         entailments.remove(trivial);
-        LOGGER.trace("removed "+trivial.size()+" trivial axioms");
-        return entailments;
+        LOGGER.trace("removed " + trivial.size() + " trivial axioms");
     }
 
     /*
      * Remove entailments involving backbone items.
      */
-    private Model removeBackbone(Model entailments, String pattern) {
+    private void removeBackbone(Model entailments, String pattern) {
         StmtIterator iterator = entailments.listStatements();
         List<Statement> backbone = new ArrayList<>();
         while (iterator.hasNext()) {
@@ -664,15 +550,14 @@ public class OwlReasonIncrementallyOWLAPI {
             Property predicate = statement.getPredicate();
             RDFNode object = statement.getObject();
             if (object instanceof Resource) {
-                String objectIri = ((Resource)object).getURI();
+                String objectIri = ((Resource) object).getURI();
                 if ((predicate.equals(RDFS.subClassOf) || predicate.equals(RDFS.subPropertyOf)) && objectIri.startsWith(pattern)) {
                     backbone.add(statement);
                 }
             }
         }
         entailments.remove(backbone);
-        LOGGER.trace("removed "+backbone.size()+" backbone axioms");
-        return entailments;
+        LOGGER.trace("removed " + backbone.size() + " backbone axioms");
     }
 
     private String getAppVersion() {
@@ -680,10 +565,127 @@ public class OwlReasonIncrementallyOWLAPI {
         return (version != null) ? version : "<SNAPSHOT>";
     }
 
-    public record Entailments(OntModel classes, OntModel properties, OntModel individuals) {
+    private static class Options {
+        @Parameter(
+                names = {"--catalog-path", "-c"},
+                description = "path to the input OWL catalog (Required)",
+                validateWith = OwlReasonApp.CatalogPath.class,
+                required = true,
+                order = 1)
+        private String catalogPath;
+
+        @Parameter(
+                names = {"--input-ontology-iri", "-i"},
+                description = "iri of input OWL ontology (Required)",
+                required = true,
+                order = 2)
+        private String inputOntologyIri;
+
+        @Parameter(
+                names = {"--report-path", "-r"},
+                description = "path to a report file in Junit XML format ",
+                validateWith = OwlReasonApp.ReportPathValidator.class,
+                required = true,
+                order = 4)
+        private String reportPath;
+
+        @Parameter(
+                names = {"--input-file-extension", "-if"},
+                description = "input file extension (owl by default, options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss)",
+                validateWith = OwlReasonApp.FileExtensionValidator.class,
+                order = 5)
+        private List<String> inputFileExtensions = new ArrayList<>();
+        @Parameter(
+                names = {"--output-file-extension", "-of"},
+                description = "output file extension (ttl by default, options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss)",
+                validateWith = OwlReasonApp.OutputFileExtensionValidator.class,
+                order = 6)
+        private String outputFileExtension = DEFAULT_OUTPUT_FILE_EXTENSION;
+        @Parameter(
+                names = {"--explanation-format", "-ef"},
+                description = "Explanation format (owl by default, options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss)",
+                validateWith = OwlReasonApp.ExplanationFormatValidator.class,
+                order = 7)
+        private String explanationFormat = DEFAULT_EXPLANATION_FORMAT;
+        @Parameter(
+                names = {"--remove-unsats", "-ru"},
+                description = "boolean indicating whether to remove entailments due to unsatisfiability (optional, default=true)",
+                arity = 1,
+                order = 8)
+        private boolean removeUnsats = true;
+        @Parameter(
+                names = {"--remove-backbone", "-rb"},
+                description = "boolean indicating whether to remove axioms on the backhone from entailments (optional, default=true)",
+                arity = 1,
+                order = 9)
+        private boolean removeBackbone = true;
+        @Parameter(
+                names = {"--backbone-iri", "-b"},
+                description = "iri of backbone ontology",
+                order = 10)
+        private String backboneIri = "http://opencaesar.io/oml";
+        @Parameter(
+                names = {"--indent", "-n"},
+                description = "indent of the JUnit XML elements",
+                order = 11)
+        private int indent = 2;
+        @Parameter(
+                names = {"--debug", "-d"},
+                description = "Shows debug logging statements",
+                order = 12)
+        private boolean debug;
+        @Parameter(
+                names = {"--help", "-h"},
+                description = "Displays summary of options",
+                help = true,
+                order = 13)
+        private boolean help;
+
+        {
+            inputFileExtensions.add(DEFAULT_INPUT_FILE_EXTENSION);
+        }
+    }
+
+    public record Statements(
+            List<Statement> deletedClasses,
+            List<Statement> addedClasses,
+            List<Statement> deletedProperties,
+            List<Statement> addedProperties,
+            List<Statement> deletedIndividuals,
+            List<Statement> addedIndividuals) {
+        public void describe() {
+            LOGGER.info("Statements: classes=-" + deletedClasses.size() + ",+" + addedClasses.size()
+                    + "; properties=-" + deletedProperties.size() + ",+" + addedProperties.size()
+                    + "; individuals=-" + deletedIndividuals.size() + ",+" + addedIndividuals.size());
+        }
+    }
+
+    public record Entailments(String classesIRI, OntModel classes, String propertiesIRI, OntModel properties, String individualsIRI, OntModel individuals) {
 
         public void describe() {
-            LOGGER.info("Statements: classes="+classes.size() + ", properties="+properties.size()+", individuals="+individuals.size()+"\n");
+            LOGGER.info("Statements: classes=" + classes.size() + ", properties=" + properties.size() + ", individuals=" + individuals.size() + "\n");
+        }
+
+        public Statements getStatementsInLeftButNotRight(Entailments other) {
+            List<Statement> cDeleted = OwlDiffApp.getStatementsInLeftButNotRight(this.classes, other.classes).stream().filter(s ->
+                    !Objects.equals(s.getSubject().getURI(), this.classesIRI)
+            ).toList();
+            List<Statement> cAdded = OwlDiffApp.getStatementsInLeftButNotRight(other.classes, this.classes).stream().filter(s ->
+                    !Objects.equals(s.getSubject().getURI(), other.classesIRI)
+            ).toList();
+            List<Statement> pDeleted = OwlDiffApp.getStatementsInLeftButNotRight(this.properties, other.properties).stream().filter(s ->
+                    !Objects.equals(s.getSubject().getURI(), this.propertiesIRI)
+            ).toList();
+            List<Statement> pAdded = OwlDiffApp.getStatementsInLeftButNotRight(other.properties, this.properties).stream().filter(s ->
+                    !Objects.equals(s.getSubject().getURI(), other.propertiesIRI)
+            ).toList();
+            List<Statement> iDeleted = OwlDiffApp.getStatementsInLeftButNotRight(this.individuals, other.individuals).stream().filter(s ->
+                    !Objects.equals(s.getSubject().getURI(), this.individualsIRI)
+            ).toList();
+            List<Statement> iAdded = OwlDiffApp.getStatementsInLeftButNotRight(other.individuals, this.individuals).stream().filter(s ->
+                    !Objects.equals(s.getSubject().getURI(), other.individualsIRI)
+            ).toList();
+            return new Statements(cDeleted, cAdded, pDeleted, pAdded, iDeleted, iAdded);
         }
     }
 }

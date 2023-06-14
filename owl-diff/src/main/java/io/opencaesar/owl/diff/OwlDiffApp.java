@@ -205,7 +205,7 @@ public class OwlDiffApp {
 	 * @param right the right model
 	 * @return a list of statements that exist in the left model but not the right model
 	 */
-	public List<Statement> getStatementsInLeftButNotRight(final Model left, final Model right) {
+	public static List<Statement> getStatementsInLeftButNotRight(final Model left, final Model right) {
 		var statements = new ArrayList<Statement>();
 		StmtIterator i = left.listStatements();
 		while (i.hasNext()) {
