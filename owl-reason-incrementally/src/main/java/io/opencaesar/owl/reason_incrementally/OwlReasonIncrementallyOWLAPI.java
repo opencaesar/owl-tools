@@ -4,13 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.net.URI;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -57,6 +51,7 @@ import org.semanticweb.owlapi.formats.TrigDocumentFormat;
 import org.semanticweb.owlapi.formats.TrixDocumentFormat;
 import org.semanticweb.owlapi.io.StringDocumentTarget;
 import org.semanticweb.owlapi.model.*;
+import org.semanticweb.owlapi.model.parameters.ChangeApplied;
 import org.semanticweb.owlapi.model.parameters.Imports;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.Document;
@@ -294,9 +289,10 @@ public class OwlReasonIncrementallyOWLAPI {
         e1.describe();
 
         LOGGER.info("----- Add axioms -----\n");
-        OWLNamedIndividual ni = factory.getOWLNamedIndividual(IRI.create("http://srl.jpl.nasa.gov/efse/assemblies#ATest"));
+        IRI niIRI = IRI.create("http://srl.jpl.nasa.gov/efse/assemblies#ATest");
+        OWLNamedIndividual ni = factory.getOWLNamedIndividual(niIRI);
         OWLClass subsC = factory.getOWLClass(IRI.create("http://imce.jpl.nasa.gov/discipline/fse/fse#Subsystem"));
-        manager.applyChanges(
+        ChangeApplied ca1 = manager.applyChanges(
                 new AddAxiom(
                         inputOntology, factory.getOWLDeclarationAxiom(ni)
                 ),
@@ -304,6 +300,10 @@ public class OwlReasonIncrementallyOWLAPI {
                         inputOntology, factory.getOWLClassAssertionAxiom(subsC, ni)
                 )
         );
+        assert ca1 == ChangeApplied.SUCCESSFULLY;
+
+        Optional<OWLNamedIndividual> found1 = inputOntology.individualsInSignature().filter(x -> niIRI.equals(x.getIRI())).findFirst();
+        assert found1.isPresent();
 
         Entailments e2 = check(reasoner, explanationFormat, options.inputOntologyIri, 2);
         e2.describe();
@@ -325,14 +325,28 @@ public class OwlReasonIncrementallyOWLAPI {
         LOGGER.info("----- Remove axioms -----\n");
 
         OWLOntology fl = manager.getOntology(IRI.create("http://srl.jpl.nasa.gov/efse/function-list"));
+        assert null != fl;
 
-        OWLNamedIndividual nd = factory.getOWLNamedIndividual(IRI.create("http://srl.jpl.nasa.gov/efse/function-list#a0f23b63-d452-4c58-8f40-40ed3217ce93"));
-        manager.applyChanges(
+        IRI fl2IRI = IRI.create("http://srl.jpl.nasa.gov/efse/function-list#a0f23b63-d452-4c58-8f40-40ed3217ce93");
+
+        // Verify that the function list individual is present before removing it.
+        Optional<OWLNamedIndividual> found2a = fl.individualsInSignature().filter(x -> fl2IRI.equals(x.getIRI())).findFirst();
+        assert found2a.isPresent();
+
+        OWLNamedIndividual nd = factory.getOWLNamedIndividual(fl2IRI);
+        ChangeApplied ca2 = manager.applyChanges(
                 new RemoveAxiom(
                         fl, factory.getOWLDeclarationAxiom(nd)
                 )
         );
+        assert ca2 == ChangeApplied.SUCCESSFULLY;
 
+        // Verify that the function list individual is absent after removing it.
+        Optional<OWLNamedIndividual> found2b = fl.individualsInSignature().filter(x -> fl2IRI.equals(x.getIRI())).findFirst();
+        assert found2b.isEmpty();
+
+        Optional<OWLNamedIndividual> found2c = reasoner.getOntology().individualsInSignature(Imports.INCLUDED).filter(x -> fl2IRI.equals(x.getIRI())).findFirst();
+        assert found2c.isEmpty();
 
         Entailments e3 = check(reasoner, explanationFormat, options.inputOntologyIri, 3);
         e3.describe();
@@ -347,12 +361,12 @@ public class OwlReasonIncrementallyOWLAPI {
 
         // Create PelletExplanation.
 
-        LOGGER.info("create explanation for "+inputOntologyIri);
+        LOGGER.trace("create explanation for "+inputOntologyIri);
         PelletExplanation explanation = new PelletExplanation(reasoner);
 
         // Create knowledge base.
 
-        LOGGER.info("create knowledge base and extractor");
+        LOGGER.trace("create knowledge base and extractor");
         KnowledgeBase kb = reasoner.getKB();
         if (kb == null) {
             throw new RuntimeException("couldn't get knowledge base");
@@ -396,7 +410,7 @@ public class OwlReasonIncrementallyOWLAPI {
     }
 
     private List<OwlReasonApp.Result> checkConsistency(String ontologyIri, OpenlletReasoner reasoner, PelletExplanation explanation, OWLDocumentFormat explanationFormat) throws Exception {
-        LOGGER.info("test consistency on "+ontologyIri);
+        LOGGER.trace("test consistency on "+ontologyIri);
         List<OwlReasonApp.Result> results = new ArrayList<>();
 
         long s = System.currentTimeMillis();
@@ -515,10 +529,10 @@ public class OwlReasonIncrementallyOWLAPI {
     private OntModel extractAndSaveEntailments(KnowledgeBase kb, String inputOntologyIri, String outputOntologyIri, EnumSet<StatementType> statementTypes, OWLOntologyManager manager) throws Exception {
         // Create extractor.
 
-        LOGGER.info("create extractor for "+statementTypes);
-        LOGGER.info("extract entailments for "+statementTypes);
-        LOGGER.info("remove trivial entailments for "+statementTypes);
-        LOGGER.info("remove backbone entailments for "+statementTypes);
+        LOGGER.trace("create extractor for "+statementTypes);
+        LOGGER.trace("extract entailments for "+statementTypes);
+        LOGGER.trace("remove trivial entailments for "+statementTypes);
+        LOGGER.trace("remove backbone entailments for "+statementTypes);
 
         long s = System.currentTimeMillis();
 
@@ -577,7 +591,7 @@ public class OwlReasonIncrementallyOWLAPI {
         // Extract entailments.
         extractor.setSelector(types);
         Model result = extractor.extractModel();
-        LOGGER.info("extracted "+result.size()+" entailed axioms");
+        LOGGER.trace("extracted "+result.size()+" entailed axioms");
         return result;
     }
 
@@ -598,7 +612,7 @@ public class OwlReasonIncrementallyOWLAPI {
             }
         }
         entailments.remove(trivial);
-        LOGGER.info("removed "+trivial.size()+" trivial axioms");
+        LOGGER.trace("removed "+trivial.size()+" trivial axioms");
         return entailments;
     }
 
@@ -620,7 +634,7 @@ public class OwlReasonIncrementallyOWLAPI {
             }
         }
         entailments.remove(backbone);
-        LOGGER.info("removed "+backbone.size()+" backbone axioms");
+        LOGGER.trace("removed "+backbone.size()+" backbone axioms");
         return entailments;
     }
 
