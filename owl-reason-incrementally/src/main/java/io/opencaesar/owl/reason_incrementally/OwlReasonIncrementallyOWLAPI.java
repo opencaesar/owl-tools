@@ -93,14 +93,11 @@ public class OwlReasonIncrementallyOWLAPI {
 
     private final Options options = new Options();
 
+    private final OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
 
-//        -i
-//        http://srl.jpl.nasa.gov/efse/bundle
-//        http://srl.jpl.nasa.gov/efse/bundle/classes=ALL_SUBCLASS
-//        -s
-//        http://srl.jpl.nasa.gov/efse/bundle/properties=INVERSE_PROPERTY|ALL_SUBPROPERTY
-//        -s
-//        http://srl.jpl.nasa.gov/efse/bundle/individuals=ALL_INSTANCE|DATA_PROPERTY_VALUE|OBJECT_PROPERTY_VALUE|SAME_AS
+    private final OWLDataFactory factory = manager.getOWLDataFactory();
+
+    private final OpenlletReasonerFactory reasonerFactory = OpenlletReasonerFactory.getInstance();
 
     public OwlReasonIncrementallyOWLAPI() {
     }
@@ -153,15 +150,8 @@ public class OwlReasonIncrementallyOWLAPI {
 
         // Create ontology manager.
 
-        LOGGER.info("create ontology manager");
-        final OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
-        if (manager == null) {
-            throw new RuntimeException("couldn't create owl ontology manager");
-        }
         LOGGER.debug("add location mappers");
         manager.getIRIMappers().add((new XMLCatalogIRIMapper(new File(options.catalogPath), options.inputFileExtensions)));
-
-        final OWLDataFactory factory = manager.getOWLDataFactory();
 
         LOGGER.info("load ontology " + options.inputOntologyIri);
         final OWLOntology inputOntology = manager.loadOntology(IRI.create(options.inputOntologyIri));
@@ -172,7 +162,6 @@ public class OwlReasonIncrementallyOWLAPI {
         // Get Pellet reasoner factory.
 
         LOGGER.info("create pellet reasoner factory");
-        final OpenlletReasonerFactory reasonerFactory = OpenlletReasonerFactory.getInstance();
 
         // Create a non-buffering Pellet reasoner.
 
@@ -197,6 +186,10 @@ public class OwlReasonIncrementallyOWLAPI {
         e1.describe();
 
         LOGGER.info("----- Add axioms -----\n");
+
+        // This is similar to io.opencaesar.oml2owl.Oml2Owl#caseConceptInstance when the instance is not a reference.
+        // Unlike the code below, this method also generates axioms for all owned property values.
+        // See: https://github.com/opencaesar/owl-adapter/blob/0d3bb409c9f90232caae4f1fb5b8e999cb8bace7/oml2owl/src/main/java/io/opencaesar/oml2owl/Oml2Owl.java#L360
         IRI niIRI = IRI.create("http://srl.jpl.nasa.gov/efse/assemblies#ATest");
         OWLNamedIndividual ni = factory.getOWLNamedIndividual(niIRI);
         OWLClass subsC = factory.getOWLClass(IRI.create("http://imce.jpl.nasa.gov/discipline/fse/fse#Subsystem"));
@@ -244,6 +237,10 @@ public class OwlReasonIncrementallyOWLAPI {
         assert found2a.isPresent();
         OWLNamedIndividual flI = found2a.get();
 
+        // This is similar to the inverse of io.opencaesar.oml2owl.Oml2Owl#caseConceptInstance when the instance is not a reference.
+        // Whereas the methods generates axioms for all owned property values in the current ontology,
+        // the logic below removes the axioms from the ontologies in which they were asserted.
+        // See: https://github.com/opencaesar/owl-adapter/blob/0d3bb409c9f90232caae4f1fb5b8e999cb8bace7/oml2owl/src/main/java/io/opencaesar/oml2owl/Oml2Owl.java#L360
         Set<OWLOntology> allOntologies = inputOntology.getImportsClosure();
         LOGGER.info(allOntologies.size() + " ontologies");
 
