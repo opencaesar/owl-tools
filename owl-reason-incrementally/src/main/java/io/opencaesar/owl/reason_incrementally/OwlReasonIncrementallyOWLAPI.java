@@ -1,8 +1,81 @@
 package io.opencaesar.owl.reason_incrementally;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.net.URI;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.apache.jena.ontology.OntModel;
+import org.apache.jena.ontology.OntModelSpec;
+import org.apache.jena.ontology.Ontology;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.Property;
+import org.apache.jena.rdf.model.RDFNode;
+import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.ResourceFactory;
+import org.apache.jena.rdf.model.Statement;
+import org.apache.jena.rdf.model.StmtIterator;
+import org.apache.jena.riot.Lang;
+import org.apache.jena.riot.RDFLanguages;
+import org.apache.jena.vocabulary.OWL;
+import org.apache.jena.vocabulary.RDFS;
+import org.apache.log4j.Appender;
+import org.apache.log4j.AppenderSkeleton;
+import org.apache.log4j.Level;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+import org.apache.log4j.xml.DOMConfigurator;
+import org.semanticweb.owlapi.apibinding.OWLManager;
+import org.semanticweb.owlapi.formats.FunctionalSyntaxDocumentFormat;
+import org.semanticweb.owlapi.formats.N3DocumentFormat;
+import org.semanticweb.owlapi.formats.NQuadsDocumentFormat;
+import org.semanticweb.owlapi.formats.NTriplesDocumentFormat;
+import org.semanticweb.owlapi.formats.RDFJsonDocumentFormat;
+import org.semanticweb.owlapi.formats.RDFJsonLDDocumentFormat;
+import org.semanticweb.owlapi.formats.RDFXMLDocumentFormat;
+import org.semanticweb.owlapi.formats.RioTurtleDocumentFormat;
+import org.semanticweb.owlapi.formats.TrigDocumentFormat;
+import org.semanticweb.owlapi.formats.TrixDocumentFormat;
+import org.semanticweb.owlapi.io.StringDocumentTarget;
+import org.semanticweb.owlapi.model.AddAxiom;
+import org.semanticweb.owlapi.model.IRI;
+import org.semanticweb.owlapi.model.OWLAxiom;
+import org.semanticweb.owlapi.model.OWLClass;
+import org.semanticweb.owlapi.model.OWLDataFactory;
+import org.semanticweb.owlapi.model.OWLDocumentFormat;
+import org.semanticweb.owlapi.model.OWLNamedIndividual;
+import org.semanticweb.owlapi.model.OWLOntology;
+import org.semanticweb.owlapi.model.OWLOntologyChange;
+import org.semanticweb.owlapi.model.OWLOntologyManager;
+import org.semanticweb.owlapi.model.RemoveAxiom;
+import org.semanticweb.owlapi.model.parameters.ChangeApplied;
+import org.semanticweb.owlapi.model.parameters.Imports;
+import org.w3c.dom.CDATASection;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
-import io.opencaesar.owl.diff.OwlDiffApp;
+
 import io.opencaesar.owl.reason.OwlReasonApp;
 import io.opencaesar.owl.reason.XMLCatalogIRIMapper;
 import openllet.core.KnowledgeBase;
@@ -12,38 +85,6 @@ import openllet.jena.vocabulary.OWL2;
 import openllet.owlapi.OpenlletReasoner;
 import openllet.owlapi.OpenlletReasonerFactory;
 import openllet.owlapi.explanation.PelletExplanation;
-import org.apache.jena.ontology.OntModel;
-import org.apache.jena.ontology.OntModelSpec;
-import org.apache.jena.ontology.Ontology;
-import org.apache.jena.rdf.model.*;
-import org.apache.jena.riot.Lang;
-import org.apache.jena.riot.RDFLanguages;
-import org.apache.jena.vocabulary.RDFS;
-import org.apache.log4j.*;
-import org.apache.log4j.xml.DOMConfigurator;
-import org.semanticweb.owlapi.apibinding.OWLManager;
-import org.semanticweb.owlapi.formats.*;
-import org.semanticweb.owlapi.io.StringDocumentTarget;
-import org.semanticweb.owlapi.model.*;
-import org.semanticweb.owlapi.model.parameters.ChangeApplied;
-import org.semanticweb.owlapi.model.parameters.Imports;
-import org.w3c.dom.CDATASection;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.net.URI;
-import java.time.Instant;
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Experiments with incremental reasoning.
@@ -664,25 +705,48 @@ public class OwlReasonIncrementallyOWLAPI {
         }
 
         public Statements getStatementsInLeftButNotRight(Entailments other) {
-            List<Statement> cDeleted = OwlDiffApp.getStatementsInLeftButNotRight(this.classes, other.classes).stream().filter(s ->
+            List<Statement> cDeleted = getStatementsInLeftButNotRight(this.classes, other.classes).stream().filter(s ->
                     !Objects.equals(s.getSubject().getURI(), this.classesIRI)
             ).toList();
-            List<Statement> cAdded = OwlDiffApp.getStatementsInLeftButNotRight(other.classes, this.classes).stream().filter(s ->
+            List<Statement> cAdded = getStatementsInLeftButNotRight(other.classes, this.classes).stream().filter(s ->
                     !Objects.equals(s.getSubject().getURI(), other.classesIRI)
             ).toList();
-            List<Statement> pDeleted = OwlDiffApp.getStatementsInLeftButNotRight(this.properties, other.properties).stream().filter(s ->
+            List<Statement> pDeleted = getStatementsInLeftButNotRight(this.properties, other.properties).stream().filter(s ->
                     !Objects.equals(s.getSubject().getURI(), this.propertiesIRI)
             ).toList();
-            List<Statement> pAdded = OwlDiffApp.getStatementsInLeftButNotRight(other.properties, this.properties).stream().filter(s ->
+            List<Statement> pAdded = getStatementsInLeftButNotRight(other.properties, this.properties).stream().filter(s ->
                     !Objects.equals(s.getSubject().getURI(), other.propertiesIRI)
             ).toList();
-            List<Statement> iDeleted = OwlDiffApp.getStatementsInLeftButNotRight(this.individuals, other.individuals).stream().filter(s ->
+            List<Statement> iDeleted = getStatementsInLeftButNotRight(this.individuals, other.individuals).stream().filter(s ->
                     !Objects.equals(s.getSubject().getURI(), this.individualsIRI)
             ).toList();
-            List<Statement> iAdded = OwlDiffApp.getStatementsInLeftButNotRight(other.individuals, this.individuals).stream().filter(s ->
+            List<Statement> iAdded = getStatementsInLeftButNotRight(other.individuals, this.individuals).stream().filter(s ->
                     !Objects.equals(s.getSubject().getURI(), other.individualsIRI)
             ).toList();
             return new Statements(cDeleted, cAdded, pDeleted, pAdded, iDeleted, iAdded);
         }
+
+    	/**
+    	 * Utility for determining statements that exist in the left model but not the right model .
+    	 *
+    	 * @param left the left model
+    	 * @param right the right model
+    	 * @return a list of statements that exist in the left model but not the right model
+    	 */
+    	public static List<Statement> getStatementsInLeftButNotRight(final Model left, final Model right) {
+    		var statements = new ArrayList<Statement>();
+    		StmtIterator i = left.listStatements();
+    		while (i.hasNext()) {
+    			var statement = i.next();
+    			if (!right.contains(statement)) {
+    				if (!statement.getSubject().isAnon() &&
+    					!statement.getObject().isAnon() &&
+    					!statement.getPredicate().hasURI(OWL.versionInfo.getURI())) {
+    					statements.add(statement);
+    				}
+    			}
+    		}
+    		return statements;
+    	}
     }
 }
