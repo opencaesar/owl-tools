@@ -15,6 +15,7 @@ dependencies {
 	implementation "org.apache.jena:jena-rdfconnection:${versions.jena}"
 	implementation "net.sourceforge.plantuml:plantuml:${versions.plantuml}"
 	implementation "org.jsoup:jsoup:${versions.jsoup}"
+	implementation "org.jgrapht:jgrapht-core:${versions.jgrapht}"
 	
  }
  

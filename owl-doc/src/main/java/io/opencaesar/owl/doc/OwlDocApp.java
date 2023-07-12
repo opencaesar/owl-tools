@@ -73,6 +73,10 @@ import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.jgrapht.alg.TransitiveReduction;
+import org.jgrapht.alg.cycle.TiernanSimpleCycles;
+import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.graph.SimpleDirectedGraph;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Node;
@@ -202,6 +206,10 @@ public class OwlDocApp {
 			objectProperties = sortByName(ontModel.listObjectProperties().toList());
 			datatypeProperties = sortByName(ontModel.listDatatypeProperties().toList());
 			individuals = sortByName(ontModel.listIndividuals().toList());
+			
+			// Treat the DC terms ontology as other standard ontologies to avoid clutter
+			ontologies.removeIf(i -> i.hasURI("http://purl.org/dc/elements/1.1"));
+			annotationProperties.removeIf(i -> i.getURI().startsWith("http://purl.org/dc/elements/1.1"));
 		}
 
 		private boolean hasTerms(Ontology o) {
@@ -368,7 +376,8 @@ public class OwlDocApp {
 
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");  
 	    LocalDateTime now = LocalDateTime.now();  
-	    var timestamp = dtf.format(now);  
+	    var timestamp = dtf.format(now); 
+	    var image = getOntologiesImage(CSS_DEFAULT, owlModel);
 
 		content.append(String.format(
 			"""
@@ -381,6 +390,7 @@ public class OwlDocApp {
 		          <h1>%s v%s</h1>
 		          <p class="date">Updated on: %s</p>
 		          <hr>
+			      <img src="http://www.plantuml.com/plantuml/svg/%s"/>
 			   </body>
 			</html>
 			""",
@@ -388,7 +398,8 @@ public class OwlDocApp {
 			getRelativeCSSPath(path),
 			options.inputCatalogTitle,
 			options.inputCatalogVersion,
-			timestamp));
+			timestamp,
+			image));
 				
 		final var file = new File(path).getCanonicalFile();
 		return Collections.singletonMap(file, content.toString());
@@ -543,25 +554,25 @@ public class OwlDocApp {
 				var restriction = (Restriction)i;
 				var property = asString(path1, restriction.getOnProperty());
 				if (restriction.isAllValuesFromRestriction()) {
-					property += " all " + asString(path1, restriction.asAllValuesFromRestriction().getAllValuesFrom());
+					property += " → all values from " + asString(path1, restriction.asAllValuesFromRestriction().getAllValuesFrom());
 				} else if (restriction.isSomeValuesFromRestriction()) {
-					property += " some " + asString(path1, restriction.asSomeValuesFromRestriction().getSomeValuesFrom());
+					property += " has some values from " + asString(path1, restriction.asSomeValuesFromRestriction().getSomeValuesFrom());
 				} else if (restriction.isHasValueRestriction()) {
-					property += " equals "+asString(path1, restriction.asHasValueRestriction().getHasValue());
+					property += " → value of "+asString(path1, restriction.asHasValueRestriction().getHasValue());
 				} else if (restriction.isMinCardinalityRestriction()) {
-					property += " min "+restriction.asMinCardinalityRestriction().getMinCardinality();
+					property += " → min cardinality of "+restriction.asMinCardinalityRestriction().getMinCardinality();
 				} else if (restriction.isMaxCardinalityRestriction()) {
-					property += " max "+restriction.asMaxCardinalityRestriction().getMaxCardinality();
+					property += " → max cardinality of "+restriction.asMaxCardinalityRestriction().getMaxCardinality();
 				} else if (restriction.isCardinalityRestriction()) {
-					property += " exactly "+restriction.asCardinalityRestriction().getCardinality();
+					property += " → exact cardinality of "+restriction.asCardinalityRestriction().getCardinality();
 				} else if (restriction.getProperty(OWL2.minQualifiedCardinality) != null) {
-					property += " min "+restriction.getProperty(OWL2.minQualifiedCardinality).getInt();
+					property += " → min cardinality of "+restriction.getProperty(OWL2.minQualifiedCardinality).getInt();
 					property += " "+ asString(path1, qualifiedType.apply(restriction));
 				} else if (restriction.getProperty(OWL2.maxQualifiedCardinality) != null) {
-					property += " max "+restriction.getProperty(OWL2.maxQualifiedCardinality).getInt();
+					property += " → max cardinality of "+restriction.getProperty(OWL2.maxQualifiedCardinality).getInt();
 					property += " "+ asString(path1, qualifiedType.apply(restriction));
 				} else if (restriction.getProperty(OWL2.qualifiedCardinality) != null) {
-					property += " exactly "+restriction.getProperty(OWL2.qualifiedCardinality).getInt();
+					property += " → exact cardinality of "+restriction.getProperty(OWL2.qualifiedCardinality).getInt();
 					property += " "+ asString(path1, qualifiedType.apply(restriction));
 				}
 				return property;
@@ -569,9 +580,9 @@ public class OwlDocApp {
 
 			var image = getClassImage(path1, s);
 			var axioms = getAxioms(path1, s.listProperties());
-			var superClasses = getNodes(path1, "rdfs:superClassOf", IMG_CLASS, s.listSubClasses(true).toList());
-			var properties = getNodes("owl:domainOf", owlModel.ontModel.listSubjectsWithProperty(RDFS.domain, s).toList(), IMG_PROPERTY, i -> asString(path1, i)+" : "+asString(path1, owlModel.ontModel.getOntProperty(i.asResource().getURI()).listRange().toList()));
-			var restrictedProperties = getNodes("owl:restrictionOn", s.listSuperClasses(true).filterKeep(i -> i.isRestriction()).mapWith(i -> i.asRestriction()).toList(), IMG_PROPERTY, restrictionFunc);
+			var superClasses = getNodes(path1, "directSuperClassOf", IMG_CLASS, s.listSubClasses(true).toList());
+			var properties = getNodes("directDomainOf", owlModel.ontModel.listSubjectsWithProperty(RDFS.domain, s).toList(), IMG_PROPERTY, i -> asString(path1, i)+" → "+asString(path1, owlModel.ontModel.getOntProperty(i.asResource().getURI()).listRange().toList()));
+			var restrictedProperties = getNodes("directHasRestrictionOn", s.listSuperClasses(true).filterKeep(i -> i.isRestriction()).mapWith(i -> i.asRestriction()).toList(), IMG_PROPERTY, restrictionFunc);
 			final var content = new StringBuffer(String.format(
 				"""
 				<html>
@@ -663,10 +674,8 @@ public class OwlDocApp {
             List<OntClass> subClasses = aClass.listSubClasses(true).toList();
 
             for (OntClass subClass : subClasses) {
-                if (subClass.listSubClasses().hasNext()) {
-                    stack.push(subClass);
-                    levels.put(subClass, indentLevel+1);
-                }
+                levels.put(subClass, indentLevel+1);
+                stack.push(subClass);
             }
         }
 
@@ -940,15 +949,20 @@ public class OwlDocApp {
 			}
 		}
 		
-		var axioms = new StringBuffer();
+		var propertiesWithValues = propertyToValues.keySet().stream()
+				.filter(j -> !propertyToValues.get(j).isEmpty())
+				.collect(Collectors.toList());
 
-		for (var property : propertyToValues.keySet()) {
-			var values = propertyToValues.get(property);
-			if (!values.isEmpty()) {
-				axioms.append(getNodes(contextFilePath, abbreviatedIri(property), IMG_ITEM, values));
-			}
-		}
+		var axioms = new StringBuffer();
 		
+		for (var property : propertiesWithValues.stream().filter(j -> propertyToValues.get(j).iterator().next().isLiteral()).collect(Collectors.toList())) {
+			axioms.append(getNodes(contextFilePath, abbreviatedIri(property), IMG_ITEM, propertyToValues.get(property)));
+		}
+
+		for (var property : propertiesWithValues.stream().filter(j -> propertyToValues.get(j).iterator().next().isResource()).collect(Collectors.toList())) {
+			axioms.append(getNodes(contextFilePath, abbreviatedIri(property), IMG_ITEM, propertyToValues.get(property)));
+		}
+
 		return axioms.toString();
 	}
 
@@ -1051,7 +1065,54 @@ public class OwlDocApp {
 
 		return plantUmlImage(thisClass+superClasses+subClasses);
 	}
-	
+
+	/**
+	 * Import Edge
+	 */
+	public static class Import extends DefaultEdge {
+		private static final long serialVersionUID = 1L;
+		/** Default Constructor */
+		public Import() {}
+		public Ontology getSource() {return (Ontology)super.getSource();}
+		public Ontology getTarget() {return (Ontology)super.getTarget();}
+	};
+
+	private String getOntologiesImage(String contextFilePath, OwlModel owlModel) {
+		var graph = new SimpleDirectedGraph<Ontology, Import>(Import.class);
+
+		var packages = String.join("\n", owlModel.ontologies.stream().map(i -> {
+			graph.addVertex(i);
+			return String.format(
+				"""
+				package "%s" {}
+				""",
+				i.getURI());
+		}).toList());
+
+		owlModel.ontologies.stream().forEach(i -> i.listImports().filterKeep(k -> owlModel.ontologies.contains(k)).mapWith(k -> k.asOntology()).forEach(j -> {
+			graph.addEdge(i, j);
+		}));
+		
+		var algorithm = new TiernanSimpleCycles<Ontology, Import>(graph);
+		var cycles = algorithm.findSimpleCycles();
+		while (!cycles.isEmpty()) {
+			var maxCycle = cycles.stream().max(Comparator.comparingInt(List::size)).orElse(null);
+			graph.removeEdge(maxCycle.get(0), maxCycle.get(1));
+			cycles = algorithm.findSimpleCycles();
+		}
+		TransitiveReduction.INSTANCE.reduce(graph);
+		
+		var imports = String.join("\n", graph.edgeSet().stream().map(i -> String.format(
+			"""
+			"%s" -.> "%s"
+			""",  
+			i.getSource().getURI(), 
+			i.getTarget().getURI())
+		).collect(Collectors.toList()));
+
+		return plantUmlImage("set separator none\n"+ packages + imports);
+	}
+
 	//----------------------------------------------------------------------------------
 
 	private static <T extends RDFNode> List<T> sortNodes(Collection<T> nodes, Function<RDFNode, String> getLabel) {
@@ -1149,7 +1210,7 @@ public class OwlDocApp {
 	}
 
 	private String asString(String contextFilePath, List<? extends RDFNode> nodes) {
-		return String.join(" ^ ", nodes.stream()
+		return String.join(" & ", nodes.stream()
 				.map(i -> asString(contextFilePath, i))
 				.collect(Collectors.toList()));
 	}
