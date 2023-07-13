@@ -1,34 +1,15 @@
 package io.opencaesar.owl.reason_incrementally;
 
-import java.io.File;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.LogRecord;
-import java.util.logging.Logger;
-
-import openllet.jena.PelletInfGraph;
-import org.apache.jena.graph.Graph;
-import org.apache.jena.ontology.AnnotationProperty;
-import org.apache.jena.ontology.DatatypeProperty;
-import org.apache.jena.ontology.Individual;
-import org.apache.jena.ontology.ObjectProperty;
-import org.apache.jena.ontology.OntClass;
-import org.apache.jena.ontology.OntDocumentManager;
-import org.apache.jena.ontology.OntModel;
-import org.apache.jena.ontology.Ontology;
-import org.apache.jena.query.Dataset;
-import org.apache.jena.query.DatasetFactory;
-import org.apache.jena.query.Query;
-import org.apache.jena.query.QueryExecution;
-import org.apache.jena.query.QueryExecutionFactory;
-import org.apache.jena.query.QueryFactory;
-import org.apache.jena.query.QuerySolution;
-import org.apache.jena.query.ResultSet;
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.Parameter;
+import io.opencaesar.owl.doc.OwlCatalog;
+import io.opencaesar.owl.doc.OwlDocApp;
+import io.opencaesar.owl.doc.OwlDocApp.CatalogPathValidator;
+import io.opencaesar.owl.doc.OwlDocApp.FileExtensionValidator;
+import openllet.jena.PelletReasonerFactory;
+import openllet.shared.tools.Log;
+import org.apache.jena.ontology.*;
+import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
@@ -40,20 +21,21 @@ import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.RDFS;
 import org.apache.log4j.xml.DOMConfigurator;
 
-import com.beust.jcommander.JCommander;
-import com.beust.jcommander.Parameter;
-
-import io.opencaesar.owl.doc.OwlCatalog;
-import io.opencaesar.owl.doc.OwlDocApp;
-import io.opencaesar.owl.doc.OwlDocApp.CatalogPathValidator;
-import io.opencaesar.owl.doc.OwlDocApp.FileExtensionValidator;
-import openllet.jena.PelletReasonerFactory;
-import openllet.shared.tools.Log;
+import java.io.File;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
 
 /**
  * Experiments with incremental reasoning.
  */
-public class OwlReasonIncrementallyJena {
+public class OwlReasonIncrementallyJena2 {
 
 	/**
 	 * The default OWL file extensions
@@ -125,7 +107,7 @@ public class OwlReasonIncrementallyJena {
 		}
 	}
 
-	private final static Logger LOGGER = Log.getLogger(OwlReasonIncrementallyJena.class, Level.ALL);
+	private final static Logger LOGGER = Log.getLogger(OwlReasonIncrementallyJena2.class, Level.ALL);
 	static {
 		DOMConfigurator.configure(ClassLoader.getSystemClassLoader().getResource("log4j.xml"));
 	}
@@ -157,7 +139,7 @@ public class OwlReasonIncrementallyJena {
 	}
 
 	public static void main(String[] args) throws Exception {
-		final OwlReasonIncrementallyJena app = new OwlReasonIncrementallyJena();
+		final OwlReasonIncrementallyJena2 app = new OwlReasonIncrementallyJena2();
 		final JCommander builder = JCommander.newBuilder().addObject(app.options).build();
 		builder.parse(args);
 		if (app.options.help) {
@@ -167,10 +149,10 @@ public class OwlReasonIncrementallyJena {
 		if (app.options.debug) {
 			LOGGER.addHandler(new StdErrHandler());
 		}
-		app.run1();
+		app.run2();
 	}
 
-	public OwlReasonIncrementallyJena() {
+	public OwlReasonIncrementallyJena2() {
 	}
 
 	// This version tries to use datasets, SPARQL Update on named graphs (not
@@ -208,7 +190,7 @@ public class OwlReasonIncrementallyJena {
 
 		System.out.println("\nstatements = " + ontModel.getGraph().size());
 		System.out.println("valid = " + ontModel.validate().isValid());
-//		query(ontModel, "http://example.com#c1");
+		query(ontModel, "http://example.com#c1");
 
 		// final Individual c1 = ontModel.createIndividual("http://example.com#c1",
 		// Component);
@@ -218,12 +200,12 @@ public class OwlReasonIncrementallyJena {
 		UpdateAction.execute(request, dataset);
 		Individual c1 = ontModel.getIndividual("http://example.com#c1");
 
-		final Graph g = ontModel.getGraph();
-		assert g instanceof PelletInfGraph;
-		final PelletInfGraph ig = (PelletInfGraph)g;
-
-		ig.prepare();
-		ig.getKB().realize();
+//		final Graph g = ontModel.getGraph();
+//		assert g instanceof PelletInfGraph;
+//		final PelletInfGraph ig = (PelletInfGraph)g;
+//
+//		ig.prepare();
+//		ig.getKB().realize();
 
 		System.out.println("\nstatements = " + ontModel.getGraph().size());
 		System.out.println("valid = " + ontModel.validate().isValid());
@@ -283,7 +265,7 @@ public class OwlReasonIncrementallyJena {
 
 		System.out.println("\nstatements1 = " + ontModel.getGraph().size());
 		System.out.println("valid = " + ontModel.validate().isValid());
-		query(ontModel, "http://example.com#c1");
+//		query(ontModel, "http://example.com#c1");
 
 		// final Individual c1 = ontModel.createIndividual("http://example.com#c1",
 		// Component);
