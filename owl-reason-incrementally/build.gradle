@@ -31,4 +31,6 @@ dependencies {
         exclude group: 'org.antlr', module: 'antlr-runtime'
     }
 }
- 
+
+sourceCompatibility = '17'
+targetCompatibility = '17'
