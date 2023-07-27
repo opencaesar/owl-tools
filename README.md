@@ -25,6 +25,10 @@ A library of different algorithms to close the world on OWL ontologies
 
 A tool to produce a difference report between two OWL datasets
 
+## [OWL Doc](owl-doc/README.md)
+
+A tool to generate documentation for an OWL dataset.
+
 ## [OWL Fuseki](owl-fuseki/README.md)
 
 A tool to start and stop a UI-less Fuseki server with a given configuration file
