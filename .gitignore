@@ -6,3 +6,11 @@ build
 .launch
 *.eml
 *.iml
+
+# VS Code
+.history
+
+# Eclipse
+.settings
+.classpath
+.project

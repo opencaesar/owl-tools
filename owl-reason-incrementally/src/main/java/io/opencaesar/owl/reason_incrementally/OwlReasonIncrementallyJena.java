@@ -13,6 +13,7 @@ import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import openllet.core.KnowledgeBase;
 import org.apache.jena.graph.Graph;
 import org.apache.jena.ontology.Individual;
 import org.apache.jena.ontology.OntClass;
@@ -32,6 +33,7 @@ import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFLanguages;
+import org.apache.jena.sparql.core.DatasetGraph;
 import org.apache.jena.update.UpdateAction;
 import org.apache.jena.update.UpdateFactory;
 import org.apache.jena.update.UpdateRequest;
@@ -157,34 +159,35 @@ public class OwlReasonIncrementallyJena {
 
 		PelletReasonerFactory.THE_SPEC.setDocumentManager(mgr);
 		final OntModel ontModel = ModelFactory.createOntologyModel(PelletReasonerFactory.THE_SPEC);
-		ontModel.addSubModel(dataset.getUnionModel());
+		Model unionM = dataset.getUnionModel();
+		ontModel.addSubModel(unionM);
+
+		final Graph g = ontModel.getGraph();
+		assert g instanceof PelletInfGraph;
+		final PelletInfGraph ig = (PelletInfGraph)g;
+		final KnowledgeBase kb = ig.getKB();
 
 		final String base = "http://imce.jpl.nasa.gov/foundation/base#";
 		final String mission = "http://imce.jpl.nasa.gov/foundation/mission#";
 		final OntClass Component = ontModel.getOntClass(mission + "Component");
 		final OntClass Function = ontModel.getOntClass(mission + "Function");
 
-		System.out.println("\nstatements = " + ontModel.getGraph().size());
 		System.out.println("valid = " + ontModel.validate().isValid());
-//		query(ontModel, "http://example.com#c1");
+		System.out.println("statements1 = " + ontModel.getGraph().size());
+		System.out.println("kb individuals = " + kb.getIndividuals().size());
 
-		// final Individual c1 = ontModel.createIndividual("http://example.com#c1",
-		// Component);
 		UpdateRequest request = UpdateFactory.create();
 		request.add(
 				"INSERT DATA { GRAPH <http://imce.jpl.nasa.gov/foundation/mission#> { <http://example.com#c1> a <http://imce.jpl.nasa.gov/foundation/mission#Component> } }");
 		UpdateAction.execute(request, dataset);
-		Individual c1 = ontModel.getIndividual("http://example.com#c1");
+		System.out.println("INSERT...");
+		kb.realize();
 
-		final Graph g = ontModel.getGraph();
-		assert g instanceof PelletInfGraph;
-		final PelletInfGraph ig = (PelletInfGraph)g;
-
-		ig.prepare();
-		ig.getKB().realize();
-
-		System.out.println("\nstatements = " + ontModel.getGraph().size());
+		System.out.println("kb individuals = " + kb.getIndividuals().size());
 		System.out.println("valid = " + ontModel.validate().isValid());
+		System.out.println("statements2 = " + ontModel.getGraph().size());
+		System.out.println("kb individuals = " + kb.getIndividuals().size());
+
 		query(ontModel, "http://example.com#c1");
 
 		// ontModel.remove(c1, RDF.type, Component);
@@ -192,12 +195,15 @@ public class OwlReasonIncrementallyJena {
 		request.add(
 				"DELETE DATA { GRAPH <http://imce.jpl.nasa.gov/foundation/mission#> { <http://example.com#c1> a <http://imce.jpl.nasa.gov/foundation/mission#Component> } }");
 		UpdateAction.execute(request, dataset);
+		System.out.println("DELETE...");
+		kb.realize();
 
-//		ig.prepare();
-//		ig.getKB().realize();
-
-		System.out.println("\nstatements = " + ontModel.getGraph().size());
+		System.out.println("statements3 = " + ontModel.getGraph().size());
+		System.out.println("kb individuals = " + kb.getIndividuals().size());
 		System.out.println("valid = " + ontModel.validate().isValid());
+
+		System.out.println("statements3 = " + ontModel.getGraph().size());
+		System.out.println("kb individuals = " + kb.getIndividuals().size());
 		query(ontModel, "http://example.com#c1");
 
 		// ontModel.add(c1, RDF.type, Function);

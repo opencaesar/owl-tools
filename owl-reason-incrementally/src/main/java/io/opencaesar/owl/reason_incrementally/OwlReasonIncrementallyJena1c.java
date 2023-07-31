@@ -1,41 +1,51 @@
 package io.opencaesar.owl.reason_incrementally;
 
+import com.beust.jcommander.IParameterValidator;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
-import io.opencaesar.owl.doc.OwlCatalog;
-import io.opencaesar.owl.doc.OwlDocApp;
-import io.opencaesar.owl.doc.OwlDocApp.CatalogPathValidator;
-import io.opencaesar.owl.doc.OwlDocApp.FileExtensionValidator;
+import com.beust.jcommander.ParameterException;
 import openllet.core.KnowledgeBase;
 import openllet.jena.PelletInfGraph;
 import openllet.jena.PelletReasonerFactory;
 import openllet.shared.tools.Log;
 import org.apache.jena.graph.Graph;
-import org.apache.jena.ontology.*;
+import org.apache.jena.ontology.Individual;
+import org.apache.jena.ontology.OntClass;
+import org.apache.jena.ontology.OntDocumentManager;
+import org.apache.jena.ontology.OntModel;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.riot.Lang;
+import org.apache.jena.riot.RDFLanguages;
+import org.apache.jena.sparql.core.DatasetGraph;
+import org.apache.jena.sparql.core.DatasetGraphFactory;
 import org.apache.jena.update.UpdateAction;
 import org.apache.jena.update.UpdateFactory;
 import org.apache.jena.update.UpdateRequest;
 import org.apache.jena.util.FileManager;
 import org.apache.jena.vocabulary.RDF;
-import org.apache.jena.vocabulary.RDFS;
 import org.apache.log4j.xml.DOMConfigurator;
 
 import java.io.File;
 import java.net.URI;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Experiments with incremental reasoning.
  */
-public class OwlReasonIncrementallyJena2 {
+public class OwlReasonIncrementallyJena1c {
 
 	/**
 	 * The default OWL file extensions
@@ -44,16 +54,6 @@ public class OwlReasonIncrementallyJena2 {
 
 	private static final List<String> extensions = Arrays.asList("fss", "owl", "rdf", "xml", "n3", "ttl", "rj", "nt",
 			"jsonld", "trig", "trix", "nq");
-
-	private static final String CSS_DEFAULT = "default.css";
-	private static final String CSS_MAIN = "main.css";
-
-	private static final String IMG_ONTOLOGY = "https://help.eclipse.org/latest/topic/org.eclipse.jdt.doc.user/images/org.eclipse.jdt.ui/obj16/package_obj.svg";
-	private static final String IMG_CLASS = "https://help.eclipse.org/latest/topic/org.eclipse.jdt.doc.user/images/org.eclipse.jdt.ui/obj16/methpub_obj.svg";
-	private static final String IMG_DATATYPE = "https://help.eclipse.org/latest/topic/org.eclipse.jdt.doc.user/images/org.eclipse.jdt.ui/obj16/methpri_obj.svg";
-	private static final String IMG_PROPERTY = "https://help.eclipse.org/latest/topic/org.eclipse.jdt.doc.user/images/org.eclipse.jdt.ui/obj16/methpro_obj.svg";
-	private static final String IMG_INDIVIDUAL = "https://help.eclipse.org/latest/topic/org.eclipse.jdt.doc.user/images/org.eclipse.jdt.ui/obj16/field_public_obj.svg";
-	private static final String IMG_ITEM = "https://help.eclipse.org/latest/topic/org.eclipse.jdt.doc.user/images/org.eclipse.jdt.ui/obj16/methdef_obj.svg";
 
 	private static class Options {
 		@Parameter(names = { "--input-catalog-path",
@@ -77,37 +77,7 @@ public class OwlReasonIncrementallyJena2 {
 
 	private final Options options = new Options();
 
-	private class OwlModel {
-		private OntModel ontModel;
-		private List<Ontology> ontologies;
-		private List<OntClass> classes;
-		private List<Resource> datatypes;
-		private List<AnnotationProperty> annotationProperties;
-		private List<DatatypeProperty> datatypeProperties;
-		private List<ObjectProperty> objectProperties;
-		private List<Individual> individuals;
-
-		public OwlModel(OntModel ontModel) {
-			this.ontModel = ontModel;
-			ontologies = OwlDocApp.sortByIri(ontModel.listOntologies().filterKeep(i -> hasTerms(i)).toList());
-			classes = OwlDocApp.sortByName(ontModel.listNamedClasses().toList());
-			datatypes = OwlDocApp.sortByName(ontModel.listSubjectsWithProperty(RDF.type, RDFS.Datatype).toList());
-			annotationProperties = OwlDocApp.sortByName(ontModel.listAnnotationProperties().toList());
-			objectProperties = OwlDocApp.sortByName(ontModel.listObjectProperties().toList());
-			datatypeProperties = OwlDocApp.sortByName(ontModel.listDatatypeProperties().toList());
-			individuals = OwlDocApp.sortByName(ontModel.listIndividuals().toList());
-		}
-
-		private boolean hasTerms(Ontology o) {
-			var iri = o.getURI();
-			var resources = ontModel.listResourcesWithProperty(RDF.type).filterDrop(i -> i.isAnon())
-					.filterKeep(i -> i.getURI().startsWith(iri)).toList();
-			resources.removeIf(i -> ontModel.getOntology(i.getURI()) != null);
-			return !resources.isEmpty();
-		}
-	}
-
-	private final static Logger LOGGER = Log.getLogger(OwlReasonIncrementallyJena2.class, Level.ALL);
+	private final static Logger LOGGER = Log.getLogger(OwlReasonIncrementallyJena1c.class, Level.ALL);
 	static {
 		DOMConfigurator.configure(ClassLoader.getSystemClassLoader().getResource("log4j.xml"));
 	}
@@ -139,7 +109,7 @@ public class OwlReasonIncrementallyJena2 {
 	}
 
 	public static void main(String[] args) throws Exception {
-		final OwlReasonIncrementallyJena2 app = new OwlReasonIncrementallyJena2();
+		final OwlReasonIncrementallyJena1c app = new OwlReasonIncrementallyJena1c();
 		final JCommander builder = JCommander.newBuilder().addObject(app.options).build();
 		builder.parse(args);
 		if (app.options.help) {
@@ -149,10 +119,10 @@ public class OwlReasonIncrementallyJena2 {
 		if (app.options.debug) {
 			LOGGER.addHandler(new StdErrHandler());
 		}
-		app.run2();
+		app.run1();
 	}
 
-	public OwlReasonIncrementallyJena2() {
+	public OwlReasonIncrementallyJena1c() {
 	}
 
 	// This version tries to use datasets, SPARQL Update on named graphs (not
@@ -181,47 +151,54 @@ public class OwlReasonIncrementallyJena2 {
 
 		PelletReasonerFactory.THE_SPEC.setDocumentManager(mgr);
 		final OntModel ontModel = ModelFactory.createOntologyModel(PelletReasonerFactory.THE_SPEC);
-		ontModel.addSubModel(dataset.getUnionModel());
+		Model unionM = dataset.getUnionModel();
+		ontModel.addSubModel(unionM);
+
+		final Graph ontGraph = ontModel.getGraph();
+		final DatasetGraph ontDatasetGraph = DatasetGraphFactory.create(ontGraph);
+
+		final Graph g = ontModel.getGraph();
+		assert g instanceof PelletInfGraph;
+		final PelletInfGraph ig = (PelletInfGraph)g;
+		final KnowledgeBase kb = ig.getKB();
 
 		final String base = "http://imce.jpl.nasa.gov/foundation/base#";
 		final String mission = "http://imce.jpl.nasa.gov/foundation/mission#";
 		final OntClass Component = ontModel.getOntClass(mission + "Component");
 		final OntClass Function = ontModel.getOntClass(mission + "Function");
 
-		System.out.println("\nstatements = " + ontModel.getGraph().size());
 		System.out.println("valid = " + ontModel.validate().isValid());
-		query(ontModel, "http://example.com#c1");
+		System.out.println("statements1 = " + ontModel.getGraph().size());
+		System.out.println("kb individuals = " + kb.getIndividuals().size());
 
-		// final Individual c1 = ontModel.createIndividual("http://example.com#c1",
-		// Component);
 		UpdateRequest request = UpdateFactory.create();
 		request.add(
 				"INSERT DATA { GRAPH <http://imce.jpl.nasa.gov/foundation/mission#> { <http://example.com#c1> a <http://imce.jpl.nasa.gov/foundation/mission#Component> } }");
-		UpdateAction.execute(request, dataset);
-		Individual c1 = ontModel.getIndividual("http://example.com#c1");
+		UpdateAction.execute(request, ontDatasetGraph);
+		System.out.println("INSERT...");
+		kb.realize();
 
-//		final Graph g = ontModel.getGraph();
-//		assert g instanceof PelletInfGraph;
-//		final PelletInfGraph ig = (PelletInfGraph)g;
-//
-//		ig.prepare();
-//		ig.getKB().realize();
-
-		System.out.println("\nstatements = " + ontModel.getGraph().size());
+		System.out.println("kb individuals = " + kb.getIndividuals().size());
 		System.out.println("valid = " + ontModel.validate().isValid());
+		System.out.println("statements2 = " + ontModel.getGraph().size());
+		System.out.println("kb individuals = " + kb.getIndividuals().size());
+
 		query(ontModel, "http://example.com#c1");
 
 		// ontModel.remove(c1, RDF.type, Component);
 		request = UpdateFactory.create();
 		request.add(
 				"DELETE DATA { GRAPH <http://imce.jpl.nasa.gov/foundation/mission#> { <http://example.com#c1> a <http://imce.jpl.nasa.gov/foundation/mission#Component> } }");
-		UpdateAction.execute(request, dataset);
+		UpdateAction.execute(request, ontDatasetGraph);
+		System.out.println("DELETE...");
+		kb.realize();
 
-//		ig.prepare();
-//		ig.getKB().realize();
-
-		System.out.println("\nstatements = " + ontModel.getGraph().size());
+		System.out.println("statements3 = " + ontModel.getGraph().size());
+		System.out.println("kb individuals = " + kb.getIndividuals().size());
 		System.out.println("valid = " + ontModel.validate().isValid());
+
+		System.out.println("statements3 = " + ontModel.getGraph().size());
+		System.out.println("kb individuals = " + kb.getIndividuals().size());
 		query(ontModel, "http://example.com#c1");
 
 		// ontModel.add(c1, RDF.type, Function);
@@ -252,58 +229,48 @@ public class OwlReasonIncrementallyJena2 {
 
 		PelletReasonerFactory.THE_SPEC.setDocumentManager(mgr);
 		final OntModel ontModel = ModelFactory.createOntologyModel(PelletReasonerFactory.THE_SPEC);
-		HashMap<String, Model> modelByIRI = new HashMap<>();
 		for (var iri : options.inputOntologyIris) {
 			Model m = ModelFactory.createDefaultModel();
 			fm.readModelInternal(m, iri);
-			modelByIRI.put(iri, m);
-			System.out.println(iri);
 			ontModel.addSubModel(m);
 		}
-
-		final Graph g = ontModel.getGraph();
-		assert g instanceof PelletInfGraph;
-		final PelletInfGraph ig = (PelletInfGraph)g;
-		final KnowledgeBase kb = ig.getKB();
 
 		final String base = "http://imce.jpl.nasa.gov/foundation/base#";
 		final String mission = "http://imce.jpl.nasa.gov/foundation/mission#";
 		final OntClass Component = ontModel.getOntClass(mission + "Component");
 		final OntClass Function = ontModel.getOntClass(mission + "Function");
 
+		System.out.println("\nstatements1 = " + ontModel.getGraph().size());
 		System.out.println("valid = " + ontModel.validate().isValid());
-		System.out.println("statements1 = " + ontModel.getGraph().size());
-		System.out.println("kb individuals = " + kb.getIndividuals().size());
+		query(ontModel, "http://example.com#c1");
 
+		// final Individual c1 = ontModel.createIndividual("http://example.com#c1",
+		// Component);
 		UpdateRequest request = UpdateFactory.create();
 		request.add(
 				"INSERT DATA { <http://example.com#c1> a <http://imce.jpl.nasa.gov/foundation/mission#Component> }");
-		System.out.println("INSERT...");
-
-//		Model missionM = modelByIRI.get("http://imce.jpl.nasa.gov/foundation/mission");
-//		UpdateAction.execute(request, missionM);
 		UpdateAction.execute(request, ontModel);
+		Individual c1 = ontModel.getIndividual("http://example.com#c1");
 
-		System.out.println("kb individuals = " + kb.getIndividuals().size());
+//		final Graph g = ontModel.getGraph();
+//		assert g instanceof PelletInfGraph;
+//		final PelletInfGraph ig = (PelletInfGraph)g;
+//
+//		ig.prepare();
+//		ig.getKB().realize();
+
+		System.out.println("\nstatements2 = " + ontModel.getGraph().size());
 		System.out.println("valid = " + ontModel.validate().isValid());
-		System.out.println("statements2 = " + ontModel.getGraph().size());
-		System.out.println("kb individuals = " + kb.getIndividuals().size());
 		query(ontModel, "http://example.com#c1"); // triggers reasoning.
 
 		// ontModel.remove(c1, RDF.type, Component);
 		request = UpdateFactory.create();
 		request.add(
 				"DELETE DATA { <http://example.com#c1> a <http://imce.jpl.nasa.gov/foundation/mission#Component> }");
-//		UpdateAction.execute(request, missionM);
 		UpdateAction.execute(request, ontModel);
-		System.out.println("DELETE...");
 
-		System.out.println("statements3 = " + ontModel.getGraph().size());
-		System.out.println("kb individuals = " + kb.getIndividuals().size());
+		System.out.println("\nstatements3 = " + ontModel.getGraph().size());
 		System.out.println("valid = " + ontModel.validate().isValid());
-
-		System.out.println("statements3 = " + ontModel.getGraph().size());
-		System.out.println("kb individuals = " + kb.getIndividuals().size());
 		query(ontModel, "http://example.com#c1");
 
 		// ontModel.add(c1, RDF.type, Function);
@@ -377,6 +344,125 @@ public class OwlReasonIncrementallyJena2 {
 				System.out.println(r);
 			}
 		}
+	}
+    //--------
+    
+	/**
+	 * Sort resources by label.
+	 * @param resources resources
+	 * @param getLabel label function
+	 * @return sorted resources by their labels.
+	 * @param <T> resource type.
+	 */
+	public static <T extends Resource> List<T> sortResourcesi(List<T> resources, Function<RDFNode, String> getLabel) {
+		var filtered = resources.stream().filter(i -> !i.isAnon()).collect(Collectors.toList());
+		filtered.sort((x1, x2) -> getLabel.apply(x1).compareTo(getLabel.apply(x2)));
+		return filtered;
+	}
+
+	/**
+	 * sort resources by iri.
+	 * @param resources resources
+	 * @return sorted resources by iri.
+	 * @param <T> resource type.
+	 */
+	public static <T extends Resource> List<T> sortByIri(List<T> resources) {
+		return sortResourcesi(resources, i -> ((Resource)i).getURI());
+	}
+
+	/**
+	 * sort resources by name
+	 * @param resources resources.
+	 * @return sorted resources by name.
+	 * @param <T> resource type.
+	 */
+	public static <T extends Resource> List<T> sortByName(List<T> resources) {
+		return sortResourcesi(resources, i -> localName((Resource)i));
+	}
+    
+	private static String localName(Resource resource) {
+		var iri = resource.getURI();
+		int index = iri.lastIndexOf("#");
+		if (index == -1) {
+			index = iri.lastIndexOf("/");
+		}
+		return (index != -1) ? iri.substring(index+1) : resource.getLocalName();
+	}
+    
+	/**
+	 * A parameter validator for an OASIS XML catalog path.
+	 */
+	public static class CatalogPathValidator implements IParameterValidator {
+		/**
+		 * Creates a new CatalogPath object
+		 */
+		public CatalogPathValidator() {
+		}
+		@Override
+		public void validate(final String name, final String value) throws ParameterException {
+			File file = new File(value);
+			if (!file.exists() || !file.getName().endsWith("catalog.xml")) {
+				throw new ParameterException("Parameter " + name + " should be a valid OWL catalog path");
+			}
+		}
+	}
+
+	/**
+	 * A parameter validator for a file with one of the supported extensions
+	 */
+	public static class FileExtensionValidator implements IParameterValidator {
+		/**
+		 * Creates a new FileExtensionValidator object
+		 */
+		public FileExtensionValidator() {
+		}
+		@Override
+		public void validate(final String name, final String value) throws ParameterException {
+			if (!extensions.contains(value)) {
+				throw new ParameterException("Parameter " + name + " should be a valid extension, got: " + value +
+						" recognized extensions are: " +
+						extensions.stream().reduce( (x,y) -> x + " " + y) );
+			}
+		}
+	}
+
+	/**
+	 * A parameter validator for an output RDF file.
+	 */
+	public static class OutputFileExtensionValidator implements IParameterValidator {
+		/**
+		 * Creates a new OutputFileExtensionValidator object
+		 */
+		public OutputFileExtensionValidator() {
+		}
+		@Override
+		public void validate(final String name, final String value) throws ParameterException {
+			Lang lang = RDFLanguages.fileExtToLang(value);
+			if (lang == null) {
+				throw new ParameterException("Parameter " + name + " should be a valid RDF output extension, got: " + value +
+						" recognized RDF extensions are: "+extensions);
+			}
+		}
+	}
+
+	/**
+	 * The validator for output folder paths
+	 */
+	public static class OutputFolderPathValidator implements IParameterValidator {
+		/**
+		 * Creates a new OutputFolderPath object
+		 */
+		public OutputFolderPathValidator() {}
+		@Override 
+		public void validate(String name, String value) throws ParameterException {
+			final var directory = new File(value).getAbsoluteFile();
+			if (!directory.isDirectory()) {
+				final var created = directory.mkdirs();
+				if (!created) {
+					throw new ParameterException("Parameter " + name + " should be a valid folder path");
+				}
+			}
+	  	}
 	}
 
 }
