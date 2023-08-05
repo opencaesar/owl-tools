@@ -5,6 +5,7 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import openllet.core.KnowledgeBase;
+import openllet.jena.PelletGraphListener;
 import openllet.jena.PelletInfGraph;
 import openllet.jena.PelletReasonerFactory;
 import openllet.shared.tools.Log;
@@ -28,11 +29,9 @@ import org.apache.jena.vocabulary.RDF;
 import org.apache.log4j.xml.DOMConfigurator;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -143,19 +142,29 @@ public class OwlReasonIncrementallyJena1b {
 		PelletReasonerFactory.THE_SPEC.setDocumentManager(mgr);
 		final OntModel ontModel = ModelFactory.createOntologyModel(PelletReasonerFactory.THE_SPEC);
 
+		final Graph g = ontModel.getGraph();
+		assert g instanceof PelletInfGraph;
+		final PelletInfGraph ig = (PelletInfGraph)g;
+
+		final Field _graphListener = ig.getClass().getDeclaredField("_graphListener");
+		_graphListener.setAccessible(true);
+		final PelletGraphListener pgl = (PelletGraphListener) _graphListener.get(ig);
+
 		final Dataset dataset = DatasetFactory.create(ontModel);
+		HashMap<String, Model> modelByIRI = new HashMap<>();
+		HashMap<String, Dataset> datasetByIRI = new HashMap<>();
 		for (var iri : options.inputOntologyIris) {
 			Model m = ModelFactory.createDefaultModel();
 			fm.readModelInternal(m, iri);
-			dataset.addNamedModel(iri, m);
+			modelByIRI.put(iri, m);
+			Dataset ds = dataset.addNamedModel(iri, m);
+			datasetByIRI.put(iri, ds);
+			m.getGraph().getEventManager().register(pgl);
 		}
 
 		Model unionM = dataset.getUnionModel();
 		ontModel.addSubModel(unionM);
 
-		final Graph g = ontModel.getGraph();
-		assert g instanceof PelletInfGraph;
-		final PelletInfGraph ig = (PelletInfGraph)g;
 		final KnowledgeBase kb = ig.getKB();
 
 		final String base = "http://imce.jpl.nasa.gov/foundation/base#";
@@ -169,32 +178,39 @@ public class OwlReasonIncrementallyJena1b {
 
 		UpdateRequest request = UpdateFactory.create();
 		request.add(
-				"INSERT DATA { GRAPH <http://imce.jpl.nasa.gov/foundation/mission#> { <http://example.com#c1> a <http://imce.jpl.nasa.gov/foundation/mission#Component> } }");
-		UpdateAction.execute(request, dataset);
+				"INSERT DATA { GRAPH <http://imce.jpl.nasa.gov/foundation/mission> { <http://example.com#c1> a <http://imce.jpl.nasa.gov/foundation/mission#Component> } }");
 		System.out.println("INSERT...");
-		kb.realize();
 
-		System.out.println("kb individuals = " + kb.getIndividuals().size());
-		System.out.println("valid = " + ontModel.validate().isValid());
+		UpdateAction.execute(request, dataset);
+
 		System.out.println("statements2 = " + ontModel.getGraph().size());
 		System.out.println("kb individuals = " + kb.getIndividuals().size());
+		System.out.println("valid = " + ontModel.validate().isValid());
+
+		kb.realize();
+
+		System.out.println("statements2 = " + ontModel.getGraph().size());
+		System.out.println("kb individuals = " + kb.getIndividuals().size());
+		System.out.println("valid = " + ontModel.validate().isValid());
 
 		query(ontModel, "http://example.com#c1");
 
 		// ontModel.remove(c1, RDF.type, Component);
 		request = UpdateFactory.create();
 		request.add(
-				"DELETE DATA { GRAPH <http://imce.jpl.nasa.gov/foundation/mission#> { <http://example.com#c1> a <http://imce.jpl.nasa.gov/foundation/mission#Component> } }");
-		UpdateAction.execute(request, dataset);
+				"DELETE DATA { GRAPH <http://imce.jpl.nasa.gov/foundation/mission> { <http://example.com#c1> a <http://imce.jpl.nasa.gov/foundation/mission#Component> } }");
 		System.out.println("DELETE...");
+
+		UpdateAction.execute(request, dataset);
+
+		System.out.println("statements3 = " + ontModel.getGraph().size());
+		System.out.println("kb individuals = " + kb.getIndividuals().size());
+		System.out.println("valid = " + ontModel.validate().isValid());
+
 		kb.realize();
 
 		System.out.println("statements3 = " + ontModel.getGraph().size());
 		System.out.println("kb individuals = " + kb.getIndividuals().size());
-		System.out.println("valid = " + ontModel.validate().isValid());
-
-		System.out.println("statements3 = " + ontModel.getGraph().size());
-		System.out.println("kb individuals = " + kb.getIndividuals().size());
 		query(ontModel, "http://example.com#c1");
 
 		// ontModel.add(c1, RDF.type, Function);
@@ -207,123 +223,7 @@ public class OwlReasonIncrementallyJena1b {
 		// System.out.println("valid = "+ontModel.validate().isValid());
 		// query(ontModel);
 	}
-
-	// This version demonstrates SPARQL Update in the default graph
-	private void run2() throws Exception {
-		final OwlCatalog catalog = OwlCatalog.create(new File(options.inputCatalogPath).toURI());
-		final Map<String, URI> fileMap = catalog.getFileUriMap(options.inputFileExtensions);
-
-		final OntDocumentManager mgr = new OntDocumentManager();
-		final FileManager fm = mgr.getFileManager();
-		for (var entry : fileMap.entrySet()) {
-			mgr.addAltEntry(entry.getKey(), entry.getValue().toString());
-		}
-
-		if (options.inputOntologyIris.isEmpty()) {
-			options.inputOntologyIris.addAll(fileMap.keySet());
-		}
-
-		PelletReasonerFactory.THE_SPEC.setDocumentManager(mgr);
-		final OntModel ontModel = ModelFactory.createOntologyModel(PelletReasonerFactory.THE_SPEC);
-		for (var iri : options.inputOntologyIris) {
-			Model m = ModelFactory.createDefaultModel();
-			fm.readModelInternal(m, iri);
-			ontModel.addSubModel(m);
-		}
-
-		final String base = "http://imce.jpl.nasa.gov/foundation/base#";
-		final String mission = "http://imce.jpl.nasa.gov/foundation/mission#";
-		final OntClass Component = ontModel.getOntClass(mission + "Component");
-		final OntClass Function = ontModel.getOntClass(mission + "Function");
-
-		System.out.println("\nstatements1 = " + ontModel.getGraph().size());
-		System.out.println("valid = " + ontModel.validate().isValid());
-		query(ontModel, "http://example.com#c1");
-
-		// final Individual c1 = ontModel.createIndividual("http://example.com#c1",
-		// Component);
-		UpdateRequest request = UpdateFactory.create();
-		request.add(
-				"INSERT DATA { <http://example.com#c1> a <http://imce.jpl.nasa.gov/foundation/mission#Component> }");
-		UpdateAction.execute(request, ontModel);
-		Individual c1 = ontModel.getIndividual("http://example.com#c1");
-
-//		final Graph g = ontModel.getGraph();
-//		assert g instanceof PelletInfGraph;
-//		final PelletInfGraph ig = (PelletInfGraph)g;
-//
-//		ig.prepare();
-//		ig.getKB().realize();
-
-		System.out.println("\nstatements2 = " + ontModel.getGraph().size());
-		System.out.println("valid = " + ontModel.validate().isValid());
-		query(ontModel, "http://example.com#c1"); // triggers reasoning.
-
-		// ontModel.remove(c1, RDF.type, Component);
-		request = UpdateFactory.create();
-		request.add(
-				"DELETE DATA { <http://example.com#c1> a <http://imce.jpl.nasa.gov/foundation/mission#Component> }");
-		UpdateAction.execute(request, ontModel);
-
-		System.out.println("\nstatements3 = " + ontModel.getGraph().size());
-		System.out.println("valid = " + ontModel.validate().isValid());
-		query(ontModel, "http://example.com#c1");
-
-		// ontModel.add(c1, RDF.type, Function);
-		// request = UpdateFactory.create() ;
-		// request.add("INSERT DATA { <http://example.com#c1> a
-		// <http://imce.jpl.nasa.gov/foundation/mission#Function> }");
-		// UpdateAction.execute(request, dataset) ;
-
-		// System.out.println("\nstatements = "+ontModel.getGraph().size());
-		// System.out.println("valid = "+ontModel.validate().isValid());
-		// query(ontModel);
-	}
-
-	// This version demonstrates updates with API, and also inconsistency detection
-	private void run3() throws Exception {
-		final OwlCatalog catalog = OwlCatalog.create(new File(options.inputCatalogPath).toURI());
-		final Map<String, URI> fileMap = catalog.getFileUriMap(options.inputFileExtensions);
-
-		final OntDocumentManager mgr = new OntDocumentManager();
-		final FileManager fm = mgr.getFileManager();
-		for (var entry : fileMap.entrySet()) {
-			mgr.addAltEntry(entry.getKey(), entry.getValue().toString());
-		}
-
-		if (options.inputOntologyIris.isEmpty()) {
-			options.inputOntologyIris.addAll(fileMap.keySet());
-		}
-
-		PelletReasonerFactory.THE_SPEC.setDocumentManager(mgr);
-		final OntModel ontModel = ModelFactory.createOntologyModel(PelletReasonerFactory.THE_SPEC);
-		for (var iri : options.inputOntologyIris) {
-			Model m = ModelFactory.createDefaultModel();
-			fm.readModelInternal(m, iri);
-			ontModel.addSubModel(m);
-		}
-
-		final String base = "http://imce.jpl.nasa.gov/foundation/base#";
-		final String mission = "http://imce.jpl.nasa.gov/foundation/mission#";
-		final OntClass Component = ontModel.getOntClass(mission + "Component");
-		final OntClass Function = ontModel.getOntClass(mission + "Function");
-
-		System.out.println("\nstatements = " + ontModel.getGraph().size());
-		System.out.println("valid = " + ontModel.validate().isValid());
-		query(ontModel, "http://example.com#c1");
-
-		final Individual c1 = ontModel.createIndividual("http://example.com#c1", Component);
-
-		System.out.println("\nstatements = " + ontModel.getGraph().size());
-		System.out.println("valid = " + ontModel.validate().isValid());
-		query(ontModel, "http://example.com#c1");
-
-		ontModel.add(c1, RDF.type, Function);
-		System.out.println("\nstatements = " + ontModel.getGraph().size());
-		System.out.println("valid = " + ontModel.validate().isValid());
-		query(ontModel, "http://example.com#c1");
-	}
-
+	
 	private void query(Model ontModel, String iri) {
 		String queryString = String
 				.format("PREFIX fse:   <http://opencaesar.io/examples/firesat/disciplines/fse/fse#>\n"
