@@ -150,10 +150,6 @@ public class OwlReasonIncrementallyJena1c {
 		assert g instanceof PelletInfGraph;
 		final PelletInfGraph ig = (PelletInfGraph)g;
 
-//		final Field _graphListener = ig.getClass().getDeclaredField("_graphListener");
-//		_graphListener.setAccessible(true);
-//		final PelletGraphListener pgl = (PelletGraphListener) _graphListener.get(ig);
-
 		final GraphListener gl = new GraphListener() {
 			@Override
 			public void notifyAddTriple(Graph g, Triple t) {
@@ -226,24 +222,15 @@ public class OwlReasonIncrementallyJena1c {
 		};
 
 		final Dataset dataset = DatasetFactory.create(ontModel);
-		HashMap<String, Model> modelByIRI = new HashMap<>();
-		HashMap<String, Dataset> datasetByIRI = new HashMap<>();
 		for (var iri : options.inputOntologyIris) {
 			Model m = ModelFactory.createDefaultModel();
 			fm.readModelInternal(m, iri);
-			modelByIRI.put(iri, m);
-			Dataset ds = dataset.addNamedModel(iri, m);
-			datasetByIRI.put(iri, ds);
+			dataset.addNamedModel(iri, m);
 			ontModel.addSubModel(m);
 			m.getGraph().getEventManager().register(gl);
 		}
 
 		final KnowledgeBase kb = ig.getKB();
-
-		final String base = "http://imce.jpl.nasa.gov/foundation/base#";
-		final String mission = "http://imce.jpl.nasa.gov/foundation/mission#";
-		final OntClass Component = ontModel.getOntClass(mission + "Component");
-		final OntClass Function = ontModel.getOntClass(mission + "Function");
 
 		System.out.println("valid = " + ontModel.validate().isValid());
 		System.out.println("statements1 = " + ontModel.getGraph().size());
@@ -265,7 +252,6 @@ public class OwlReasonIncrementallyJena1c {
 
 		query(ontModel, "http://example.com#c1");
 
-		// ontModel.remove(c1, RDF.type, Component);
 		request = UpdateFactory.create();
 		request.add(
 				"DELETE DATA { GRAPH <http://imce.jpl.nasa.gov/foundation/mission> { <http://example.com#c1> a <http://imce.jpl.nasa.gov/foundation/mission#Component> } }");
@@ -280,16 +266,6 @@ public class OwlReasonIncrementallyJena1c {
 		System.out.println("statements3 = " + ontModel.getGraph().size());
 		System.out.println("kb individuals = " + kb.getIndividuals().size());
 		query(ontModel, "http://example.com#c1");
-
-		// ontModel.add(c1, RDF.type, Function);
-		// request = UpdateFactory.create() ;
-		// request.add("INSERT DATA { <http://example.com#c1> a
-		// <http://imce.jpl.nasa.gov/foundation/mission#Function> }");
-		// UpdateAction.execute(request, dataset) ;
-
-		// System.out.println("\nstatements = "+ontModel.getGraph().size());
-		// System.out.println("valid = "+ontModel.validate().isValid());
-		// query(ontModel);
 	}
 
 	private void query(Model ontModel, String iri) {
