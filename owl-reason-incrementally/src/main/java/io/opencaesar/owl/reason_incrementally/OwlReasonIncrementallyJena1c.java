@@ -5,10 +5,13 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import openllet.core.KnowledgeBase;
+import openllet.jena.PelletGraphListener;
 import openllet.jena.PelletInfGraph;
 import openllet.jena.PelletReasonerFactory;
 import openllet.shared.tools.Log;
 import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.GraphListener;
+import org.apache.jena.graph.Triple;
 import org.apache.jena.ontology.Individual;
 import org.apache.jena.ontology.OntClass;
 import org.apache.jena.ontology.OntDocumentManager;
@@ -30,11 +33,9 @@ import org.apache.jena.vocabulary.RDF;
 import org.apache.log4j.xml.DOMConfigurator;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -142,24 +143,101 @@ public class OwlReasonIncrementallyJena1c {
 			options.inputOntologyIris.addAll(fileMap.keySet());
 		}
 
-		final Dataset dataset = DatasetFactory.createTxnMem();
-		for (var iri : options.inputOntologyIris) {
-			Model m = ModelFactory.createDefaultModel();
-			fm.readModelInternal(m, iri);
-			dataset.addNamedModel(iri, m);
-		}
-
 		PelletReasonerFactory.THE_SPEC.setDocumentManager(mgr);
 		final OntModel ontModel = ModelFactory.createOntologyModel(PelletReasonerFactory.THE_SPEC);
-		Model unionM = dataset.getUnionModel();
-		ontModel.addSubModel(unionM);
-
-		final Graph ontGraph = ontModel.getGraph();
-		final DatasetGraph ontDatasetGraph = DatasetGraphFactory.create(ontGraph);
 
 		final Graph g = ontModel.getGraph();
 		assert g instanceof PelletInfGraph;
 		final PelletInfGraph ig = (PelletInfGraph)g;
+
+//		final Field _graphListener = ig.getClass().getDeclaredField("_graphListener");
+//		_graphListener.setAccessible(true);
+//		final PelletGraphListener pgl = (PelletGraphListener) _graphListener.get(ig);
+
+		final GraphListener gl = new GraphListener() {
+			@Override
+			public void notifyAddTriple(Graph g, Triple t) {
+				ig.performAdd(t);
+			}
+
+			@Override
+			public void notifyAddArray(Graph g, Triple[] triples) {
+				for (Triple t : triples) {
+					ig.performAdd(t);
+				}
+			}
+
+			@Override
+			public void notifyAddList(Graph g, List<Triple> triples) {
+				for (Triple t : triples) {
+					ig.performAdd(t);
+				}
+			}
+
+			@Override
+			public void notifyAddIterator(Graph g, Iterator<Triple> it) {
+				while (it.hasNext()) {
+					Triple t = it.next();
+					ig.performAdd(t);
+				}
+			}
+
+			@Override
+			public void notifyAddGraph(Graph g, Graph added) {
+
+			}
+
+			@Override
+			public void notifyDeleteTriple(Graph g, Triple t) {
+				ig.performDelete(t);
+			}
+
+			@Override
+			public void notifyDeleteList(Graph g, List<Triple> triples) {
+				for (Triple t : triples) {
+					ig.performDelete(t);
+				}
+			}
+
+			@Override
+			public void notifyDeleteArray(Graph g, Triple[] triples) {
+				for (Triple t : triples) {
+					ig.performDelete(t);
+				}
+			}
+
+			@Override
+			public void notifyDeleteIterator(Graph g, Iterator<Triple> it) {
+				while (it.hasNext()) {
+					Triple t = it.next();
+					ig.performDelete(t);
+				}
+			}
+
+			@Override
+			public void notifyDeleteGraph(Graph g, Graph removed) {
+
+			}
+
+			@Override
+			public void notifyEvent(Graph source, Object value) {
+
+			}
+		};
+
+		final Dataset dataset = DatasetFactory.create(ontModel);
+		HashMap<String, Model> modelByIRI = new HashMap<>();
+		HashMap<String, Dataset> datasetByIRI = new HashMap<>();
+		for (var iri : options.inputOntologyIris) {
+			Model m = ModelFactory.createDefaultModel();
+			fm.readModelInternal(m, iri);
+			modelByIRI.put(iri, m);
+			Dataset ds = dataset.addNamedModel(iri, m);
+			datasetByIRI.put(iri, ds);
+			ontModel.addSubModel(m);
+			m.getGraph().getEventManager().register(gl);
+		}
+
 		final KnowledgeBase kb = ig.getKB();
 
 		final String base = "http://imce.jpl.nasa.gov/foundation/base#";
@@ -173,13 +251,15 @@ public class OwlReasonIncrementallyJena1c {
 
 		UpdateRequest request = UpdateFactory.create();
 		request.add(
-				"INSERT DATA { GRAPH <http://imce.jpl.nasa.gov/foundation/mission#> { <http://example.com#c1> a <http://imce.jpl.nasa.gov/foundation/mission#Component> } }");
-		UpdateAction.execute(request, ontDatasetGraph);
-		System.out.println("INSERT...");
-		kb.realize();
+				"INSERT DATA { GRAPH <http://imce.jpl.nasa.gov/foundation/mission> { <http://example.com#c1> a <http://imce.jpl.nasa.gov/foundation/mission#Component> } }");
+		        System.out.println("INSERT...");
 
+		UpdateAction.execute(request, dataset);
+
+		System.out.println("statements2 = " + ontModel.getGraph().size());
 		System.out.println("kb individuals = " + kb.getIndividuals().size());
 		System.out.println("valid = " + ontModel.validate().isValid());
+
 		System.out.println("statements2 = " + ontModel.getGraph().size());
 		System.out.println("kb individuals = " + kb.getIndividuals().size());
 
@@ -188,10 +268,10 @@ public class OwlReasonIncrementallyJena1c {
 		// ontModel.remove(c1, RDF.type, Component);
 		request = UpdateFactory.create();
 		request.add(
-				"DELETE DATA { GRAPH <http://imce.jpl.nasa.gov/foundation/mission#> { <http://example.com#c1> a <http://imce.jpl.nasa.gov/foundation/mission#Component> } }");
-		UpdateAction.execute(request, ontDatasetGraph);
+				"DELETE DATA { GRAPH <http://imce.jpl.nasa.gov/foundation/mission> { <http://example.com#c1> a <http://imce.jpl.nasa.gov/foundation/mission#Component> } }");
 		System.out.println("DELETE...");
-		kb.realize();
+
+		UpdateAction.execute(request, dataset);
 
 		System.out.println("statements3 = " + ontModel.getGraph().size());
 		System.out.println("kb individuals = " + kb.getIndividuals().size());

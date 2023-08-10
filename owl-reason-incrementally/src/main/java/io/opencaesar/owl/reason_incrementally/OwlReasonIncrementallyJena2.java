@@ -224,6 +224,8 @@ public class OwlReasonIncrementallyJena2 {
 		System.out.println("statements3 = " + ontModel.getGraph().size());
 		System.out.println("kb individuals = " + kb.getIndividuals().size());
 		System.out.println("valid = " + ontModel.validate().isValid());
+		System.out.println("statements3 = " + ontModel.getGraph().size());
+		System.out.println("kb individuals = " + kb.getIndividuals().size());
 
 		query(ontModel, "http://example.com#c1");
 

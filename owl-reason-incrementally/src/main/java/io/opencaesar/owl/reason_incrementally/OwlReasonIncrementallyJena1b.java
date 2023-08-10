@@ -163,6 +163,7 @@ public class OwlReasonIncrementallyJena1b {
 		}
 
 		Model unionM = dataset.getUnionModel();
+		unionM.getGraph().getEventManager().register(pgl);
 		ontModel.addSubModel(unionM);
 
 		final KnowledgeBase kb = ig.getKB();
@@ -210,8 +211,7 @@ public class OwlReasonIncrementallyJena1b {
 		kb.realize();
 
 		System.out.println("statements3 = " + ontModel.getGraph().size());
-		System.out.println("kb individuals = " + kb.getIndividuals().size());
-		query(ontModel, "http://example.com#c1");
+		System.out.println("kb individuals = " + kb.getIndividuals().size());query(ontModel, "http://example.com#c1");
 
 		// ontModel.add(c1, RDF.type, Function);
 		// request = UpdateFactory.create() ;
