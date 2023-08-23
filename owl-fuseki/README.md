@@ -23,6 +23,7 @@ Args:
 --port | -p	<port>										[Optional, default: 3030)
 --webui | -ui                                           [Optional]
 --max-pings | -p                                        [Optional]
+[--classpath | -cp <group>:<artifact>:<version> ]       [Optional]
 ```
 
 ## Run as Gradle Task

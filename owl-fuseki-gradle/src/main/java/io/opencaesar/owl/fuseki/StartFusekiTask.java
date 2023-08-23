@@ -8,6 +8,7 @@ import org.gradle.api.GradleException;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.RegularFile;
 import org.gradle.api.file.RegularFileProperty;
+import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.Input;
@@ -62,6 +63,14 @@ public abstract class StartFusekiTask extends DefaultTask {
     @Optional
     @Input
     public abstract Property<String> getFusekiVersion();
+
+    /**
+     * The optional list of additional classpath dependencies, each of the form: {group}:{artifact}:{version}
+     * @return
+     */
+    @Optional
+    @Input
+    public abstract ListProperty<String> getAdditionalClasspathDependencies();
 
     /**
      * The optional gradle task fuseki port property (default is 3030).
@@ -164,6 +173,12 @@ public abstract class StartFusekiTask extends DefaultTask {
         }
         if (getDebug().isPresent() && getDebug().get()) {
             args.add("-d");
+        }
+        if (getAdditionalClasspathDependencies().isPresent()) {
+            getAdditionalClasspathDependencies().get().forEach(dep -> {
+                args.add("-cp");
+                args.add(dep);
+            });
         }
         try {
             String[] a = args.toArray(new String[0]);

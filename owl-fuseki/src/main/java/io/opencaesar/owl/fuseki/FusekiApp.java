@@ -14,11 +14,7 @@ import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -137,10 +133,17 @@ public class FusekiApp {
     private boolean debug = false;
 
     @Parameter(
+            names = {"--classpath", "-cp"},
+            description = "Additional classpath dependencies to load when starting Fuseki, each of the form: <group>:<artifact>:<version>",
+            required = false,
+            order = 10)
+    private final List<String> additionalDependencies = new ArrayList<>();
+
+    @Parameter(
             names = {"--help", "-h"},
             description = "Displays summary of options",
             help = true,
-            order = 10)
+            order = 11)
     private boolean help = false;
 
     private final static Logger LOGGER = Logger.getLogger(FusekiApp.class);
@@ -194,10 +197,10 @@ public class FusekiApp {
             DefaultRepositorySystemSession session = newRepositorySystemSession(repositorySystem);
             List<RemoteRepository> repositories = newRepositories(remoteRepositoryURL);
             final List<String> deps = new ArrayList<>();
-            collectDependencies(repositorySystem, session, repositories, newFusekiServerArtifact(fusekiVersion), deps);
+            collectDependencies(repositorySystem, session, repositories, newFusekiServerArtifact(fusekiVersion), additionalDependencies, deps);
 
             if (app.webui) {
-                collectDependencies(repositorySystem, session, repositories, newFusekiWebAppArtifact(fusekiVersion), deps);
+                collectDependencies(repositorySystem, session, repositories, newFusekiWebAppArtifact(fusekiVersion), additionalDependencies, deps);
 
                 final File webappFolder = new File(outputFolderPath).toPath().resolve("webapp").toFile();
                 webappFolder.mkdirs();
@@ -529,12 +532,14 @@ public class FusekiApp {
                                             DefaultRepositorySystemSession session,
                                             List<RemoteRepository> repositories,
                                             Artifact artifact,
+                                            List<String> additionalDependencies,
                                             List<String> deps) throws DependencyCollectionException {
         CollectResult fusekiDeps = resolveDependencies(
                 system,
                 session,
                 repositories,
-                artifact);
+                artifact,
+                additionalDependencies);
 
         fusekiDeps.getRoot().accept(new DependencyVisitor() {
             @Override
@@ -558,9 +563,13 @@ public class FusekiApp {
     private static CollectResult resolveDependencies(RepositorySystem system,
                                                      DefaultRepositorySystemSession session,
                                                      List<RemoteRepository> repositories,
-                                                     Artifact artifact) throws DependencyCollectionException {
+                                                     Artifact artifact,
+                                                     List<String> additionalDependencies) throws DependencyCollectionException {
         CollectRequest collectRequest = new CollectRequest();
         collectRequest.setRoot(new Dependency(artifact, ""));
+        for (String additionalDependency : additionalDependencies) {
+            collectRequest.addDependency(new Dependency(new DefaultArtifact(additionalDependency), ""));
+        }
         collectRequest.setRepositories(repositories);
         CollectResult result = system.collectDependencies(session, collectRequest);
         return result;
