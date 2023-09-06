@@ -93,33 +93,29 @@ public class FusekiApp {
     @Parameter(
             names = {"--remote-repository-url", "-url"},
             description = "URL for a remote repository like Maven Central, defaults to: https://repo.maven.apache.org/maven2/",
-            required = false,
             order = 4)
     private String remoteRepositoryURL = "https://repo.maven.apache.org/maven2/";
 
     @Parameter(
             names = {"--fuseki-version", "-fv"},
             description = "Version of Fuseki, defaults to 4.6.0",
-            required = false,
             order = 5)
     private String fusekiVersion = "4.6.1";
 
     @Parameter(
-            names = {"--port, -p"},
+            names = {"--port", "-p"},
             description = "Fuseki server port (defaults to 3030)",
-            required = false,
             order = 6)
     private int port = 3030;
 
     @Parameter(
             names = {"--webui", "-ui"},
             description = "Starts the Fuseki UI instead of the headless Fuseki server (Optional)",
-            required = false,
             order = 7)
     private boolean webui = false;
 
     @Parameter(
-            names = {"--max-pings", "-p"},
+            names = {"--max-pings", "-n"},
             description = "Maximum number (10 by default) of pings to the server before giving up",
             help = true,
             required = false,
@@ -134,16 +130,23 @@ public class FusekiApp {
 
     @Parameter(
             names = {"--classpath", "-cp"},
-            description = "Additional classpath dependencies to load when starting Fuseki, each of the form: <group>:<artifact>:<version>",
+            description = "Additional classpath dependencies to load when starting Fuseki, each of the form: <group>:<artifact>:<exact version>",
             required = false,
             order = 10)
-    private final List<String> additionalDependencies = new ArrayList<>();
+    private List<String> additionalDependencies = new ArrayList<>();
+
+    @Parameter(
+            names = {"-jvm"},
+            description = "Additional JVM arguments",
+            required = false,
+            order = 11)
+    private List<String> additionalJVMArguments = new ArrayList<>();
 
     @Parameter(
             names = {"--help", "-h"},
             description = "Displays summary of options",
             help = true,
-            order = 11)
+            order = 12)
     private boolean help = false;
 
     private final static Logger LOGGER = Logger.getLogger(FusekiApp.class);
@@ -217,10 +220,10 @@ public class FusekiApp {
                 }
 
                 String[] cpEntries = deps.toArray(new String[0]);
-                startFuseki(cpEntries, new File(configurationPath), new File(outputFolderPath), app.port, false, app.maxPings, "org.apache.jena.fuseki.cmd.FusekiCmd", app, "--localhost");
+                startFuseki(cpEntries, new File(configurationPath), new File(outputFolderPath), app.port, false, app.maxPings, "org.apache.jena.fuseki.cmd.FusekiCmd", app.additionalJVMArguments, "--localhost");
             } else {
                 String[] cpEntries = deps.toArray(new String[0]);
-                startFuseki(cpEntries, new File(configurationPath), new File(outputFolderPath), app.port, true, app.maxPings, "org.apache.jena.fuseki.main.cmds.FusekiMainCmd", app);
+                startFuseki(cpEntries, new File(configurationPath), new File(outputFolderPath), app.port, true, app.maxPings, "org.apache.jena.fuseki.main.cmds.FusekiMainCmd", app.additionalJVMArguments);
             }
         } else {
             stopFuseki(new File(outputFolderPath));
@@ -278,7 +281,7 @@ public class FusekiApp {
      * @param pingArg   Whether to add --ping to the command
      * @param maxPings  The maximum number of pings to try before giving up
      * @param clazz     Qualified name of the Fuseki server application (with or without Web UI)
-     * @param app       Fuseki application
+     * @param jvmArgs   A list of additional JVM arguments.
      * @param argv      Additional arguments
      * @throws IOException        if the 'fuseki.pid' file could not be written to
      * @throws URISyntaxException If there is a problem retrieving the location of the fuseki jar.
@@ -291,7 +294,7 @@ public class FusekiApp {
             boolean pingArg,
             int maxPings,
             String clazz,
-            FusekiApp app,
+            List<String> jvmArgs,
             String... argv) throws IOException, URISyntaxException {
         Path output = fusekiDir.toPath();
         File pidFile = output.resolve(PID_FILENAME).toFile();
@@ -313,15 +316,18 @@ public class FusekiApp {
 
         List<String> args = new ArrayList<String>();
         args.add(getJavaCommandPath());
+        args.addAll(jvmArgs);
         args.add("-cp");
         args.add(String.join(File.pathSeparator, cpEntries));
         args.add(clazz);
-        args.add("--port");
-        args.add(Integer.toString(port));
         if (pingArg) {
         	args.add("--ping");
         }
         args.add("--config=" + output.relativize(config.toPath()).toString().replace("\\", "/")); // put the relative path to avoid spaces in path
+
+        args.add("--port");
+        args.add(Integer.toString(port));
+
         args.addAll(Arrays.asList(argv));
         
         ProcessBuilder pb = new ProcessBuilder(args);

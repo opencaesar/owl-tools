@@ -65,12 +65,22 @@ public abstract class StartFusekiTask extends DefaultTask {
     public abstract Property<String> getFusekiVersion();
 
     /**
-     * The optional list of additional classpath dependencies, each of the form: {group}:{artifact}:{version}
-     * @return
+     * The optional list of additional classpath dependencies, each of the form: {group}:{artifact}:{exact version}
+     *
+     * @return List of additional classpath dependencies.
      */
     @Optional
     @Input
     public abstract ListProperty<String> getAdditionalClasspathDependencies();
+
+    /**
+     * The optional list of additional JVM arguments
+     *
+     * @return List of additional JVM arguments.
+     */
+    @Optional
+    @Input
+    public abstract ListProperty<String> getAdditionalJVMArguments();
 
     /**
      * The optional gradle task fuseki port property (default is 3030).
@@ -159,7 +169,7 @@ public abstract class StartFusekiTask extends DefaultTask {
             args.add(getOutputFolderPath().get().getAsFile().getAbsolutePath());
         }
         if (getPort().isPresent()) {
-        	args.add("--port");
+        	args.add("-p");
         	args.add(getPort().get().toString());
         }
         if (getWebUI().isPresent()) {
@@ -168,11 +178,17 @@ public abstract class StartFusekiTask extends DefaultTask {
             }
         }
         if (getMaxPings().isPresent()) {
-            args.add("-p");
+            args.add("-n");
             args.add(getMaxPings().get().toString());
         }
         if (getDebug().isPresent() && getDebug().get()) {
             args.add("-d");
+        }
+        if (getAdditionalJVMArguments().isPresent()) {
+            getAdditionalJVMArguments().get().forEach(arg -> {
+                args.add("-jvm");
+                args.add(arg);
+            });
         }
         if (getAdditionalClasspathDependencies().isPresent()) {
             getAdditionalClasspathDependencies().get().forEach(dep -> {
