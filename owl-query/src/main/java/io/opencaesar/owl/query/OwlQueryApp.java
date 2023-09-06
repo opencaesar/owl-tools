@@ -202,7 +202,7 @@ public class OwlQueryApp {
 			// Create remote connection to query endpoint
 			RDFConnectionRemoteBuilder builder = RDFConnectionFuseki.create()
 					.updateEndpoint("update")
-					.queryEndpoint("sparql")
+					.queryEndpoint("query")
 					.destination(endpointURL);
 				
 			File output = new File(resultPath + File.separator + outputName + "."+format);

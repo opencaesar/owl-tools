@@ -4,6 +4,11 @@
 
 A tool to start and stop a UI or UI-less Fuseki server with a given configuration file
 
+Note that this expects the Fuseki configuration to have the following endpoints:
+- query, for SPARQL query
+- update, for SPARQL update
+- shacl, optionally, for handling SHACL queries
+
 ## Run as CLI
 MacOS/Linux:
 ```
@@ -22,8 +27,9 @@ Args:
 --fuseki-version | -fv  <version>						[Optional, default: 4.6.1]
 --port | -p	<port>										[Optional, default: 3030)
 --webui | -ui                                           [Optional]
---max-pings | -p                                        [Optional]
-[--classpath | -cp <group>:<artifact>:<version> ]       [Optional]
+--max-pings | -n                                        [Optional]
+[--classpath | -cp <group>:<artifact>:<exact version> ] [Optional]
+[-jvm <arg>]                                            [Optional]
 ```
 
 ## Run as Gradle Task
@@ -51,6 +57,10 @@ task startFuseki(type: io.opencaesar.owl.fuseki.StartFusekiTask) {
 	port = 3030 // optional, default: 3030
 	webUI = true // optional, default: false [creates a 'webapp' subfolder under outputFolderPath]
 	maxPings = 10 // optional, default: 10
+	additionalClasspathDependencies = [
+        "com.github.galigator.openllet:openllet-jena:2.6.5"
+    ]
+    additionalJVMArguments = []
 }
 
 task stopFuseki(type: io.opencaesar.owl.fuseki.StopFusekiTask) {

@@ -4,6 +4,10 @@
 
 A tool to clear and load a Fuseki dataset with the transitive closure of all imported ontologies from a set of Catalog-resolved IRIs.
 
+Note that this expects the Fuseki server to have two named endpoints:
+- query, for SPARQL query
+- update, for SPARQL update
+
 ## Run as CLI
 MacOS/Linux:
 ```

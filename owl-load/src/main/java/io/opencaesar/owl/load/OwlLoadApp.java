@@ -147,7 +147,7 @@ public class OwlLoadApp {
         // Delete all existing models of the dataset before loading anything.
         RDFConnectionRemoteBuilder builder = RDFConnectionRemote.create()
                 .updateEndpoint("update")
-                .queryEndpoint("sparql")
+                .queryEndpoint("query")
                 .destination(endpointURL);
         RDFConnection conn = builder.build();
        

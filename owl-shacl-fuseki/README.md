@@ -2,7 +2,9 @@
 
 [![Release](https://img.shields.io/github/v/tag/opencaesar/owl-tools?label=release)](https://github.com/opencaesar/owl-tools/releases/latest)
 
-A tool to execute a SHACL query on a given Fuseki+SHACL endpoint. 
+A tool to execute a SHACL query on a given Fuseki+SHACL endpoint.
+
+Note that this expects the Fuseki server to have an endpoint named shacl for handling SHACL queries.
 
 ## Run as CLI
 

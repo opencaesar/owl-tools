@@ -4,6 +4,10 @@
 
 A tool to execute a query on a given SPARQL endpoint. 
 
+Note that this expects the Fuseki server to have two named endpoints:
+- query, for SPARQL query
+- update, for SPARQL update
+
 ## Run as CLI
 
 MacOS/Linux:
