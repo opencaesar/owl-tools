@@ -87,6 +87,15 @@ public abstract class OwlReasonTask extends DefaultTask {
 	public abstract Property<String> getExplanationFormat();
 
 	/**
+	 * The optional gradle task input boolean property for using the unique name assumption while reasoning
+	 * 
+	 * @return Boolean Property
+	 */
+	@Optional
+	@Input
+	public abstract Property<Boolean> getUniqueNames();
+
+	/**
 	 * The required gradle task output file property for the reasoner reports.
 	 * 
 	 * @return RegularFile Property
@@ -227,6 +236,9 @@ public abstract class OwlReasonTask extends DefaultTask {
 		if (getExplanationFormat().isPresent()) {
 			args.add("-ef");
 			args.add(getExplanationFormat().get());
+		}
+		if (getUniqueNames().isPresent() && getUniqueNames().get()) {
+			args.add("-un");
 		}
 		if (getRemoveUnsats().isPresent() && getRemoveUnsats().get()) {
 			args.add("-ru");

@@ -87,6 +87,7 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 
 import openllet.core.KnowledgeBase;
+import openllet.core.OpenlletOptions;
 import openllet.jena.ModelExtractor;
 import openllet.jena.ModelExtractor.StatementType;
 import openllet.jena.vocabulary.OWL2;
@@ -192,44 +193,50 @@ public class OwlReasonApp {
 			validateWith = ExplanationFormatValidator.class,
 			order = 7)
 	    private String explanationFormat = DEFAULT_EXPLANATION_FORMAT;
-		
+
+		@Parameter(
+			names = {"--unique-names", "-un"},
+			description = "boolean indicating whether to use the unique name assumption",
+			order = 8)
+	    private boolean uniqueNames = false;
+
 		@Parameter(
 			names = {"--remove-unsats", "-ru"},
 			description = "boolean indicating whether to remove entailments due to unsatisfiability (optional, default=true)",
 			arity = 1,
-			order = 8)
+			order = 9)
 		private boolean removeUnsats = true;
 		
 		@Parameter(
 			names = {"--remove-backbone", "-rb"},
 			description = "boolean indicating whether to remove axioms on the backhone from entailments (optional, default=true)",
 			arity = 1,
-			order = 9)
+			order = 10)
 		private boolean removeBackbone = true;
 		
 		@Parameter(
 			names = {"--backbone-iri", "-b"},
 			description = "iri of backbone ontology",
-			order = 10)
+			order = 11)
 		private String backboneIri = "http://opencaesar.io/oml";
 		
 		@Parameter(
 			names = {"--indent", "-n"},
 			description = "indent of the JUnit XML elements",
-			order = 11)
+			order = 12)
 		private int indent = 2;
 		
 		@Parameter(
 			names = {"--debug", "-d"},
 			description = "Shows debug logging statements",
-			order = 12)
+			order = 13)
 		private boolean debug;
 		
 		@Parameter(
 			names = {"--help", "-h"},
 			description = "Displays summary of options",
 			help = true,
-			order =13)
+			order =14)
 		private boolean help;
 	}
 		
@@ -339,6 +346,10 @@ public class OwlReasonApp {
 	    	throw new RuntimeException("couldn't get knowledge base");
 	    }
 
+	    // Set the unique name assumption
+
+	    OpenlletOptions.USE_UNIQUE_NAME_ASSUMPTION = options.uniqueNames;
+	    
 	    // Check for consistency and satisfiability
 		
 		Map<String, List<Result>> allResults = new LinkedHashMap<>();
