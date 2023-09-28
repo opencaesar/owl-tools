@@ -42,6 +42,7 @@ import org.eclipse.aether.resolution.ArtifactRequest;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.aether.resolution.ArtifactResult;
 
+import com.beust.jcommander.converters.IParameterSplitter;
 import com.beust.jcommander.IStringConverter;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
@@ -139,7 +140,8 @@ public class FusekiApp {
             names = {"-jvm"},
             description = "Additional JVM arguments",
             required = false,
-            order = 11)
+            order = 11,
+            splitter = NoSplit.class)
     private List<String> additionalJVMArguments = new ArrayList<>();
 
     @Parameter(
@@ -220,10 +222,10 @@ public class FusekiApp {
                 }
 
                 String[] cpEntries = deps.toArray(new String[0]);
-                startFuseki(cpEntries, new File(configurationPath), new File(outputFolderPath), app.port, false, app.maxPings, "org.apache.jena.fuseki.cmd.FusekiCmd", app.additionalJVMArguments, "--localhost");
+                startFuseki(app.debug, cpEntries, new File(configurationPath), new File(outputFolderPath), app.port, false, app.maxPings, "org.apache.jena.fuseki.cmd.FusekiCmd", app.additionalJVMArguments, "--localhost");
             } else {
                 String[] cpEntries = deps.toArray(new String[0]);
-                startFuseki(cpEntries, new File(configurationPath), new File(outputFolderPath), app.port, true, app.maxPings, "org.apache.jena.fuseki.main.cmds.FusekiMainCmd", app.additionalJVMArguments);
+                startFuseki(app.debug, cpEntries, new File(configurationPath), new File(outputFolderPath), app.port, true, app.maxPings, "org.apache.jena.fuseki.main.cmds.FusekiMainCmd", app.additionalJVMArguments);
             }
         } else {
             stopFuseki(new File(outputFolderPath));
@@ -272,6 +274,7 @@ public class FusekiApp {
     /**
      * Starts a background Fuseki server from a Fuseki configuration file.
      *
+     * @param debug     If true, show the command for launching fuseki.
      * @param cpEntries Classpath entries
      * @param config    Absolute path to a Fuseki configuration file.
      * @param fusekiDir Path to an output directory that, if it exists, will be cleaned, and that will have:
@@ -287,6 +290,7 @@ public class FusekiApp {
      * @throws URISyntaxException If there is a problem retrieving the location of the fuseki jar.
      */
     public static void startFuseki(
+            boolean debug,
             String[] cpEntries,
             File config,
             File fusekiDir,
@@ -329,7 +333,16 @@ public class FusekiApp {
         args.add(Integer.toString(port));
 
         args.addAll(Arrays.asList(argv));
-        
+
+        if (debug) {
+            StringBuffer buffer = new StringBuffer();
+            buffer.append("Fuseki command:");
+            for (String arg : args) {
+                buffer.append(" ");
+                buffer.append(arg);
+            }
+            LOGGER.info(buffer.toString());
+        }
         ProcessBuilder pb = new ProcessBuilder(args);
         pb.directory(output.toFile());
         pb.redirectErrorStream(true);
@@ -454,6 +467,19 @@ public class FusekiApp {
             }
         }
 
+    }
+
+    /**
+     * A parameter converter for plain strings without splitting them.
+     */
+    public static class NoSplit implements IParameterSplitter {
+
+        @Override
+        public List<String> split(String value) {
+            // Here, we're simply wrapping the single string value into a list.
+            // This prevents any splitting on ",".
+            return Arrays.asList(value);
+        }
     }
 
     /**

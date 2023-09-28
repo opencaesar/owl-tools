@@ -1,0 +1,13 @@
+# This should include jena-core/src/main/resources/etc/owl-fb.rules
+# How do we specify this file as an @include <...> directive?
+
+@prefix mission: <http://example.com/tutorial/vocabulary/mission#>
+@prefix oml: <http://opencaesar.io/oml#>
+
+[missionPresents:
+    (?r rdf:type mission:Presents),
+    (?r oml:hasSource ?s),
+    (?r oml:hasTarget ?t)
+    ->
+    (?s mission:presents ?t)
+]

@@ -1,0 +1,21 @@
+apply plugin: 'application'
+apply plugin: 'idea'
+
+ext.title = 'OWL Fuseki Reasoner'
+description = 'Fuseki with a reasoner configured for reasoning over OML-based ontologies'
+mainClassName = 'io.opencaesar.owl.fuseki_reasoner.OwlFusekiReasonerApp'
+applicationName = 'owl-fuseki-reasoner'
+
+dependencies {
+    implementation "com.beust:jcommander:${versions.jcommander}"
+    implementation("org.apache.jena:jena-fuseki-server:${versions.jena}")
+    implementation("org.apache.jena:jena-tdb2:${versions.jena}")
+    implementation "xml-resolver:xml-resolver:${versions.xmlresolver}"
+}
+
+idea {
+    module {
+        downloadJavadoc = true
+        downloadSources = true
+    }
+}
