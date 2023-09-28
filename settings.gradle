@@ -13,4 +13,4 @@ include 'owl-reason-gradle'
 include 'owl-shacl-fuseki'
 include 'owl-shacl-fuseki-gradle'
 include 'owl-reason-incrementally'
-
+include 'owl-fuseki-reasoner'

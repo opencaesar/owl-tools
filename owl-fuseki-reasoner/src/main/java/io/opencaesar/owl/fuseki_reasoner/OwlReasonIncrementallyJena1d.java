@@ -94,10 +94,17 @@ public class OwlReasonIncrementallyJena1d {
         int nbRows = 0;
         try (QueryExecution qexec = QueryExecutionFactory.create(query, ds)) {
             ResultSet results = qexec.execSelect();
+            List<String> vars = results.getResultVars();
             for (; results.hasNext(); ) {
                 QuerySolution soln = results.nextSolution();
-                if (showResults)
-                    LOGGER.info(soln.toString());
+                if (showResults) {
+                    StringBuffer buff = new StringBuffer();
+                    for (String var : vars) {
+                        RDFNode value = soln.get(var);
+                        buff.append(" " + var + "=" + value);
+                    }
+                    LOGGER.info(buff.toString());
+                }
                 nbRows = results.getRowNumber();
             }
         }
@@ -174,20 +181,25 @@ public class OwlReasonIncrementallyJena1d {
             LOGGER.info("statements (inf)  = " + infModel.getGraph().size());
         });
 
-
         Txn.executeWrite(ds1, () -> {
             UpdateRequest request = UpdateFactory.create();
             request.add(
                     "INSERT DATA { GRAPH <http://imce.jpl.nasa.gov/foundation/mission> { <http://example.com#c1> a <http://imce.jpl.nasa.gov/foundation/mission#Component> } }");
             LOGGER.info("INSERT...");
             UpdateAction.execute(request, ds1);
+            String query1 = "PREFIX owl: <http://www.w3.org/2002/07/owl#>\n" +
+                "SELECT * { ?c a owl:NamedIndividual }";
+            queryString(query1, ds1, true);
+            String query2 = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
+                    + "PREFIX mission:     <http://example.com/tutorial/vocabulary/mission#>"
+                    + "SELECT * {?s a mission:Component; a ?t }";
+            queryString(query2, ds1, true);
         });
 
         Txn.executeRead(ds1, () -> {
             LOGGER.info("statements2 = " + infModel.getGraph().size());
             LOGGER.info("valid = " + infModel.validate().isValid());
         });
-
 
         Txn.executeWrite(ds1, () -> {
             UpdateRequest request = UpdateFactory.create();
