@@ -88,29 +88,6 @@ public class OwlReasonIncrementallyJena1d {
         JenaSystem.init();
     }
 
-    private void queryString(String queryString, Dataset ds, boolean showResults) {
-        LOGGER.info("<<< query: " + queryString);
-        Query query = QueryFactory.create(queryString);
-        int nbRows = 0;
-        try (QueryExecution qexec = QueryExecutionFactory.create(query, ds)) {
-            ResultSet results = qexec.execSelect();
-            List<String> vars = results.getResultVars();
-            for (; results.hasNext(); ) {
-                QuerySolution soln = results.nextSolution();
-                if (showResults) {
-                    StringBuffer buff = new StringBuffer();
-                    for (String var : vars) {
-                        RDFNode value = soln.get(var);
-                        buff.append(" " + var + "=" + value);
-                    }
-                    LOGGER.info(buff.toString());
-                }
-                nbRows = results.getRowNumber();
-            }
-        }
-
-        LOGGER.info(">>> query ("+nbRows+" results)");
-    }
 
     private void run1() throws Exception {
 
@@ -121,6 +98,7 @@ public class OwlReasonIncrementallyJena1d {
         final FileManager fm = mgr.getFileManager();
         for (var entry : fileMap.entrySet()) {
             mgr.addAltEntry(entry.getKey(), entry.getValue().toString());
+            LOGGER.info("Adding local file mapping for: " + entry.getKey());
         }
 
         if (options.inputOntologyIris.isEmpty()) {
@@ -134,6 +112,7 @@ public class OwlReasonIncrementallyJena1d {
                 Model m = ModelFactory.createDefaultModel();
                 fm.readModelInternal(m, iri);
                 ds0.addNamedModel(iri, m);
+                LOGGER.info("Loading named graph: " + iri);
             });
         }
 
@@ -151,7 +130,9 @@ public class OwlReasonIncrementallyJena1d {
         });
 
         Txn.executeRead(ds0, () -> {
+            LOGGER.info("ds0: Check how many results we get querying named graphs.");
             queryString("SELECT ?g ?s ?p ?o { GRAPH ?g { ?s ?p ?o} }", ds0, false);
+            LOGGER.info("ds0: Check how many results we get querying the union graph.");
             queryString("SELECT * {?s ?p ?o}", ds0, false);
         });
 
@@ -173,8 +154,13 @@ public class OwlReasonIncrementallyJena1d {
         Dataset ds1 = DatasetFactory.create(infModel);
 
         Txn.executeRead(ds1, () -> {
+            LOGGER.info("before insertion ds1: Check how many results we get querying named graphs.");
+            queryString("SELECT ?g ?s ?p ?o { GRAPH ?g { ?s ?p ?o} }", ds1, false);
+            LOGGER.info("before insertion ds1: Check how many results we get querying the union graph.");
             queryString("SELECT * {?s ?p ?o}", ds1, false);
+            LOGGER.info("before insertion ds1: Check named graphs for patterns: ?x mission:presents ?y.");
             queryPresentsByGraph(ds1, true);
+            LOGGER.info("before insertion ds1: Check union graph for patterns: ?x mission:presents ?y.");
             queryPresentsByUnion(ds1, true);
             LOGGER.info("valid = " + infModel.validate().isValid());
             LOGGER.info("statements (base) = " + baseModel.getGraph().size());
@@ -184,36 +170,98 @@ public class OwlReasonIncrementallyJena1d {
         Txn.executeWrite(ds1, () -> {
             UpdateRequest request = UpdateFactory.create();
             request.add(
-                    "INSERT DATA { GRAPH <http://imce.jpl.nasa.gov/foundation/mission> { <http://example.com#c1> a <http://imce.jpl.nasa.gov/foundation/mission#Component> } }");
+                    "INSERT DATA { GRAPH <http://example.com/tutorial/description/una1#> {" +
+                            "<http://example.com/tutorial/description/una1#C4> a <http://imce.jpl.nasa.gov/foundation/mission#Component> . " +
+                            "<http://example.com/tutorial/description/una1#C4.I1> a <http://imce.jpl.nasa.gov/foundation/mission#Presents> ; " +
+                            "<http://opencaesar.io/oml#hasSource> <http://example.com/tutorial/description/una1#C4> ; " +
+                            "<http://opencaesar.io/oml#hasSource> <http://example.com/tutorial/description/una1#I1> . " +
+                            "} }");
             LOGGER.info("INSERT...");
             UpdateAction.execute(request, ds1);
-            String query1 = "PREFIX owl: <http://www.w3.org/2002/07/owl#>\n" +
-                "SELECT * { ?c a owl:NamedIndividual }";
-            queryString(query1, ds1, true);
-            String query2 = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
+        });
+
+        Txn.executeRead(ds1, () -> {
+            LOGGER.info("after insertion ds1: Check how many results we get querying named graphs.");
+            queryString("SELECT ?g ?s ?p ?o { GRAPH ?g { ?s ?p ?o} }", ds1, true);
+            LOGGER.info("after insertion ds1: Check how many results we get querying the union graph.");
+            queryString("SELECT * {?s ?p ?o}", ds1, false);
+            LOGGER.info("after insertion ds1: Check named graphs for patterns: ?x mission:presents ?y.");
+            queryPresentsByGraph(ds1, true);
+            LOGGER.info("after insertion ds1: Check union graph for patterns: ?x mission:presents ?y.");
+            queryPresentsByUnion(ds1, true);
+            LOGGER.info("after insertion ds1: Check union graph for patterns: ?x a mission:Component; ?x a ?t.");
+            String query1 = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
                     + "PREFIX mission:     <http://example.com/tutorial/vocabulary/mission#>"
                     + "SELECT * {?s a mission:Component; a ?t }";
+            queryString(query1, ds1, true);
+            LOGGER.info("after insertion ds1: Check named graphs for patterns: ?x a mission:Component; ?x a ?t.");
+            String query2 = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
+                    + "PREFIX mission:     <http://example.com/tutorial/vocabulary/mission#>"
+                    + "SELECT * { GRAPH ?g { ?s a mission:Component; a ?t } }";
             queryString(query2, ds1, true);
+            LOGGER.info("statements (base) = " + baseModel.getGraph().size());
+            LOGGER.info("statements (inf)  = " + infModel.getGraph().size());
         });
 
-        Txn.executeRead(ds1, () -> {
-            LOGGER.info("statements2 = " + infModel.getGraph().size());
-            LOGGER.info("valid = " + infModel.validate().isValid());
-        });
-
-        Txn.executeWrite(ds1, () -> {
+        Txn.executeWrite(ds0, () -> {
             UpdateRequest request = UpdateFactory.create();
             request.add(
-                    "DELETE DATA { GRAPH <http://imce.jpl.nasa.gov/foundation/mission> { <http://example.com#c1> a <http://imce.jpl.nasa.gov/foundation/mission#Component> } }");
+                    "DELETE DATA { GRAPH <http://example.com/tutorial/description/una1#> {" +
+                            "<http://example.com/tutorial/description/una1#C4> a <http://imce.jpl.nasa.gov/foundation/mission#Component> . " +
+                            "<http://example.com/tutorial/description/una1#C4.I1> a <http://imce.jpl.nasa.gov/foundation/mission#Presents> ; " +
+                            "<http://opencaesar.io/oml#hasSource> <http://example.com/tutorial/description/una1#C4> ; " +
+                            "<http://opencaesar.io/oml#hasSource> <http://example.com/tutorial/description/una1#I1> . " +
+                            "} }");
             LOGGER.info("DELETE...");
-            UpdateAction.execute(request, ds1);
+            UpdateAction.execute(request, ds0);
         });
 
         Txn.executeRead(ds1, () -> {
-            LOGGER.info("statements3 = " + infModel.getGraph().size());
-            LOGGER.info("valid = " + infModel.validate().isValid());
+            LOGGER.info("after deletion ds1: Check how many results we get querying named graphs.");
+            queryString("SELECT ?g ?s ?p ?o { GRAPH ?g { ?s ?p ?o} }", ds1, false);
+            LOGGER.info("after deletion ds1: Check how many results we get querying the union graph.");
+            queryString("SELECT * {?s ?p ?o}", ds1, false);
+            LOGGER.info("after deletion ds1: Check named graphs for patterns: ?x mission:presents ?y.");
+            queryPresentsByGraph(ds1, true);
+            LOGGER.info("after deletion ds1: Check union graph for patterns: ?x mission:presents ?y.");
+            queryPresentsByUnion(ds1, true);
+            LOGGER.info("after deletion ds1: Check union graph for patterns: ?x a mission:Component; ?x a ?t.");
+            String query1 = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
+                    + "PREFIX mission:     <http://example.com/tutorial/vocabulary/mission#>"
+                    + "SELECT * {?s a mission:Component; a ?t }";
+            queryString(query1, ds1, true);
+            LOGGER.info("after deletion ds1: Check named graphs for patterns: ?x a mission:Component; ?x a ?t.");
+            String query2 = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
+                    + "PREFIX mission:     <http://example.com/tutorial/vocabulary/mission#>"
+                    + "SELECT * { GRAPH ?g { ?s a mission:Component; a ?t } }";
+            queryString(query2, ds1, true);
+            LOGGER.info("statements (base) = " + baseModel.getGraph().size());
+            LOGGER.info("statements (inf)  = " + infModel.getGraph().size());
         });
+    }
 
+    private void queryString(String queryString, Dataset ds, boolean showResults) {
+        LOGGER.info("<<< query: " + queryString);
+        Query query = QueryFactory.create(queryString);
+        int nbRows = 0;
+        try (QueryExecution qexec = QueryExecutionFactory.create(query, ds)) {
+            ResultSet results = qexec.execSelect();
+            List<String> vars = results.getResultVars();
+            for (; results.hasNext(); ) {
+                QuerySolution soln = results.nextSolution();
+                if (showResults) {
+                    StringBuffer buff = new StringBuffer();
+                    for (String var : vars) {
+                        RDFNode value = soln.get(var);
+                        buff.append(" " + var + "=" + value);
+                    }
+                    LOGGER.info(buff.toString());
+                }
+                nbRows = results.getRowNumber();
+            }
+        }
+
+        LOGGER.info(">>> query (" + nbRows + " results)");
     }
 
     private void queryPresentsByGraph(Dataset ds, boolean showResults) {
@@ -293,7 +341,7 @@ public class OwlReasonIncrementallyJena1d {
         public void validate(final String name, final String value) throws ParameterException {
             File file = new File(value);
             if (!file.exists() || !file.getName().endsWith("catalog.xml")) {
-                throw new ParameterException("Parameter " + name + " should be a valid OWL catalog path");
+                throw new ParameterException("Parameter " + name + " should be a valid OWL catalog path; got: "+file.getAbsolutePath());
             }
         }
     }
