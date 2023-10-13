@@ -15,6 +15,7 @@ import org.apache.jena.ontology.*;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.update.UpdateAction;
 import org.apache.jena.update.UpdateFactory;
@@ -189,16 +190,36 @@ public class OwlReasonIncrementallyJena2 {
 		System.out.println("statements1 = " + ontModel.getGraph().size());
 		System.out.println("kb individuals = " + kb.getIndividuals().size());
 
+		String query1 = String
+				.format("PREFIX mission: <http://example.com/tutorial/vocabulary/mission#>\n"
+						+ "SELECT ?c ?i WHERE { ?c mission:presents ?i . }\n"
+						+ "ORDER BY ?c ?i");
+		System.out.println("Query mission:presents before insert:");
+		queryString(ontModel, query1);
+
 		UpdateRequest request = UpdateFactory.create();
 		request.add(
-				"INSERT DATA { <http://example.com#c1> a <http://imce.jpl.nasa.gov/foundation/mission#Component> }");
+				"INSERT DATA {" +
+						"<http://example.com/tutorial/description/una1#C4> a <http://imce.jpl.nasa.gov/foundation/mission#Component> . " +
+						"<http://example.com/tutorial/description/una1#C4.I1> a <http://imce.jpl.nasa.gov/foundation/mission#Presents> ; " +
+						"<http://opencaesar.io/oml#hasSource> <http://example.com/tutorial/description/una1#C4> ; " +
+						"<http://opencaesar.io/oml#hasTarget> <http://example.com/tutorial/description/una1#I1> . " +
+						"}");
 		System.out.println("INSERT...");
-
 		UpdateAction.execute(request, ontModel);
+
+		System.out.println("Query mission:presents after insert:");
+		queryString(ontModel, query1);
 
 		System.out.println("statements2 = " + ontModel.getGraph().size());
 		System.out.println("kb individuals = " + kb.getIndividuals().size());
 		System.out.println("valid = " + ontModel.validate().isValid());
+
+		ontModel.prepare();
+		ontModel.rebind();
+
+		System.out.println("Query mission:presents after insert & rebind:");
+		queryString(ontModel, query1);
 
 		query(ontModel, "http://example.com#c1"); // triggers reasoning.
 
@@ -225,13 +246,22 @@ public class OwlReasonIncrementallyJena2 {
 						+ "	<%s> a ?y\n" + "}", iri);
 
 		System.out.println("Types of c1 are:");
+		queryString(ontModel, queryString);
+	}
+
+	private void queryString(Model ontModel, String queryString) {
 		Query query = QueryFactory.create(queryString);
 		try (QueryExecution qexec = QueryExecutionFactory.create(query, ontModel)) {
 			ResultSet results = qexec.execSelect();
 			for (; results.hasNext();) {
 				QuerySolution soln = results.nextSolution();
-				Resource r = soln.getResource("y");
-				System.out.println(r);
+				List<String> vars = results.getResultVars();
+				StringBuffer buff = new StringBuffer();
+				for (String var : vars) {
+					RDFNode value = soln.get(var);
+					buff.append(" " + var + "=" + value);
+				}
+				System.out.println(buff.toString());
 			}
 		}
 	}

@@ -1,0 +1,304 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns="http://example.com/tutorial/vocabulary/mission#"
+     xml:base="http://example.com/tutorial/vocabulary/mission"
+     xmlns:dc="http://purl.org/dc/elements/1.1/"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:swrl="http://www.w3.org/2003/11/swrl#"
+     xmlns:swrlb="http://www.w3.org/2003/11/swrlb#"
+     xmlns:mission="http://example.com/tutorial/vocabulary/mission#">
+    <owl:Ontology rdf:about="http://example.com/tutorial/vocabulary/mission">
+        <dc:type rdf:resource="http://opencaesar.io/oml#Vocabulary"/>
+    </owl:Ontology>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Annotation properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+
+    
+
+
+    <!-- http://purl.org/dc/elements/1.1/type -->
+
+
+    <owl:AnnotationProperty rdf:about="http://purl.org/dc/elements/1.1/type"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Object Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+
+    
+
+
+    <!-- http://example.com/tutorial/vocabulary/mission#isPresentedBy -->
+
+
+    <owl:ObjectProperty rdf:about="http://example.com/tutorial/vocabulary/mission#isPresentedBy">
+        <owl:inverseOf rdf:resource="http://example.com/tutorial/vocabulary/mission#presents"/>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AsymmetricProperty"/>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#IrreflexiveProperty"/>
+        <rdfs:domain rdf:resource="http://example.com/tutorial/vocabulary/mission#Interface"/>
+        <rdfs:range rdf:resource="http://example.com/tutorial/vocabulary/mission#Component"/>
+        <dc:type rdf:resource="http://opencaesar.io/oml#reverseRelation"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://example.com/tutorial/vocabulary/mission#presents -->
+
+
+    <owl:ObjectProperty rdf:about="http://example.com/tutorial/vocabulary/mission#presents">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#InverseFunctionalProperty"/>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AsymmetricProperty"/>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#IrreflexiveProperty"/>
+        <rdfs:domain rdf:resource="http://example.com/tutorial/vocabulary/mission#Component"/>
+        <rdfs:range rdf:resource="http://example.com/tutorial/vocabulary/mission#Interface"/>
+        <dc:type rdf:resource="http://opencaesar.io/oml#forwardRelation"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://opencaesar.io/oml#hasSource -->
+
+
+    <owl:ObjectProperty rdf:about="http://opencaesar.io/oml#hasSource"/>
+    
+
+
+    <!-- http://opencaesar.io/oml#hasTarget -->
+
+
+    <owl:ObjectProperty rdf:about="http://opencaesar.io/oml#hasTarget"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Data properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+
+    
+
+
+    <!-- http://example.com/tutorial/vocabulary/mission#hasIdentifier -->
+
+
+    <owl:DatatypeProperty rdf:about="http://example.com/tutorial/vocabulary/mission#hasIdentifier">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+        <rdfs:domain rdf:resource="http://example.com/tutorial/vocabulary/mission#IdentifiedThing"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <dc:type rdf:resource="http://opencaesar.io/oml#scalarProperty"/>
+        <rdfs:comment>The has identifier property</rdfs:comment>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://example.com/tutorial/vocabulary/mission#hasRating -->
+
+
+    <owl:DatatypeProperty rdf:about="http://example.com/tutorial/vocabulary/mission#hasRating">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+        <rdfs:domain rdf:resource="http://example.com/tutorial/vocabulary/mission#Component"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <dc:type rdf:resource="http://opencaesar.io/oml#scalarProperty"/>
+        <rdfs:comment>The has identifier property</rdfs:comment>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+
+    
+
+
+    <!-- http://example.com/tutorial/vocabulary/mission#Component -->
+
+
+    <owl:Class rdf:about="http://example.com/tutorial/vocabulary/mission#Component">
+        <rdfs:subClassOf rdf:resource="http://example.com/tutorial/vocabulary/mission#IdentifiedThing"/>
+        <owl:hasKey rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://example.com/tutorial/vocabulary/mission#hasIdentifier"/>
+        </owl:hasKey>
+        <dc:type rdf:resource="http://opencaesar.io/oml#Concept"/>
+        <rdfs:comment>A Component is something that can be deployed in a mission.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://example.com/tutorial/vocabulary/mission#EMComponent -->
+
+
+    <owl:Class rdf:about="http://example.com/tutorial/vocabulary/mission#EMComponent">
+        <owl:equivalentClass>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://example.com/tutorial/vocabulary/mission#hasRating"/>
+                <owl:hasValue>EM</owl:hasValue>
+            </owl:Restriction>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="http://example.com/tutorial/vocabulary/mission#Component"/>
+        <dc:type rdf:resource="http://opencaesar.io/oml#Concept"/>
+    </owl:Class>
+    
+
+
+    <!-- http://example.com/tutorial/vocabulary/mission#IdentifiedThing -->
+
+
+    <owl:Class rdf:about="http://example.com/tutorial/vocabulary/mission#IdentifiedThing">
+        <dc:type rdf:resource="http://opencaesar.io/oml#Aspect"/>
+        <rdfs:comment>The class of things having an id and a canonical name</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://example.com/tutorial/vocabulary/mission#Interface -->
+
+
+    <owl:Class rdf:about="http://example.com/tutorial/vocabulary/mission#Interface">
+        <rdfs:subClassOf rdf:resource="http://example.com/tutorial/vocabulary/mission#IdentifiedThing"/>
+        <owl:hasKey rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://example.com/tutorial/vocabulary/mission#hasIdentifier"/>
+        </owl:hasKey>
+        <dc:type rdf:resource="http://opencaesar.io/oml#Concept"/>
+        <rdfs:comment>An Interface represents a set of features that describe some Component&apos;s interaction with another Component.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://example.com/tutorial/vocabulary/mission#Presents -->
+
+
+    <owl:Class rdf:about="http://example.com/tutorial/vocabulary/mission#Presents">
+        <dc:type rdf:resource="http://opencaesar.io/oml#RelationEntity"/>
+        <rdfs:comment>A Component presents zero or more Interfaces.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://example.com/tutorial/vocabulary/mission#RadHardComponent -->
+
+
+    <owl:Class rdf:about="http://example.com/tutorial/vocabulary/mission#RadHardComponent">
+        <owl:equivalentClass>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://example.com/tutorial/vocabulary/mission#hasRating"/>
+                <owl:hasValue>RadHard</owl:hasValue>
+            </owl:Restriction>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="http://example.com/tutorial/vocabulary/mission#Component"/>
+        <dc:type rdf:resource="http://opencaesar.io/oml#Concept"/>
+    </owl:Class>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Rules
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+
+    <rdf:Description rdf:about="urn:swrl:var#r">
+        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#Variable"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="urn:swrl:var#s">
+        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#Variable"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="urn:swrl:var#t">
+        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#Variable"/>
+    </rdf:Description>
+    <rdf:Description>
+        <rdfs:label>presents derivation</rdfs:label>
+        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#Imp"/>
+        <swrl:body>
+            <rdf:Description>
+                <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#AtomList"/>
+                <rdf:first>
+                    <rdf:Description>
+                        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#ClassAtom"/>
+                        <swrl:classPredicate rdf:resource="http://example.com/tutorial/vocabulary/mission#Presents"/>
+                        <swrl:argument1 rdf:resource="urn:swrl:var#r"/>
+                    </rdf:Description>
+                </rdf:first>
+                <rdf:rest>
+                    <rdf:Description>
+                        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#AtomList"/>
+                        <rdf:first>
+                            <rdf:Description>
+                                <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#IndividualPropertyAtom"/>
+                                <swrl:propertyPredicate rdf:resource="http://opencaesar.io/oml#hasSource"/>
+                                <swrl:argument1 rdf:resource="urn:swrl:var#r"/>
+                                <swrl:argument2 rdf:resource="urn:swrl:var#s"/>
+                            </rdf:Description>
+                        </rdf:first>
+                        <rdf:rest>
+                            <rdf:Description>
+                                <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#AtomList"/>
+                                <rdf:first>
+                                    <rdf:Description>
+                                        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#IndividualPropertyAtom"/>
+                                        <swrl:propertyPredicate rdf:resource="http://opencaesar.io/oml#hasTarget"/>
+                                        <swrl:argument1 rdf:resource="urn:swrl:var#r"/>
+                                        <swrl:argument2 rdf:resource="urn:swrl:var#t"/>
+                                    </rdf:Description>
+                                </rdf:first>
+                                <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+                            </rdf:Description>
+                        </rdf:rest>
+                    </rdf:Description>
+                </rdf:rest>
+            </rdf:Description>
+        </swrl:body>
+        <swrl:head>
+            <rdf:Description>
+                <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#AtomList"/>
+                <rdf:first>
+                    <rdf:Description>
+                        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#IndividualPropertyAtom"/>
+                        <swrl:propertyPredicate rdf:resource="http://example.com/tutorial/vocabulary/mission#presents"/>
+                        <swrl:argument1 rdf:resource="urn:swrl:var#s"/>
+                        <swrl:argument2 rdf:resource="urn:swrl:var#t"/>
+                    </rdf:Description>
+                </rdf:first>
+                <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+            </rdf:Description>
+        </swrl:head>
+    </rdf:Description>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 5.1.17.2020-11-07T15:03:35Z) https://github.com/owlcs/owlapi/ -->
+
+

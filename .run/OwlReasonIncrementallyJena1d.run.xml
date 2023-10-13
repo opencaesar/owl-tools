@@ -1,0 +1,13 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="OwlReasonIncrementallyJena1d" type="Application" factoryName="Application">
+    <option name="ALTERNATIVE_JRE_PATH" value="11" />
+    <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+    <option name="MAIN_CLASS_NAME" value="io.opencaesar.owl.fuseki_reasoner.OwlReasonIncrementallyJena1d" />
+    <module name="owl-tools.owl-fuseki-reasoner.main" />
+    <option name="PROGRAM_PARAMETERS" value="-c owl-fuseki-reasoner/src/main/resources/owl-ventailments/catalog.xml" />
+    <option name="VM_PARAMETERS" value="-Dlog4j.debug=false -Dlog4j.configurationFile=classpath:log4j2.properties" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

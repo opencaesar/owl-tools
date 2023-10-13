@@ -1,0 +1,181 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns="http://example.com/tutorial/description/una1#"
+     xml:base="http://example.com/tutorial/description/una1"
+     xmlns:dc="http://purl.org/dc/elements/1.1/"
+     xmlns:oml="http://opencaesar.io/oml#"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:una1="http://example.com/tutorial/description/una1#"
+     xmlns:mission="http://example.com/tutorial/vocabulary/mission#">
+    <owl:Ontology rdf:about="http://example.com/tutorial/description/una1">
+        <owl:imports rdf:resource="http://example.com/tutorial/vocabulary/mission"/>
+        <dc:type rdf:resource="http://opencaesar.io/oml#Description"/>
+    </owl:Ontology>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Object Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+
+    
+
+
+    <!-- http://opencaesar.io/oml#hasSource -->
+
+
+    <owl:ObjectProperty rdf:about="http://opencaesar.io/oml#hasSource"/>
+    
+
+
+    <!-- http://opencaesar.io/oml#hasTarget -->
+
+
+    <owl:ObjectProperty rdf:about="http://opencaesar.io/oml#hasTarget"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Data properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+
+    
+
+
+    <!-- http://example.com/tutorial/vocabulary/mission#hasIdentifier -->
+
+
+    <owl:DatatypeProperty rdf:about="http://example.com/tutorial/vocabulary/mission#hasIdentifier"/>
+    
+
+
+    <!-- http://example.com/tutorial/vocabulary/mission#hasRating -->
+
+
+    <owl:DatatypeProperty rdf:about="http://example.com/tutorial/vocabulary/mission#hasRating"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Individuals
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+
+    
+
+
+    <!-- http://example.com/tutorial/description/una1#C1 -->
+
+
+    <owl:NamedIndividual rdf:about="http://example.com/tutorial/description/una1#C1">
+        <rdf:type rdf:resource="http://example.com/tutorial/vocabulary/mission#Component"/>
+        <mission:hasIdentifier>C1</mission:hasIdentifier>
+        <mission:hasRating>EM</mission:hasRating>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://example.com/tutorial/description/una1#C1.I1 -->
+
+
+    <owl:NamedIndividual rdf:about="http://example.com/tutorial/description/una1#C1.I1">
+        <rdf:type rdf:resource="http://example.com/tutorial/vocabulary/mission#Presents"/>
+        <oml:hasSource rdf:resource="http://example.com/tutorial/description/una1#C1"/>
+        <oml:hasTarget rdf:resource="http://example.com/tutorial/description/una1#I1"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://example.com/tutorial/description/una1#C2 -->
+
+
+    <owl:NamedIndividual rdf:about="http://example.com/tutorial/description/una1#C2">
+        <rdf:type rdf:resource="http://example.com/tutorial/vocabulary/mission#RadHardComponent"/>
+        <mission:hasIdentifier>C2</mission:hasIdentifier>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://example.com/tutorial/description/una1#C2.I2 -->
+
+
+    <owl:NamedIndividual rdf:about="http://example.com/tutorial/description/una1#C2.I2">
+        <rdf:type rdf:resource="http://example.com/tutorial/vocabulary/mission#Presents"/>
+        <oml:hasSource rdf:resource="http://example.com/tutorial/description/una1#C2"/>
+        <oml:hasTarget rdf:resource="http://example.com/tutorial/description/una1#I2"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://example.com/tutorial/description/una1#C3 -->
+
+
+    <owl:NamedIndividual rdf:about="http://example.com/tutorial/description/una1#C3">
+        <rdf:type rdf:resource="http://example.com/tutorial/vocabulary/mission#Component"/>
+        <mission:hasIdentifier>C2</mission:hasIdentifier>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://example.com/tutorial/description/una1#C3.I3 -->
+
+
+    <owl:NamedIndividual rdf:about="http://example.com/tutorial/description/una1#C3.I3">
+        <rdf:type rdf:resource="http://example.com/tutorial/vocabulary/mission#Presents"/>
+        <oml:hasSource rdf:resource="http://example.com/tutorial/description/una1#C3"/>
+        <oml:hasTarget rdf:resource="http://example.com/tutorial/description/una1#I3"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://example.com/tutorial/description/una1#I1 -->
+
+
+    <owl:NamedIndividual rdf:about="http://example.com/tutorial/description/una1#I1">
+        <rdf:type rdf:resource="http://example.com/tutorial/vocabulary/mission#Interface"/>
+        <mission:hasIdentifier>I1</mission:hasIdentifier>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://example.com/tutorial/description/una1#I2 -->
+
+
+    <owl:NamedIndividual rdf:about="http://example.com/tutorial/description/una1#I2">
+        <rdf:type rdf:resource="http://example.com/tutorial/vocabulary/mission#Interface"/>
+        <mission:hasIdentifier>I2</mission:hasIdentifier>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://example.com/tutorial/description/una1#I3 -->
+
+
+    <owl:NamedIndividual rdf:about="http://example.com/tutorial/description/una1#I3">
+        <rdf:type rdf:resource="http://example.com/tutorial/vocabulary/mission#Interface"/>
+        <mission:hasIdentifier>I3</mission:hasIdentifier>
+    </owl:NamedIndividual>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 5.1.17.2020-11-07T15:03:35Z) https://github.com/owlcs/owlapi/ -->
+
+
