@@ -1,15 +1,5 @@
 package io.opencaesar.owl.load;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.stream.Collectors;
-
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.file.ConfigurableFileCollection;
@@ -17,12 +7,15 @@ import org.gradle.api.file.RegularFile;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
-import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Optional;
-import org.gradle.api.tasks.OutputFile;
-import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.*;
 import org.gradle.work.Incremental;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Gradle incremental build support is available for an internal input file collection
@@ -51,6 +44,24 @@ public abstract class OwlLoadTask extends DefaultTask {
      */
     @Input
     public abstract Property<String> getEndpointURL();
+
+    /**
+     * The optional username for authenticating the SPARQL endpoint.
+     *
+     * @return String Property
+     */
+    @Optional
+    @Input
+    public abstract Property<String> getAuthenticationUsername();
+
+    /**
+     * The optional password for authenticating the SPARQL endpoint.
+     *
+     * @return String Property
+     */
+    @Optional
+    @Input
+    public abstract Property<String> getAuthenticationPassword();
 
     /**
      * The required gradle task OASIS XML catalog path property.
@@ -121,45 +132,62 @@ public abstract class OwlLoadTask extends DefaultTask {
      */
     @TaskAction
     public void run() {
-        final ArrayList<String> args = new ArrayList<>();
-        getIris().get().forEach(iri -> {
-            args.add("-i");
-            args.add(iri);
-        });
-        if (getCatalogPath().isPresent()) {
-            args.add("-c");
-            args.add(getCatalogPath().get().getAbsolutePath());
-        }
-        if (getEndpointURL().isPresent()) {
-            args.add("-e");
-            args.add(getEndpointURL().get());
-        }
-        if (getFileExtensions().isPresent()) {
-        	getFileExtensions().get().forEach(ext -> {
-                args.add("-f");
-                args.add(ext);
-            });
-        }
-        if (getDebug().isPresent() && getDebug().get()) {
-            args.add("-d");
-        }
         try {
-            OwlLoadApp.main(args.toArray(new String[0]));
-            // Generate a unique output for gradle incremental execution support.
-            generateLog();
-        } catch (Exception e) {
-			throw new GradleException(e.getLocalizedMessage(), e);
-        }
-    }
-    
-    private void generateLog() throws IOException, URISyntaxException {
-        if (getOutputFile().isPresent()) {
-            File output = getOutputFile().get().getAsFile();
-            try (PrintStream ps = new PrintStream(new FileOutputStream(output))) {
-                for (File file : getInputFiles().getFiles()) {
-                    ps.println(file.getAbsolutePath());
-                }
+            Map<String, String> env = new HashMap<>();
+            if (getAuthenticationUsername().isPresent()) {
+                String username = getAuthenticationUsername().get();
+                env.put("OWL_LOAD_USERNAME", username);
             }
+            if (getAuthenticationPassword().isPresent()) {
+                String password = getAuthenticationPassword().get();
+                env.put("OWL_LOAD_PASSWORD", password);
+            }
+
+            // Prepare the command to start a new JVM with OwlLoadApp
+            List<String> command = new ArrayList<>();
+            command.add("java");
+            command.add("-cp");
+            command.add(System.getProperty("java.class.path")); // current classpath
+            command.add("io.opencaesar.owl.load.OwlLoadApp"); // main class
+
+            getIris().get().forEach(iri -> {
+                command.add("-i");
+                command.add(iri);
+            });
+            if (getCatalogPath().isPresent()) {
+                command.add("-c");
+                command.add(getCatalogPath().get().getAbsolutePath());
+            }
+            if (getEndpointURL().isPresent()) {
+                command.add("-e");
+                command.add(getEndpointURL().get());
+            }
+            if (getFileExtensions().isPresent()) {
+                getFileExtensions().get().forEach(ext -> {
+                    command.add("-f");
+                    command.add(ext);
+                });
+            }
+            if (getDebug().isPresent() && getDebug().get()) {
+                command.add("-d");
+            }
+
+            ProcessBuilder processBuilder = new ProcessBuilder(command);
+            processBuilder.environment().putAll(env); // Set environment variables
+
+            // Start a new process and wait for it to finish
+            Process process = processBuilder.start();
+            process.waitFor();
+
+            // Check the process's exit value and handle errors if necessary
+            if (process.exitValue() != 0) {
+                // handle the error or throw an exception
+                throw new GradleException("Execution of OwlLoadApp failed.");
+            }
+
+        } catch (IOException | InterruptedException e) {
+            // handle exception
+            throw new GradleException("Execution of OwlLoadApp failed", e);
         }
     }
 }
