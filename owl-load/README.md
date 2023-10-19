@@ -13,6 +13,13 @@ Windows:
 ```
 gradlew.bat owl-load:run --args="..."
 ```
+
+Environment variables:
+```text
+OWL_LOAD_USERNAME: Optional username for authenticating the SPARQL endpoint.
+OWL_LOAD_PASSWORD: Optional password for authenticating the SPARQL endpoint.
+```
+
 Args:
 ```
 -c | --catalog-path path/to/owl/catalog.xml             [Required]
@@ -54,6 +61,8 @@ task owlLoad(type:io.opencaesar.owl.load.OwlLoadTask) {
 	inferredTaskDependency = startFuseki
 	catalogPath = file('path/to/catalog.xml') [Required]
 	endpointURL = 'url-of-sparql-endpoint' [Required]
+	authenticationUsername = '...' [Optional]
+	authenticationPassword = '...' [Optional]
     fileExtensions = ['owl', 'ttl'] [Optional, default=['owl', 'ttl'], options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss]
     iris = ['iri1',...] [One or more]
 }               
@@ -76,6 +85,8 @@ buildscript {
 task owlLoad(type:io.opencaesar.owl.load.OwlLoadTask) {
 	catalogPath = file('path/to/catalog.xml') [Required]
 	endpointURL = 'url-of-sparql-endpoint' [Required]
+	authenticationUsername = '...' [Optional]
+	authenticationPassword = '...' [Optional]
     fileExtensions = ['owl', 'ttl'] [Optional, default=['owl', 'ttl'], options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss]
     iris = ['iri1',...] [One or more]
 }               

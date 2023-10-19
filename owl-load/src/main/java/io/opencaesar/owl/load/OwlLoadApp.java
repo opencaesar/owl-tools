@@ -17,6 +17,8 @@
 package io.opencaesar.owl.load;
 
 import java.io.File;
+import java.net.Authenticator;
+import java.net.http.HttpClient;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -24,7 +26,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.jena.http.HttpEnv;
 import org.apache.jena.query.Dataset;
+import org.apache.jena.rdfconnection.LibSec;
 import org.apache.jena.rdfconnection.RDFConnection;
 import org.apache.jena.rdfconnection.RDFConnectionRemote;
 import org.apache.jena.rdfconnection.RDFConnectionRemoteBuilder;
@@ -115,6 +119,9 @@ public class OwlLoadApp {
      */
     public static void main(final String... args) throws Exception {
         final OwlLoadApp app = new OwlLoadApp();
+        final String username = System.getenv("OWL_LOAD_APP_USERNAME");
+        final String password = System.getenv("OWL_LOAD_APP_PASSWORD");
+
         final JCommander builder = JCommander.newBuilder().addObject(app).build();
         builder.parse(args);
         if (app.help) {
@@ -125,7 +132,7 @@ public class OwlLoadApp {
             final Appender appender = LogManager.getRootLogger().getAppender("stdout");
             ((AppenderSkeleton) appender).setThreshold(Level.DEBUG);
         }
-        app.run();
+        app.run(username, password);
     }
 
     /**
@@ -134,7 +141,7 @@ public class OwlLoadApp {
     public OwlLoadApp() {
     }
     
-    private void run() throws Exception {
+    private void run(String username, String password) throws Exception {
         LOGGER.info("=================================================================");
         LOGGER.info("                        S T A R T");
         LOGGER.info("                     OWL Load " + getAppVersion());
@@ -149,6 +156,14 @@ public class OwlLoadApp {
                 .updateEndpoint("update")
                 .queryEndpoint("sparql")
                 .destination(endpointURL);
+
+        if (null != username && null != password) {
+            Authenticator authenticator = LibSec.authenticator(username, password);
+            HttpClient client = HttpEnv.httpClientBuilder()
+                    .authenticator(authenticator)
+                    .build();
+            builder = builder.httpClient(client);
+        }
         RDFConnection conn = builder.build();
        
         // Fetch the dataset, and delete its named graphs
