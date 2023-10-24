@@ -46,6 +46,15 @@ public abstract class OwlLoadTask extends DefaultTask {
     public abstract Property<String> getEndpointURL();
 
     /**
+     * The optional gradle task load-to-default-graph property (default is false).
+     *
+     * @return Boolean Property
+     */
+    @Optional
+    @Input
+    public abstract Property<Boolean> getLoadToDefaultGraph();
+
+    /**
      * The optional username for authenticating the SPARQL endpoint.
      *
      * @return String Property
@@ -157,6 +166,9 @@ public abstract class OwlLoadTask extends DefaultTask {
             if (getCatalogPath().isPresent()) {
                 command.add("-c");
                 command.add(getCatalogPath().get().getAbsolutePath());
+            }
+            if (getLoadToDefaultGraph().isPresent() && getLoadToDefaultGraph().get()) {
+                command.add("--default");
             }
             if (getEndpointURL().isPresent()) {
                 command.add("-e");

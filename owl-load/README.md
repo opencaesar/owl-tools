@@ -26,6 +26,7 @@ Args:
 -e | --endpoint-url http://fusekiURL/dataset            [Required]
 -f | --file-extensions extension                        [Optional, default: -f ttl -f owl], options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss]
 -i | --iri <IRI>                                        [Required, at least one]
+--default                                               [Optional, if specified, load data to the default graph instead of to named graphs]
 ```
 Note: The dataset (database) must have been created prior to execution
 
@@ -65,6 +66,7 @@ task owlLoad(type:io.opencaesar.owl.load.OwlLoadTask) {
 	authenticationPassword = '...' [Optional]
     fileExtensions = ['owl', 'ttl'] [Optional, default=['owl', 'ttl'], options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss]
     iris = ['iri1',...] [One or more]
+    loadToDefaultGraph = true|false [Optional, default=false]
 }               
 ```
 

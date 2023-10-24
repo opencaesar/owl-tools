@@ -84,10 +84,16 @@ public class OwlLoadApp {
     private String endpointURL;
 
     @Parameter(
+            names = {"--default"},
+            description = "Load data into the default graph.",
+            order = 4)
+    private boolean loadToDefaultGraph;
+
+    @Parameter(
             names = {"--file-extensions", "-f"},
             description = "File extensions of files that will be uploaded. Default is owl and ttl, options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss (Optional)",
         	validateWith = FileExtensionValidator.class,
-            order = 4)
+            order = 5)
     private List<String> fileExtensions = new ArrayList<>();
     {
         fileExtensions.addAll(Arrays.asList(DEFAULT_EXTENSIONS));
@@ -96,14 +102,14 @@ public class OwlLoadApp {
     @Parameter(
             names = {"-d", "--debug"},
             description = "Shows debug logging statements",
-            order = 5)
+            order = 6)
     private boolean debug;
 
     @Parameter(
             names = {"--help", "-h"},
             description = "Displays summary of options",
             help = true,
-            order = 6)
+            order = 7)
     private boolean help;
 
     private final static Logger LOGGER = Logger.getLogger(OwlLoadApp.class);
@@ -205,7 +211,7 @@ public class OwlLoadApp {
         final Set<OWLOntology> allOntologies = manager.ontologies().flatMap(manager::importsClosure).collect(Collectors.toUnmodifiableSet());
         LOGGER.info("Loading "+allOntologies.size()+" ontologies...");
         for (OWLOntology ont : allOntologies) {
-        	loadOntology(conn, ont);
+        	loadOntology(conn, ont, loadToDefaultGraph);
         }
         
         //allLoaded.get();
@@ -220,7 +226,7 @@ public class OwlLoadApp {
         LOGGER.info("=================================================================");
     }
 
-    private void loadOntology(RDFConnection conn, final OWLOntology ont) {
+    private void loadOntology(RDFConnection conn, final OWLOntology ont, boolean loadToDefaultGraph) {
         IRI documentIRI = ont.getOWLOntologyManager().getOntologyDocumentIRI(ont);
         try {
             if (!"file".equals(documentIRI.getScheme()))
@@ -230,7 +236,7 @@ public class OwlLoadApp {
             assert(defaultDocumentIRI.isPresent());
             String graphName = defaultDocumentIRI.get().getIRIString();
             Lang lang = RDFLanguages.filenameToLang(documentFile);
-            if (RDFLanguages.isQuads(lang)) {
+            if (RDFLanguages.isQuads(lang) || loadToDefaultGraph) {
                 conn.loadDataset(documentFile);
             } else {
                 conn.load(graphName, documentFile);
