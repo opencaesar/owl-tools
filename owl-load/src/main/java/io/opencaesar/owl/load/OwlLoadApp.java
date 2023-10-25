@@ -236,8 +236,10 @@ public class OwlLoadApp {
             assert(defaultDocumentIRI.isPresent());
             String graphName = defaultDocumentIRI.get().getIRIString();
             Lang lang = RDFLanguages.filenameToLang(documentFile);
-            if (RDFLanguages.isQuads(lang) || loadToDefaultGraph) {
+            if (RDFLanguages.isQuads(lang)) {
                 conn.loadDataset(documentFile);
+            } else if (loadToDefaultGraph) {
+                conn.load(documentFile);
             } else {
                 conn.load(graphName, documentFile);
             }
