@@ -18,7 +18,10 @@ package io.opencaesar.owl.reason;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -171,10 +174,18 @@ public class OwlReasonApp {
 		private String reportPath;
 		
 		@Parameter(
+			names = {"--output-iris-path", "-oi"},
+			description = "path to a .txt file listing all analyzed ontology IRIs (one per line)",
+			validateWith = IrisPathValidator.class,
+			required = false,
+			order = 5)
+		private String outputOntologyIrisPath;
+
+		@Parameter(
 			names = {"--input-file-extension", "-if"},
 			description = "input file extension (owl by default, options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss)",
 			validateWith = FileExtensionValidator.class,
-			order = 5)
+			order = 6)
 	    private List<String> inputFileExtensions = new ArrayList<>();
 	    {
 	    	inputFileExtensions.add(DEFAULT_INPUT_FILE_EXTENSION);
@@ -184,59 +195,59 @@ public class OwlReasonApp {
 			names = {"--output-file-extension", "-of"},
 			description = "output file extension (ttl by default, options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss)",
 			validateWith = OutputFileExtensionValidator.class,
-			order = 6)
+			order = 7)
 	    private String outputFileExtension = DEFAULT_OUTPUT_FILE_EXTENSION;
 		
 		@Parameter(
 			names = {"--explanation-format", "-ef"},
 			description = "Explanation format (owl by default, options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss)",
 			validateWith = ExplanationFormatValidator.class,
-			order = 7)
+			order = 8)
 	    private String explanationFormat = DEFAULT_EXPLANATION_FORMAT;
 
 		@Parameter(
 			names = {"--unique-names", "-un"},
 			description = "boolean indicating whether to use the unique name assumption",
-			order = 8)
+			order = 9)
 	    private boolean uniqueNames = false;
 
 		@Parameter(
 			names = {"--remove-unsats", "-ru"},
 			description = "boolean indicating whether to remove entailments due to unsatisfiability (optional, default=true)",
 			arity = 1,
-			order = 9)
+			order = 10)
 		private boolean removeUnsats = true;
 		
 		@Parameter(
 			names = {"--remove-backbone", "-rb"},
 			description = "boolean indicating whether to remove axioms on the backhone from entailments (optional, default=true)",
 			arity = 1,
-			order = 10)
+			order = 11)
 		private boolean removeBackbone = true;
 		
 		@Parameter(
 			names = {"--backbone-iri", "-b"},
 			description = "iri of backbone ontology",
-			order = 11)
+			order = 12)
 		private String backboneIri = "http://opencaesar.io/oml";
 		
 		@Parameter(
 			names = {"--indent", "-n"},
 			description = "indent of the JUnit XML elements",
-			order = 12)
+			order = 13)
 		private int indent = 2;
 		
 		@Parameter(
 			names = {"--debug", "-d"},
 			description = "Shows debug logging statements",
-			order = 13)
+			order = 14)
 		private boolean debug;
 		
 		@Parameter(
 			names = {"--help", "-h"},
 			description = "Displays summary of options",
 			help = true,
-			order =14)
+			order =15)
 		private boolean help;
 	}
 		
@@ -310,9 +321,31 @@ public class OwlReasonApp {
 	    // Check the input ontology
     	check(manager, reasonerFactory, explanationFormat, options.inputOntologyIri);
 
+    	// Create dataset log file
+    	createIriLog(manager);
+    	
     	LOGGER.info("=================================================================");
 		LOGGER.info("                          E N D");
 		LOGGER.info("=================================================================");
+	}
+	
+	private void createIriLog(final OWLOntologyManager manager) {
+		if (options.outputOntologyIrisPath != null) {
+	        LOGGER.info("Saving "+options.outputOntologyIrisPath);
+	        List<String> iris = manager.ontologies().map(o -> o.getOntologyID().getOntologyIRI().get().toString()).collect(Collectors.toList());
+		    iris.addAll(options.specs.stream().map(s -> s.outputOntologyIri).collect(Collectors.toList()));
+
+	        StringBuffer s = new StringBuffer();
+			iris.stream().sorted().forEach(iri -> {;
+	        	s.append(iri + "\r");
+		    });
+	        
+	        try {
+				Files.write(Path.of(options.outputOntologyIrisPath), s.toString().getBytes());
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
 	}
 	
 	private void check(final OWLOntologyManager manager, OpenlletReasonerFactory reasonerFactory, OWLDocumentFormat explanationFormat, String inputOntologyIri) throws Exception {
@@ -733,6 +766,28 @@ public class OwlReasonApp {
 			File file = new File(value);
 			if (!file.getName().endsWith(".xml")) {
 				throw new ParameterException("Parameter " + name + " should be a valid XML path");
+			}
+			File parentFile = file.getParentFile();
+			if (parentFile != null && !parentFile.exists()) {
+				parentFile.mkdirs();
+			}
+	  	}
+	}
+
+	/**
+	 * A parameter validator for an output IRI log file.
+	 */
+	public static class IrisPathValidator implements IParameterValidator {
+		/**
+		 * Creates a new IrisPathValidator object
+		 */
+		public IrisPathValidator() {
+		}
+		@Override
+		public void validate(final String name, final String value) throws ParameterException {
+			File file = new File(value);
+			if (!file.getName().endsWith(".log")) {
+				throw new ParameterException("Parameter " + name + " should be a valid .txt file path");
 			}
 			File parentFile = file.getParentFile();
 			if (parentFile != null && !parentFile.exists()) {
