@@ -79,7 +79,7 @@ buildscript {
 	}
 }
 task owlLoad(type:io.opencaesar.owl.load.OwlLoadTask) {
-	inputs.files(startFuseki.output.files) // rerun when fuseki restarts
+	inputs.files(startFuseki.outputs.files) // rerun when fuseki restarts
 	....
 	incremental = true
 }               
