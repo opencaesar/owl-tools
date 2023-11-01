@@ -63,12 +63,19 @@ public class OwlShaclFusekiApp {
 		order = 1)
 	private String endpointURL;
 
+    @Parameter(
+        names = {"--shacl-service", "-s"},
+        description = "Short name of the shacl service (Optional, default='shacl')",
+        required = false,
+        order = 2)
+    private String shaclService = "shacl";
+    
 	@Parameter(
 		names = { "--query-path", "-q" },
 		description = "Path to a .shacl query file or directory (Required)",
 		validateWith = QueryPath.class,
 		required = true,
-		order = 2)
+		order = 3)
 	private String queryPath;
 
 	@Parameter(
@@ -76,21 +83,27 @@ public class OwlShaclFusekiApp {
 		description = "Path to the folder to save the result to (Required)",
 		validateWith = ResultFolderPath.class,
 		required = true,
-		order = 3)
+		order = 4)
 	private String resultPath;
 
 	@Parameter(
 		names = { "--debug", "-d" },
 		description = "Shows debug logging statements",
-		order = 4)
+		order = 5)
 	private boolean debug;
 
 	@Parameter(
 		names = { "--help", "-h" },
 		description = "Displays summary of options",
 		help = true,
-		order = 5)
+		order = 6)
 	private boolean help;
+
+	/**
+	 * Default output file extension
+	 */
+	public static String OUTPUT_FORMAT = "ttl";
+
 
 	private final Logger LOGGER = Logger.getLogger(OwlShaclFusekiApp.class);
 	static {
@@ -186,11 +199,6 @@ public class OwlShaclFusekiApp {
     }
 
 	/**
-	 * Default reasoner entailment output file extension
-	 */
-	public static String OUTPUT_FORMAT = "ttl";
-
-	/**
 	 * Executes a given query and outputs the result to result/outputName.frame
 	 * 
 	 * @param outputName name of the output file
@@ -200,7 +208,7 @@ public class OwlShaclFusekiApp {
         return CompletableFuture.runAsync(() -> {
 			var client = HttpClient.newHttpClient();
 			try {
-				var request = HttpRequest.newBuilder(URI.create(endpointURL+"/shacl?graph=default")).header("Content-Type", "text/turtle")
+				var request = HttpRequest.newBuilder(URI.create(endpointURL+"/"+shaclService+"?graph=default")).header("Content-Type", "text/turtle")
 						.header("Accept", "text/turtle")
 						.POST(HttpRequest.BodyPublishers.ofInputStream(Suppliers.ofInstance(new FileInputStream(query))))
 						.build();

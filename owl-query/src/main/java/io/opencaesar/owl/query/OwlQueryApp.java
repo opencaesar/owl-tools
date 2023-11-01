@@ -65,12 +65,19 @@ public class OwlQueryApp {
 		order = 1)
 	private String endpointURL;
 	
-	@Parameter(
+    @Parameter(
+        names = {"--query-service", "-qs"},
+        description = "Short name of the query service (Optional, default='sparql')",
+        required = false,
+        order = 2)
+    private String queryService = "sparql";
+
+    @Parameter(
 		names = {"--query-path", "-q"},
 		description = "Path to the .sparql query file or directory (Required)",
 		validateWith = QueryPath.class,
 		required = true,
-		order = 2)
+		order = 3)
 	private String queryPath;
 	
 	@Parameter(
@@ -78,27 +85,27 @@ public class OwlQueryApp {
 		description = "Path to the folder to save the result to (Required)",
 		validateWith = ResultFolderPath.class, 
 		required = true,
-		order = 3)
+		order = 4)
 	private String resultPath;
 	
 	@Parameter(
 		names = {"--format", "-f"},
 		description = "Format of the results. Default is xml. Options: xml, json, csv, n3, ttl, n-triple or tsv (Optional)",
 		validateWith = FormatType.class,
-		order = 4)
+		order = 5)
 	private String format = DEFAULT_FORMAT;
 
 	@Parameter(
 		names = {"--debug", "-d"},
 		description = "Shows debug logging statements",
-		order = 5)
+		order = 6)
 	private boolean debug;
 
 	@Parameter(
 		names = {"--help", "-h"},
 		description = "Displays summary of options",
 		help = true,
-		order =6)
+		order = 7)
 	private boolean help;
 	
 	private static final Logger LOGGER = Logger.getLogger(OwlQueryApp.class);
@@ -201,8 +208,7 @@ public class OwlQueryApp {
         return CompletableFuture.runAsync(() -> {
 			// Create remote connection to query endpoint
 			RDFConnectionRemoteBuilder builder = RDFConnectionFuseki.create()
-					.updateEndpoint("update")
-					.queryEndpoint("sparql")
+					.queryEndpoint(queryService)
 					.destination(endpointURL);
 				
 			File output = new File(resultPath + File.separator + outputName + "."+format);

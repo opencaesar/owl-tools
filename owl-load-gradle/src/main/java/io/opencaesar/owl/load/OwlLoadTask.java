@@ -1,22 +1,23 @@
 package io.opencaesar.owl.load;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
-import org.gradle.api.file.ConfigurableFileCollection;
-import org.gradle.api.file.RegularFile;
-import org.gradle.api.logging.Logger;
-import org.gradle.api.logging.Logging;
+import org.gradle.api.file.DirectoryProperty;
+import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
-import org.gradle.api.provider.Provider;
+import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.InputDirectory;
+import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.Optional;
-import org.gradle.api.tasks.*;
+import org.gradle.api.tasks.TaskAction;
 import org.gradle.work.Incremental;
-
-import java.io.*;
-import java.net.URISyntaxException;
-import java.util.*;
-import java.util.stream.Collectors;
+import org.gradle.work.InputChanges;
 
 /**
  * Gradle incremental build support is available for an internal input file collection
@@ -28,15 +29,14 @@ public abstract class OwlLoadTask extends DefaultTask {
      * Creates a new OwlLoadTask object
      */
     public OwlLoadTask() {
+    	getOutputs().upToDateWhen(task -> {
+            boolean incremental = getIncremental().isPresent() ? getIncremental().get() : false;
+            if (incremental) {
+    			getInputFolder().set(getCatalogPath().get().getParentFile());
+            }
+            return incremental;
+        });
     }
-
-    /**
-     * The required gradle task list of ontology IRIs property.
-     *
-     * @return List of Strings
-     */
-    @Input
-    public abstract ListProperty<String> getIris();
 
     /**
      * The required gradle task Fuseki server endpoint URL property.
@@ -47,16 +47,16 @@ public abstract class OwlLoadTask extends DefaultTask {
     public abstract Property<String> getEndpointURL();
 
     /**
-     * The optional gradle task load-to-default-graph property (default is false).
+     * The short name of the query service (optional, default is 'sparql').
      *
-     * @return Boolean Property
+     * @return String Property
      */
     @Optional
     @Input
-    public abstract Property<Boolean> getLoadToDefaultGraph();
+    public abstract Property<String> getQueryService();
 
     /**
-     * The optional username for authenticating the SPARQL endpoint.
+     * The env var whose value is a username for authenticating to the SPARQL endpoint. (Optional).
      *
      * @return String Property
      */
@@ -65,7 +65,7 @@ public abstract class OwlLoadTask extends DefaultTask {
     public abstract Property<String> getAuthenticationUsername();
 
     /**
-     * The optional password for authenticating the SPARQL endpoint.
+     * The env var whose value is a password for authenticating to the SPARQL endpoint. (Optional).
      *
      * @return String Property
      */
@@ -81,8 +81,26 @@ public abstract class OwlLoadTask extends DefaultTask {
     @Input
     public abstract Property<File> getCatalogPath();
 
-    /**
-     * The optional gradle task ontology file extensions property (default list is owl and ttl).
+	/**
+     * The gradle task list of ontology IRIs property (Required if 'irisPath' is not set).
+     * 
+     * @return List of Strings
+     */
+	@Optional
+    @Input
+    public abstract ListProperty<String> getIris();
+
+	/**
+	 * The txt file listing all ontology IRIs (one per line) (Required if 'iris' is not set).
+	 * 
+	 * @return RegularFile Property
+	 */
+	@Optional
+	@InputFile
+	public abstract RegularFileProperty getIrisPath();
+
+	/**
+     * The gradle task ontology file extensions property (optional and default is both owl and ttl).
      *
      * @return List of Strings Property
      */
@@ -91,35 +109,22 @@ public abstract class OwlLoadTask extends DefaultTask {
     public abstract ListProperty<String> getFileExtensions();
 
     /**
-     * The required list of classpath dependencies resolved via a gradle configuration, example:
-     * configurations {
-     * owlLoad
-     * }
-     * dependencies {
-     * owlLoad 'io.opencaesar.owl:owl-load-gradle:2.+'
-     * }
-     * tasks.register('owlLoadNamedGraphs', OwlLoadTask) {
-     * group 'oml'
-     * dependsOn owlReason
-     * dependsOn startFusekiServer
-     * // Force owlLoad to run if Fuseki was restarted
-     * // inputs.files(startFuseki.outputs.files)
-     * catalogPath = file("$buildDir/owl/catalog.xml")
-     * endpointURL = fusekiEndpointUrl
-     * classpath = project.files().from(configurations.owlLoad.resolve().toList())
-     * loadToDefaultGraph = false
-     * fileExtensions = ['owl', 'ttl']
-     * iris = [
-     * "$dataset.rootOntologyIri/classes".toString(),
-     * "$dataset.rootOntologyIri/properties".toString(),
-     * "$dataset.rootOntologyIri/individuals".toString()
-     * ]
-     * }
+     * The gradle task load-to-default-graph property (Optional, default is false).
      *
-     * @return List of classpath dependencies.
+     * @return Boolean Property
      */
+    @Optional
     @Input
-    public abstract ListProperty<String> getClasspath();
+    public abstract Property<Boolean> getLoadToDefaultGraph();
+
+    /**
+     * The gradle task list of ontology IRIs property (Required if 'irisPath' is not set).
+     * 
+     * @return List of Strings
+     */
+	@Optional
+    @Input
+    public abstract Property<Boolean> getIncremental();
 
     /**
      * The optional gradle task debug property (default is false).
@@ -131,126 +136,75 @@ public abstract class OwlLoadTask extends DefaultTask {
     public abstract Property<Boolean> getDebug();
 
     /**
-     * The list of gradle task input files derived from all the files in
-     * the input catalog that have one of the file extensions.
-     *
-     * @return ConfigurableFileCollection
-     * @throws IOException        error
-     * @throws URISyntaxException error
+     * The folder of input files for incremental load
+     * 
+     * @return DirectoryProperty
      */
     @Incremental
-    @InputFiles
-    @SuppressWarnings("deprecation")
-    protected ConfigurableFileCollection getInputFiles() throws IOException, URISyntaxException {
-        if (getCatalogPath().isPresent() && getCatalogPath().get().exists()) {
-            final var catalogURI = getCatalogPath().get().toURI();
-            final var inputCatalog = OwlCatalog.create(catalogURI);
-
-            final var inputFileExtensions = !getFileExtensions().get().isEmpty() ? getFileExtensions().get() : Arrays.asList(OwlLoadApp.DEFAULT_EXTENSIONS);
-            final var inputFiles = inputCatalog.getFileUris(inputFileExtensions).stream().map(f -> new File(f)).collect(Collectors.toList());
-
-            return getProject().files(inputFiles);
-        }
-        return getProject().files(Collections.EMPTY_LIST);
-    }
-
-    /**
-     * The gradle output file property derived from the task name with a `.log` suffix in the gradle build folder.
-     *
-     * @return RegularFile Provider
-     */
-    @OutputFile
-    @SuppressWarnings("deprecation")
-    protected Provider<RegularFile> getOutputFile() {
-        return getProject()
-                .getLayout()
-                .getBuildDirectory()
-                .file("log/" + getTaskIdentity().name + ".log");
-    }
+    @InputDirectory
+    @Optional
+    protected abstract DirectoryProperty getInputFolder();
 
     /**
      * The gradle task action logic.
+     * 
+     * @param inputChanges The input changes
      */
     @TaskAction
-    public void run() {
-        final Logger logger = Logging.getLogger(this.getClass());
-        try {
-            Map<String, String> env = new HashMap<>();
-            if (getAuthenticationUsername().isPresent()) {
-                String username = getAuthenticationUsername().get();
-                env.put("OWL_LOAD_USERNAME", username);
-            }
-            if (getAuthenticationPassword().isPresent()) {
-                String password = getAuthenticationPassword().get();
-                env.put("OWL_LOAD_PASSWORD", password);
-            }
-
-            // Prepare the command to start a new JVM with OwlLoadApp
-            List<String> command = new ArrayList<>();
-            command.add("java");
-            // Build the classpath string
-            String classpath = getClasspath().get().stream()
-                    .collect(Collectors.joining(File.pathSeparator)); // uses the system-dependent path separator
-            command.add("-cp");
-            command.add(classpath); // this is the complete classpath string
-
-            command.add("io.opencaesar.owl.load.OwlLoadApp"); // main class
-
-            getIris().get().forEach(iri -> {
-                command.add("-i");
-                command.add(iri);
-            });
-            if (getCatalogPath().isPresent()) {
-                command.add("-c");
-                command.add(getCatalogPath().get().getAbsolutePath());
-            }
-            if (getLoadToDefaultGraph().isPresent() && getLoadToDefaultGraph().get()) {
-                command.add("--default");
-            }
-            if (getEndpointURL().isPresent()) {
-                command.add("-e");
-                command.add(getEndpointURL().get());
-            }
-            if (getFileExtensions().isPresent()) {
-                getFileExtensions().get().forEach(ext -> {
-                    command.add("-f");
-                    command.add(ext);
-                });
-            }
-            if (getDebug().isPresent() && getDebug().get()) {
-                command.add("-d");
-            }
-
-            ProcessBuilder processBuilder = new ProcessBuilder(command);
-            processBuilder.environment().putAll(env); // Set environment variables
-
-            // Redirect error stream to the output stream
-            processBuilder.redirectErrorStream(true);
-
-            // Start a new process and wait for it to finish
-            Process process = processBuilder.start();
-
-            // Capture the output from the process
-            try (InputStream inputStream = process.getInputStream();
-                 BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
-
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    // Log the output to Gradle's log
-                    logger.lifecycle(line);
-                }
-            }
-            process.waitFor();
-
-            // Check the process's exit value and handle errors if necessary
-            if (process.exitValue() != 0) {
-                // handle the error or throw an exception
-                throw new GradleException("Execution of OwlLoadApp failed.");
-            }
-
-        } catch (IOException | InterruptedException e) {
-            // handle exception
-            throw new GradleException("Execution of OwlLoadApp failed", e);
+    public void run(InputChanges inputChanges) {
+        final ArrayList<String> args = new ArrayList<>();
+        
+        if (getEndpointURL().isPresent()) {
+            args.add("-e");
+            args.add(getEndpointURL().get());
         }
+        if (getQueryService().isPresent()) {
+            args.add("-q");
+            args.add(getQueryService().get());
+        }
+        if (getAuthenticationUsername().isPresent()) {
+            args.add("-u");
+            args.add(getAuthenticationUsername().get());
+        }
+        if (getAuthenticationPassword().isPresent()) {
+            args.add("-p");
+            args.add(getAuthenticationPassword().get());
+        }
+        if (getCatalogPath().isPresent()) {
+            args.add("-c");
+            args.add(getCatalogPath().get().getAbsolutePath());
+        }
+        getIris().get().forEach(iri -> {
+            args.add("-i");
+            args.add(iri);
+        });
+		if (getIrisPath().isPresent()) {
+			args.add("-ip");
+			args.add(getIrisPath().get().getAsFile().getAbsolutePath());
+		}
+        if (getFileExtensions().isPresent()) {
+            getFileExtensions().get().forEach(ext -> {
+                args.add("-f");
+                args.add(ext);
+            });
+        }
+        if (getLoadToDefaultGraph().isPresent() && getLoadToDefaultGraph().get()) {
+            args.add("-df");
+        }
+        if (getDebug().isPresent() && getDebug().get()) {
+            args.add("-d");
+        }
+        
+        try {
+        	if (getIncremental().isPresent() && getIncremental().get()) {
+        		final Set<File> deltas = new HashSet<>();
+	        	inputChanges.getFileChanges(getInputFolder()).forEach(f -> deltas.add(f.getFile()));
+	            OwlLoadApp.mainWithDeltas(deltas, args.toArray(new String[0]));
+        	} else {
+	            OwlLoadApp.main(args.toArray(new String[0]));
+        	}
+        } catch (Exception e) {
+			throw new GradleException(e.getLocalizedMessage(), e);
+        }    
     }
 }

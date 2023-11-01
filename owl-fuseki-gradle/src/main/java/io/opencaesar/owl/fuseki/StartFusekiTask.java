@@ -8,6 +8,7 @@ import org.gradle.api.GradleException;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.RegularFile;
 import org.gradle.api.file.RegularFileProperty;
+import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.Input;
@@ -62,6 +63,24 @@ public abstract class StartFusekiTask extends DefaultTask {
     @Optional
     @Input
     public abstract Property<String> getFusekiVersion();
+
+    /**
+     * The list of additional classpath dependencies, each of the form: {group}:{artifact}:{exact version}
+     *
+     * @return List of additional classpath dependencies.
+     */
+    @Optional
+    @Input
+    public abstract ListProperty<String> getClasspath();
+
+    /**
+     * The optional list of additional JVM arguments
+     *
+     * @return List of additional JVM arguments.
+     */
+    @Optional
+    @Input
+    public abstract ListProperty<String> getJVMArguments();
 
     /**
      * The optional gradle task fuseki port property (default is 3030).
@@ -150,7 +169,7 @@ public abstract class StartFusekiTask extends DefaultTask {
             args.add(getOutputFolderPath().get().getAsFile().getAbsolutePath());
         }
         if (getPort().isPresent()) {
-        	args.add("--port");
+        	args.add("-p");
         	args.add(getPort().get().toString());
         }
         if (getWebUI().isPresent()) {
@@ -159,8 +178,20 @@ public abstract class StartFusekiTask extends DefaultTask {
             }
         }
         if (getMaxPings().isPresent()) {
-            args.add("-p");
+            args.add("-n");
             args.add(getMaxPings().get().toString());
+        }
+        if (getJVMArguments().isPresent()) {
+        	getJVMArguments().get().forEach(arg -> {
+                args.add("-jvm");
+                args.add(arg);
+            });
+        }
+        if (getClasspath().isPresent()) {
+        	getClasspath().get().forEach(dep -> {
+                args.add("-cp");
+                args.add(dep);
+            });
         }
         if (getDebug().isPresent() && getDebug().get()) {
             args.add("-d");

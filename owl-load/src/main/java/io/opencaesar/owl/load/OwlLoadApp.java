@@ -16,23 +16,35 @@
  */
 package io.opencaesar.owl.load;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.net.Authenticator;
+import java.net.URI;
 import java.net.http.HttpClient;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.apache.jena.http.HttpEnv;
+import org.apache.jena.ontology.OntDocumentManager;
+import org.apache.jena.ontology.OntModel;
+import org.apache.jena.ontology.OntModelSpec;
 import org.apache.jena.query.Dataset;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdfconnection.LibSec;
 import org.apache.jena.rdfconnection.RDFConnection;
 import org.apache.jena.rdfconnection.RDFConnectionRemote;
 import org.apache.jena.rdfconnection.RDFConnectionRemoteBuilder;
 import org.apache.jena.riot.Lang;
+import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFLanguages;
 import org.apache.log4j.Appender;
 import org.apache.log4j.AppenderSkeleton;
@@ -40,11 +52,6 @@ import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
-import org.semanticweb.owlapi.apibinding.OWLManager;
-import org.semanticweb.owlapi.model.IRI;
-import org.semanticweb.owlapi.model.OWLOntology;
-import org.semanticweb.owlapi.model.OWLOntologyCreationException;
-import org.semanticweb.owlapi.model.OWLOntologyManager;
 
 import com.beust.jcommander.IParameterValidator;
 import com.beust.jcommander.JCommander;
@@ -62,54 +69,83 @@ public class OwlLoadApp {
 	public static String[] DEFAULT_EXTENSIONS = { "owl", "ttl" };
 	
     @Parameter(
-            names = {"--iri", "-i"},
-            description = "IRIs to load (Required)",
+            names = {"--endpoint-url", "-e"},
+            description = "URL (endpointURL) of the dataset in a triple store (Required)",
             required = true,
             order = 1)
-    private List<String> iris = new ArrayList<>();
+    private String endpointURL;
+
+    @Parameter(
+            names = {"--query-service", "-q"},
+            description = "Short name of the query service (Optional, default='sparql')",
+            required = false,
+            order = 2)
+    private String queryService = "sparql";
+
+    @Parameter(
+            names = {"--username", "-u"},
+            description = "Env var whose value is a username for authenticating the SPARQL endpoint (Optional)",
+            required = false,
+            order = 3)
+    private String authenticationUsername;
+
+    @Parameter(
+            names = {"--password", "-p"},
+            description = "Env var whose value is a password for authenticating the SPARQL endpoint (Optional)",
+            required = false,
+            order = 4)
+    private String authenticationPassword;
 
     @Parameter(
             names = {"--catalog-path", "-c"},
             description = "Path to the OWL XML catalog file (Required)",
             validateWith = CatalogPath.class,
             required = true,
-            order = 2)
+            order = 5)
     private String catalogPath;
 
     @Parameter(
-            names = {"--endpoint-url", "-e"},
-            description = "URL (endpointURL) of the dataset in a triple store (Required)",
-            required = true,
-            order = 3)
-    private String endpointURL;
+            names = {"--iri", "-i"},
+            description = "Root IRIs to load (Required if 'irisPath' is not set)",
+            required = false,
+            order = 6)
+    private List<String> iris = new ArrayList<>();
 
     @Parameter(
-            names = {"--default"},
-            description = "Load data into the default graph.",
-            order = 4)
-    private boolean loadToDefaultGraph;
-
+            names = {"--iris-path", "-ip"},
+            description = "Path to a txt file with the ontology IRIs to load (one per line) (Required if 'iris' is not set)",
+            required = false,
+            order = 7)
+    private String irisPath;
+    
     @Parameter(
             names = {"--file-extensions", "-f"},
             description = "File extensions of files that will be uploaded. Default is owl and ttl, options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss (Optional)",
         	validateWith = FileExtensionValidator.class,
-            order = 5)
+            order = 8)
     private List<String> fileExtensions = new ArrayList<>();
     {
         fileExtensions.addAll(Arrays.asList(DEFAULT_EXTENSIONS));
     }
 
     @Parameter(
+            names = {"--default", "-df"},
+            description = "Load data into the default graph.",
+            required = false,
+            order = 9)
+    private boolean loadToDefaultGraph;
+
+    @Parameter(
             names = {"-d", "--debug"},
             description = "Shows debug logging statements",
-            order = 6)
+            order = 10)
     private boolean debug;
 
     @Parameter(
             names = {"--help", "-h"},
             description = "Displays summary of options",
             help = true,
-            order = 7)
+            order = 11)
     private boolean help;
 
     private final static Logger LOGGER = Logger.getLogger(OwlLoadApp.class);
@@ -124,9 +160,17 @@ public class OwlLoadApp {
      * @throws Exception Error
      */
     public static void main(final String... args) throws Exception {
+    	mainWithDeltas(null, args);
+    }
+
+    /**
+     * Application for loading ontologies to a Fuseki server.
+     * @param deltas The set of changed files
+     * @param args Application arguments.
+     * @throws Exception Error
+     */
+    public static void mainWithDeltas(Collection<File> deltas, final String... args) throws Exception {
         final OwlLoadApp app = new OwlLoadApp();
-        final String username = System.getenv("OWL_LOAD_APP_USERNAME");
-        final String password = System.getenv("OWL_LOAD_APP_PASSWORD");
 
         final JCommander builder = JCommander.newBuilder().addObject(app).build();
         builder.parse(args);
@@ -138,7 +182,10 @@ public class OwlLoadApp {
             final Appender appender = LogManager.getRootLogger().getAppender("stdout");
             ((AppenderSkeleton) appender).setThreshold(Level.DEBUG);
         }
-        app.run(username, password);
+        if (app.iris.isEmpty() && app.irisPath == null) {
+            throw new RuntimeException("Iris are not set");
+        }
+        app.run(deltas);
     }
 
     /**
@@ -147,7 +194,7 @@ public class OwlLoadApp {
     public OwlLoadApp() {
     }
     
-    private void run(String username, String password) throws Exception {
+    private void run(Collection<File> deltas) throws Exception {
         LOGGER.info("=================================================================");
         LOGGER.info("                        S T A R T");
         LOGGER.info("                     OWL Load " + getAppVersion());
@@ -156,12 +203,70 @@ public class OwlLoadApp {
         LOGGER.info(("Endpoint URL = " + endpointURL));
         LOGGER.info(("File Extensions = " + fileExtensions));
         LOGGER.info(("IRIs = " + iris));
+        LOGGER.info(("IRIs Path = " + irisPath));
+        
+        // Create Owl Catalog
+		OwlCatalog catalog = OwlCatalog.create(new File(catalogPath), fileExtensions);
 
-        // Delete all existing models of the dataset before loading anything.
+        // Get dataset Iris
+        LOGGER.info("Getting dataset iris");
+        var dataset_iris = getDatasetIris(catalog);
+
+        // Get Changed Iris
+        LOGGER.info("Getting Changed iris");
+        var changed_iris = deltas != null ? getMappedIris(deltas, catalog) : dataset_iris;
+        
+        // Get an RDF Connection
+        LOGGER.info("Opening connection");
+        RDFConnection conn = getRDFConnection();
+
+        // Get Loaded Iris
+        LOGGER.info("Getting Loaded iris");
+        var loaded_iris = getLoadedIris(conn);
+
+        // Load the dataset
+        if (loadToDefaultGraph) {
+        	if (getDefaultGraphSize(conn) > 0) {
+        		if (!Collections.disjoint(dataset_iris, changed_iris)) {
+        			removeAllFromDefault(conn);
+        		}
+        	}
+			for (String iri : dataset_iris) {
+				loadToDefault(conn, catalog, iri);
+			}
+        } else {
+        	for (String iri : dataset_iris) {
+        		if (!loaded_iris.contains(iri)) {
+        			put(conn, catalog, iri);
+        		} else if (changed_iris.contains(iri)) {
+        			put(conn, catalog, iri);
+        			loaded_iris.remove(iri);
+        		} else {
+        			loaded_iris.remove(iri);
+        		}
+        	}
+        	for (String iri : loaded_iris) {
+        		delete(conn, iri);
+        	}
+        }
+        
+        // Close connection
+        LOGGER.info("Closing connection");
+        conn.close();
+        conn.end();
+
+        LOGGER.info("=================================================================");
+        LOGGER.info("                          E N D");
+        LOGGER.info("=================================================================");
+    }
+    
+    private RDFConnection getRDFConnection() {
         RDFConnectionRemoteBuilder builder = RDFConnectionRemote.create()
-                .updateEndpoint("update")
-                .queryEndpoint("sparql")
+                .queryEndpoint(queryService)
                 .destination(endpointURL);
+
+        final String username = authenticationUsername != null? System.getenv(authenticationUsername) : null;
+        final String password = authenticationPassword != null? System.getenv(authenticationPassword) : null;
 
         if (null != username && null != password) {
             Authenticator authenticator = LibSec.authenticator(username, password);
@@ -170,82 +275,135 @@ public class OwlLoadApp {
                     .build();
             builder = builder.httpClient(client);
         }
-        RDFConnection conn = builder.build();
-       
-        // Fetch the dataset, and delete its named graphs
-        try {
-            Dataset ds = conn.fetchDataset();
-            List<String> names = new ArrayList<>();
-            ds.listNames().forEachRemaining(names::add);
-            names.forEach(conn::delete);
-            conn.commit();
-        } catch (Exception e) {
-        	LOGGER.error("Error fetching and deleting dataset '"+endpointURL+"'", e);
-        	throw e;
-        }
-
-        // Load the ontology manager and configure it with catalog-based IRI mapper
-        LOGGER.info("create ontology manager");
-        final OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
-        if (manager == null) {
-            throw new RuntimeException("couldn't create owl ontology manager");
-        }
-        LOGGER.debug("add location mappers");
-        XMLCatalogIRIMapper mapper = new XMLCatalogIRIMapper(new File(catalogPath), fileExtensions);
-        manager.getIRIMappers().add(mapper);
-
-        // Load the input ontologies in memory
-        iris.forEach(iri -> {
-            LOGGER.info("load ontology " + iri);
-            try {
-                final OWLOntology ont = manager.loadOntology(IRI.create(iri));
-                if (ont == null) {
-                    throw new RuntimeException("couldn't load ontology at IRI=" + iri);
-                }
-            } catch (OWLOntologyCreationException e) {
-            	throw new RuntimeException(e);
-            }
-        });
-
-        // Upload the input ontologies to dataset
-        final Set<OWLOntology> allOntologies = manager.ontologies().flatMap(manager::importsClosure).collect(Collectors.toUnmodifiableSet());
-        LOGGER.info("Loading "+allOntologies.size()+" ontologies...");
-        for (OWLOntology ont : allOntologies) {
-        	loadOntology(conn, ont, loadToDefaultGraph);
-        }
         
-        //allLoaded.get();
-        LOGGER.info("All ontologies loaded.");
+        return builder.build();
+    }
+    
+    private Collection<String> getMappedIris(Collection<File> files, OwlCatalog catalog) {
+    	var iris = new HashSet<String>();
+    	files.forEach(f -> {
+    		if (f.isFile()) {
+	    		String iri = catalog.deresolveURI(f.getAbsolutePath());
+	    		if (iri != null) {
+	    			iris.add(iri);
+	    		}
+    		}
+    	});
+    	return iris;
+    }
+    
+    private Collection<String> getLoadedIris(RDFConnection conn) {
+    	var iris = new HashSet<String>();
+        var rs = conn.query("select ?g { graph ?g { ?s ?p ?o } }").execSelect();
+        rs.forEachRemaining(s -> iris.add(s.getResource("g").getURI()));
+    	return iris;
+    }    
 
-        // Close connection
-        conn.close();
-        conn.end();
+    private int getDefaultGraphSize(RDFConnection conn) {
+        var rs = conn.query("select (count(*) as ?count) {?s ?p ?o}").execSelect();
+        return rs.next().getLiteral("count").getInt();
+    }    
 
-        LOGGER.info("=================================================================");
-        LOGGER.info("                          E N D");
-        LOGGER.info("=================================================================");
+    private Set<String> getDatasetIris(OwlCatalog catalog) throws Exception {
+    	if (!iris.isEmpty()) {
+    		return getIrisFromRoots(catalog);
+    	} else if (irisPath != null) {
+    		return getIrisFromPath();
+    	}
+    	return Collections.emptySet();
+    }
+    
+    private Set<String> getIrisFromRoots(OwlCatalog catalog) throws Exception {
+		Map<String, URI> fileMap = catalog.getFileUriMap();
+		OntDocumentManager mgr = new OntDocumentManager();
+		for (var entry : fileMap.entrySet()) {
+			mgr.addAltEntry(entry.getKey(), entry.getValue().toString());
+		}
+
+		OntModelSpec s = new OntModelSpec(OntModelSpec.OWL_MEM);
+		s.setDocumentManager(mgr);
+		OntModel ontModel = ModelFactory.createOntologyModel(s);
+		for (var iri : iris) {
+			mgr.getFileManager().readModelInternal(ontModel, iri);
+		}
+		
+		Set<String> allIris = new HashSet<>();
+		ontModel.listOntologies().forEach(o -> allIris.add(o.getURI()));
+		return allIris;
+    }
+    
+    private Set<String> getIrisFromPath() throws Exception {
+    	Set<String> iris = new HashSet<>();
+    	
+    	BufferedReader reader;
+    	try {
+    		reader = new BufferedReader(new FileReader(new File(irisPath)));
+    		String iri = reader.readLine();
+    		while (iri != null) {
+    			iris.add(iri);
+    			iri = reader.readLine();
+    		}
+    		reader.close();
+    	} catch (IOException e) {
+        	throw new RuntimeException(e);
+    	}
+    	
+        return iris;
     }
 
-    private void loadOntology(RDFConnection conn, final OWLOntology ont, boolean loadToDefaultGraph) {
-        IRI documentIRI = ont.getOWLOntologyManager().getOntologyDocumentIRI(ont);
+    private void loadToDefault(RDFConnection conn, OwlCatalog catalog, String iri) {
+    	LOGGER.info("Loading "+iri+" to default graph");
+        String documentIRI = catalog.resolveURI(iri);
+        String documentFile = new File(URI.create(documentIRI)).toString();
         try {
-            if (!"file".equals(documentIRI.getScheme()))
-                throw new RuntimeException("Cannot load an ontology whose IRI scheme is not file: "+documentIRI);
-            String documentFile = new File(documentIRI.toURI()).toString();
-            Optional<IRI> defaultDocumentIRI = ont.getOntologyID().getDefaultDocumentIRI();
-            assert(defaultDocumentIRI.isPresent());
-            String graphName = defaultDocumentIRI.get().getIRIString();
             Lang lang = RDFLanguages.filenameToLang(documentFile);
             if (RDFLanguages.isQuads(lang)) {
-                conn.loadDataset(documentFile);
-            } else if (loadToDefaultGraph) {
-                conn.load(documentFile);
+                Dataset ds = RDFDataMgr.loadDataset(documentFile.toString());
+                Model model = ds.getNamedModel(iri);
+                conn.load(model);
             } else {
-                conn.load(graphName, documentFile);
+            	conn.load(documentFile);
             }
             conn.commit();
        } catch (Exception e) {
-			throw new RuntimeException("Error occurred loading ontology '"+documentIRI+"'", e);
+			throw new RuntimeException("Error occurred loading ontology '"+documentIRI+"' to default graph", e);
+       }
+    }
+
+    private void removeAllFromDefault(RDFConnection conn) {
+    	LOGGER.info("Clearing default graph");
+        try {
+        	conn.delete();
+			conn.commit();
+        } catch (Exception e) {
+ 			throw new RuntimeException("Error clearing default graph", e);
+        }
+    }
+
+    private void put(RDFConnection conn, OwlCatalog catalog, String iri) {
+    	LOGGER.info("Putting "+iri);
+        String documentIRI = catalog.resolveURI(iri);
+        String documentFile = new File(URI.create(documentIRI)).toString();
+        try {
+            Lang lang = RDFLanguages.filenameToLang(documentFile);
+            if (RDFLanguages.isQuads(lang)) {
+                conn.putDataset(documentFile);
+            } else {
+                conn.put(iri, documentFile);
+            }
+            conn.commit();
+       } catch (Exception e) {
+			throw new RuntimeException("Error putting graph '"+documentIRI+"'", e);
+       }
+    }
+
+    private void delete(RDFConnection conn, String iri) {
+    	LOGGER.info("Deleting "+iri);
+        try {
+            conn.delete(iri);
+            conn.commit();
+       } catch (Exception e) {
+			throw new RuntimeException("Error deleting graph '"+iri+"'", e);
        }
     }
 
