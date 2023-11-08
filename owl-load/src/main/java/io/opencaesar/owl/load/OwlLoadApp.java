@@ -220,21 +220,34 @@ public class OwlLoadApp {
         LOGGER.info("Opening connection");
         RDFConnection conn = getRDFConnection();
 
-        // Get Loaded Iris
-        LOGGER.info("Getting Loaded iris");
-        var loaded_iris = getLoadedIris(conn);
 
         // Load the dataset
         if (loadToDefaultGraph) {
-        	if (getDefaultGraphSize(conn) > 0) {
-        		if (!Collections.disjoint(dataset_iris, changed_iris)) {
-        			removeAllFromDefault(conn);
-        		}
-        	}
-			for (String iri : dataset_iris) {
-				loadToDefault(conn, catalog, iri);
-			}
+            boolean load_everything = false;
+            if (getDefaultGraphSize(conn) == 0)
+                // load everything ifthere is nothing on the server.
+                load_everything = true;
+            else if (getDefaultGraphSize(conn) > 0 && !changed_iris.isEmpty())
+                // load everything when there is something on the server and there are changes.
+                load_everything = true;
+
+            if (load_everything) {
+                System.out.println("loadToDefaultGraph: (re)load everything...");
+                // in incremental mode: ome graphs have either been deleted, modified, or added.
+                // in batch mode: changed_iris = dataset_iris.
+                removeAllFromDefault(conn);
+                // load everything
+                for (String iri : dataset_iris) {
+                    loadToDefault(conn, catalog, iri);
+                }
+            } else {
+                System.out.println("loadToDefaultGraph: no need to reload.");
+            }
         } else {
+            // Get Loaded Iris
+            LOGGER.info("Getting Loaded iris");
+            var loaded_iris = getLoadedIris(conn);
+
         	for (String iri : dataset_iris) {
         		if (!loaded_iris.contains(iri)) {
         			put(conn, catalog, iri);
