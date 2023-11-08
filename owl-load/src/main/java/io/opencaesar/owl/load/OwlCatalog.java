@@ -35,7 +35,8 @@ import org.apache.xml.resolver.CatalogEntry;
 import org.apache.xml.resolver.CatalogManager;
 
 /**
- * The <b>Catalog</b> that resolves logical IRIs to physical URIs. It is a wrapper around the the Apache XML Resolver Catalog. 
+ * The <b>Catalog</b> that resolves logical IRIs to physical URIs. It is a
+ * wrapper around the the Apache XML Resolver Catalog.
  * 
  * @author elaasar
  */
@@ -54,12 +55,12 @@ public final class OwlCatalog {
      * The wrapped Apache catalog
      */
     private CatalogEx catalog;
-    
+
     /*
      * The file extensions
      */
     private List<String> fileExtensions;
-    
+
     /*
      * Creates a new OmlCatalog instance
      */
@@ -71,13 +72,13 @@ public final class OwlCatalog {
     /**
      * Creates a new Oml Catalog given a catalog URI and a list of file extensions
      * 
-     * @param catalogFile The catalog file
+     * @param catalogFile    The catalog file
      * @param fileExtensions The file extensions
      * @return A new instance of Oml Catalog
      * @throws IOException When there are problems parsing the catalog
      */
     public static OwlCatalog create(File catalogFile, List<String> fileExtensions) throws IOException {
-    	CatalogEx catalog = new CatalogEx(catalogFile.toURI());
+        CatalogEx catalog = new CatalogEx(catalogFile.toURI());
         catalog.setCatalogManager(manager);
         catalog.setupReaders();
         catalog.loadSystemCatalogs();
@@ -92,24 +93,24 @@ public final class OwlCatalog {
      * @return The resolved file path
      */
     public String resolveURI(String uri) {
-    	try {
-	    	String resolved = catalog.resolveURI(uri);
-	    	resolved = normalize(resolved);
-			if (resolved != null && resolved.startsWith("file:")) {
-				File f = new File(new URI(resolved));
-				if (!f.exists() || !f.isFile()) {
-					for ( String ext : fileExtensions ) {
-						String fileWithExtensionPath = f.toString()+"." + ext;
-						File f_ext = new File(fileWithExtensionPath);
-						if (f_ext.exists() && f_ext.isFile())
-							return resolved+"."+ext;
-					}
-				}
-			}
-			return resolved;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+        try {
+            String resolved = catalog.resolveURI(uri);
+            resolved = normalize(resolved);
+            if (resolved != null && resolved.startsWith("file:")) {
+                File f = new File(new URI(resolved));
+                if (!f.exists() || !f.isFile()) {
+                    for (String ext : fileExtensions) {
+                        String fileWithExtensionPath = f.toString() + "." + ext;
+                        File f_ext = new File(fileWithExtensionPath);
+                        if (f_ext.exists() && f_ext.isFile())
+                            return resolved + "." + ext;
+                    }
+                }
+            }
+            return resolved;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -119,28 +120,28 @@ public final class OwlCatalog {
      * @return The resolved URI
      */
     public String deresolveURI(String path) {
-		try {
-			int i = path.lastIndexOf('.');
-			if (i != -1) {
-				path = path.substring(0, i);   
-			}
-		    String startString = null;
-		    String prefix = null;
-			for (Map.Entry<String, URI> e : getRewriteRules().entrySet()) {
-				String p = new File(e.getValue()).toString() + "/";
-				if (p.length() <= path.length() && p.equals(path.substring(0, p.length()))) {
-					// Is this the longest prefix?
-					if (startString == null || p.length() > startString.length()) {
-						startString = p;
-						prefix = e.getKey();
-					}
-				}
-			}
-			return (prefix!=null) ? prefix + path.substring(startString.length()) : null;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
+        try {
+            int i = path.lastIndexOf('.');
+            if (i != -1) {
+                path = path.substring(0, i);
+            }
+            String startString = null;
+            String prefix = null;
+            for (Map.Entry<String, URI> e : getRewriteRules().entrySet()) {
+                String p = new File(e.getValue()).toString() + File.separator;
+                if (p.length() <= path.length() && p.equals(path.substring(0, p.length()))) {
+                    // Is this the longest prefix?
+                    if (startString == null || p.length() > startString.length()) {
+                        startString = p;
+                        prefix = e.getKey();
+                    }
+                }
+            }
+            return (prefix != null) ? prefix + path.substring(startString.length()) : null;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     /**
      * Gets the current base of the catalog
@@ -157,9 +158,9 @@ public final class OwlCatalog {
      * @return The base URI
      */
     public URI getBaseUri() {
-    	return catalog.getBaseUri();
+        return catalog.getBaseUri();
     }
-    
+
     /**
      * Gets the catalog entries
      * 
@@ -183,7 +184,7 @@ public final class OwlCatalog {
         List<String> entries = new ArrayList<String>();
         Enumeration<?> en = catalog.getCatalogs().elements();
         while (en.hasMoreElements()) {
-            entries.add((String)en.nextElement());
+            entries.add((String) en.nextElement());
         }
         return entries;
     }
@@ -194,113 +195,119 @@ public final class OwlCatalog {
      * @return a map of rewrite URIs
      */
     public Map<String, URI> getRewriteRules() {
-		var rewriteUris = new HashMap<String, URI>();
-		for (CatalogEntry e : getEntries()) {
-			if (e.getEntryType() == Catalog.REWRITE_URI) { // only type of entry supported so far
-				var uri = URI.create(normalize(e.getEntryArg(1)));
-	    		String s = uri.toString();
-				if (s.endsWith("/")) {
-		    		try {
-						uri = new URI(s.substring(0, s.length()-1));
-					} catch (URISyntaxException e1) {
-						e1.printStackTrace();
-					}
-				}
-				rewriteUris.put(e.getEntryArg(0), uri);
-			}
-		}
-    	return rewriteUris;
+        var rewriteUris = new HashMap<String, URI>();
+        for (CatalogEntry e : getEntries()) {
+            if (e.getEntryType() == Catalog.REWRITE_URI) { // only type of entry supported so far
+                var uri = URI.create(normalize(e.getEntryArg(1)));
+                String s = uri.toString();
+                if (s.endsWith("/")) {
+                    try {
+                        uri = new URI(s.substring(0, s.length() - 1));
+                    } catch (URISyntaxException e1) {
+                        e1.printStackTrace();
+                    }
+                }
+                rewriteUris.put(e.getEntryArg(0), uri);
+            }
+        }
+        return rewriteUris;
     }
-    
+
     private String normalize(String path) {
-    	java.net.URI uri = java.net.URI.create(path);
-    	java.net.URI normalized = uri.normalize();
-    	return path.replaceFirst(uri.getRawPath(), normalized.getRawPath());
+        java.net.URI uri = java.net.URI.create(path);
+        java.net.URI normalized = uri.normalize();
+        return path.replaceFirst(uri.getRawPath(), normalized.getRawPath());
     }
-    
+
     /**
      * Gets the URIs of files that are mapped by this catalog
      * 
      * @return a list of file URIs
      */
     public Map<String, URI> getFileUriMap() {
-		var uris = new HashMap<String, URI>();
-		for (final var rewriteRule : getRewriteRules().entrySet()) {
-			var rewriteUri = rewriteRule.getValue();
-			var path = new File(rewriteUri);
-			if (path.isDirectory()) {
-				for (var file : getFiles(path)) {
-					String relative = path.toURI().relativize(file.toURI()).getPath();
-					uris.put(rewriteRule.getKey()+trimFileExtension(relative), URI.create(rewriteUri+"/"+relative));
-				}
-			} else { // likely a file name with no extension
-				for (String ext : fileExtensions) {
-					var file = new File(path.toString()+"."+ext);
-					if (file.exists()) {
-						uris.put(rewriteRule.getKey(), URI.create(path.toString()+"."+ext));
-						break;
-					}
-				}
-			}
-		}
-		return uris;
+        var uris = new HashMap<String, URI>();
+        for (final var rewriteRule : getRewriteRules().entrySet()) {
+            var rewriteUri = rewriteRule.getValue();
+            var path = new File(rewriteUri);
+            if (path.isDirectory()) {
+                for (var file : getFiles(path)) {
+                    String relative = path.toURI().relativize(file.toURI()).getPath();
+                    uris.put(rewriteRule.getKey() + trimFileExtension(relative),
+                            URI.create(rewriteUri + "/" + relative));
+                }
+            } else { // likely a file name with no extension
+                for (String ext : fileExtensions) {
+                    var file = new File(path.toString() + "." + ext);
+                    if (file.exists()) {
+                        uris.put(rewriteRule.getKey(), URI.create(path.toString() + "." + ext));
+                        break;
+                    }
+                }
+            }
+        }
+        return uris;
     }
-    
-    private List<File> getFiles(File folder) {
-		final var files = new LinkedHashSet<File>();
-		for (File file : folder.listFiles()) {
-			if (file.isFile()) {
-				var ext = getFileExtension(file);
-				if (fileExtensions.contains(ext)) {
-					files.add(file);
-				}
-			} else if (file.isDirectory()) {
-				files.addAll(getFiles(file));
-			}
-		}
-		return new ArrayList<File>(files);
-	}
 
-	private String getFileExtension(final File file) {
+    private List<File> getFiles(File folder) {
+        final var files = new LinkedHashSet<File>();
+        for (File file : folder.listFiles()) {
+            if (file.isFile()) {
+                var ext = getFileExtension(file);
+                if (fileExtensions.contains(ext)) {
+                    files.add(file);
+                }
+            } else if (file.isDirectory()) {
+                files.addAll(getFiles(file));
+            }
+        }
+        return new ArrayList<File>(files);
+    }
+
+    private String getFileExtension(final File file) {
         String fileName = file.getName();
         if (fileName.lastIndexOf(".") != -1)
-        	return fileName.substring(fileName.lastIndexOf(".")+1);
-        else 
-        	return "";
-	}
+            return fileName.substring(fileName.lastIndexOf(".") + 1);
+        else
+            return "";
+    }
 
-	private String trimFileExtension(final String fileName) {
+    private String trimFileExtension(final String fileName) {
         int i = fileName.lastIndexOf('.');
         if (i != -1)
-        	return fileName.substring(0, i);
-        else 
-        	return fileName;
-	}
+            return fileName.substring(0, i);
+        else
+            return fileName;
+    }
 
-	private static class CatalogEx extends Catalog {
-    	private URI baseUri;
-    	public CatalogEx(URI catalogUri) {
-    		String s = catalogUri.toString();
-    		int i = s.lastIndexOf("/");
-    		try {
-				this.baseUri = new URI(s.substring(0, i));
-			} catch (URISyntaxException e) {
-				e.printStackTrace();
-			}
-    	}
-    	URI getBaseUri() {
-    		return baseUri;
-    	}
+    private static class CatalogEx extends Catalog {
+        private URI baseUri;
+
+        public CatalogEx(URI catalogUri) {
+            String s = catalogUri.toString();
+            int i = s.lastIndexOf("/");
+            try {
+                this.baseUri = new URI(s.substring(0, i));
+            } catch (URISyntaxException e) {
+                e.printStackTrace();
+            }
+        }
+
+        URI getBaseUri() {
+            return baseUri;
+        }
+
         Vector<?> getCatalogEntries() {
             return catalogEntries;
         }
+
         Vector<?> getCatalogs() {
             return catalogs;
         }
+
         @Override
         protected String makeAbsolute(String sysid) {
             sysid = fixSlashes(sysid);
-            return  baseUri.toString()+'/'+sysid;
+            return baseUri.toString() + '/' + sysid;
         }
     }
 
