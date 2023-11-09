@@ -137,7 +137,9 @@ public final class OwlCatalog {
                     }
                 }
             }
-            return (prefix != null) ? prefix + path.substring(startString.length()) : null;
+            // Make sure to replace the OS-specific separator char with the '/' character for URIs.
+            String suffix = path.substring(startString.length()).replace(File.separatorChar, '/');
+            return (prefix != null) ? prefix + suffix : null;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

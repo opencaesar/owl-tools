@@ -223,6 +223,8 @@ public class OwlLoadApp {
         LOGGER.info(prefix+"Found " + changed_iris.size() + " changed iris "
                 + ((deltas != null) ? "from mapping " + deltas.size() + " deltas" : "from dataset iris"));
 
+        changed_iris.forEach(iri -> LOGGER.info(prefix + "- Changed " + iri));
+        
         // Get an RDF Connection
         LOGGER.info(prefix+"Opening connection");
         RDFConnection conn = getRDFConnection();
@@ -263,6 +265,7 @@ public class OwlLoadApp {
                     put(prefix, conn, catalog, iri);
                     loaded_iris.remove(iri);
                 } else {
+                    LOGGER.info(prefix + "Skip loading " + iri);
                     loaded_iris.remove(iri);
                 }
             });
