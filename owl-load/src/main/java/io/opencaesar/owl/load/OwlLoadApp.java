@@ -200,86 +200,87 @@ public class OwlLoadApp {
     }
 
     private void run(final String taskName, Collection<File> deltas) throws Exception {
-        final String prefix = taskName.isEmpty() ? "" : taskName + ": ";
-        LOGGER.info(prefix+"=================================================================");
-        LOGGER.info(prefix+"                        S T A R T");
-        LOGGER.info(prefix+"                     OWL Load " + getAppVersion());
-        LOGGER.info(prefix+"=================================================================");
-        LOGGER.info((prefix+"Catalog path = " + catalogPath));
-        LOGGER.info((prefix+"Endpoint URL = " + endpointURL));
-        LOGGER.info((prefix+"File Extensions = " + fileExtensions));
-        LOGGER.info((prefix+"IRIs = " + iris));
-        LOGGER.info((prefix+"IRIs Path = " + irisPath));
+        LOGGER.info("=================================================================");
+        LOGGER.info("                        S T A R T");
+        LOGGER.info("                     OWL Load " + getAppVersion());
+        LOGGER.info("=================================================================");
+        LOGGER.info(("Catalog path = " + catalogPath));
+        LOGGER.info(("Endpoint URL = " + endpointURL));
+        LOGGER.info(("File Extensions = " + fileExtensions));
+        LOGGER.info(("IRIs = " + iris));
+        LOGGER.info(("IRIs Path = " + irisPath));
 
         // Create Owl Catalog
         OwlCatalog catalog = OwlCatalog.create(new File(catalogPath), fileExtensions);
 
         // Get dataset Iris
         var dataset_iris = getDatasetIris(catalog);
-        LOGGER.info(prefix+"Found " + dataset_iris.size() + " dataset iris");
+        LOGGER.info("found " + dataset_iris.size() + " dataset iris");
 
         // Get Changed Iris
         var changed_iris = deltas != null ? getMappedIris(deltas, catalog) : dataset_iris;
-        LOGGER.info(prefix+"Found " + changed_iris.size() + " changed iris "
+        LOGGER.info("found " + changed_iris.size() + " changed iris "
                 + ((deltas != null) ? "from mapping " + deltas.size() + " deltas" : "from dataset iris"));
 
-        changed_iris.forEach(iri -> LOGGER.info(prefix + "- Changed " + iri));
+        changed_iris.forEach(iri -> LOGGER.debug("Changed " + iri));
         
         // Get an RDF Connection
-        LOGGER.info(prefix+"Opening connection");
         RDFConnection conn = getRDFConnection();
 
         // Load the dataset
         if (loadToDefaultGraph) {
             boolean load_everything = false;
-            var default_graph_size = getDefaultGraphSize(prefix, conn);
+            var default_graph_size = getDefaultGraphSize(conn);
             if (default_graph_size == 0) {
-                // load everything ifthere is nothing on the server.
-                System.out.println(prefix+"loadToDefaultGraph: load everything since the server is empty...");
+                // load everything if there is nothing on the server.
                 load_everything = true;
             } else if (default_graph_size > 0 && !changed_iris.isEmpty()) {
                 // load everything when there is something on the server and there are changes.
-                System.out.println(
-                        prefix+"loadToDefaultGraph: reload everything since there are " + changed_iris.size() + " changes...");
                 load_everything = true;
             } else {
-                System.out.println(prefix+"loadToDefaultGraph: no need to reload.");
+            	// no need to reload any file
             }
 
             if (load_everything) {
-                // in incremental mode: ome graphs have either been deleted, modified, or added.
+                // in incremental mode: one graphs have either been deleted, modified, or added.
                 // in batch mode: changed_iris = dataset_iris.
-                removeAllFromDefault(prefix, conn);
+                removeAllFromDefault(conn);
                 // load everything
-                dataset_iris.parallelStream().forEach(iri -> loadToDefault(prefix, conn, catalog, iri));
+                dataset_iris.parallelStream().forEach(iri -> loadToDefault(conn, catalog, iri));
+                System.out.println("Loaded all owl files to default graph");
+            } else {
+                System.out.println("Loaded no owl files to default graph");
             }
         } else {
             // Get Loaded Iris
             var loaded_iris = getLoadedIris(conn);
-            LOGGER.info(prefix+"Found " + loaded_iris.size() + " loaded iris to delete if needed.");
+            LOGGER.info("found " + loaded_iris.size() + " loaded iris");
 
-            dataset_iris.parallelStream().forEach(iri -> {
+            List<String> to_load_iris = new ArrayList<>();  
+            
+            dataset_iris.stream().forEach(iri -> {
                 if (!loaded_iris.contains(iri)) {
-                    put(prefix, conn, catalog, iri);
+                	to_load_iris.add(iri);
                 } else if (changed_iris.contains(iri)) {
-                    put(prefix, conn, catalog, iri);
+                	to_load_iris.add(iri);
                     loaded_iris.remove(iri);
                 } else {
-                    LOGGER.info(prefix + "Skip loading " + iri);
                     loaded_iris.remove(iri);
                 }
             });
-            loaded_iris.parallelStream().forEach(iri -> delete(prefix, conn, iri));
+            
+            to_load_iris.parallelStream().forEach(iri -> put(conn, catalog, iri));
+            loaded_iris.parallelStream().forEach(iri -> delete(conn, iri));
+            System.out.println("Loaded "+to_load_iris.size()+" owl file(s), unloaded "+loaded_iris.size()+" owl file(s)");
         }
 
         // Close connection
-        LOGGER.info(prefix+"Closing connection");
         conn.close();
         conn.end();
 
-        LOGGER.info(prefix+"=================================================================");
-        LOGGER.info(prefix+"                          E N D");
-        LOGGER.info(prefix+"=================================================================");
+        LOGGER.info("=================================================================");
+        LOGGER.info("                          E N D");
+        LOGGER.info("=================================================================");
     }
 
     private RDFConnection getRDFConnection() {
@@ -316,22 +317,22 @@ public class OwlLoadApp {
 
     private Collection<String> getLoadedIris(RDFConnection conn) {
         var iris = new HashSet<String>();
-        var rs = conn.query("select ?g { graph ?g { ?s ?p ?o } }").execSelect();
+        var rs = conn.query("select ?g { graph ?g { ?o a <http://www.w3.org/2002/07/owl#Ontology> } }").execSelect();
         rs.forEachRemaining(s -> iris.add(s.getResource("g").getURI()));
         return iris;
     }
 
-    private int getDefaultGraphSize(final String prefix, RDFConnection conn) {
+    private int getDefaultGraphSize(RDFConnection conn) {
         var rs = conn.query("select (count(*) as ?count) {?s ?p ?o}").execSelect();
         // If there are results, retrieve the 'count' literal and return its integer
         // value
         if (rs.hasNext()) {
             var sol = rs.next();
             var count = sol.getLiteral("count").getInt();
-            System.out.println(prefix+"default graph has "+count+" triples");
+            LOGGER.info("default graph has "+count+" triples");
             return count;
         } else {
-            System.out.println(prefix+"getDefaultGraphSize - no results!");
+        	LOGGER.info("getDefaultGraphSize - no results!");
             return 0;
         }
     }
@@ -383,8 +384,8 @@ public class OwlLoadApp {
         return iris;
     }
 
-    private void loadToDefault(final String prefix, RDFConnection conn, OwlCatalog catalog, String iri) {
-        LOGGER.info(prefix+"Loading "+iri);
+    private void loadToDefault(RDFConnection conn, OwlCatalog catalog, String iri) {
+        LOGGER.info("Loading "+iri);
         String documentIRI = catalog.resolveURI(iri);
         String documentFile = new File(URI.create(documentIRI)).toString();
         try {
@@ -398,22 +399,22 @@ public class OwlLoadApp {
             }
             conn.commit();
         } catch (Exception e) {
-            throw new RuntimeException(prefix+"Error occurred loading ontology '" + documentIRI + "' to default graph", e);
+            throw new RuntimeException("Error occurred loading ontology '" + documentIRI + "' to default graph", e);
         }
     }
 
-    private void removeAllFromDefault(final String prefix, RDFConnection conn) {
-        LOGGER.info(prefix+"Clearing default graph");
+    private void removeAllFromDefault(RDFConnection conn) {
+        LOGGER.info("Clearing default graph");
         try {
             conn.delete();
             conn.commit();
         } catch (Exception e) {
-            throw new RuntimeException(prefix+"Error clearing default graph", e);
+            throw new RuntimeException("Error clearing default graph", e);
         }
     }
 
-    private void put(final String prefix, RDFConnection conn, OwlCatalog catalog, String iri) {
-        LOGGER.info(prefix+"Putting " + iri);
+    private void put(RDFConnection conn, OwlCatalog catalog, String iri) {
+        LOGGER.info("Loading " + iri);
         String documentIRI = catalog.resolveURI(iri);
         String documentFile = new File(URI.create(documentIRI)).toString();
         try {
@@ -425,17 +426,17 @@ public class OwlLoadApp {
             }
             conn.commit();
         } catch (Exception e) {
-            throw new RuntimeException(prefix+"Error putting graph '" + documentIRI + "'", e);
+            throw new RuntimeException("Error loading graph '" + documentIRI + "'", e);
         }
     }
 
-    private void delete(final String prefix, RDFConnection conn, String iri) {
-        LOGGER.info(prefix+"Deleting " + iri);
+    private void delete(RDFConnection conn, String iri) {
+        LOGGER.info("Unloading " + iri);
         try {
             conn.delete(iri);
             conn.commit();
         } catch (Exception e) {
-            throw new RuntimeException(prefix+"Error deleting graph '" + iri + "'", e);
+            throw new RuntimeException("Error unloading graph '" + iri + "'", e);
         }
     }
 

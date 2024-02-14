@@ -366,70 +366,65 @@ public class OwlReasonApp {
 	    	throw new RuntimeException("couldn't create reasoner");
 	    }
 	    
-	    // Create PelletExplanation.
-	    
-	    LOGGER.info("create explanation for "+inputOntologyIri);
-	    PelletExplanation explanation = new PelletExplanation(reasoner);
-	    	    
-	    // Create knowledge base.
-
-	    LOGGER.info("create knowledge base and extractor");
-	    KnowledgeBase kb = reasoner.getKB();
-	    if (kb == null) {
-	    	throw new RuntimeException("couldn't get knowledge base");
-	    }
-
-	    // Set the unique name assumption
-
-	    OpenlletOptions.USE_UNIQUE_NAME_ASSUMPTION = options.uniqueNames;
-	    
-	    // Check for consistency and satisfiability
-		
-		Map<String, List<Result>> allResults = new LinkedHashMap<>();
-		allResults.put(CONSISTENCY, checkConsistency(inputOntologyIri, reasoner, explanation, explanationFormat));
-		boolean isConsistent = allResults.get(CONSISTENCY).stream().noneMatch(r -> r.explanation != null);
-		boolean isSatisfiable = false;
-		if (isConsistent) {
-	    	allResults.put(SATISFIABILITY, checkSatisfiability(inputOntologyIri, reasoner, explanation, explanationFormat));
-	    	isSatisfiable = allResults.get(SATISFIABILITY).stream().noneMatch(r -> r.explanation != null);
-	    }
-		writeResults(inputOntologyIri, allResults, options.indent);
-	    
-		// Check Results
-		
-		if (!isConsistent) {
-			LOGGER.error("Check "+options.reportPath+" for more details.");
-			throw new ReasoningException("Ontology is inconsistent. Check " + options.reportPath + " for more details.");
-	    }
-		if (!isSatisfiable) {
-			LOGGER.error("Check "+options.reportPath+" for more details.");
-			throw new ReasoningException("Ontology has insatisfiabilities. Check " + options.reportPath + " for more details.");
-	    }
-	    
-	    // Iterate over specs and extract entailments.
-
-	    for (Spec spec: options.specs) {
-	      String outputOntologyIri = spec.outputOntologyIri;
-	      EnumSet<StatementType> statementTypes = spec.statementTypes;
-	      extractAndSaveEntailments(kb, inputOntologyIri, outputOntologyIri, statementTypes, manager);
+	    try {
+		    // Create PelletExplanation.
+		    
+		    LOGGER.info("create explanation for "+inputOntologyIri);
+		    PelletExplanation explanation = new PelletExplanation(reasoner);
+		    	    
+		    // Create knowledge base.
+	
+		    LOGGER.info("create knowledge base");
+		    KnowledgeBase kb = reasoner.getKB();
+		    if (kb == null) {
+		    	throw new RuntimeException("couldn't get knowledge base");
+		    }
+	
+		    // Set the unique name assumption
+	
+		    OpenlletOptions.USE_UNIQUE_NAME_ASSUMPTION = options.uniqueNames;
+		    
+		    // Check for consistency and satisfiability
+			
+			Map<String, List<Result>> allResults = new LinkedHashMap<>();
+			allResults.put(CONSISTENCY, checkConsistency(inputOntologyIri, reasoner, explanation, explanationFormat));
+			boolean isConsistent = allResults.get(CONSISTENCY).stream().noneMatch(r -> r.explanation != null);
+			boolean isSatisfiable = false;
+			if (isConsistent) {
+		    	allResults.put(SATISFIABILITY, checkSatisfiability(inputOntologyIri, reasoner, explanation, explanationFormat));
+		    	isSatisfiable = allResults.get(SATISFIABILITY).stream().noneMatch(r -> r.explanation != null);
+		    }
+			writeResults(inputOntologyIri, allResults, options.indent);
+		    
+			// Check Results
+			
+			if (!isConsistent) {
+				throw new ReasoningException("Ontology is inconsistent. Check " + options.reportPath + " for more details.");
+		    }
+			if (!isSatisfiable) {
+				throw new ReasoningException("Ontology has insatisfiabilities. Check " + options.reportPath + " for more details.");
+		    }
+		    
+		    // Iterate over specs and extract entailments.
+	
+		    for (Spec spec: options.specs) {
+		      String outputOntologyIri = spec.outputOntologyIri;
+		      EnumSet<StatementType> statementTypes = spec.statementTypes;
+		      extractAndSaveEntailments(kb, inputOntologyIri, outputOntologyIri, statementTypes, manager);
+		    }
+	    } finally {
+		    // dispose
+		    reasoner.dispose();
 	    }
 	}
 
 	private List<Result> checkConsistency(String ontologyIri, OpenlletReasoner reasoner, PelletExplanation explanation, OWLDocumentFormat explanationFormat) throws Exception {
     	LOGGER.info("test consistency on "+ontologyIri);
     	List<Result> results = new ArrayList<>();
-
-		boolean success = reasoner.isConsistent();
-    	if (success) {
-    		LOGGER.info("Ontology "+ontologyIri+" is consistent");
-    	} else {
-    		LOGGER.error("Ontology "+ontologyIri+" is inconsistent");
-    	}
-    	
     	Result result = new Result();
     	result.name = ontologyIri;
-        if (!success) {
-        	//TODO: consider using explanation.getInconsistencyExplanations()
+    	
+        if (!reasoner.isConsistent()) {
         	Set<OWLAxiom> axioms = explanation.getInconsistencyExplanation();
         	result.message = reasoner.getKB().getExplanation();
         	result.explanation = createExplanationOntology(axioms, explanationFormat);
@@ -449,7 +444,6 @@ public class OwlReasonApp {
     	LOGGER.info(numOfClasses+" total classes");
 
     	int count = 0;
-    	int numOfUnsat = 0;
     	for (OWLClass klass : allClasses) {
     		if (options.removeBackbone && klass.getIRI().getIRIString().startsWith(options.backboneIri))
     			continue;
@@ -458,21 +452,14 @@ public class OwlReasonApp {
     		String className = klass.getIRI().getIRIString();
     	    LOGGER.info(className+" "+ ++count+" of "+numOfClasses);
 
-    	    boolean success = reasoner.isSatisfiable(klass);
-    	    LOGGER.info("class "+className+" is "+(success?"":"un")+"satisfiable");
-
     	    Result result = new Result();
     	    results.add(result);
     	    result.name = className;
     	    
-    	    if (!success) {
+    	    if (!reasoner.isSatisfiable(klass)) {
     	    	result.message = "class "+className+" is insatisfiable";
     	    	result.explanation = createExplanationOntology(explanation.getUnsatisfiableExplanation(klass), explanationFormat);
-    	    	numOfUnsat += 1;
     	    }
-    	}
-    	if (numOfUnsat > 0) {
-    		LOGGER.error("Ontology "+ontologyIri+" has "+numOfUnsat+" insatisfiabilities");
     	}
 
     	return results;

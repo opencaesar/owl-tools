@@ -24,7 +24,7 @@ Args:
 -f  | --file-extensions extension                        [Optional, default: -f ttl -f owl], options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss]
 -i  | --iri <IRI>                                        [Required only if '-ip` is not used]
 -ip | --iris-path path/to/iris.log                       [Required onlyy if '-i' is not used]
--df | --default                                          [Optional, if specified, load data to the default graph instead of to named graphs]
+-df | --default                                          [Optional, if specified, load data to the default graph (cannot be a unionDefaultGraph)]
 ```
 Note: The dataset (database) must have been created in the server prior to executing OwlLoad
 
@@ -54,33 +54,25 @@ task owlLoad(type:io.opencaesar.owl.load.OwlLoadTask) {
     iris = ['iri1',...] [Required only if 'irisPath' is not set]
     irisPath = file('path/to/iris.log') [Required only if 'iris' is not set]
     loadToDefaultGraph = true|false [Optional, default=false]
-    // This is a gradle task only flag
-    incremental = true [Optional, default=false]
+    // controls whether the loading should be incremental (a gradle task only flag)
+    incremental = false [Optional, default=true]
 }               
 ```
 
-Note: the `incremental` flag makes the task only loading files if it determined them to be changed. 
+### Incremental Mode
 
-### OwlLoad relation to StartFuseki
+Setting the gradle task's `incremental` flag to `false` causes all OWL files in scope to always load.
 
-While `OwlLoad` is independent of `StartFuseki` tasks, the user may find it
-beneficial to make `OwlLoad`'s inputs depend on `StartFuseki`'s outputs, especially
-when `incremental` mode is enabled.  This will cause `OwlLoad` to detect a Fuseki 
-restart and fully rerun trying to load all files. See below how to set this up.
+On the other hand, setting the gradle task's `incremental` flag to `true` causes only the OWL files that have changed to load. But this
+by itself will not make the gradle task detect a Fuseki server restart (to load all files). To enable that, specify the startFuseki task's 
+output as an input to the owlLoad task, as follows:  
 
 ```
-buildscript {
-	repositories {
-  		mavenCentral()
-	}
-	dependencies {
-		classpath 'io.opencaesar.owl:owl-load-gradle:+'
-		classpath 'io.opencaesar.owl:owl-fuseki-gradle:+'
-	}
+task startFuseki(type:io.opencaesar.owl.load.StartFusekiTask) {
+   ...
 }
 task owlLoad(type:io.opencaesar.owl.load.OwlLoadTask) {
-	inputs.files(startFuseki.outputs.files) // rerun when fuseki restarts
+	inputs.files(startFuseki.outputs.files) // rerun when Fuseki restarts
 	....
-	incremental = true
 }               
 ```

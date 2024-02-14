@@ -30,7 +30,7 @@ public abstract class OwlLoadTask extends DefaultTask {
      */
     public OwlLoadTask() {
     	getOutputs().upToDateWhen(task -> {
-            boolean incremental = getIncremental().isPresent() ? getIncremental().get() : false;
+            boolean incremental = getIncremental().isPresent() ? getIncremental().get() : true;
             if (incremental) {
     			getInputFolder().set(getCatalogPath().get().getParentFile());
             }
@@ -196,12 +196,12 @@ public abstract class OwlLoadTask extends DefaultTask {
         }
         
         try {
-        	if (getIncremental().isPresent() && getIncremental().get()) {
+        	if (getIncremental().isPresent() && !getIncremental().get()) {
+	            OwlLoadApp.main(getName(), args.toArray(new String[0]));
+        	} else { // run incrementally by default
         		final Set<File> deltas = new HashSet<>();
 	        	inputChanges.getFileChanges(getInputFolder()).forEach(f -> deltas.add(f.getFile()));
 	            OwlLoadApp.mainWithDeltas(getName(), deltas, args.toArray(new String[0]));
-        	} else {
-	            OwlLoadApp.main(getName(), args.toArray(new String[0]));
         	}
         } catch (Exception e) {
 			throw new GradleException(e.getLocalizedMessage(), e);
