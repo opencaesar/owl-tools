@@ -197,11 +197,11 @@ public abstract class OwlLoadTask extends DefaultTask {
         
         try {
         	if (getIncremental().isPresent() && !getIncremental().get()) {
-	            OwlLoadApp.main(getName(), args.toArray(new String[0]));
+	            OwlLoadApp.main(args.toArray(new String[0]));
         	} else { // run incrementally by default
         		final Set<File> deltas = new HashSet<>();
 	        	inputChanges.getFileChanges(getInputFolder()).forEach(f -> deltas.add(f.getFile()));
-	            OwlLoadApp.mainWithDeltas(getName(), deltas, args.toArray(new String[0]));
+	            OwlLoadApp.mainWithDeltas(deltas, args.toArray(new String[0]));
         	}
         } catch (Exception e) {
 			throw new GradleException(e.getLocalizedMessage(), e);

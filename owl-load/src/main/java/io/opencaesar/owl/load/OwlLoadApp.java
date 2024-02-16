@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.Authenticator;
+import java.net.ConnectException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.util.ArrayList;
@@ -46,6 +47,7 @@ import org.apache.jena.rdfconnection.RDFConnectionRemoteBuilder;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFLanguages;
+import org.apache.jena.sparql.engine.http.QueryExceptionHTTP;
 import org.apache.log4j.Appender;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Level;
@@ -57,7 +59,6 @@ import com.beust.jcommander.IParameterValidator;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
-import com.github.jsonldjava.shaded.com.google.common.base.Strings;
 
 /**
  * Utility for loading to a Fuseki server ontology files based on an OASIS XML catalog.
@@ -158,23 +159,21 @@ public class OwlLoadApp {
     /**
      * Application for loading ontologies to a Fuseki server.
      * 
-     * @param taskName Gradle task name or null.
      * @param args Application arguments.
      * @throws Exception Error
      */
-    public static void main(final String taskName, final String... args) throws Exception {
-        mainWithDeltas(taskName, null, args);
+    public static void main(final String... args) throws Exception {
+        mainWithDeltas(null, args);
     }
 
     /**
      * Application for loading ontologies to a Fuseki server.
      * 
-     * @param taskName Gradle task name or null.
      * @param deltas The set of changed files
      * @param args   Application arguments.
      * @throws Exception Error
      */
-    public static void mainWithDeltas(final String taskName, Collection<File> deltas, final String... args) throws Exception {
+    public static void mainWithDeltas(Collection<File> deltas, final String... args) throws Exception {
         final OwlLoadApp app = new OwlLoadApp();
 
         final JCommander builder = JCommander.newBuilder().addObject(app).build();
@@ -190,7 +189,7 @@ public class OwlLoadApp {
         if (app.iris.isEmpty() && app.irisPath == null) {
             throw new RuntimeException("Iris are not set");
         }
-        app.run(Strings.emptyToNull(taskName), deltas);
+        app.run(deltas);
     }
 
     /**
@@ -199,7 +198,7 @@ public class OwlLoadApp {
     public OwlLoadApp() {
     }
 
-    private void run(final String taskName, Collection<File> deltas) throws Exception {
+    private void run(Collection<File> deltas) throws Exception {
         LOGGER.info("=================================================================");
         LOGGER.info("                        S T A R T");
         LOGGER.info("                     OWL Load " + getAppVersion());
@@ -227,56 +226,63 @@ public class OwlLoadApp {
         // Get an RDF Connection
         RDFConnection conn = getRDFConnection();
 
-        // Load the dataset
-        if (loadToDefaultGraph) {
-            boolean load_everything = false;
-            var default_graph_size = getDefaultGraphSize(conn);
-            if (default_graph_size == 0) {
-                // load everything if there is nothing on the server.
-                load_everything = true;
-            } else if (default_graph_size > 0 && !changed_iris.isEmpty()) {
-                // load everything when there is something on the server and there are changes.
-                load_everything = true;
-            } else {
-            	// no need to reload any file
-            }
-
-            if (load_everything) {
-                // in incremental mode: one graphs have either been deleted, modified, or added.
-                // in batch mode: changed_iris = dataset_iris.
-                removeAllFromDefault(conn);
-                // load everything
-                dataset_iris.parallelStream().forEach(iri -> loadToDefault(conn, catalog, iri));
-                System.out.println("Loaded all owl files to default graph");
-            } else {
-                System.out.println("Loaded no owl files to default graph");
-            }
-        } else {
-            // Get Loaded Iris
-            var loaded_iris = getLoadedIris(conn);
-            LOGGER.info("found " + loaded_iris.size() + " loaded iris");
-
-            List<String> to_load_iris = new ArrayList<>();  
-            
-            dataset_iris.stream().forEach(iri -> {
-                if (!loaded_iris.contains(iri)) {
-                	to_load_iris.add(iri);
-                } else if (changed_iris.contains(iri)) {
-                	to_load_iris.add(iri);
-                    loaded_iris.remove(iri);
-                } else {
-                    loaded_iris.remove(iri);
-                }
-            });
-            
-            to_load_iris.parallelStream().forEach(iri -> put(conn, catalog, iri));
-            loaded_iris.parallelStream().forEach(iri -> delete(conn, iri));
-            System.out.println("Loaded "+to_load_iris.size()+" owl file(s), unloaded "+loaded_iris.size()+" owl file(s)");
+        try {
+	        // Load the dataset
+	        if (loadToDefaultGraph) {
+	            boolean load_everything = false;
+	            var default_graph_size = getDefaultGraphSize(conn);
+	            if (default_graph_size == 0) {
+	                // load everything if there is nothing on the server.
+	                load_everything = true;
+	            } else if (default_graph_size > 0 && !changed_iris.isEmpty()) {
+	                // load everything when there is something on the server and there are changes.
+	                load_everything = true;
+	            } else {
+	            	// no need to reload any file
+	            }
+	
+	            if (load_everything) {
+	                // in incremental mode: one graphs have either been deleted, modified, or added.
+	                // in batch mode: changed_iris = dataset_iris.
+	                removeAllFromDefault(conn);
+	                // load everything
+	                dataset_iris.parallelStream().forEach(iri -> loadToDefault(conn, catalog, iri));
+	                System.out.println("Loaded "+dataset_iris.size()+" owl files to default graph");
+	            } else {
+	                System.out.println("Loaded no owl files to default graph");
+	            }
+	        } else {
+	            // Get Loaded Iris
+	            var loaded_iris = getLoadedIris(conn);
+	            LOGGER.info("found " + loaded_iris.size() + " loaded iris");
+	
+	            List<String> to_load_iris = new ArrayList<>();  
+	            
+	            dataset_iris.stream().forEach(iri -> {
+	                if (!loaded_iris.contains(iri)) {
+	                	to_load_iris.add(iri);
+	                } else if (changed_iris.contains(iri)) {
+	                	to_load_iris.add(iri);
+	                    loaded_iris.remove(iri);
+	                } else {
+	                    loaded_iris.remove(iri);
+	                }
+	            });
+	            
+	            to_load_iris.parallelStream().forEach(iri -> put(conn, catalog, iri));
+	            loaded_iris.parallelStream().forEach(iri -> delete(conn, iri));
+	            System.out.println("Loaded "+to_load_iris.size()+" owl file(s), unloaded "+loaded_iris.size()+" owl file(s)");
+	        }
+        } catch (QueryExceptionHTTP e) {
+        	if (e.getCause() instanceof ConnectException) {
+        		System.out.println("Connection Exception: check that the endpoint ("+endpointURL+") is reachable");
+        	}
+    		throw e;
+        } finally {
+	        // Close connection
+	        conn.close();
+	        conn.end();
         }
-
-        // Close connection
-        conn.close();
-        conn.end();
 
         LOGGER.info("=================================================================");
         LOGGER.info("                          E N D");
@@ -399,7 +405,7 @@ public class OwlLoadApp {
             }
             conn.commit();
         } catch (Exception e) {
-            throw new RuntimeException("Error occurred loading ontology '" + documentIRI + "' to default graph", e);
+            throw new RuntimeException("Error occurred loading ontology '" + documentIRI + "' to default graph: "+e.getMessage(), e);
         }
     }
 
