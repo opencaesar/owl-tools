@@ -15,14 +15,16 @@ gradlew.bat owl-fuseki:run --args="..."
 ```
 Args:
 ```
---command | -c start|stop								[Required]
---configurationPath | -g path/to/.fuseki.ttl			[Required]
---outputFolderPath | -o path/to/output/folder			[Required]
---remote-repository-url | url							[Optional, default: https://repo.maven.apache.org/maven2/]
---fuseki-version | -fv  <version>						[Optional, default: 4.6.1]
---port | -p	<port>										[Optional, default: 3030)
---webui | -ui                                           [Optional]
---max-pings | -p                                        [Optional]
+-c   | --command start|stop [Required]
+-g   | --configurationPath path/to/.fuseki.ttl [Required]
+-o   | --outputFolderPath path/to/output/folder [Required]
+-url | --remote-repository-url <url>	 [Optional, default: https://repo.maven.apache.org/maven2/]
+-fv  | --fuseki-version  <version> [Optional, default: 4.6.1]
+-p   | --port <port> [Optional, default: 3030)
+-ui  | --webui [Optional]
+-n   | --max-pings [Optional]
+-cp  | --classpath group:artifact:exact-version [Optional, additional classpath dependencies]
+-jvm | --jvm-arguments "-Xms256m" [Optional, additional JVM arguments]
 ```
 
 ## Run as Gradle Task
@@ -50,6 +52,8 @@ task startFuseki(type: io.opencaesar.owl.fuseki.StartFusekiTask) {
 	port = 3030 // optional, default: 3030
 	webUI = true // optional, default: false [creates a 'webapp' subfolder under outputFolderPath]
 	maxPings = 10 // optional, default: 10
+	classpath = ['group:artifact:exact-version'] // optional
+	jvmArguments = ['-Xms256m'] // optional
 }
 
 task stopFuseki(type: io.opencaesar.owl.fuseki.StopFusekiTask) {

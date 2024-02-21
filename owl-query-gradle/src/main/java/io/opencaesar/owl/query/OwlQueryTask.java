@@ -39,7 +39,16 @@ public abstract class OwlQueryTask extends DefaultTask {
 	@Input
 	public abstract Property<String> getEndpointURL();
 
-	/**
+    /**
+     * The short name of the query service (optional, default is 'sparql').
+     *
+     * @return String Property
+     */
+    @Optional
+    @Input
+    public abstract Property<String> getQueryService();
+
+    /**
 	 * The required gradle task input query path where to search for *.sparql files.
 	 * 
 	 * @return File Property
@@ -140,6 +149,10 @@ public abstract class OwlQueryTask extends DefaultTask {
 			args.add("-e");
 			args.add(getEndpointURL().get());
 		}
+        if (getQueryService().isPresent()) {
+            args.add("-qs");
+            args.add(getQueryService().get());
+        }
 		if (getQueryPath().isPresent()) {
 			args.add("-q");
 			args.add(getQueryPath().get().getAbsolutePath());

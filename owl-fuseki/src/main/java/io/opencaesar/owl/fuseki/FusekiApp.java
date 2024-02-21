@@ -109,7 +109,7 @@ public class FusekiApp {
     private String fusekiVersion = "4.6.1";
 
     @Parameter(
-            names = {"--port, -p"},
+            names = {"--port", "-p"},
             description = "Fuseki server port (defaults to 3030)",
             required = false,
             order = 6)
@@ -123,7 +123,7 @@ public class FusekiApp {
     private boolean webui = false;
 
     @Parameter(
-            names = {"--max-pings", "-p"},
+            names = {"--max-pings", "-n"},
             description = "Maximum number (10 by default) of pings to the server before giving up",
             help = true,
             required = false,
@@ -131,16 +131,30 @@ public class FusekiApp {
     private int maxPings = 10;
 
     @Parameter(
+            names = {"--classpath", "-cp"},
+            description = "Additional classpath dependencies to load when starting Fuseki, each of the form: <group>:<artifact>:<exact version>",
+            required = false,
+            order = 9)
+    private List<String> classpath = new ArrayList<>();
+
+    @Parameter(
+            names = {"jvm-arguments", "-jvm"},
+            description = "Additional JVM arguments",
+            required = false,
+            order = 10)
+    private List<String> jvmArguments = new ArrayList<>();
+    
+    @Parameter(
             names = {"--debug", "-d"},
             description = "Shows debug logging statements",
-            order = 9)
+            order = 11)
     private boolean debug = false;
 
     @Parameter(
             names = {"--help", "-h"},
             description = "Displays summary of options",
             help = true,
-            order = 10)
+            order = 12)
     private boolean help = false;
 
     private final static Logger LOGGER = Logger.getLogger(FusekiApp.class);
@@ -214,10 +228,10 @@ public class FusekiApp {
                 }
 
                 String[] cpEntries = deps.toArray(new String[0]);
-                startFuseki(cpEntries, new File(configurationPath), new File(outputFolderPath), app.port, false, app.maxPings, "org.apache.jena.fuseki.cmd.FusekiCmd", app, "--localhost");
+                startFuseki(cpEntries, new File(configurationPath), new File(outputFolderPath), app.port, false, app.maxPings, "org.apache.jena.fuseki.cmd.FusekiCmd", app.jvmArguments, "--localhost");
             } else {
                 String[] cpEntries = deps.toArray(new String[0]);
-                startFuseki(cpEntries, new File(configurationPath), new File(outputFolderPath), app.port, true, app.maxPings, "org.apache.jena.fuseki.main.cmds.FusekiMainCmd", app);
+                startFuseki(cpEntries, new File(configurationPath), new File(outputFolderPath), app.port, true, app.maxPings, "org.apache.jena.fuseki.main.cmds.FusekiMainCmd", app.jvmArguments);
             }
         } else {
             stopFuseki(new File(outputFolderPath));
@@ -275,7 +289,7 @@ public class FusekiApp {
      * @param pingArg   Whether to add --ping to the command
      * @param maxPings  The maximum number of pings to try before giving up
      * @param clazz     Qualified name of the Fuseki server application (with or without Web UI)
-     * @param app       Fuseki application
+     * @param jvmArgs   A list of additional JVM arguments.
      * @param argv      Additional arguments
      * @throws IOException        if the 'fuseki.pid' file could not be written to
      * @throws URISyntaxException If there is a problem retrieving the location of the fuseki jar.
@@ -288,7 +302,7 @@ public class FusekiApp {
             boolean pingArg,
             int maxPings,
             String clazz,
-            FusekiApp app,
+            List<String> jvmArgs,
             String... argv) throws IOException, URISyntaxException {
         Path output = fusekiDir.toPath();
         File pidFile = output.resolve(PID_FILENAME).toFile();
@@ -310,15 +324,16 @@ public class FusekiApp {
 
         List<String> args = new ArrayList<String>();
         args.add(getJavaCommandPath());
+        args.addAll(jvmArgs);
         args.add("-cp");
         args.add(String.join(File.pathSeparator, cpEntries));
         args.add(clazz);
-        args.add("--port");
-        args.add(Integer.toString(port));
         if (pingArg) {
         	args.add("--ping");
         }
         args.add("--config=" + output.relativize(config.toPath()).toString().replace("\\", "/")); // put the relative path to avoid spaces in path
+        args.add("--port");
+        args.add(Integer.toString(port));
         args.addAll(Arrays.asList(argv));
         
         ProcessBuilder pb = new ProcessBuilder(args);

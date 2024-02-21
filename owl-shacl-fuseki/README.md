@@ -16,12 +16,11 @@ gradlew.bat owl-shacl-fuseki:run --args="..."
 ```
 Args:
 ```
---endpoint-url | -e http://fusekiURL/databaseName [Required]
---query-path | -q path/to/queries.shacl [Required]
-    (Accepts either a .shacl file or a directory that will be searched for .shacl files)
---result-path | -r path/to/result/folder [Required]
---format | -f xml [Optional; default value is xml]
-    (forats: xml, json, csv, n3, ttl, n-triple, or tsv)
+-e | --endpoint-url http://fusekiURL/databaseName [Required]
+-s | --shacl-service shacl [Optional, default is 'shacl')
+-q | --query-path path/to/queries.shacl [Required]
+       (Accepts either a .shacl file or a directory that will be searched for .shacl files)
+-r | --result-path path/to/result/folder [Required]
     (Supported formats depend on the query type)
 ```
 
@@ -41,6 +40,7 @@ buildscript {
 }
 task owlShaclFuseki(type:io.opencaesar.owl.query.OwlShaclFusekiTask) {
 	endpointURL = 'url-of-sparql-endpoint' [Required]
+	shaclService = 'shacl' [Optional, default='shacl']
 	queryPath = file('path/to/queries.shacl') [Required, path to file or folder]
 	resultPath = file('path/to/result/folder') [Required]
 }               

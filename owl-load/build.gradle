@@ -15,5 +15,4 @@ dependencies {
 
     implementation "xml-resolver:xml-resolver:${versions.xmlresolver}"
 	implementation "org.apache.jena:jena-rdfconnection:${versions.jena}"
-    implementation "net.sourceforge.owlapi:owlapi-distribution:${versions.owl}"
 }

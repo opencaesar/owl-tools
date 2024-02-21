@@ -28,6 +28,7 @@ Args:
 -b, --backbone-iri IRI					Iris to ignore [optional, default=http://opencaesar.io/oml]
 -n, --indent NUMBER 					Number of spaces to indent by [optional, default=2]
 -r, --report-path PATH					Path/to/reasoning.xml [required]
+-oi, --output-iris-path					path to a .txt file listing all analyzed ontology IRIs (one per line)
 ```
 
 Note: the | char separating algorithms in the `spec` argument is not a logical OR; it is just a list delimiter.
@@ -56,6 +57,7 @@ task owlReason(type:io.opencaesar.owl.reason.OwlReasonTask) {
 	backboneIri 		= 'backbone-iri' [optional, default=http://opencaesar.io/oml]
 	indent 			= number [optional, default=2]
 	reportPath		= file('path/to/reasoning.xml') [required]
+	outputOntologyIrisPath = file('path/to/iris.txt') [optional, path to a .txt file listing all analyzed ontology IRIs (one per line)]
 }
 ```
 

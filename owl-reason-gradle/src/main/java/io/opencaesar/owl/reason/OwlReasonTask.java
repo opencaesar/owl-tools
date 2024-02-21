@@ -104,6 +104,15 @@ public abstract class OwlReasonTask extends DefaultTask {
 	public abstract RegularFileProperty getReportPath();
 
 	/**
+	 * The optional txt file listing all analyzed ontology IRIs (one per line).
+	 * 
+	 * @return RegularFile Property
+	 */
+	@Optional
+	@OutputFile
+	public abstract RegularFileProperty getOutputOntologyIrisPath();
+
+	/**
 	 * The optional gradle task input boolean property for removing entailments due to unsatisfiability (default is true).
 	 * 
 	 * @return Boolean Property
@@ -222,6 +231,10 @@ public abstract class OwlReasonTask extends DefaultTask {
 		if (getReportPath().isPresent()) {
 			args.add("-r");
 			args.add(getReportPath().get().getAsFile().getAbsolutePath());
+		}
+		if (getOutputOntologyIrisPath().isPresent()) {
+			args.add("-oi");
+			args.add(getOutputOntologyIrisPath().get().getAsFile().getAbsolutePath());
 		}
 		if (getInputFileExtensions().isPresent()) {
 			getInputFileExtensions().get().forEach((String ext) -> {

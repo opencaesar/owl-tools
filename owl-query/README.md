@@ -16,13 +16,14 @@ gradlew.bat owl-query:run --args="..."
 ```
 Args:
 ```
---endpoint-url | -e http://fusekiURL/databaseName [Required]
---query-path | -q path/to/query.sparql [Required]
-    (Accepts either a .sparql file or a directory that will be searched for .sparql files)
---result-path | -r path/to/result/folder [Required]
---format | -f xml [Optional; default value is xml]
-    (forats: xml, json, csv, n3, ttl, n-triple, or tsv)
-    (Supported formats depend on the query type)
+-e  | --endpoint-url http://fusekiURL/databaseName [Required]
+-qs | --query-service sparql [Optional, default is 'sparql')
+-q  | --query-path path/to/query.sparql [Required]
+        (Accepts either a .sparql file or a directory that will be searched for .sparql files)
+-r  | --result-path path/to/result/folder [Required]
+-f  | --format xml [Optional; default value is xml]
+        (forats: xml, json, csv, n3, ttl, n-triple, or tsv)
+        (Supported formats depend on the query type)
 ```
 
 ## Run as Gradle Task
@@ -41,6 +42,7 @@ buildscript {
 }
 task owlQuery(type:io.opencaesar.owl.query.OwlQueryTask) {
 	endpointURL = 'url-of-sparql-endpoint' [Required]
+	queryService = 'sparql' [Optional, default='sparql']
 	queryPath = file('path/to/query.sparql') [Required, path to file or folder]
 	resultPath = file('path/to/result/folder') [Required]
 	format = 'xml' [Optional, default is xml, other options: json, csv, n3, ttl, n-triple, or tsv]
