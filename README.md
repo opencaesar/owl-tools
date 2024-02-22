@@ -1,6 +1,6 @@
 # OWL Tools
 
-[![example workflow](https://github.com/opencaesar/owl-tools/actions/workflows/ci.yml/badge.svg)](https://github.com/opencaesar/owl-tools/actions/workflows/ci.yml)
+[![Build Status](https://github.com/opencaesar/owl-tools/actions/workflows/ci.yml/badge.svg)](https://github.com/opencaesar/owl-tools/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/opencaesar/owl-tools?label=Release)](https://github.com/opencaesar/owl-tools/releases/latest)
 
 A set of OWL based analysis tools
