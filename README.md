@@ -1,7 +1,7 @@
 # OWL Tools
 
-[![Build Status](https://app.travis-ci.com/opencaesar/owl-tools.svg?branch=master)](https://app.travis-ci.com/opencaesar/owl-tools)
-[![Release](https://img.shields.io/github/v/tag/opencaesar/owl-tools?label=release)](https://github.com/opencaesar/owl-tools/releases/latest)
+[![example workflow](https://github.com/opencaesar/owl-tools/actions/workflows/ci.yml/badge.svg)](https://github.com/opencaesar/owl-tools/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/opencaesar/owl-tools?label=Release)](https://github.com/opencaesar/owl-tools/releases/latest)
 
 A set of OWL based analysis tools
 
