@@ -25,7 +25,7 @@ jobs:
     - name: Publish package
       run: ./gradlew publish
       env:
-        ORG_GRADLE_PROJECT_ossrhPassword: ${{ secrets.PGPSIGNINGKEY }}
-        ORG_GRADLE_PROJECT_ossrhUsername: ${{ secrets.PGPSIGNINGPASSWORD }}
-        ORG_GRADLE_PROJECT_pgpSigningKey: ${{ secrets.OSSRHUSERNAME }}
-        ORG_GRADLE_PROJECT_pgpSigningPassword: ${{ secrets.OSSRHPASSWORD }}
+        ORG_GRADLE_PROJECT_ossrhPassword: ${{ secrets.OSSRHPASSWORD }}
+        ORG_GRADLE_PROJECT_ossrhUsername: ${{ secrets.OSSRHUSERNAME }}
+        ORG_GRADLE_PROJECT_pgpSigningKey: ${{ secrets.PGPSIGNINGKEY }}
+        ORG_GRADLE_PROJECT_pgpSigningPassword: ${{ secrets.PGPSIGNINGPASSWORD }}
