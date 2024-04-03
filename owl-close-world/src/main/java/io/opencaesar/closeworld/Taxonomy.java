@@ -27,6 +27,7 @@ import com.google.common.base.Objects;
 
 import io.opencaesar.closeworld.Axiom.ClassExpressionSetAxiom.DisjointClassesAxiom;
 import io.opencaesar.closeworld.Axiom.ClassExpressionSetAxiom.DisjointUnionAxiom;
+import io.opencaesar.closeworld.Axiom.SubClassOfAxiom;
 
 /**
  * A directed acyclic graph for implementing the bundle closure algorithm
@@ -397,6 +398,9 @@ public class Taxonomy extends DirectedAcyclicGraph<ClassExpression, Taxonomy.Tax
 		for (Map.Entry<ClassExpression, Set<ClassExpression>> entry : siblingMap.entrySet()) {
 			ClassExpression c = entry.getKey();
 			Set<ClassExpression> s = entry.getValue();
+			s.forEach(subClass -> {
+				axioms.add(new SubClassOfAxiom(subClass, c));
+			});
 			switch (axiomType) {
 				case DISJOINT_CLASSES:
 					axioms.add(new DisjointClassesAxiom(s));

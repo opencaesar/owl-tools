@@ -15,7 +15,7 @@ public abstract class Axiom {
 	}
 	
     /**
-     * The different kinds of OWL2-DL axioms that the bundle closure algorithm can generate.
+     * The different options for closure strength that the bundle closure algorithm can generate.
      */
     public enum AxiomType {
         /**
@@ -33,7 +33,58 @@ public abstract class Axiom {
 
 
     /**
-     * All Axioms that the bundle closure algorithm can generate involve a set of class expressions.
+     * SubClassOfAxiom corresponds to OWL2-DL 9.1.1
+     * https://www.w3.org/TR/owl2-syntax/#Subclass_Axioms
+     */
+    public static class SubClassOfAxiom extends Axiom {
+
+    	private final ClassExpression subclass;
+    	private final ClassExpression superclass;
+    	
+        /**
+         * Constructs an OWL2-DL SubClassOf axiom.
+         * 
+         * @param subclass class expression for the subclass
+         * @param superclass class expression for the superclass
+         */
+        protected SubClassOfAxiom(ClassExpression subclass, ClassExpression superclass) {
+            this.subclass = subclass;
+            this.superclass = superclass;
+        }
+
+        /**
+         * The subclass expression.
+         * 
+         * @return Class expression.
+         */
+        protected ClassExpression getSubclass() {
+            return subclass;
+        }
+        
+        /**
+         * The superclass expression.
+         * 
+         * @return Class expression.
+         */
+        protected ClassExpression getSuperclass() {
+            return superclass;
+        }
+        
+       @Override
+        public boolean equals(Object o) {
+            return (o instanceof SubClassOfAxiom) &&
+            		this.subclass.equals(((SubClassOfAxiom) o).getSubclass()) &&
+            		this.superclass.equals(((SubClassOfAxiom) o).getSuperclass());
+        }
+
+        @Override
+        public String toString() {
+            return "SubClassOf(" + this.subclass.toString() + ", " + this.superclass.toString() + ")";
+        }
+    }
+
+    /**
+     * Some generated Axioms involve a set of class expressions.
      */
     public abstract static class ClassExpressionSetAxiom extends Axiom {
 
