@@ -1,0 +1,9 @@
+ext.title = 'OWL Save Gradle'
+description = 'A gradle interface to OWL Save'
+
+dependencies {
+	implementation gradleApi()
+    implementation project (':owl-save')
+ 	implementation "xml-resolver:xml-resolver:${versions.xmlresolver}"
+ 	implementation "commons-io:commons-io:${versions.commonsIo}"
+}

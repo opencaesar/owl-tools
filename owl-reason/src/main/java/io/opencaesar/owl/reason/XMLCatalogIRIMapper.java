@@ -35,7 +35,7 @@ public class XMLCatalogIRIMapper implements OWLOntologyIRIMapper {
 	public XMLCatalogIRIMapper(File catalogFile, List<String> extensions) throws IOException {
 		this.extensions = extensions;
 		if (null == catalogFile || !catalogFile.isFile() || !catalogFile.isAbsolute())
-			throw new IllegalArgumentException("The catalogFile must exists and be an absolute path: " + catalogFile);
+			throw new IllegalArgumentException("The catalogFile must exist and be an absolute path: " + catalogFile);
 		CatalogManager manager = new CatalogManager();
 		manager.setUseStaticCatalog(false);
 		manager.setIgnoreMissingProperties(true);

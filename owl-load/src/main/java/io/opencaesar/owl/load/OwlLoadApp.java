@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.jena.atlas.web.HttpException;
 import org.apache.jena.http.HttpEnv;
 import org.apache.jena.ontology.OntDocumentManager;
 import org.apache.jena.ontology.OntModel;
@@ -47,7 +48,6 @@ import org.apache.jena.rdfconnection.RDFConnectionRemoteBuilder;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFLanguages;
-import org.apache.jena.sparql.engine.http.QueryExceptionHTTP;
 import org.apache.log4j.Appender;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Level;
@@ -61,7 +61,7 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 
 /**
- * Utility for loading to a Fuseki server ontology files based on an OASIS XML catalog.
+ * Utility for loading an OWL dataset to a Fuseki server
  */
 public class OwlLoadApp {
 
@@ -247,7 +247,7 @@ public class OwlLoadApp {
 	                removeAllFromDefault(conn);
 	                // load everything
 	                dataset_iris.parallelStream().forEach(iri -> loadToDefault(conn, catalog, iri));
-	                System.out.println("Loaded "+dataset_iris.size()+" owl files to default graph");
+	                System.out.println("Loaded "+dataset_iris.size()+" owl file(s) to default graph");
 	            } else {
 	                System.out.println("Loaded no owl files to default graph");
 	            }
@@ -273,7 +273,7 @@ public class OwlLoadApp {
 	            loaded_iris.parallelStream().forEach(iri -> delete(conn, iri));
 	            System.out.println("Loaded "+to_load_iris.size()+" owl file(s), unloaded "+loaded_iris.size()+" owl file(s)");
 	        }
-        } catch (QueryExceptionHTTP e) {
+        } catch (HttpException e) {
         	if (e.getCause() instanceof ConnectException) {
         		System.out.println("Connection Exception: check that the endpoint ("+endpointURL+") is reachable");
         	}
