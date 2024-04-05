@@ -296,13 +296,15 @@ public class TestBundleClosure {
 		Assert.assertEquals(tr.treeify(), tr.treeify().treeify());
 	}
 
-	@Test public void testSiblingMap() {
-		final Map<ClassExpression, Set<ClassExpression>> siblingMap = tr.treeify().siblingMap();
+	@Test public void testChilrenMap() {
+		final Map<ClassExpression, Set<ClassExpression>> childrenMap = tr.treeify().childrenMap();
+		final Set<ClassExpression> childrenOfA = Stream.of(vb).collect(Collectors.toSet());
 		final Set<ClassExpression> childrenOfB = Stream.of(vc, vd, ve.difference(vj), vf.difference(vi.union(vj))).collect(Collectors.toSet());
 		final Set<ClassExpression> childrenOfC = Stream.of(vg.difference(vi.union(vj)), vh.difference(vj), vi.difference(vj), vj).collect(Collectors.toSet());
-		Assert.assertEquals(2, siblingMap.keySet().size());
-		Assert.assertEquals(childrenOfB, siblingMap.get(vb));
-		Assert.assertEquals(childrenOfC, siblingMap.get(vc));
+		Assert.assertEquals(3, childrenMap.keySet().size());
+		Assert.assertEquals(childrenOfA, childrenMap.get(va));
+		Assert.assertEquals(childrenOfB, childrenMap.get(vb));
+		Assert.assertEquals(childrenOfC, childrenMap.get(vc));
 	}
 	
 }
