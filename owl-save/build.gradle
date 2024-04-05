@@ -1,0 +1,18 @@
+apply plugin: 'application'
+
+ext.title = 'OWL Save'
+description = 'A tool to save a set of OWL files from a SPARQL endpoint'
+mainClassName = 'io.opencaesar.owl.save.OwlSaveApp'
+applicationName = 'owl-save'
+
+// Note: This library uses the OpenJDK XML Catalog API implementation instead of the old Apache XML Catalog library.
+
+dependencies {
+	implementation "com.beust:jcommander:${versions.jcommander}"
+	implementation "log4j:log4j:${versions.log4j}"
+	implementation "org.slf4j:slf4j-simple:${versions.slf4j}"
+	testImplementation "junit:junit:${versions.junit}"
+
+    implementation "xml-resolver:xml-resolver:${versions.xmlresolver}"
+	implementation "org.apache.jena:jena-rdfconnection:${versions.jena}"
+}
