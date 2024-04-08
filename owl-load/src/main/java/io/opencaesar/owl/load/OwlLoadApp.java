@@ -19,7 +19,6 @@ package io.opencaesar.owl.load;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.IOException;
 import java.net.Authenticator;
 import java.net.ConnectException;
 import java.net.URI;
@@ -48,6 +47,7 @@ import org.apache.jena.rdfconnection.RDFConnectionRemoteBuilder;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFLanguages;
+import org.apache.jena.util.FileManager;
 import org.apache.log4j.Appender;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Level;
@@ -275,7 +275,7 @@ public class OwlLoadApp {
 	        }
         } catch (HttpException e) {
         	if (e.getCause() instanceof ConnectException) {
-        		System.out.println("Connection Exception: check that the endpoint ("+endpointURL+") is reachable");
+        		LOGGER.error("Connection Exception: check that the endpoint ("+endpointURL+") is reachable");
         	}
     		throw e;
         } finally {
@@ -353,8 +353,8 @@ public class OwlLoadApp {
     }
 
     private Set<String> getIrisFromRoots(OwlCatalog catalog) throws Exception {
-        Map<String, URI> fileMap = catalog.getFileUriMap();
         OntDocumentManager mgr = new OntDocumentManager();
+        Map<String, URI> fileMap = catalog.getFileUriMap();
         for (var entry : fileMap.entrySet()) {
             mgr.addAltEntry(entry.getKey(), entry.getValue().toString());
         }
@@ -362,8 +362,18 @@ public class OwlLoadApp {
         OntModelSpec s = new OntModelSpec(OntModelSpec.OWL_MEM);
         s.setDocumentManager(mgr);
         OntModel ontModel = ModelFactory.createOntologyModel(s);
+        FileManager fileMgr = mgr.getFileManager();
         for (var iri : iris) {
-            mgr.getFileManager().readModelInternal(ontModel, iri);
+        	try {
+        		fileMgr.readModelInternal(ontModel, iri);
+        	} catch (Exception e) {
+        		if (e instanceof HttpException && ((HttpException) e).getStatusCode() == 404) {
+            		LOGGER.error("Could not resolve iri <"+iri+"> using the catalog");
+        		} else {
+        			LOGGER.error("Error reading ontology with iri <"+iri+">");
+        		}
+        		throw e;
+        	}
         }
 
         Set<String> allIris = new HashSet<>();
@@ -374,7 +384,7 @@ public class OwlLoadApp {
     private Set<String> getIrisFromPath() throws Exception {
         Set<String> iris = new HashSet<>();
 
-        BufferedReader reader;
+        BufferedReader reader = null;
         try {
             reader = new BufferedReader(new FileReader(new File(irisPath)));
             String iri = reader.readLine();
@@ -382,9 +392,10 @@ public class OwlLoadApp {
                 iris.add(iri);
                 iri = reader.readLine();
             }
-            reader.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        } finally {
+        	if (reader != null) {
+        		reader.close();
+        	}
         }
 
         return iris;
