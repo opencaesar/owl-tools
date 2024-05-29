@@ -580,7 +580,7 @@ public class OwlDocApp {
 
 			var image = getClassImage(path1, s);
 			var axioms = getAxioms(path1, s.listProperties());
-			var superClasses = getNodes(path1, "directSuperClassOf", IMG_CLASS, s.listSubClasses(true).toList());
+			var superClasses = getNodes(path1, "directSuperClassOf", IMG_CLASS, s.listSubClasses(true).filterDrop(i -> i.isAnon()).toList());
 			var properties = getNodes("directDomainOf", owlModel.ontModel.listSubjectsWithProperty(RDFS.domain, s).toList(), IMG_PROPERTY, i -> asString(path1, i)+" → "+asString(path1, owlModel.ontModel.getOntProperty(i.asResource().getURI()).listRange().toList()));
 			var restrictedProperties = getNodes("directHasRestrictionOn", s.listSuperClasses(true).filterKeep(i -> i.isRestriction()).mapWith(i -> i.asRestriction()).toList(), IMG_PROPERTY, restrictionFunc);
 			final var content = new StringBuffer(String.format(
@@ -671,7 +671,7 @@ public class OwlDocApp {
 				getRelativePath(path, path1), 
 				aClass.getLocalName()));
 
-            List<OntClass> subClasses = aClass.listSubClasses(true).toList();
+            List<OntClass> subClasses = aClass.listSubClasses(true).filterDrop(i -> i.isAnon()).toList();
 
             for (OntClass subClass : subClasses) {
                 levels.put(subClass, indentLevel+1);
