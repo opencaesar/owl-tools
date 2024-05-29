@@ -15,11 +15,13 @@ import org.junit.Test;
 
 public class TestAxiom {
 
+	ClassExpression.Difference ciaubmd, buaicmd;
     Set<ClassExpression> ces1a, ces1b, ces2a, ces2b;
     Axiom.ClassExpressionSetAxiom.DisjointClassesAxiom djca1a, djca1b, djca2a, djca2b;
     Axiom.ClassExpressionSetAxiom.EquivalentClassesAxiom eqca1a, eqca1b, eqca2a, eqca2b;
     Axiom.ClassExpressionSetAxiom.DisjointUnionAxiom djua1a, djua1b, djua2a, djua2b;
-    ClassExpression.Unitary e;
+    Axiom.SubClassOfAxiom scoa1, scoa2, scoa3, scoa4, scoa5;
+    ClassExpression.Unitary a, b, e;
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
@@ -32,24 +34,30 @@ public class TestAxiom {
     @Before
     public void setUp() throws Exception {
 
-        final ClassExpression.Unitary a = new ClassExpression.Unitary("a");
-        final ClassExpression.Unitary b = new ClassExpression.Unitary("b");
+                                      a = new ClassExpression.Unitary("a");
+                                      b = new ClassExpression.Unitary("b");
         final ClassExpression.Unitary c = new ClassExpression.Unitary("c");
         final ClassExpression.Unitary d = new ClassExpression.Unitary("d");
-        e = new ClassExpression.Unitary("e");
+                                      e = new ClassExpression.Unitary("e");
 
-        final ClassExpression.Union aub = new ClassExpression.Union(new HashSet<>(Arrays.asList(a, b)));
-        final ClassExpression.Union bua = new ClassExpression.Union(new HashSet<>(Arrays.asList(b, a)));
+        final ClassExpression.Union          aub = new ClassExpression.Union(new HashSet<>(Arrays.asList(a, b)));
+        final ClassExpression.Union          bua = new ClassExpression.Union(new HashSet<>(Arrays.asList(b, a)));
         final ClassExpression.Intersection ciaub = new ClassExpression.Intersection(new HashSet<>(Arrays.asList(c, aub)));
         final ClassExpression.Intersection buaic = new ClassExpression.Intersection(new HashSet<>(Arrays.asList(bua, c)));
-        final ClassExpression.Difference ciaubmd = new ClassExpression.Difference(ciaub, d);
-        final ClassExpression.Difference buaicmd = new ClassExpression.Difference(buaic, d);
+                                         ciaubmd = new ClassExpression.Difference(ciaub, d);
+                                         buaicmd = new ClassExpression.Difference(buaic, d);
 
         ces1a = Stream.of(aub, ciaub).collect(Collectors.toSet());
         ces1b = Stream.of(bua, buaic).collect(Collectors.toSet());
         ces2a = Stream.of(aub, ciaub, ciaubmd, e).collect(Collectors.toSet());
         ces2b = Stream.of(bua, buaic, buaicmd, e).collect(Collectors.toSet());
 
+        scoa1  = new Axiom.SubClassOfAxiom(a, b);
+        scoa2  = new Axiom.SubClassOfAxiom(ciaubmd, b);
+        scoa3  = new Axiom.SubClassOfAxiom(a, buaicmd);
+        scoa4  = new Axiom.SubClassOfAxiom(ciaubmd, buaicmd);
+        scoa5  = new Axiom.SubClassOfAxiom(buaicmd, ciaubmd);
+        
         djca1a = new Axiom.ClassExpressionSetAxiom.DisjointClassesAxiom(ces1a);
         djca1b = new Axiom.ClassExpressionSetAxiom.DisjointClassesAxiom(ces1b);
         djca2a = new Axiom.ClassExpressionSetAxiom.DisjointClassesAxiom(ces2a);
@@ -117,6 +125,15 @@ public class TestAxiom {
         Assert.assertNotEquals(djua1b, djua2a);
         Assert.assertNotEquals(djua1b, djca2b);
 
+        // equivalent class expressions
+        Assert.assertEquals(scoa4, scoa5);
+
+        // non-equivalent class expressions
+        Assert.assertNotEquals(scoa1, scoa2);
+        Assert.assertNotEquals(scoa1, scoa3);
+        Assert.assertNotEquals(scoa1, scoa4);
+        Assert.assertNotEquals(scoa1, scoa5);
+        
         // different axiom types
         Assert.assertNotEquals(djca1a, eqca1a);
         Assert.assertNotEquals(djca1a, eqca1b);
@@ -178,6 +195,9 @@ public class TestAxiom {
         Assert.assertNotEquals(eqca2b, djua2a);
         Assert.assertNotEquals(eqca2b, djua2b);
 
+        Assert.assertNotEquals(djca1a, scoa1);
+        Assert.assertNotEquals(eqca1a, scoa1);
+        
     }
 
     @Test
@@ -197,6 +217,12 @@ public class TestAxiom {
         Assert.assertEquals("DisjointUnion(" + e.toString() + ", " + ces1b.toString() + ")", djua1b.toString());
         Assert.assertEquals("DisjointUnion(" + e.toString() + ", " + ces2a.toString() + ")", djua2a.toString());
         Assert.assertEquals("DisjointUnion(" + e.toString() + ", " + ces2b.toString() + ")", djua2b.toString());
+        
+        Assert.assertEquals("SubClassOf(" + a.toString() + ", " + b.toString() + ")", scoa1.toString());
+        Assert.assertEquals("SubClassOf(" + ciaubmd.toString() + ", " + b.toString() + ")", scoa2.toString());
+        Assert.assertEquals("SubClassOf(" + a.toString() + ", " + buaicmd.toString() + ")", scoa3.toString());
+        Assert.assertEquals("SubClassOf(" + ciaubmd.toString() + ", " + buaicmd.toString() + ")", scoa4.toString());
+        Assert.assertEquals("SubClassOf(" + buaicmd.toString() + ", " + ciaubmd.toString() + ")", scoa5.toString());
 
     }
 

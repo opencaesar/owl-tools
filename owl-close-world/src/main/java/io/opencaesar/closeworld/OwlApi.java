@@ -69,6 +69,17 @@ public class OwlApi {
 	}
 
 	/**
+	 *  Returns a subclass axiom for the given pair of class expressions
+	 *  
+	 * @param subclass OWLClassExpression
+	 * @param superclass OWLClassExpression
+	 * @return OWL.
+	 */
+	public OWLSubClassOfAxiom getOWLSubClassOfAxiom(OWLClassExpression subclass, OWLClassExpression superclass) {
+		return factory.getOWLSubClassOfAxiom(subclass, superclass);
+	}
+
+	/**
 	 * Returns a data property for the given IRI
 	 * 
 	 * @param iri An IRI

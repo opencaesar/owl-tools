@@ -27,6 +27,7 @@ import com.google.common.base.Objects;
 
 import io.opencaesar.closeworld.Axiom.ClassExpressionSetAxiom.DisjointClassesAxiom;
 import io.opencaesar.closeworld.Axiom.ClassExpressionSetAxiom.DisjointUnionAxiom;
+import io.opencaesar.closeworld.Axiom.SubClassOfAxiom;
 
 /**
  * A directed acyclic graph for implementing the bundle closure algorithm
@@ -363,18 +364,18 @@ public class Taxonomy extends DirectedAcyclicGraph<ClassExpression, Taxonomy.Tax
 
 	/**
 	 * Produce a map from each parent ClassExpression to its children (if more than
-	 * one).
+	 * zero).
 	 * 
 	 * @return HashMap
 	 */
-	public HashMap<ClassExpression, Set<ClassExpression>> siblingMap() {
+	public HashMap<ClassExpression, Set<ClassExpression>> childrenMap() {
 		final HashMap<ClassExpression, Set<ClassExpression>> map = new HashMap<>();
 		vertexSet().forEach(p -> {
 			final Set<ClassExpression> cl = edgesOf(p).stream()
 				.filter(e1 -> getEdgeSource(e1) == p)
 				.map(this::getEdgeTarget)
 				.collect(Collectors.toSet());
-			if (cl.size() > 1) map.put(p, cl);
+			if (cl.size() > 0) map.put(p, cl);
 		});
 		return map;
 	}
@@ -390,23 +391,24 @@ public class Taxonomy extends DirectedAcyclicGraph<ClassExpression, Taxonomy.Tax
 		ensureConnected();
 		final Taxonomy tree = treeify();
 		tree.ensureTree();
-		final HashMap<ClassExpression, Set<ClassExpression>> siblingMap = tree.siblingMap();
+		final HashMap<ClassExpression, Set<ClassExpression>> childrenMap = tree.childrenMap();
 
 		final HashSet<Axiom> axioms = new HashSet<>();
 
-		for (Map.Entry<ClassExpression, Set<ClassExpression>> entry : siblingMap.entrySet()) {
+		for (Map.Entry<ClassExpression, Set<ClassExpression>> entry : childrenMap.entrySet()) {
 			ClassExpression c = entry.getKey();
 			Set<ClassExpression> s = entry.getValue();
+			s.forEach(subClass -> {
+				axioms.add(new SubClassOfAxiom(subClass, c));
+			});
 			switch (axiomType) {
 				case DISJOINT_CLASSES:
-					axioms.add(new DisjointClassesAxiom(s));
+					if (s.size() > 1) axioms.add(new DisjointClassesAxiom(s));
 					break;
 				case DISJOINT_UNION:
-					axioms.add(
-							(c instanceof ClassExpression.Unitary) ?
-									new DisjointUnionAxiom((ClassExpression.Unitary) c, s) :
-									new DisjointClassesAxiom(s)
-					);
+					if (c instanceof ClassExpression.Unitary)
+						axioms.add(new DisjointUnionAxiom((ClassExpression.Unitary) c, s));
+					if (s.size() > 1) axioms.add(new DisjointClassesAxiom(s));
 					break;
 				case EQUIVALENT_CLASSES:
 				default:
