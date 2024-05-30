@@ -89,30 +89,28 @@ Suppose two distinct classes _A_ and _B_ have no common subclass. Then the path 
 ## The General Case
 In the general case, we cannot assume the taxonomy is a tree. There may be explicitly-asserted common subclasses, and these invalidate the assumptions that led to the simple algorithm in the simple case.
 
-It is possible, however, to apply the disjointness policy to a general taxonomy in a set of graph transformations that transform the taxonomy into an equivalent tree. In this context, _equivalent_ means representing the taxonomic relationships implied by both the original taxonomy and the disjointness policy. After such transformation, we simply apply the foregoing simple algorithm to generate disjointness axioms.
+It is possible, however, to apply the disjointness policy to a general taxonomy in a sequence of graph transformations that transform the taxonomy into an tree representing a subset of the taxonomic relationships implied by the original taxonomy and the consequences of the policy. After such transformation, we simply apply the foregoing simple algorithm to generate disjointness axioms.
 
-Note that the transformed tree conveys consequences of the disjointness policy, and therefore must be provided as input to the reasoner (in addition to the original).
+The complete taxonomic semantics of the original taxonomy plus the disjointness policy are conveyed in the original taxonomy, the transformed tree, and the generated disjointness axioms. All must be supplied to the reasoner to infer discover all entailed disjointness.
 
-The subclass relation is transitive, that is, if _A_ is a subclass of _B_ and _B_ is a subclass of _C_, then _A_ is a subclass of _C_. Consequently, any arbitrary taxonomy represents the same relations after _transitive reduction_. In the following, we assume the taxonomy to be transformed is in transitive reduction form.
+The subclass relation is transitive, that is, if _A_ ⊆ _B_ and _B_ ⊆ _C_, then _A_ ⊆ _C_. Consequently, any arbitrary taxonomy represents the same relations after _transitive reduction_.
 
 ## Bypass-Reduce-Isolate Algorithm
 
 ### Theory
-Let _T_ be a rooted taxonomy and let _G_ be the transitive reduction of a graph whose edges represent the is-subclass-of relation in _T_. Further suppose that _G_ is a directed acyclic graph and let _H_ be its transitive closure. Then the ancestors of a class _A_ in _G_ correspond to the superclasses of _A_ (omitting _A_) in _H_ and the descendants of _A_ in _G_ correspond to the subclasses of _A_ (omitting _A_) in _H_.
+Let _T_ be a taxonomy and let _G_ be a graph whose edges represent the is-subclass-of relation in _T_. If _G_ is not single-rooted, we can without penalty insert a unique root so that it is single-rooted. If _G_ contains any directed cycles (or more precisely, any strongly connected components), we can replace _G_ by its [condensation](https://en.wikipedia.org/wiki/Strongly_connected_component#Definitions). The reasoner will find all classes in a strongly connected component to be equivalent. Consequently, we can substitute any class from the component for the component in the condensation. Finally, we can perform transitive reduction on _G_. Therefore we assume in the following that _G_ is a directed acyclic rooted graph in transitive reduction form.
 
-Suppose there exists a class _C_ such that _C_ ⊆ _B_<sub>1</sub>, _C_ ⊆ _B_<sub>2</sub>, …, _C_ ⊆ _B_<sub>_k_</sub> (where _k_ > 1), _D_<sub>1</sub> ⊆ _C_, _D_<sub>2</sub> ⊆ _C_, …, _D_<sub>_l_</sub> ⊆  _C_ (where _l_ ≥ 0). Then there exists more than one path from _C_ to the root, and therefore _G_ is not a tree. If more than one such multi-parent vertex exists, those vertices can be topologically sorted and there must be at least one that is not a superclass of any other. (If that were not true then _G_ would contain at least one directed cycle.) Let _C_ be that vertex. Then the sub-taxonomy rooted at _C_ is a tree.
+Suppose there exists a class _C_ such that _C_ ⊆ _B_<sub>1</sub>, _C_ ⊆ _B_<sub>2</sub>, …, _C_ ⊆ _B_<sub>_k_</sub> (where _k_ > 1), _D_<sub>1</sub> ⊆ _C_, _D_<sub>2</sub> ⊆ _C_, …, _D_<sub>_l_</sub> ⊆  _C_ (where _l_ ≥ 0). Then there exists more than one path from _C_ to the root, and therefore _G_ is not a tree. If more than one such multi-parent vertex exists, those vertices can be topologically sorted and there must be at least one that is not a superclass of any other. (If that were not true then _G_ would contain at least one directed cycle.) Let _C_ be that vertex. Then the graph rooted at _C_ is a tree.
 
 ![Multi-parent class](resource/graphviz/initial.svg)
 
-Note that there may be other ancestors and descendants of _B_<sub>_i_</sub> and descendants of _D_<sub>_i_</sub> not shown, but there are no other paths from any descendant of _C_ to any ancestor of _C_ because _G_ is in transitive reduction form.)
+The fact that _G_ is in reduced form implies that no _B_<sub>_n_</sub> is a sub- or superclass of _B_<sub>_i_</sub> for _n_ ≠ _i_.
 
-The fact that _T_ is in reduced form also implies that no _B_<sub>_n_</sub> is a sub- or superclass of _B_<sub>_i_</sub> for _n_ ≠ _i_.
-
-Consider a particular parent of _C_, (call it _B_). _B_ cannot be the root, otherwise _T_ would not be in transitive reduction form. _B_ must therefore have at least one parent vertex (call them _A_<sub>1</sub>, _A_<sub>1</sub>, …, _A_<sub>_j_</sub>).
+Consider a particular parent of _C_ (call it _B_). _B_ cannot be the root, otherwise _G_ would not be in transitive reduction form. _B_ must therefore have at least one parent vertex (call them _A_<sub>1</sub>, _A_<sub>1</sub>, …, _A_<sub>_j_</sub>).
 
 ![Detail for Bi](resource/graphviz/bidetail.svg)
 
-The first step of the procedure makes use of the identity _B_ ≡ (_B_ \\_C_) ⋃ (_B_ ∩ _C_). Because the sub-taxonomy rooted at _C_ is a tree, there can be no edges from _C_ or any of its descendants to any _E_<sub>_n_</sub>. The disjointness policy implies that _E_<sub>_n_</sub> is disjoint from _C_, and therefore _E_<sub>_n_</sub> ⊆ _B_ \\_C_ for every _E_<sub>_n_</sub>. Moreover, _C_ ⊆ _B_ implies that _B_ ∩ _C_ ≡ _C_. We can therefore substitute as shown below:
+The first step of the procedure makes use of the identity _B_ ≡ (_B_ \\_C_) ⋃ (_B_ ∩ _C_). Because the graph rooted at _C_ is a tree, there can be no edges from _C_ or any of its descendants to any _E_<sub>_n_</sub>. The disjointness policy therefore implies that _E_<sub>_n_</sub> is disjoint from _C_, and therefore _E_<sub>_n_</sub> ⊆ _B_ \\_C_ for every _E_<sub>_n_</sub>. Moreover, _C_ ⊆ _B_ implies that _B_ ∩ _C_ ≡ _C_. We can therefore substitute as shown below:
 
 ![Step 2](resource/graphviz/step2.svg)
 
@@ -120,9 +118,11 @@ Now note that the subclass relations between _B_ and its parents and that betwee
 
 ![Step 3](resource/graphviz/step3.svg)
 
-Now observe that after this step _C_ may still have multiple parents, but each of its paths to the root has now been shortened by one edge. Recalling that by assumption _G_ is rooted, repeated applications of Steps 1-3 will terminate eventually because a vertex with unit distance to the root has only a single parent, the root. Therefore, repeated applications of the algorithm to _C_ will converge. The procedure removes the multi-parentedness of _C_ and creates no other multi-parent children, so repeated applications to each multi-parent child will eliminate all multi-parent children. The resulting transformed graph is a tree.
+Now observe that after this step is applied to each parent _B_<sub>_i_</sub> of _C_, _C_ may still have multiple parents, but the length of its longest path to the root has now been reduced by one. Recalling that by assumption _G_ is rooted, repeated applications of Steps 1-3 will terminate eventually because a vertex with unit distance to the root has only a single parent, the root. Therefore, repeated applications of the algorithm to _C_ will converge. The procedure eliminates the multi-parentedness of _C_ and creates no other multi-parent children, so repeated applications to each multi-parent child will eliminate all multi-parent children. The resulting transformed graph is a tree.
 
 ### Relation to Partition Refinement
+
+This algorithm bears some similarity to the algorithm for *relational coarsest partition* described in R. Paige and R. E. Tarjan, Three Partition Refinement Algorithms, *SIAM Journal on Computing*, Society for Industrial and Applied Mathematics (SIAM), Jan 1987. The definitive version is available at https://doi.org/10.1137/0216062.
 
 ## Algorithm Implementation
 
