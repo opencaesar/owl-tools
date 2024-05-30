@@ -1,5 +1,7 @@
 # OpenCAESAR Vocabulary Bundle Closure
 
+[![Release](https://img.shields.io/github/v/tag/opencaesar/owl-tools?label=release)](https://github.com/opencaesar/owl-tools/releases/latest)
+
 _J S Jenkins<br>Systems Engineering Division<br>Jet Propulsion Laboratory<br>California Institute of Technology_<br>
 2024-05-30
 
