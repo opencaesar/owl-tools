@@ -1,0 +1,34 @@
+digraph g {
+	node [ shape = "box" color = "gray" ]
+	edge [ arrowhead = "none" arrowtail = "onormal" dir = "back" color = "gray" ]
+
+	{ rank = same
+	  b1 [ label = <<i>B</i><sub>1</sub>> ]
+	  b2 [ label = <<i>B</i><sub>2</sub>> ]
+	  bdots [ label = <<i>B</i><sub>&hellip;</sub>> ]
+	  bk [ label = <<i>B</i><sub><i>k</i></sub>> ]
+	}
+	  
+	b1 -> b2 -> bdots -> bk [ style = "invis" ]
+
+	c [ label = <<i>C</i>> ]
+
+	b1 -> c
+	b2 -> c
+	bdots -> c
+	bk -> c
+
+	{ rank = same
+	  d1 [ label = <<i>D</i><sub>1</sub>> ]
+	  d2 [ label = <<i>D</i><sub>2</sub>> ]
+	  ddots [ label = <<i>D</i><sub>&hellip;</sub>> ]
+	  dl [ label = <<i>D</i><sub><i>l</i></sub>> ]
+	}
+
+	d1 -> d2 -> ddots -> dl [ style = "invis" ]
+
+	c -> d1
+	c -> d2
+	c -> ddots
+	c -> dl
+}
