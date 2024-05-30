@@ -430,10 +430,10 @@ public class OwlReasonApp {
     	Result result = new Result();
     	result.name = ontologyIri;
     	
-        if (!options.omitExplanations && !reasoner.isConsistent()) {
+        if (!reasoner.isConsistent()) {
         	Set<OWLAxiom> axioms = explanation.getInconsistencyExplanation();
         	result.message = reasoner.getKB().getExplanation();
-        	result.explanation = createExplanationOntology(axioms, explanationFormat);
+        	result.explanation = options.omitExplanations ? "[omitted]" : createExplanationOntology(axioms, explanationFormat);
         }
 	    results.add(result);
     
@@ -462,9 +462,9 @@ public class OwlReasonApp {
     	    results.add(result);
     	    result.name = className;
     	    
-    	    if (!options.omitExplanations && !reasoner.isSatisfiable(klass)) {
+    	    if (!reasoner.isSatisfiable(klass)) {
     	    	result.message = "class "+className+" is insatisfiable";
-    	    	result.explanation = createExplanationOntology(explanation.getUnsatisfiableExplanation(klass), explanationFormat);
+    	    	result.explanation = options.omitExplanations ? "[omitted]" : createExplanationOntology(explanation.getUnsatisfiableExplanation(klass), explanationFormat);
     	    }
     	}
 
