@@ -3,7 +3,7 @@
 [![Release](https://img.shields.io/github/v/tag/opencaesar/owl-tools?label=release)](https://github.com/opencaesar/owl-tools/releases/latest)
 
 _J S Jenkins<br>Systems Engineering Division<br>Jet Propulsion Laboratory<br>California Institute of Technology_<br>
-2024-05-30
+2024-05-31
 
 ## Introduction
 
@@ -366,7 +366,7 @@ The result of that computation follows.
 | UniversalClockLife | Life |
 | UniversalClockLife | Occurrence |
 
-Exhaustive enumeration is impractical for anything other than relatively small problems because the number of class pairs grows quadratically in the number of classes. The full KerML libraries taxonomy from which this example is drawn, for example, contains 498 classes, which implies 123,753 class pairs.
+Exhaustive enumeration is impractical for anything other than relatively small problems because the number of class pairs grows quadratically in the number of classes. The full KerML libraries taxonomy from which this example is drawn, for example, contains 417 classes, which implies 86,736 class pairs.
 
 Moreover, the straightforward enumeration approach produces disjointness axioms for pairs of classes, which is not concise and likely redundant. Reducing these axioms to a smaller number of mutual disjointness axioms is equivalent to finding all [cliques](https://en.wikipedia.org/wiki/Clique_problem), a well-known problem in computer science with worse-than-polynomial complexity.
 
