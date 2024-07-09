@@ -335,7 +335,7 @@ public class OwlQueryApp {
 						try {
 							queries.put(getFileName(file), QueryFactory.read(file.toURI().getPath()));
 						} catch (QueryException e) {
-							throw new QueryException("File: " + file.getName() + " . Error with parsing this file's query: ", e);
+							throw new QueryException("In file '" + file.getName() + "': " + e.getMessage());
 						}
 					}
 				} else if (file.isDirectory()) {

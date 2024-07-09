@@ -244,10 +244,16 @@ public class OwlReasonApp {
 		private boolean debug;
 		
 		@Parameter(
+				names = {"--omit-explanations", "-oe"},
+				description = "Omit explanations of inconsistency and unsatisfiability",
+				order = 15)
+			private boolean omitExplanations = false;
+			
+		@Parameter(
 			names = {"--help", "-h"},
 			description = "Displays summary of options",
 			help = true,
-			order =15)
+			order =16)
 		private boolean help;
 	}
 		
@@ -427,7 +433,7 @@ public class OwlReasonApp {
         if (!reasoner.isConsistent()) {
         	Set<OWLAxiom> axioms = explanation.getInconsistencyExplanation();
         	result.message = reasoner.getKB().getExplanation();
-        	result.explanation = createExplanationOntology(axioms, explanationFormat);
+        	result.explanation = options.omitExplanations ? "[omitted]" : createExplanationOntology(axioms, explanationFormat);
         }
 	    results.add(result);
     
@@ -458,7 +464,7 @@ public class OwlReasonApp {
     	    
     	    if (!reasoner.isSatisfiable(klass)) {
     	    	result.message = "class "+className+" is insatisfiable";
-    	    	result.explanation = createExplanationOntology(explanation.getUnsatisfiableExplanation(klass), explanationFormat);
+    	    	result.explanation = options.omitExplanations ? "[omitted]" : createExplanationOntology(explanation.getUnsatisfiableExplanation(klass), explanationFormat);
     	    }
     	}
 

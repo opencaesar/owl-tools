@@ -1,5 +1,6 @@
 package io.opencaesar.closeworld;
 
+import io.opencaesar.closeworld.Axiom.SubClassOfAxiom;
 import io.opencaesar.closeworld.Axiom.ClassExpressionSetAxiom;
 import io.opencaesar.closeworld.Axiom.ClassExpressionSetAxiom.DisjointClassesAxiom;
 import io.opencaesar.closeworld.Axiom.ClassExpressionSetAxiom.DisjointUnionAxiom;
@@ -46,6 +47,10 @@ public class OwlAxiom {
             } else {
                 throw new IllegalArgumentException("Unhandled ClassExpressionSetAxiom type: " + Arrays.asList(axiom));
             }
+        } else if (axiom instanceof SubClassOfAxiom) {
+        	final OWLClassExpression subclass = OwlClassExpression.toOwlClassExpression(((SubClassOfAxiom) axiom).getSubclass(), api);
+        	final OWLClassExpression superclass = OwlClassExpression.toOwlClassExpression(((SubClassOfAxiom) axiom).getSuperclass(), api);
+        	return api.getOWLSubClassOfAxiom(subclass, superclass);
         } else {
             throw new IllegalArgumentException("Unhandled ClassExpressionSetAxiom type: " + Arrays.asList(axiom));
         }

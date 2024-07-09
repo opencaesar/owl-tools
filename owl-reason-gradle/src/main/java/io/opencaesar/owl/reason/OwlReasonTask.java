@@ -149,6 +149,15 @@ public abstract class OwlReasonTask extends DefaultTask {
 	public abstract Property<Integer> getIndent();
 
 	/**
+	 * The optional gradle task omit explanations property (default is false).
+	 * 
+	 * @return Integer Property
+	 */
+	@Optional
+	@Input
+	public abstract Property<Boolean> getOmitExplanations();
+
+	/**
 	 * The optional gradle task debug property (default is false).
 	 * 
 	 * @return Boolean Property
@@ -266,6 +275,9 @@ public abstract class OwlReasonTask extends DefaultTask {
 		if (getIndent().isPresent()) {
 			args.add("-n");
 			args.add(getIndent().get().toString());
+		}
+		if (getOmitExplanations().get()) {
+			args.add("-oe");
 		}
 		if (getDebug().isPresent() && getDebug().get()) {
 			args.add("-d");

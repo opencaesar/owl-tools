@@ -1,0 +1,58 @@
+digraph g {
+	node [ shape = "box" color = "gray" ]
+	edge [ arrowhead = "none" arrowtail = "onormal" dir = "back" color = "gray" ]
+
+	{ rank = same
+	  a1 [ label = <<i>A</i><sub>1</sub>> ]
+	  a2 [ label = <<i>A</i><sub>2</sub>> ]
+	  adots [ label = <<i>A</i><sub>&hellip;</sub>> ]
+	  aj [ label = <<i>A</i><sub><i>j</i></sub>> ]
+	}
+
+	a1 -> a2 -> adots -> aj [ style = "invis" ]
+
+	b [ label = <<i>B</i>> ]
+	  
+	{ rank = same
+	  bmc [ label = <<i>B</i>&#8726;<i>C</i>> ]
+	  c [ label = <<i>C</i>> ]
+	}
+
+	bmc -> c [ style = "invis" ]
+	
+	{ rank = same
+	  d1 [ label = <<i>D</i><sub>1</sub>> ]
+	  d2 [ label = <<i>D</i><sub>2</sub>> ]
+	  ddots [ label = <<i>D</i><sub>&hellip;</sub>> ]
+	  dl [ label = <<i>D</i><sub><i>l</i></sub>> ]
+	}
+
+	d1 -> d2 -> ddots -> dl [ style = "invis" ]
+
+	{ rank = same
+	  e1 [ label = <<i>E</i><sub>1</sub>> ]
+	  e2 [ label = <<i>E</i><sub>2</sub>> ]
+	  edots [ label = <<i>E</i><sub>&hellip;</sub>> ]
+	  em [ label = <<i>E</i><sub><i>m</i></sub>> ]
+	}
+
+	e1 -> e2 -> edots -> em -> c [ style = "invis" ]
+
+	a1 -> b
+	a2 -> b
+	adots -> b
+	aj -> b
+
+	b -> bmc
+	b -> c
+
+	bmc -> e1
+	bmc -> e2
+	bmc -> edots
+	bmc -> em
+	
+	c -> d1
+	c -> d2
+	c -> ddots
+	c -> dl
+}

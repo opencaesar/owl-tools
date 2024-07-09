@@ -1,0 +1,59 @@
+digraph g {
+
+	node [ shape = "box" color = "gray" ]
+	edge [ arrowhead = "none" arrowtail = "onormal" dir = "back" color = "gray" ]
+
+	a [ label = <<i>A</i>> ]
+
+	subgraph {
+	  cluster = false
+	  clusterrank = global
+	  rank = same
+	  b [ label = <<i>B</i>> ]
+	  c [ label = <<i>C</i>> ]
+	  b -> c [ style = "invis" ];
+	}
+	
+	a -> b
+	a -> c
+
+	{ rank = same
+	  d [ label = <<i>D</i>> ]
+	  e [ label = <<i>E</i>> ]
+	  f [ label = <<i>F</i>> ]
+	}
+
+	b -> d
+	b -> e
+	b -> f
+	d -> e -> f [ style = "invis" ]
+	
+	{ rank = same
+	  g [ label = <<i>G</i>> ]
+	  h [ label = <<i>H</i>> ]
+	}
+
+	c -> g
+	c -> h
+	g -> h [ style = "invis" ]
+	
+	{ rank = same
+	  i [ label = <<i>I</i>> ]
+	  j [ label = <<i>J</i>> ]
+	  k [ label = <<i>K</i>> ]
+	}
+
+	e -> i
+	e -> j
+	e -> k
+	i -> j -> k [ style = "invis" ]
+
+	{ rank = same
+	  l [ label = <<i>L</i>> ]
+	  m [ label = <<i>M</i>> ]
+	}
+
+	g -> l
+	g -> m
+	l -> m [ style = "invis" ]
+}
