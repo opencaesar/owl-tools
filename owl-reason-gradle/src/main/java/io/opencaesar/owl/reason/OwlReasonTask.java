@@ -276,7 +276,7 @@ public abstract class OwlReasonTask extends DefaultTask {
 			args.add("-n");
 			args.add(getIndent().get().toString());
 		}
-		if (getOmitExplanations().get()) {
+		if (getOmitExplanations().isPresent() && getOmitExplanations().get()) {
 			args.add("-oe");
 		}
 		if (getDebug().isPresent() && getDebug().get()) {

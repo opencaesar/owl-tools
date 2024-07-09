@@ -7,6 +7,3 @@ dependencies {
  	implementation "xml-resolver:xml-resolver:${versions.xmlresolver}"
  	implementation "commons-io:commons-io:${versions.commonsIo}"
 }
-
-sourceCompatibility = '17'
-targetCompatibility = '17'

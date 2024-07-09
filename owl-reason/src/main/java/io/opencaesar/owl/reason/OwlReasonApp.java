@@ -244,10 +244,10 @@ public class OwlReasonApp {
 		private boolean debug;
 		
 		@Parameter(
-				names = {"--omit-explanations", "-oe"},
-				description = "Omit explanations of inconsistency and unsatisfiability",
-				order = 15)
-			private boolean omitExplanations = false;
+			names = {"--omit-explanations", "-oe"},
+			description = "Omit explanations of inconsistency and unsatisfiability",
+			order = 15)
+		private boolean omitExplanations = false;
 			
 		@Parameter(
 			names = {"--help", "-h"},
