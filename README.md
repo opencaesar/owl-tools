@@ -12,7 +12,7 @@ A set of OWL based analysis tools
 ```
       
 ## Build
-Requirements: JDK 11
+Requirements: JDK 17+
 ```
     ./gradlew build
 ```
