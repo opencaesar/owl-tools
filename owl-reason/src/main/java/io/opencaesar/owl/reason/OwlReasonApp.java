@@ -24,6 +24,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -40,6 +41,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.apache.jena.datatypes.RDFDatatype;
 import org.apache.jena.ontology.OntModel;
 import org.apache.jena.ontology.OntModelSpec;
 import org.apache.jena.ontology.Ontology;
@@ -53,6 +55,8 @@ import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFLanguages;
+import org.apache.jena.vocabulary.OWL;
+import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.RDFS;
 import org.apache.log4j.Appender;
 import org.apache.log4j.AppenderSkeleton;
@@ -72,12 +76,27 @@ import org.semanticweb.owlapi.formats.RioTurtleDocumentFormat;
 import org.semanticweb.owlapi.formats.TrigDocumentFormat;
 import org.semanticweb.owlapi.formats.TrixDocumentFormat;
 import org.semanticweb.owlapi.io.StringDocumentTarget;
+import org.semanticweb.owlapi.model.ClassExpressionType;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLClass;
+import org.semanticweb.owlapi.model.OWLDataCardinalityRestriction;
+import org.semanticweb.owlapi.model.OWLDataExactCardinality;
+import org.semanticweb.owlapi.model.OWLDataMinCardinality;
+import org.semanticweb.owlapi.model.OWLDataSomeValuesFrom;
+import org.semanticweb.owlapi.model.OWLDatatype;
 import org.semanticweb.owlapi.model.OWLDocumentFormat;
+import org.semanticweb.owlapi.model.OWLObjectCardinalityRestriction;
+import org.semanticweb.owlapi.model.OWLObjectExactCardinality;
+import org.semanticweb.owlapi.model.OWLObjectMinCardinality;
+import org.semanticweb.owlapi.model.OWLObjectSomeValuesFrom;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
+import org.semanticweb.owlapi.model.OWLProperty;
+import org.semanticweb.owlapi.model.OWLQuantifiedDataRestriction;
+import org.semanticweb.owlapi.model.OWLQuantifiedObjectRestriction;
+import org.semanticweb.owlapi.model.OWLRestriction;
+import org.semanticweb.owlapi.model.OWLSubClassOfAxiom;
 import org.semanticweb.owlapi.model.parameters.Imports;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.Document;
@@ -146,46 +165,40 @@ public class OwlReasonApp {
 			names = { "--catalog-path", "-c"},
 			description = "path to the input OWL catalog (Required)",
 			validateWith = CatalogPath.class,
-			required = true,
-			order = 1)
+			required = true)
 		private String catalogPath;
 		
 		@Parameter(
 			names = { "--input-ontology-iri", "-i"},
 			description = "iri of input OWL ontology (Required)",
-			required = true,
-			order = 2)
+			required = true)
 		private String inputOntologyIri;
 		
 		@Parameter(
 			names = {"--spec", "-s"},
 			description = "output-ontology-iri= list of entailment statement types separarted by | (Required)",
 			converter = SpecConverter.class,
-			required = true,
-			order = 3)
+			required = true)
 		private List<Spec> specs = new ArrayList<>();
 		
 		@Parameter(
 			names = {"--report-path", "-r"},
 			description = "path to a report file in Junit XML format ",
 			validateWith = ReportPathValidator.class,
-			required = true,
-			order = 4)
+			required = true)
 		private String reportPath;
 		
 		@Parameter(
 			names = {"--output-iris-path", "-oi"},
 			description = "path to a .txt file listing all analyzed ontology IRIs (one per line)",
 			validateWith = IrisPathValidator.class,
-			required = false,
-			order = 5)
+			required = false)
 		private String outputOntologyIrisPath;
 
 		@Parameter(
 			names = {"--input-file-extension", "-if"},
 			description = "input file extension (owl by default, options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss)",
-			validateWith = FileExtensionValidator.class,
-			order = 6)
+			validateWith = FileExtensionValidator.class)
 	    private List<String> inputFileExtensions = new ArrayList<>();
 	    {
 	    	inputFileExtensions.add(DEFAULT_INPUT_FILE_EXTENSION);
@@ -194,66 +207,62 @@ public class OwlReasonApp {
 		@Parameter(
 			names = {"--output-file-extension", "-of"},
 			description = "output file extension (ttl by default, options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss)",
-			validateWith = OutputFileExtensionValidator.class,
-			order = 7)
+			validateWith = OutputFileExtensionValidator.class)
 	    private String outputFileExtension = DEFAULT_OUTPUT_FILE_EXTENSION;
 		
 		@Parameter(
 			names = {"--explanation-format", "-ef"},
 			description = "Explanation format (owl by default, options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss)",
-			validateWith = ExplanationFormatValidator.class,
-			order = 8)
+			validateWith = ExplanationFormatValidator.class)
 	    private String explanationFormat = DEFAULT_EXPLANATION_FORMAT;
 
 		@Parameter(
 			names = {"--unique-names", "-un"},
-			description = "boolean indicating whether to use the unique name assumption",
-			order = 9)
+			description = "boolean indicating whether to use the unique name assumption")
 	    private boolean uniqueNames = false;
 
 		@Parameter(
 			names = {"--remove-unsats", "-ru"},
 			description = "boolean indicating whether to remove entailments due to unsatisfiability (optional, default=true)",
-			arity = 1,
-			order = 10)
+			arity = 1)
 		private boolean removeUnsats = true;
 		
 		@Parameter(
+			names = {"--check-min-cardinality", "-min"},
+			description = "boolean indicating whether to check min cardinality restrictions (optional, default=true)",
+			arity = 1)
+		private boolean checkMinimumCardinality = true;
+
+		@Parameter(
 			names = {"--remove-backbone", "-rb"},
 			description = "boolean indicating whether to remove axioms on the backhone from entailments (optional, default=true)",
-			arity = 1,
-			order = 11)
+			arity = 1)
 		private boolean removeBackbone = true;
 		
 		@Parameter(
 			names = {"--backbone-iri", "-b"},
-			description = "iri of backbone ontology",
-			order = 12)
+			description = "iri of backbone ontology")
 		private String backboneIri = "http://opencaesar.io/oml";
 		
 		@Parameter(
 			names = {"--indent", "-n"},
-			description = "indent of the JUnit XML elements",
-			order = 13)
+			description = "indent of the JUnit XML elements")
 		private int indent = 2;
 		
 		@Parameter(
 			names = {"--debug", "-d"},
-			description = "Shows debug logging statements",
-			order = 14)
+			description = "Shows debug logging statements")
 		private boolean debug;
 		
 		@Parameter(
 			names = {"--omit-explanations", "-oe"},
-			description = "Omit explanations of inconsistency and unsatisfiability",
-			order = 15)
+			description = "Omit explanations of inconsistency and unsatisfiability")
 		private boolean omitExplanations = false;
 			
 		@Parameter(
 			names = {"--help", "-h"},
 			description = "Displays summary of options",
-			help = true,
-			order =16)
+			help = true)
 		private boolean help;
 	}
 		
@@ -400,8 +409,13 @@ public class OwlReasonApp {
 		    	allResults.put(SATISFIABILITY, checkSatisfiability(inputOntologyIri, reasoner, explanation, explanationFormat));
 		    	isSatisfiable = allResults.get(SATISFIABILITY).stream().noneMatch(r -> r.explanation != null);
 		    }
+			if (isConsistent && options.checkMinimumCardinality) {
+				var result = checkMinCardinalities(inputOntologyIri, kb, manager, explanationFormat);
+				allResults.put(CONSISTENCY, Collections.singletonList(result));
+				isConsistent = result.explanation == null;
+			}
 			writeResults(inputOntologyIri, allResults, options.indent);
-		    
+
 			// Check Results
 			
 			if (!isConsistent) {
@@ -410,7 +424,7 @@ public class OwlReasonApp {
 			if (!isSatisfiable) {
 				throw new ReasoningException("Ontology has insatisfiabilities. Check " + options.reportPath + " for more details.");
 		    }
-		    
+		    			
 		    // Iterate over specs and extract entailments.
 	
 		    for (Spec spec: options.specs) {
@@ -580,6 +594,159 @@ public class OwlReasonApp {
 
 		model.write(outputFileStream, lang.getName());
 		LOGGER.info("finished serializing "+filename);
+	}
+
+	private Result checkMinCardinalities(final String ontologyIri, final KnowledgeBase kb, final OWLOntologyManager manager, OWLDocumentFormat explanationFormat) throws Exception {
+    	LOGGER.info("test min cardinality restrictions on "+ontologyIri);
+
+    	var result = new Result(); 
+		result.name = ontologyIri;
+
+		// Enumerate statement types
+		
+		EnumSet<StatementType> statementTypes = EnumSet.of(
+				StatementType.ALL_INSTANCE,
+				StatementType.DATA_PROPERTY_VALUE,
+				StatementType.OBJECT_PROPERTY_VALUE);
+		
+		// Create extractor.
+	  
+		ModelExtractor extractor = new ModelExtractor(kb);
+		
+		// Get axioms for classes that have minimum cardinality restrictions
+		
+		List<OWLSubClassOfAxiom> axioms = getRestrictionAxioms(manager);
+		
+		// Define min cardinality restriction data
+		
+		class Data {
+			String domainIri;
+			String propertyIri;
+			String rangeIri;
+			int min;
+		}
+		
+		// Collect min restriction data
+		
+		var datas = new ArrayList<Data>();
+		for (var axiom : axioms) {
+			var data = new Data();
+			data.domainIri = ((OWLClass)axiom.getSubClass()).getIRI().getIRIString();
+			var restriction = axiom.getSuperClass();
+			data.propertyIri = ((OWLProperty)((OWLRestriction)restriction).getProperty()).getIRI().getIRIString();
+			if (restriction instanceof OWLObjectMinCardinality || restriction instanceof OWLObjectExactCardinality) {
+				var range = ((OWLQuantifiedObjectRestriction) restriction).getFiller();
+				data.rangeIri = (range instanceof OWLClass) ? ((OWLClass)range).getIRI().getIRIString() : null;
+				data.min = ((OWLObjectCardinalityRestriction) restriction).getCardinality();
+			} else if (restriction instanceof OWLDataMinCardinality || restriction instanceof OWLDataExactCardinality) {
+				var range = ((OWLQuantifiedDataRestriction) restriction).getFiller();
+				data.rangeIri = (range instanceof OWLDatatype) ? ((OWLDatatype)range).getIRI().getIRIString() : null;
+				data.min = ((OWLDataCardinalityRestriction) restriction).getCardinality();
+			} else if (restriction instanceof OWLObjectSomeValuesFrom) {
+				var range = ((OWLQuantifiedObjectRestriction) restriction).getFiller();
+				data.rangeIri = (range instanceof OWLClass) ? ((OWLClass)range).getIRI().getIRIString() : null;
+				data.min = 1;
+			} else if (restriction instanceof OWLDataSomeValuesFrom) {
+				var range = ((OWLQuantifiedDataRestriction) restriction).getFiller();
+				data.rangeIri = (range instanceof OWLDatatype) ? ((OWLDatatype)range).getIRI().getIRIString() : null;
+				data.min = 1;
+			}
+			datas.add(data);
+		}
+		
+		// Extract Entailments
+		Model model = extractEntailments(extractor, statementTypes);
+		
+		// Check minimum cardinality restrictions
+		
+		for (var data : datas) {
+			Resource domain = model.getResource(data.domainIri);
+			Property predicate = model.getProperty(data.propertyIri);
+			Resource range = (data.rangeIri != null) ? model.getResource(data.rangeIri) : null;
+			var i = model.listResourcesWithProperty(RDF.type, domain);
+			while (i.hasNext()) {
+				var subject = i.next();
+				var statements = new ArrayList<Statement>();
+				var j = subject.listProperties(predicate);
+				while (j.hasNext()) {
+					var statement = j.next();
+					var object = statement.getObject();
+					if (range == null) {
+						statements.add(statement);
+					} else if (object.isLiteral()) {
+						if (range instanceof RDFDatatype) {
+							var datatype = (RDFDatatype) range;
+							if (datatype.isValidLiteral(object.asNode().getLiteral())) {
+								statements.add(statement);
+							}
+						} else { // the case of owl:real and owl:rational
+							statements.add(statement);
+						}
+					} else if (object.isResource()) {
+						if (object.asResource().hasProperty(RDF.type, range)) {
+							statements.add(statement);
+						}
+					}
+				}
+				if (statements.size() < data.min) {
+					result.message = "Individual violates minimum cardinality restriction";
+					result.explanation = createMinCardinalityExplanation(domain, predicate, range, subject, data.min, statements);
+					return result;
+				}
+			}
+		}
+		
+		return result;
+	}
+	
+	private String createMinCardinalityExplanation(Resource domain, Property property, Resource range, Resource subject, int min, List<Statement> statements) {
+		// ideally here we need to figure out all relevant axioms for the explanation using OWLAPI and call createExplanationOntology
+		// but for now...
+		var explanation = String.format(
+				"// Class with restriction\n\n"
+				+ "<%s> <%s> [\n" +
+				"\t\t<%s> <%s> .\n" +
+				"\t\t<%s> <%s> .\n" +
+				"\t\t<%s> %d .\n%s" +
+				"] .\n",
+				domain.getURI(),
+				RDFS.subClassOf,
+				RDF.type,
+				OWL.Restriction,
+				OWL.onProperty,
+				property.getURI(),
+				(range != null) ? OWL.NS+"minQualifiedCardinality" : OWL.minCardinality,
+				min, 
+				(range != null) ? String.format("\t\t<%s> <%s> .\n", OWL.NS+"onClass",  range.getURI()) : "");
+		var id = subject.isAnon() ? subject.getId().getLabelString() : subject.getURI();
+		explanation += String.format(
+				"\n// Violating individual with conforming property values\n"
+				+ "\n<%s> <%s> <%s> .\n", 
+				id, RDF.type, domain.getURI());
+		for(var s : statements) {
+			explanation += String.format("<%s> <%s> <%s> .\n", id, s.getPredicate().getURI(), s.getObject().toString());
+		}
+		return explanation;
+	}
+	
+	private List<OWLSubClassOfAxiom> getRestrictionAxioms(final OWLOntologyManager manager) throws Exception {
+		var axioms = new ArrayList<OWLSubClassOfAxiom>();
+		for (var ontology : manager.getOntologies()) {
+			for (var clazz : ontology.getClassesInSignature()) {
+				for (var axiom : ontology.getSubClassAxiomsForSubClass(clazz)) {
+					var exp = axiom.getSuperClass().getClassExpressionType();
+					if (exp == ClassExpressionType.OBJECT_MIN_CARDINALITY ||
+						exp == ClassExpressionType.OBJECT_EXACT_CARDINALITY ||
+						exp == ClassExpressionType.OBJECT_SOME_VALUES_FROM ||
+						exp == ClassExpressionType.DATA_MIN_CARDINALITY ||
+						exp == ClassExpressionType.DATA_EXACT_CARDINALITY ||
+						exp == ClassExpressionType.DATA_SOME_VALUES_FROM) {
+						axioms.add(axiom);
+					}
+				}
+			}
+		}
+		return axioms;
 	}
 	
 	private Model extractEntailments(ModelExtractor extractor, EnumSet<StatementType> types) {
@@ -779,7 +946,7 @@ public class OwlReasonApp {
 		@Override
 		public void validate(final String name, final String value) throws ParameterException {
 			File file = new File(value);
-			if (!file.getName().endsWith(".log")) {
+			if (!file.getName().endsWith(".txt")) {
 				throw new ParameterException("Parameter " + name + " should be a valid .txt file path");
 			}
 			File parentFile = file.getParentFile();

@@ -456,7 +456,7 @@ public class FusekiApp {
             try {
                 return Command.valueOf(value);
             } catch (IllegalArgumentException e) {
-                throw new ParameterException("Value " + value + " is not a valid (only start or stop)");
+                throw new ParameterException("Value " + value + " is not valid (only: start or stop)");
             }
         }
 

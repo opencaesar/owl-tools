@@ -8,7 +8,6 @@ import java.util.Set;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.file.DirectoryProperty;
-import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
@@ -97,7 +96,7 @@ public abstract class OwlLoadTask extends DefaultTask {
 	 */
 	@Optional
 	@InputFile
-	public abstract RegularFileProperty getIrisPath();
+	public abstract Property<File> getIrisPath();
 
 	/**
      * The gradle task ontology file extensions property (optional and default is both owl and ttl).
@@ -109,7 +108,7 @@ public abstract class OwlLoadTask extends DefaultTask {
     public abstract ListProperty<String> getFileExtensions();
 
     /**
-     * The gradle task load-to-default-graph property (Optional, default is false).
+     * Whether to load to the default graph (Optional, default is false).
      *
      * @return Boolean Property
      */
@@ -118,9 +117,9 @@ public abstract class OwlLoadTask extends DefaultTask {
     public abstract Property<Boolean> getLoadToDefaultGraph();
 
     /**
-     * The gradle task list of ontology IRIs property (Required if 'irisPath' is not set).
+     * Whether to load the dataset incrementally
      * 
-     * @return List of Strings
+     * @return Boolean property
      */
 	@Optional
     @Input
@@ -174,13 +173,15 @@ public abstract class OwlLoadTask extends DefaultTask {
             args.add("-c");
             args.add(getCatalogPath().get().getAbsolutePath());
         }
-        getIris().get().forEach(iri -> {
-            args.add("-i");
-            args.add(iri);
-        });
+        if (getIris().isPresent()) {
+	        getIris().get().forEach(iri -> {
+	            args.add("-i");
+	            args.add(iri);
+	        });
+        }
 		if (getIrisPath().isPresent()) {
 			args.add("-ip");
-			args.add(getIrisPath().get().getAsFile().getAbsolutePath());
+			args.add(getIrisPath().get().getAbsolutePath());
 		}
         if (getFileExtensions().isPresent()) {
             getFileExtensions().get().forEach(ext -> {

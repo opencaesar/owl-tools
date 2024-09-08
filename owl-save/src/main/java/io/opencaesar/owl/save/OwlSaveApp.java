@@ -140,16 +140,6 @@ public class OwlSaveApp {
      * @throws Exception Error
      */
     public static void main(final String... args) throws Exception {
-        mainWithDeltas(args);
-    }
-
-    /**
-     * Application for loading ontologies to a Fuseki server.
-     * 
-     * @param args   Application arguments.
-     * @throws Exception Error
-     */
-    public static void mainWithDeltas(final String... args) throws Exception {
         final OwlSaveApp app = new OwlSaveApp();
 
         final JCommander builder = JCommander.newBuilder().addObject(app).build();

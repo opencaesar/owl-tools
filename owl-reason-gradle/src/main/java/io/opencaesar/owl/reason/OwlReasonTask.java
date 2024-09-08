@@ -110,7 +110,7 @@ public abstract class OwlReasonTask extends DefaultTask {
 	 */
 	@Optional
 	@OutputFile
-	public abstract RegularFileProperty getOutputOntologyIrisPath();
+	public abstract Property<File> getOutputOntologyIrisPath();
 
 	/**
 	 * The optional gradle task input boolean property for removing entailments due to unsatisfiability (default is true).
@@ -120,6 +120,15 @@ public abstract class OwlReasonTask extends DefaultTask {
 	@Optional
 	@Input
 	public abstract Property<Boolean> getRemoveUnsats();
+
+	/**
+	 * The optional gradle task input boolean property for checking minimum cardinality restrictions (default is true).
+	 * 
+	 * @return Boolean Property
+	 */
+	@Optional
+	@Input
+	public abstract Property<Boolean> getCheckMinimumCardinality();
 
 	/**
 	 * The optional gradle task input boolean property for removing the backbone ontology (default is true).
@@ -243,7 +252,7 @@ public abstract class OwlReasonTask extends DefaultTask {
 		}
 		if (getOutputOntologyIrisPath().isPresent()) {
 			args.add("-oi");
-			args.add(getOutputOntologyIrisPath().get().getAsFile().getAbsolutePath());
+			args.add(getOutputOntologyIrisPath().get().getAbsolutePath());
 		}
 		if (getInputFileExtensions().isPresent()) {
 			getInputFileExtensions().get().forEach((String ext) -> {
@@ -262,11 +271,17 @@ public abstract class OwlReasonTask extends DefaultTask {
 		if (getUniqueNames().isPresent() && getUniqueNames().get()) {
 			args.add("-un");
 		}
-		if (getRemoveUnsats().isPresent() && getRemoveUnsats().get()) {
+		if (getRemoveUnsats().isPresent()) {
 			args.add("-ru");
+			args.add(getRemoveUnsats().get() ? "true" : "false");
 		}
-		if (getRemoveBackbone().isPresent() && getRemoveBackbone().get()) {
+		if (getCheckMinimumCardinality().isPresent()) {
+			args.add("-min");
+			args.add(getCheckMinimumCardinality().get() ? "true" : "false");
+		}
+		if (getRemoveBackbone().isPresent()) {
 			args.add("-rb");
+			args.add(getRemoveBackbone().get() ? "true" : "false");
 		}
 		if (getBackboneIri().isPresent()) {
 			args.add("-b");
