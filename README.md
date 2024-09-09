@@ -45,6 +45,10 @@ A tool to load a catalog of OWL ontologies to a database endpoint
 
 A tool to send a SPARQL query to a database endpoint and save the result
 
-## [OWL Shacl Fuseki](owl-shacl-fuseki/README.md)
+## [OWL Shacl](owl-shacl-fuseki/README.md)
 
-A tool to send SHACL queries to a Fuseki database endpoint and save the result
+A tool to send SHACL constraints to a triple store endpoint and save the result
+
+## [OWL Tdb](owl-tdb/README.md)
+
+A tool to load and save OWL ontologies to and from TDB datasets
