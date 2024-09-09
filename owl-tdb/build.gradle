@@ -1,0 +1,16 @@
+apply plugin: 'application'
+
+ext.title = 'OWL TDB'
+description = 'A tool to load a set of OWL files to a TDB dataset'
+mainClassName = 'io.opencaesar.owl.tdb.OwlTdbApp'
+applicationName = 'owl-tdb'
+
+dependencies {
+	implementation "com.beust:jcommander:${versions.jcommander}"
+	implementation "log4j:log4j:${versions.log4j}"
+	implementation "org.slf4j:slf4j-simple:${versions.slf4j}"
+	testImplementation "junit:junit:${versions.junit}"
+
+    implementation "xml-resolver:xml-resolver:${versions.xmlresolver}"
+	implementation "org.apache.jena:jena-cmds:${versions.jena}"
+}
