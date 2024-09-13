@@ -336,15 +336,15 @@ public class OwlReasonApp {
 	    // Check the input ontology
     	check(manager, reasonerFactory, explanationFormat, options.inputOntologyIri);
 
-    	// Create dataset log file
-    	createIriLog(manager);
+    	// Create dataset iris file
+    	createIrisFile(manager);
     	
     	LOGGER.info("=================================================================");
 		LOGGER.info("                          E N D");
 		LOGGER.info("=================================================================");
 	}
 	
-	private void createIriLog(final OWLOntologyManager manager) {
+	private void createIrisFile(final OWLOntologyManager manager) {
 		if (options.outputOntologyIrisPath != null) {
 	        LOGGER.info("Saving "+options.outputOntologyIrisPath);
 	        List<String> iris = manager.ontologies().map(o -> o.getOntologyID().getOntologyIRI().get().toString()).collect(Collectors.toList());

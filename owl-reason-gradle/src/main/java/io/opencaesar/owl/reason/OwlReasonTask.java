@@ -34,7 +34,7 @@ public abstract class OwlReasonTask extends DefaultTask {
 	}
 
 	/**
-	 * The required gradle task input file for the OASIS XML catalog.
+	 * Path to an OASIS XML catalog for OWL files (Optional)
 	 * 
 	 * @return File Property
 	 */
@@ -42,8 +42,8 @@ public abstract class OwlReasonTask extends DefaultTask {
     public abstract Property<File> getCatalogPath();
 
 	/**
-	 * The required gradle task input list of input file extensions;
-	 *         owl by default, options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss
+	 * List of input file extensions (Optional, owl by default
+	 * 		 options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss)
 	 *         
 	 * @return List of Strings Proprty
 	 */
@@ -51,7 +51,7 @@ public abstract class OwlReasonTask extends DefaultTask {
 	public abstract ListProperty<String> getInputFileExtensions();
 
 	/**
-	 * The required gradle task input list of output ontologies for different sets of entailment statement types.
+	 * List of specifications for output ontologies having specific entailment statement types (format is IRI=statement-types)
 	 * 
 	 * @return List of Strings Property
 	 */
@@ -59,7 +59,7 @@ public abstract class OwlReasonTask extends DefaultTask {
 	public abstract ListProperty<String> getSpecs();
 
 	/**
-	 * The optional gradle task output string property for the reasoner entailment results (default is ttl).
+	 * File extension for the output files containing ontology entailment (default is ttl).
 	 *         options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss
 	 *         
 	 * @return String Property
@@ -69,7 +69,7 @@ public abstract class OwlReasonTask extends DefaultTask {
     public abstract Property<String> getOutputFileExtension();
 
 	/**
-	 * The required gradle task input string property for the ontology IRI.
+	 * The required gradle task input string property for the ontology IRI (Optional)
 	 * 
 	 * @return String Property
 	 */
@@ -77,7 +77,7 @@ public abstract class OwlReasonTask extends DefaultTask {
 	public abstract Property<String> getInputOntologyIri();
 
 	/**
-	 * The optional gradle task input string property for the reasoner explanation format (default is owl).
+	 * Reasoner explanation format (Optional, default is owl).
 	 *         options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss
 	 *         
 	 * @return String Property
@@ -87,7 +87,7 @@ public abstract class OwlReasonTask extends DefaultTask {
 	public abstract Property<String> getExplanationFormat();
 
 	/**
-	 * The optional gradle task input boolean property for using the unique name assumption while reasoning
+	 * Use unique name assumption while reasoning (Optional, false by default)
 	 * 
 	 * @return Boolean Property
 	 */
@@ -96,7 +96,7 @@ public abstract class OwlReasonTask extends DefaultTask {
 	public abstract Property<Boolean> getUniqueNames();
 
 	/**
-	 * The required gradle task output file property for the reasoner reports.
+	 * Path of reasoner reports (Required).
 	 * 
 	 * @return RegularFile Property
 	 */
@@ -104,7 +104,7 @@ public abstract class OwlReasonTask extends DefaultTask {
 	public abstract RegularFileProperty getReportPath();
 
 	/**
-	 * The optional txt file listing all analyzed ontology IRIs (one per line).
+	 * Path of an output (txt) file containing all ontology IRIs in the dataset (one per line) (Optional).
 	 * 
 	 * @return RegularFile Property
 	 */
@@ -113,7 +113,7 @@ public abstract class OwlReasonTask extends DefaultTask {
 	public abstract Property<File> getOutputOntologyIrisPath();
 
 	/**
-	 * The optional gradle task input boolean property for removing entailments due to unsatisfiability (default is true).
+	 * Whether to remove entailments due to unsatisfiability (Optional, default is true).
 	 * 
 	 * @return Boolean Property
 	 */
@@ -122,7 +122,7 @@ public abstract class OwlReasonTask extends DefaultTask {
 	public abstract Property<Boolean> getRemoveUnsats();
 
 	/**
-	 * The optional gradle task input boolean property for checking minimum cardinality restrictions (default is true).
+	 * Whether to check minimum cardinality restrictions (default is true).
 	 * 
 	 * @return Boolean Property
 	 */
@@ -131,7 +131,7 @@ public abstract class OwlReasonTask extends DefaultTask {
 	public abstract Property<Boolean> getCheckMinimumCardinality();
 
 	/**
-	 * The optional gradle task input boolean property for removing the backbone ontology (default is true).
+	 * Whether to remove the backbone ontology (default is true).
 	 * 
 	 * @return Boolean Proeprty
 	 */
@@ -140,7 +140,7 @@ public abstract class OwlReasonTask extends DefaultTask {
 	public abstract Property<Boolean> getRemoveBackbone();
 
 	/**
-	 * The optional gradle task backbone ontology input property (default is http://opencaesar.io/oml).
+	 * IRI of the backbone ontology (Optional, default is http://opencaesar.io/oml).
 	 * 
 	 * @return String Property
 	 */
@@ -149,7 +149,7 @@ public abstract class OwlReasonTask extends DefaultTask {
 	public abstract Property<String> getBackboneIri();
 
 	/**
-	 * The optional gradle task indent property (default is 2).
+	 * Length of the indent property (Optional, default is 2).
 	 * 
 	 * @return Integer Property
 	 */
@@ -158,7 +158,7 @@ public abstract class OwlReasonTask extends DefaultTask {
 	public abstract Property<Integer> getIndent();
 
 	/**
-	 * The optional gradle task omit explanations property (default is false).
+	 * Whether to omit explanations (Optional, default is false).
 	 * 
 	 * @return Integer Property
 	 */
@@ -167,7 +167,7 @@ public abstract class OwlReasonTask extends DefaultTask {
 	public abstract Property<Boolean> getOmitExplanations();
 
 	/**
-	 * The optional gradle task debug property (default is false).
+	 * Whether to enable debugging (Optional, default is false).
 	 * 
 	 * @return Boolean Property
 	 */

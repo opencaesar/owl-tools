@@ -1,6 +1,6 @@
 subprojects {
 	group = 'io.opencaesar.owl'
-	version = '2.10.0'
+	version = '2.11.0'
 	
 	ext.versions = [
 		owl: '5.1.17',
@@ -30,8 +30,8 @@ subprojects {
 	apply plugin: 'idea'
 	apply from: "${rootDir}/gradle/maven-deployment.gradle"
 		
-	sourceCompatibility = '17'
-	targetCompatibility = '17'
+	sourceCompatibility = '11'
+	targetCompatibility = '11'
 
 	java {
 	    withJavadocJar()

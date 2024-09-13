@@ -16,5 +16,8 @@ dependencies {
 	implementation "net.sourceforge.plantuml:plantuml:${versions.plantuml}"
 	implementation "org.jsoup:jsoup:${versions.jsoup}"
 	implementation "org.jgrapht:jgrapht-core:${versions.jgrapht}"
-	
- } 
+}
+
+sourceCompatibility = '17'
+targetCompatibility = '17'
+ 
