@@ -323,8 +323,13 @@ public class OwlLoadApp {
 
     private Collection<String> getLoadedIris(RDFConnection conn) {
         var iris = new HashSet<String>();
-        var rs = conn.query("select ?g { graph ?g { ?o a <http://www.w3.org/2002/07/owl#Ontology> } }").execSelect();
-        rs.forEachRemaining(s -> iris.add(s.getResource("g").getURI()));
+        try {
+	        var rs = conn.query("select ?g { graph ?g { ?o a <http://www.w3.org/2002/07/owl#Ontology> } }").execSelect();
+	        rs.forEachRemaining(s -> iris.add(s.getResource("g").getURI()));
+        } catch(Exception e) {
+       		LOGGER.error("Error accessing endpoint "+endpointURL+"/"+queryService+": "+e.getMessage());
+    		throw e;
+        }
         return iris;
     }
 
@@ -403,8 +408,8 @@ public class OwlLoadApp {
 
     private void loadToDefault(RDFConnection conn, OwlCatalog catalog, String iri) {
         LOGGER.info("Loading "+iri);
-        String documentIRI = catalog.resolveURI(iri);
-        String documentFile = new File(URI.create(documentIRI)).toString();
+        String documentURI = catalog.resolveURI(iri);
+        String documentFile = new File(URI.create(documentURI)).toString();
         try {
             Lang lang = RDFLanguages.filenameToLang(documentFile);
             if (RDFLanguages.isQuads(lang)) {
@@ -416,7 +421,7 @@ public class OwlLoadApp {
             }
             conn.commit();
         } catch (Exception e) {
-            throw new RuntimeException("Error occurred loading ontology '" + documentIRI + "' to default graph: "+e.getMessage(), e);
+            throw new RuntimeException("Error loading '" + documentURI + "' to default graph: "+e.getMessage(), e);
         }
     }
 
@@ -432,8 +437,8 @@ public class OwlLoadApp {
 
     private void put(RDFConnection conn, OwlCatalog catalog, String iri) {
         LOGGER.info("Loading " + iri);
-        String documentIRI = catalog.resolveURI(iri);
-        String documentFile = new File(URI.create(documentIRI)).toString();
+        String documentURI = catalog.resolveURI(iri);
+        String documentFile = new File(URI.create(documentURI)).toString();
         try {
             Lang lang = RDFLanguages.filenameToLang(documentFile);
             if (RDFLanguages.isQuads(lang)) {
@@ -443,7 +448,7 @@ public class OwlLoadApp {
             }
             conn.commit();
         } catch (Exception e) {
-            throw new RuntimeException("Error loading graph '" + documentIRI + "'", e);
+            throw new RuntimeException("Error loading '" + documentURI + "' to named graph: "+e.getMessage(), e);
         }
     }
 
@@ -453,7 +458,7 @@ public class OwlLoadApp {
             conn.delete(iri);
             conn.commit();
         } catch (Exception e) {
-            throw new RuntimeException("Error unloading graph '" + iri + "'", e);
+            throw new RuntimeException("Error unloading graph '" + iri + "': "+e.getMessage(), e);
         }
     }
 
