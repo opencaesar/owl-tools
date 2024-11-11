@@ -119,69 +119,59 @@ public class OwlDocApp {
 			names = { "--input-catalog-path", "-c"},
 			description = "path to the input OWL catalog (Required)",
 			validateWith = CatalogPathValidator.class,
-			required = true,
-			order = 1)
+			required = true)
 		private String inputCatalogPath;
 		
 		@Parameter(
 			names={"--input-catalog-title", "-t"}, 
-			description="Title of OML input catalog (Optional)", 
-			order=2)
+			description="Title of OML input catalog (Optional)")
 		private String inputCatalogTitle = "OWL Ontology Index";
 
 		@Parameter(
 			names={"--input-catalog-version", "-v"}, 
-			description="Version of OML input catalog (Optional)", 
-			order=3)
+			description="Version of OML input catalog (Optional)")
 		private String inputCatalogVersion = "";
 			
 		@Parameter(
 			names = { "--input-ontology-iri", "-i"},
-			description = "iri of input OWL ontology (Optional, by default all ontologies in catalog)",
-			order = 4)
+			description = "iri of input OWL ontology (Optional, by default all ontologies in catalog)")
 		private List<String> inputOntologyIris = new ArrayList<>();
 				
 		@Parameter(
 			names = {"--input-file-extension", "-e"},
 			description = "input file extension (owl and ttl by default, options: owl, rdf, xml, rj, ttl, n3, nt, trig, nq, trix, jsonld, fss)",
-			validateWith = FileExtensionValidator.class,
-			order = 5)
+			validateWith = FileExtensionValidator.class)
 	    private List<String> inputFileExtensions = new ArrayList<>(Arrays.asList(DEFAULT_EXTENSIONS));
 		
 		@Parameter(
 			names= { "--output-folder-path", "-o" }, 
 			description="Path of Bikeshed output folder", 
 			validateWith=OutputFolderPathValidator.class, 
-			required=true, 
-			order=6)
+			required=true)
 		private String outputFolderPath = ".";
 
 		@Parameter(
 			names= { "--output-case-sensitive","-s" }, 
 			description="Whether output paths are case sensitive", 
-			help=true, 
-			order=7)
+			help=true)
 		private boolean outputCaseSensitive;
 			
 		@Parameter(
 			names= { "--css-file-path","-css" }, 
 			description="Path of a css file", 
 			converter = URLConverter.class,
-			help=true, 
-			order=8)
+			help=true)
 		private URL cssFilePath = OwlDocApp.class.getClassLoader().getResource(CSS_DEFAULT);
 
 		@Parameter(
 			names = {"--debug", "-d"},
-			description = "Shows debug logging statements",
-			order=9)
+			description = "Shows debug logging statements")
 		private boolean debug;
 		
 		@Parameter(
 			names = {"--help", "-h"},
 			description = "Displays summary of options",
-			help = true,
-			order=10)
+			help = true)
 		private boolean help;
 	}
 
@@ -207,9 +197,13 @@ public class OwlDocApp {
 			datatypeProperties = sortByName(ontModel.listDatatypeProperties().toList());
 			individuals = sortByName(ontModel.listIndividuals().toList());
 			
-			// Treat the DC terms ontology as other standard ontologies to avoid clutter
+			// Ignore DC elements to avoid clutter
 			ontologies.removeIf(i -> i.hasURI("http://purl.org/dc/elements/1.1"));
 			annotationProperties.removeIf(i -> i.getURI().startsWith("http://purl.org/dc/elements/1.1"));
+
+			// Ignore OML to avoid clutter
+			ontologies.removeIf(i -> i.hasURI("http://opencaesar.io/oml"));
+			annotationProperties.removeIf(i -> i.getURI().startsWith("http://opencaesar.io/oml"));
 		}
 
 		private boolean hasTerms(Ontology o) {
@@ -1033,34 +1027,34 @@ public class OwlDocApp {
 	private String getClassImage(String contextFilePath, OntClass ontClass) {
 		String thisClass = String.format(
 				"""
-				class %s [[%s]]
+				class "%s" [[%s]]
 				""",
-				ontClass.getLocalName(),
+				abbreviatedIri(ontClass),
 				path(contextFilePath, ontClass.getURI()));
 		
 		
 		var superClasses = String.join("\n", ontClass.listSuperClasses(true).filterKeep(i -> i.isURIResource()).mapWith(i -> String.format(
 				"""
-				class %s [[%s]]
-				%s -up-|> %s
+				class "%s" [[%s]]
+				"%s" -up-|> "%s"
 				""",
-				i.getLocalName(),
+				abbreviatedIri(i),
 				path(contextFilePath, ontClass.getURI()),
-				ontClass.getLocalName(),
-				i.getLocalName()
+				abbreviatedIri(ontClass),
+				abbreviatedIri(i)
 		)).toList());
 
 		var subClasses = String.join("\n", ontClass.listSubClasses(true).filterKeep(i -> i.isURIResource()).mapWith(i -> String.format(
 				"""
-				class %s [[%s]]
-				hide %s members
-				%s -up-|> %s
+				class "%s" [[%s]]
+				hide "%s" members
+				"%s" -up-|> "%s"
 				""",
-				i.getLocalName(),
+				abbreviatedIri(i),
 				path(contextFilePath, ontClass.getURI()),
-				i.getLocalName(),
-				i.getLocalName(),
-				ontClass.getLocalName()
+				abbreviatedIri(i),
+				abbreviatedIri(i),
+				abbreviatedIri(ontClass)
 		)).toList());
 
 		return plantUmlImage(thisClass+superClasses+subClasses);
