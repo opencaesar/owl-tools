@@ -1,20 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>owl-shacl-fuseki</name>
-	<comment>A tool to execute a set of SHACL queries on a given Fuseki+SHACL dataset</comment>
-	<projects/>
-	<natures>
-		<nature>org.eclipse.jdt.core.javanature</nature>
-		<nature>org.eclipse.buildship.core.gradleprojectnature</nature>
-	</natures>
+	<name>owl-shacl-gradle</name>
+	<comment>Project owl-shacl-gradle created by Buildship.</comment>
+	<projects>
+	</projects>
 	<buildSpec>
 		<buildCommand>
 			<name>org.eclipse.jdt.core.javabuilder</name>
-			<arguments/>
+			<arguments>
+			</arguments>
 		</buildCommand>
 		<buildCommand>
 			<name>org.eclipse.buildship.core.gradleprojectbuilder</name>
-			<arguments/>
+			<arguments>
+			</arguments>
 		</buildCommand>
 	</buildSpec>
 	<natures>

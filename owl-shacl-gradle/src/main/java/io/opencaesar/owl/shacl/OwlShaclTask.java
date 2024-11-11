@@ -1,4 +1,4 @@
-package io.opencaesar.owl.shacl.fuseki;
+package io.opencaesar.owl.shacl;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,18 +20,18 @@ import org.gradle.api.tasks.TaskAction;
 import org.gradle.work.Incremental;
 
 /**
- * Gradle task for querying a fuseki endpoint using *.shacl queries.
+ * Gradle task for running SHACLE rules on a dataset
  */
-public abstract class OwlShaclFusekiTask extends DefaultTask {
+public abstract class OwlShaclTask extends DefaultTask {
 
 	/**
-	 * Creates a new OwlShaclFusekiTask object
+	 * Creates a new OwlShaclTask object
 	 */
-	public OwlShaclFusekiTask() {
+	public OwlShaclTask() {
 	}
 
 	/**
-	 * The required gradle task input Fuseki endpoint URL.
+	 * The required gradle task input endpoint URL.
 	 * 
 	 * @return String Property
 	 */
@@ -97,7 +97,7 @@ public abstract class OwlShaclFusekiTask extends DefaultTask {
 	@SuppressWarnings("deprecation")
 	protected ConfigurableFileCollection getOutputFiles() throws IOException {
 		if (getQueryPath().isPresent() && getResultPath().isPresent()) {
-			String extension = OwlShaclFusekiApp.OUTPUT_FORMAT;
+			String extension = OwlShaclApp.OUTPUT_FORMAT;
 			final List<File> outputFiles = new ArrayList<>();
 			if (getQueryPath().get().isFile()) {
 				outputFiles.add(replacePathAndExtension(getQueryPath().get(), getResultPath().get(), extension));
@@ -140,7 +140,7 @@ public abstract class OwlShaclFusekiTask extends DefaultTask {
 			args.add("-d");
 		}
 		try {
-			OwlShaclFusekiApp.main(args.toArray(new String[0]));
+			OwlShaclApp.main(args.toArray(new String[0]));
 		} catch (Exception e) {
 			throw new GradleException(e.getLocalizedMessage(), e);
 		}

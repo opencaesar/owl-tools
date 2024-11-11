@@ -1,22 +1,22 @@
-# OWL Shacl Fuseki
+# OWL Shacl
 
 [![Release](https://img.shields.io/github/v/tag/opencaesar/owl-tools?label=release)](https://github.com/opencaesar/owl-tools/releases/latest)
 
-A tool to execute a SHACL query on a given Fuseki+SHACL endpoint. 
+A tool to execute SHACL rules on a given dataset. 
 
 ## Run as CLI
 
 MacOS/Linux:
 ```
-./gradlew owl-shacl-fuseki:run --args="..."
+./gradlew owl-shacl:run --args="..."
 ```
 Windows:
 ```
-gradlew.bat owl-shacl-fuseki:run --args="..."
+gradlew.bat owl-shacl:run --args="..."
 ```
 Args:
 ```
--e | --endpoint-url http://fusekiURL/databaseName [Required]
+-e | --endpoint-url http://URL/databaseName [Required]
 -s | --shacl-service shacl [Optional, default is 'shacl')
 -q | --query-path path/to/queries.shacl [Required]
        (Accepts either a .shacl file or a directory that will be searched for .shacl files)
@@ -35,10 +35,10 @@ buildscript {
   		mavenCentral()
 	}
 	dependencies {
-		classpath 'io.opencaesar.owl:owl-shacl-fuseki-gradle:+'
+		classpath 'io.opencaesar.owl:owl-shacl-gradle:+'
 	}
 }
-task owlShaclFuseki(type:io.opencaesar.owl.query.OwlShaclFusekiTask) {
+task owlShacl(type:io.opencaesar.owl.query.OwlShaclßTask) {
 	endpointURL = 'url-of-sparql-endpoint' [Required]
 	shaclService = 'shacl' [Optional, default='shacl']
 	queryPath = file('path/to/queries.shacl') [Required, path to file or folder]

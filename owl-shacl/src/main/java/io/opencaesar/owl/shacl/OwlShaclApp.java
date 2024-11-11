@@ -14,7 +14,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  */
-package io.opencaesar.owl.shacl.fuseki;
+package io.opencaesar.owl.shacl;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -51,9 +51,9 @@ import com.beust.jcommander.ParameterException;
 import com.github.jsonldjava.shaded.com.google.common.base.Suppliers;
 
 /**
- * Utility for querying a Fuseki server using SHACL queries.
+ * Utility for validating a dataset in a triple store
  */
-public class OwlShaclFusekiApp {
+public class OwlShaclApp {
 
 	@Parameter(
 		names = { "--endpoint-url", "-e" },
@@ -105,18 +105,18 @@ public class OwlShaclFusekiApp {
 	public static String OUTPUT_FORMAT = "ttl";
 
 
-	private final Logger LOGGER = Logger.getLogger(OwlShaclFusekiApp.class);
+	private final Logger LOGGER = Logger.getLogger(OwlShaclApp.class);
 	static {
 		DOMConfigurator.configure(ClassLoader.getSystemClassLoader().getResource("log4j.xml"));
 	}
 
 	/**
-	 * Application for querying a Fuseki server.
+	 * Application for querying a server.
 	 * @param args Application arguments.
 	 * @throws Exception Error
 	 */
 	public static void main(final String... args) throws Exception {
-		final OwlShaclFusekiApp app = new OwlShaclFusekiApp();
+		final OwlShaclApp app = new OwlShaclApp();
 		final JCommander builder = JCommander.newBuilder().addObject(app).build();
 		builder.parse(args);
 		if (app.help) {
@@ -131,9 +131,9 @@ public class OwlShaclFusekiApp {
 	}
 
 	/**
-	 * Creates a new OwlShaclFusekiApp object
+	 * Creates a new OwlShaclApp object
 	 */
-	public OwlShaclFusekiApp() {
+	public OwlShaclApp() {
 	}
 
 	private void run() throws Exception {
