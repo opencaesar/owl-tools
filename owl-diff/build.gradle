@@ -1,9 +1,11 @@
-apply plugin: 'application'
-
 ext.title = 'OWL Diff'
 description = 'A tool to calculate the diff between two OWL catalogs'
-mainClassName = 'io.opencaesar.owl.diff.OwlDiffApp'
-applicationName = 'owl-diff'
+
+apply plugin: 'application'
+application {
+	applicationName = 'owl-diff'
+	mainClass = 'io.opencaesar.owl.diff.OwlDiffApp'
+}
 
 dependencies {
 	implementation "com.beust:jcommander:${versions.jcommander}"

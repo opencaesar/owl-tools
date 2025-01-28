@@ -1,9 +1,11 @@
-apply plugin: 'application'
-
 ext.title = 'OWL Save'
 description = 'A tool to save a set of OWL files from a SPARQL endpoint'
-mainClassName = 'io.opencaesar.owl.save.OwlSaveApp'
-applicationName = 'owl-save'
+
+apply plugin: 'application'
+application {
+	applicationName = 'owl-save'
+	mainClass = 'io.opencaesar.owl.save.OwlSaveApp'
+}
 
 // Note: This library uses the OpenJDK XML Catalog API implementation instead of the old Apache XML Catalog library.
 

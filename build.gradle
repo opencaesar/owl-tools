@@ -30,10 +30,9 @@ subprojects {
 	apply plugin: 'idea'
 	apply from: "${rootDir}/gradle/maven-deployment.gradle"
 		
-	sourceCompatibility = '11'
-	targetCompatibility = '11'
-
 	java {
+		sourceCompatibility = JavaVersion.VERSION_11
+		targetCompatibility = JavaVersion.VERSION_11
 	    withJavadocJar()
 	    withSourcesJar()
 	}

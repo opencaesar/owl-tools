@@ -1,9 +1,11 @@
-apply plugin: 'application'
-
 ext.title = 'OWL Reason'
 description = 'A tool to run a DL reasoner on an OWL catalog'
-mainClassName = 'io.opencaesar.owl.reason.OwlReasonApp'
-applicationName = 'owl-reason'
+
+apply plugin: 'application'
+application {
+	applicationName = 'owl-reason'
+	mainClass = 'io.opencaesar.owl.reason.OwlReasonApp'
+}
 
 dependencies {
 	implementation "com.beust:jcommander:${versions.jcommander}"

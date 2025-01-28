@@ -1,9 +1,11 @@
-apply plugin: 'application'
-
 ext.title = 'OWL Fuseki'
 description = 'A tool to start/stop a background fuseki server.'
-mainClassName = 'io.opencaesar.owl.fuseki.OwlFusekiApp'
-applicationName = 'owl-fuseki'
+
+apply plugin: 'application'
+application {
+	applicationName = 'owl-fuseki'
+	mainClass = 'io.opencaesar.owl.fuseki.OwlFusekiApp'
+}
 
 dependencies {
 	implementation "com.beust:jcommander:${versions.jcommander}"

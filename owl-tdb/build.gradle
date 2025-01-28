@@ -1,9 +1,11 @@
-apply plugin: 'application'
-
 ext.title = 'OWL TDB'
 description = 'A tool to load a set of OWL files to a TDB dataset'
-mainClassName = 'io.opencaesar.owl.tdb.OwlTdbApp'
-applicationName = 'owl-tdb'
+
+apply plugin: 'application'
+application {
+	applicationName = 'owl-tdb'
+	mainClass = 'io.opencaesar.owl.tdb.OwlTdbApp'
+}
 
 dependencies {
 	implementation "com.beust:jcommander:${versions.jcommander}"

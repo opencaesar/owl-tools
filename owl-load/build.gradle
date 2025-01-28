@@ -1,9 +1,10 @@
-apply plugin: 'application'
-
 ext.title = 'OWL Load'
 description = 'A tool to load a set of OWL files to a SPARQL endpoint'
-mainClassName = 'io.opencaesar.owl.load.OwlLoadApp'
-applicationName = 'owl-load'
+apply plugin: 'application'
+application {
+	applicationName = 'owl-load'
+	mainClass = 'io.opencaesar.owl.load.OwlLoadApp'
+}
 
 // Note: This library uses the OpenJDK XML Catalog API implementation instead of the old Apache XML Catalog library.
 

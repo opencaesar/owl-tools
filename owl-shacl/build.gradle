@@ -1,9 +1,11 @@
-apply plugin: 'application'
-
 ext.title = 'OWL SHACL'
 description = 'A tool to execute a set of SHACL rules on a given dataset'
-mainClassName = 'io.opencaesar.owl.query.OwlShaclApp'
-applicationName = 'owl-shacl'
+
+apply plugin: 'application'
+application {
+	applicationName = 'owl-shacl'
+	mainClass = 'io.opencaesar.owl.query.OwlShaclApp'
+}
 
 dependencies {
 	implementation "com.beust:jcommander:${versions.jcommander}"
