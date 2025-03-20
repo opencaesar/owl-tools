@@ -350,8 +350,8 @@ public class OwlDocApp {
 			   <head>
 			      <title>Ontology Documentation</title>
 			   </head>
-			   <frameset cols="30%,70%" title="" onLoad="top.loadFrames()">
-			      <frameset rows="40%,60%" title="" onLoad="top.loadFrames()">
+			   <frameset cols="30%,70%" title="">
+			      <frameset rows="40%,60%" title="">
 			         <frame src="navigation.html" title="Navigation">
 			         <frame src="classes.html" name="navigationFrame" title="Elements">
 			      </frameset>
@@ -371,7 +371,7 @@ public class OwlDocApp {
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");  
 	    LocalDateTime now = LocalDateTime.now();  
 	    var timestamp = dtf.format(now); 
-	    var image = getOntologiesImage(CSS_DEFAULT, owlModel);
+	    var image = getOntologiesImage(path, owlModel);
 
 		content.append(String.format(
 			"""
@@ -384,7 +384,26 @@ public class OwlDocApp {
 		          <h1>%s v%s</h1>
 		          <p class="date">Updated on: %s</p>
 		          <hr>
-			      <img src="http://www.plantuml.com/plantuml/svg/%s"/>
+				  <div id="svg-container"></div>
+				  <script>
+				    document.addEventListener('DOMContentLoaded', function() {
+						const svgUrl = "http://www.plantuml.com/plantuml/svg/%s";
+				        fetch(svgUrl)
+				          .then(response => {
+				            if (!response.ok) {
+				              throw new Error('Network response was not ok');
+				            }
+				            return response.text();
+				          })
+				          .then(svg => {
+				              const modifiedSvg = svg.replace(/target="_top"/g, 'target="mainFrame"');
+							  document.getElementById("svg-container").innerHTML = modifiedSvg;
+				          })
+				          .catch(error => {
+				            console.error("Error fetching the SVG image:", error);
+				          });
+				      });
+				    </script>
 			   </body>
 			</html>
 			""",
@@ -414,7 +433,9 @@ public class OwlDocApp {
 				"""
 				<tr>
 				   <td><img border="0" src="%s" width="16" height="16"></td>
-				   <td nowrap="nowrap"><a href="%s" target="navigationFrame">%s</a></td>
+				   <td nowrap="nowrap">
+				   <a href="%s" target="navigationFrame">%s</a>
+				   </td>
 				</tr>
 				""", 
 				IMG_ONTOLOGY,
@@ -437,6 +458,7 @@ public class OwlDocApp {
 						  <link rel="stylesheet" href="%s">
 					   </head>
 					   <body>
+					   	  <h3>Ontology</h3>
 					      <p><a href="%s" target="mainFrame">%s</a></p>
 						  %s
 						  %s
@@ -444,6 +466,9 @@ public class OwlDocApp {
 						  %s
 						  %s
 						  %s
+					      <script>
+					         window.parent.frames['mainFrame'].location.href = '%s';
+					      </script>
 					   </body>
 					</html>
 					""",
@@ -456,7 +481,8 @@ public class OwlDocApp {
 					annotationProperties,
 					datatypeProperties,
 					objectProperties,
-					individuals
+					individuals,
+					getRelativePath(path2, path1)
 				));
 				files.put(new File(path2).getCanonicalFile(), content1.toString());
 
@@ -490,6 +516,7 @@ public class OwlDocApp {
 				  <link rel="stylesheet" href="%s">
 			   </head>
 			   <body>
+					 <a href="index.html" target="_top"><svg xmlns="http://www.w3.org/2000/svg" width="50px" height="50px" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="evenodd" clip-rule="evenodd" viewBox="0 0 512 473.761"><path fill-rule="nonzero" d="M378.363 24.038h83.575c5.827 0 10.551 4.724 10.551 10.551v25.224c0 5.824-4.718 10.545-10.539 10.551v81.843l36.413 27.344a12.04 12.04 0 012.184 1.85c30.562 32.901-5.696 80.856-42.52 71.541v207.555c0 7.325-5.939 13.264-13.264 13.264H64.878c-7.325 0-13.265-5.939-13.265-13.264V252.146c-36.464 7.471-67.579-36.805-42.608-68.776a12.085 12.085 0 012.537-2.597L248.015 2.406c4.177-3.127 10.078-3.288 14.459 0l115.874 87.017V70.364c-5.822-.009-10.537-4.73-10.537-10.551V34.589c0-5.827 4.725-10.551 10.552-10.551z"/><path fill="#FED2A4" d="M378.363 34.589h83.574v25.225h-83.574V34.589zm-122.406 66.364l188.806 145.986v213.558H328.178v-128.58c0-20.177-8.252-38.528-21.541-51.816-28.544-28.545-75.086-28.545-103.63 0-13.289 13.288-21.541 31.633-21.541 51.816v128.58H64.878V247.066l191.079-146.113z"/><path fill="#BB5D4C" d="M18.794 190.379c-20.167 25.078 9.009 61.919 38.549 47.153L256.832 85.765l193.229 150.202c28.924 21.505 66.555-19.596 41.678-46.372L255.267 12.012 18.794 190.379zm240.569 78.395c32.721 2.349 58.765 29.857 58.765 63.143V354.5h-58.765v-85.726zm58.765 94.804v97.317h-58.765v-97.317h58.765zm-67.844 97.317h-58.768v-97.317h58.768v97.317zM191.516 354.5v-22.583c0-33.293 26.047-60.794 58.768-63.143V354.5h-58.768zM451.398 70.364v73.92l-62.499-46.938V70.364h62.499z"/><path d="M254.82 163.455c14.177 0 25.67 11.49 25.67 25.67 0 14.176-11.493 25.669-25.67 25.669-14.179 0-25.669-11.493-25.669-25.669 0-14.18 11.49-25.67 25.669-25.67z"/><path fill="#F2AF7C" d="M257.23 100.546l17.229 14.334L90.132 255.989l-3.34 204.508H63.784l1.094-213.434z"/><path fill="#99473A" d="M18.794 190.379c-15.914 23.528.939 31.801 30.48 17.035l206.71-155.239V12.55l-.717-.538L18.794 190.379z"/></svg></a>
 			         <h3>Index</h3>
 			         &nbsp;<a href="class-hierarchy.html" target="navigationFrame">Class Hierarchy</a><br>
 			         &nbsp;<a href="classes.html" target="navigationFrame">All Classes</a><br>
@@ -586,7 +613,26 @@ public class OwlDocApp {
 				   </head>
 				   <body>
 			          <h2><font size="-1">%s</font><br>Class %s</h2>
-			          <img src="http://www.plantuml.com/plantuml/svg/%s"/>
+					  <div id="svg-container"></div>
+					  <script>
+					    document.addEventListener('DOMContentLoaded', function() {
+							const svgUrl = "http://www.plantuml.com/plantuml/svg/%s";
+					        fetch(svgUrl)
+					          .then(response => {
+					            if (!response.ok) {
+					              throw new Error('Network response was not ok');
+					            }
+					            return response.text();
+					          })
+					          .then(svg => {
+					              const modifiedSvg = svg.replace(/target="_top"/g, 'target="mainFrame"');
+								  document.getElementById("svg-container").innerHTML = modifiedSvg;
+					          })
+					          .catch(error => {
+					            console.error("Error fetching the SVG image:", error);
+					          });
+					      });
+					    </script>
 			          <hr>
 			          %s
 			          %s
@@ -1039,7 +1085,7 @@ public class OwlDocApp {
 				"%s" -up-|> "%s"
 				""",
 				abbreviatedIri(i),
-				path(contextFilePath, ontClass.getURI()),
+				path(contextFilePath, i.getURI()),
 				abbreviatedIri(ontClass),
 				abbreviatedIri(i)
 		)).toList());
@@ -1051,7 +1097,7 @@ public class OwlDocApp {
 				"%s" -up-|> "%s"
 				""",
 				abbreviatedIri(i),
-				path(contextFilePath, ontClass.getURI()),
+				path(contextFilePath, i.getURI()),
 				abbreviatedIri(i),
 				abbreviatedIri(i),
 				abbreviatedIri(ontClass)
@@ -1078,9 +1124,11 @@ public class OwlDocApp {
 			graph.addVertex(i);
 			return String.format(
 				"""
-				package "%s" {}
+				package "%s" [[%s]] {
+				}
 				""",
-				i.getURI());
+				i.getURI(),
+				path(contextFilePath, i.getURI()));
 		}).toList());
 
 		owlModel.ontologies.stream().forEach(i -> i.listImports().filterKeep(k -> owlModel.ontologies.contains(k)).mapWith(k -> k.asOntology()).forEach(j -> {
